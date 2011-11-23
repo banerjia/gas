@@ -1,0 +1,16 @@
+fieldset.form_sections { border: 2px solid #ccc }
+
+div.buttons { background-color: transparent; display:block; margin: 1em 0; padding: 0.5em 0 }
+a.button {color: #000;display:inline-block; }
+div.buttons input, a.button:link, a.button:visited {
+	border: 2px solid #ccc;
+	background-color: #eee;
+	margin-left:0;
+	margin-right: 1em;
+	padding:0.3em;
+	text-align: center;
+	text-decoration: none;
+	min-width: 7em;
+}
+	
+div.buttons input:hover, a.button:hover { background-color: #fff }

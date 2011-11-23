@@ -1,0 +1,70 @@
+<% content_for :head do %>
+	<%= stylesheet_link_tag "forms" %>
+	<style type="text/css">
+		fieldset.form_sections legend{
+			background-color:#eee;
+			border: 2px solid #ccc;
+			padding: 0.5em;
+			text-transform:uppercase;
+		}
+	</style>
+<% end %>
+
+<% content_for :body do %>
+	<%= form_for store do |f| %>
+	<fieldset class="form_sections">
+		<div class="entry_row">
+			<div class="entry_label">Name</div>
+			<div class="entry_value"><%= f.text_field :name %></div>		
+		</div>
+		<div class="entry_row">
+			<div class="entry_label">Store Number</div>
+			<div class="entry_value"><%= f.text_field :store_number %></div>		
+		</div>
+		<div class="entry_row">
+			<div class="entry_label">Company</div>
+			<div class="entry_value"><%= f.select :company_id, options_from_collection_for_select(companies, 'id', 'name', store[:company_id])%></div>		
+		</div>
+		<div class="entry_row">
+			<div class="entry_label">Street Address</div>
+			<div class="entry_value"><%= f.text_field :street_address %></div>
+		</div>
+		<div class="entry_row">
+			<div class="entry_label">Suite</div>
+			<div class="entry_value"><%= f.text_field :suite %></div>
+		</div>
+		<div class="entry_row">
+			<div class="entry_label">City</div>
+			<div class="entry_value"><%= f.text_field :city %></div>
+		</div>
+		<div class="entry_row">
+			<div class="entry_label">State</div>
+			<div class="entry_value"><%= f.select :state_code, options_from_collection_for_select(states, 'state_code', 'state_name', store[:state_code])%></div>
+		</div>
+		<div class="entry_row">
+			<div class="entry_label">Zipcode</div>
+			<div class="entry_value"><%= f.text_field :zip %></div>
+		</div>
+			<div class="entry_row">
+				<div class="entry_label">Country</div>
+				<div class="entry_value"><%= f.text_field :country %></div>
+			</div>
+		<div class="entry_row">
+			<div class="entry_label">Phone</div>
+			<div class="entry_value"><%= f.text_field :phone %></div>
+		</div>
+		<div class="entry_row">
+			<div class="entry_label">Date Added</div>
+			<div class="entry_value"><%= store[:created_at].strftime("%b %d, %Y") %></div>
+		</div>
+		<div class="entry_row">
+			<div class="entry_label">Last Updated On</div>
+			<div class="entry_value"><%= store[:updated_at].strftime("%b %d, %Y") %></div>
+		</div>
+		<div class="buttons">
+			<%= f.submit "Save Changes" %>
+			<%= link_to "Cancel", store_path(store), :class=> "button"%>
+		</div>
+	</fieldset>
+	<% end %>
+<% end %>

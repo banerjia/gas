@@ -1,0 +1,230 @@
+<% content_for :head do %>
+	<%= stylesheet_link_tag "table"%>
+	<%= stylesheet_link_tag "forms"%>
+	<style type="text/css" media="screen">	
+		div#sub_container{
+			text-align: left;
+			margin:0 auto;
+			width:70%;
+		}
+		
+		div.loading{
+			background-color:#eee;
+			background-image: url(<%= image_path("ajax-loader-fb.gif")%>);
+			background-position: 98% center;
+			background-repeat: no-repeat;
+			border:2px solid #ccc;
+			line-height: 2.2;
+			padding-left:0.3em;
+		}
+
+		table.listing {border-bottom:none;width:100%;}
+
+		table.listing tbody tr td {border-bottom:none}
+	</style>
+	<script type="text/javascript">
+		var current_section;
+		var state_listing;
+		var division_listing;
+		var jData_states = null;
+		var jData_divisions = null;
+		var loading_container = null;
+		var loading_message = null;
+		var default_loading_message = "Attempting to retrieve the information you requested";
+	
+		function switch_sections( target_section ){
+			var previous_section = $(current_section).attr("id");
+			var next_section = $(target_section).attr("id");
+			$(current_section).removeClass("current");
+			$(target_section).addClass("current");
+			current_section = $(target_section);
+		
+			previous_section = previous_section.substring( 0,previous_section.indexOf("_")) + "#" +
+							   previous_section.substring( previous_section.indexOf("_") + 1);
+			next_section = next_section.substring( 0, next_section.indexOf("_")) + "#" +
+						   next_section.substring(next_section.indexOf("_")+1);
+			$(previous_section).hide();
+			$(next_section).show();
+		
+		}
+
+		function populate_state_listing( states_array, tardisplay_table){
+			var number_of_states = states_array.length;
+			var state_link_prefix = '<%=stores_company_path(company)%>';
+			for( i = 0; i < number_of_states; i++){
+
+				// Generate link for list of stores in a state
+				// The following lines will result in the HTML code:
+				// <a href="/graeters/companies/999/stores/<state acronym>"> State Name </a>
+				var link_for_state = "<a href='" + 
+				state_link_prefix + "/" + states_array[i].state_code + 
+				"'>";
+				link_for_state += states_array[i].number_of_stores;
+				link_for_state += "</a>";
+
+				// Generating HTML code for table cells
+				var state_column = "<td>" + states_array[i].state_name + "</td>";
+				var stores_column = "<td>" + link_for_state + "</td>";
+
+				// Generating HTML code for the table row
+				var row_html = "<tr>" + 
+				state_column +
+				stores_column +
+				"</tr>";
+
+				// Appending the table row to the table
+				tardisplay_table.append( row_html );
+			}
+		}
+
+		function populate_division_listing( divisions_array, tardisplay_table){
+			var number_of_divisions = divisions_array.length;
+			var division_link_prefix = '<%=company_divisions_path(company)%>';
+			for( i = 0; i < number_of_divisions; i++){
+
+				// Generate link for list of stores in a state
+				// The following lines will result in the HTML code:
+				// <a href="/graeters/companies/999/stores/<state acronym>"> State Name </a>
+				var link_for_division = "<a href='" + 
+				division_link_prefix + "/" + divisions_array[i].id + 
+				"'>";
+				link_for_division += divisions_array[i].name;
+				link_for_division += "</a>";
+				
+				var link_for_stores = "<a href='" +
+					division_link_prefix + "/" + divisions_array[i].id + 
+					"/stores'>";
+				link_for_stores += divisions_array[i].stores_count;
+				link_for_stores += "</a>";
+
+				// Generating HTML code for table cells
+				var division_column = "<td>" + link_for_division + "</td>";
+				var stores_column = "<td>" + link_for_stores + "</td>";
+
+				// Generating HTML code for the table row
+				var row_html = "<tr>" + 
+				division_column +
+				stores_column +
+				"</tr>";
+
+				// Appending the table row to the table
+				tardisplay_table.append( row_html );
+			}
+		}
+
+		function get_state_listing(){
+			if(jData_states == null){
+				//if no data was previously fetch - fetch it
+				jQuery(loading_message).text(default_loading_message);
+				jQuery(loading_container).show();
+				jQuery.ajax({
+					url: '<%= company_states_path(company)%>',
+					dataType: "json",
+					success: function(data){
+						jData_states = data.states;
+						populate_state_listing( jData_states, state_listing );
+						jQuery(loading_container).fadeOut();
+					},
+					error: function(data){
+						jQuery(loading_message).html("We were unable to find the information. <a href='javascript:get_state_listing()'>Retry</a>.");
+					}
+				});
+			}
+		}
+		
+		function get_division_listing(){
+			if(jData_divisions == null){
+				jQuery(loading_container).show();
+				jQuery.ajax({
+					url: '<%= company_divisions_path(company)%>',
+					data: {"format":"json"},
+					dataType: "json",
+					success: function(data){
+						jData_divisions = data.divisions;
+						populate_division_listing( jData_divisions, division_listing);
+						jQuery(loading_container).fadeOut();
+					}
+				});
+			}
+		}
+
+		$(document).ready(function(){
+			state_listing = $("table#state_listing");
+			division_listing = $("table#division_listing");
+			setTimeout('$("p.warning,p.notice").fadeOut("fast")',5000);
+
+			// Hide all listings on first load
+			// Listings are shown when the corresponding
+			// links are clicked on the page. 
+			$("table.listing").hide();
+			$("ul.nav_items li").click(function(){
+				switch_sections( $(this) );
+			});
+			current_section = $("ul.nav_items li.current")[0];
+			loading_container = $("div.loading");
+			loading_message = $("span#loading_message",loading_container);
+			$(loading_container).hide();
+		})
+	</script>
+
+<% end %>
+<% content_for :left_column  do %>
+	<div class="toolbar">Tools</div> 
+	<ul class="nav_items">
+		<li class="current" id="div_company_information">Company Information</li>
+		<li id="table_state_listing" onclick="get_state_listing()">States with stores</li>
+		<% if !company.divisions.blank? %>
+		<li id="table_division_listing" onclick="get_division_listing()">Divisions</li>
+		<% end %>
+		<li><%= link_to "All Companies", companies_path%></li>
+	</ul>
+<% end %>
+<div id="company_information">
+	<div class="toolbar">
+		<input type="button" value="Edit" onclick="window.location='<%=edit_company_path(company)%>'" class="icon_buttons"/>
+	</div>
+	<div class="entry_row">
+		<div class="entry_label">Company</div>
+		<div class="entry_value" >
+			<%= company[:name]%>
+			
+		</div>
+	</div>
+	<div class="entry_row">
+		<div class="entry_label">Stores</div>
+		<div class="entry_value">
+			<%= company.stores.size%>
+		</div>
+	</div>
+	<div class="entry_row">
+		<div class="entry_label">Date Added</div>
+		<div class="entry_value"><%= company[:created_at].strftime("%b %d, %Y") unless company[:created_at].blank?%>&nbsp;</div>
+	</div>
+	<div class="entry_row">
+		<div class="entry_label">Last Updated</div>
+		<div class="entry_value"><%= company[:updated_at].strftime("%b %d, %Y") unless company[:updated_at].blank?%>&nbsp;</div>
+	</div>
+	<div class="spacer"></div>
+</div>
+
+<div class="loading">
+	<span id="loading_message">Getting information ..</span>
+</div>
+<table id="state_listing" class="listing">
+	<thead>
+		<tr>
+			<th scope="col">State</th>
+			<th scope="col">Stores</th>
+		</tr>
+	</thead>
+	<tbody/>
+</table>
+<table id="division_listing" class="listing">
+	<thead>
+		<tr>
+			<th scope="col">Divisions</th>
+			<th scope="col">Stores</th>
+		</tr>
+	</thead>
+	<tbody/>
+</table>

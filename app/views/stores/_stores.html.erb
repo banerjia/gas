@@ -1,0 +1,79 @@
+<% content_for :head do %>
+	<%= javascript_include_tag "dateformat" %>
+	<script type="text/javascript">
+		// Since first page is already loaded this causes the next call to start listing the second page
+		
+		var start_at = 10; 
+		var result_count = 11;
+		function load_more(){
+			$.ajax({
+				url: '<%=ajax_path%>',
+				data: {"start_at": start_at, "result_count" : result_count, "format" : "json"},
+				dataType: "json",
+				success: function(data){
+					if(parseInt(data.stores_found) < result_count ) $("table#store_listing tfoot").hide().remove();
+					var stores_found = parseInt(data.stores_found);
+					stores_found = (stores_found == result_count ? stores_found - 1: stores_found);
+					var stores = data.stores;
+					var table_body = $("table#store_listing tbody");
+					for( i = 0; i < stores_found; i++){
+						var store_information = "<td>" +
+													"<a href='<%=stores_path%>/" + stores[i].id + "'>" + stores[i].name + "</a><br/>" +
+													stores[i].street_address + ", " +
+													stores[i].city + ", " + 
+													stores[i].state_code + " - " +
+													stores[i].zip + 
+												"</td>";
+						var audit_information = "<td>&nbsp;</td>";
+
+						if(stores[i].last_audit)
+							audit_information = "<td><a href='<%=audits_path%>/" + stores[i].last_audit.id + "'>" + 
+													stores[i].last_audit.score + 
+													"</a><br/>" +
+													dateFormat(stores[i].last_audit.created_at,"mmm dd, yyyy") + 
+													"</td>";
+						
+							
+						table_body.append( "<tr>" + 
+											 store_information	+ 
+											 audit_information +
+										   "</tr>"					
+						);
+					}
+					start_at += result_count - 1;
+				}
+			})
+		}
+	</script>
+	<style type="text/css" media="screen">
+		table#store_listing { width: 100%;}
+	</style>
+<% end %>
+<table id="store_listing" class="listing">
+	<thead>
+		<tr>
+			<th scope="col">Store</th>
+			<th scope="col">Last Audit</th>
+		</th>
+	</thead>
+	<% if store_collection.length > 10 %>
+	<tfoot>
+		<tr>
+			<td colspan="2">
+				<a id="load_more_stores" onclick="load_more()">Get more stores ..</a>
+			</td>
+		</tr>
+	</tfoot>
+	<% end %>
+	<tbody id="page_1">
+		<% store_collection[0..9].each do |store|%>
+		<tr>
+			<td><%=link_to store[:name], store_path(store)%><br/><%=store.address%></td>
+			<td>
+				<%= !store.last_audit.blank? ? link_to(store.last_audit[:score],"#") : '&nbsp;'.html_safe%><br/>
+				<%= !store.last_audit.blank? ? store.last_audit[:created_at].strftime("%b %d, %Y") : '&nbsp;'.html_safe %>
+			</td>
+		</tr>
+		<% end %>
+	</tbody>
+</table>

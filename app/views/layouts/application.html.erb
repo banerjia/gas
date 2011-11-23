@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%=page_title%></title>
+  <link href='http://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'>
+  <%= stylesheet_link_tag "application"%>
+  <%= csrf_meta_tags %>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+  <style type="text/css" media="screen">
+	p.warning{
+		background-image: url(<%= image_path("warning_32x32.png")%>);
+	}
+
+	p.notice{
+		background-image: url(<%= image_path("notice_32x32.png")%> );
+	}
+	
+	ul.nav_items li.current {
+		background-image:url(<%= image_path("current_16x16.png")%>);
+		color: #000;
+		cursor:default;
+	}
+  </style>
+  <%= yield :head %>
+</head>
+<body>
+	<div id="wrapper">
+		<div id="page_header" class="page_blocks">
+			<h1><%=page_title %></h1>
+		</div>
+		<div id="page_body" class="page_blocks">
+			<% if !flash[:notice].blank?%>
+				<p class="notice"><%= flash[:notice]%></p>
+			<% end %>
+			<% if !flash[:warning].blank? %>
+				<p class="warning"><%=flash[:warning]%></p>
+			<% end %>
+			<%= yield :body %>
+		</div>
+	</div>
+</body>
+</html>

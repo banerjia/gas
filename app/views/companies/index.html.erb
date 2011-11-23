@@ -1,0 +1,39 @@
+<% content_for :head do %>
+	<%= stylesheet_link_tag "table"%>
+	<style type="text/css" media="screen">
+		table#company_listing {
+			border-bottom:none;
+			margin:auto;
+			text-align: left;
+			width: 100%;
+		}
+		table#company_listing th:last-child, table#company_listing td:last-child{ text-align:right}
+		div#page_body{ text-align: center;}
+	</style>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("div#left_column").remove();
+			$("div#right_column").css("float","none");
+			$("div#right_column").css("display","block");
+			$("div#right_column").css("margin-left","0");
+			$("div#right_column").css("width","auto");
+		});
+	</script>
+<% end %>
+
+<table id="company_listing" class="listing">
+	<thead>
+		<tr>
+			<th>Company</th>
+			<th>Stores</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% companies.each do |company| %>
+		<tr>
+			<td><%= link_to company[:name], company_path( company ) %></td>
+			<td class="cell-right-align"><%= link_to company.stores.size, stores_company_path( company ) %></td>
+		</tr>
+		<% end %>
+	</tbody>
+</table>

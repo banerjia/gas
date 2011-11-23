@@ -1,0 +1,36 @@
+<% content_for :head do %>
+	<style type="text/css" media="screen">
+		div#left_column, div#right_column{
+			border: 3px solid #ddd;
+			padding: 0.4em;
+		}
+		div#left_column{
+			border: none;
+			margin-left:0;
+			width:250px;
+		}
+		div#right_column{
+			float:right;
+			margin-right: 0;
+			width: 720px;
+		}
+	</style>
+	<script type="text/javascript">	
+		$(document).ready(function(){			
+			var min_height = Math.min( $("div#right_column").height(), $("div#left_column").height());
+			$("div#right_column, div#left_column").css("min-height", min_height+"px");
+		});
+	</script>
+<% end %>
+
+<% content_for :body do %>
+	<div id="right_column">
+		<%= yield %>
+	</div>
+	<div id="left_column">
+		<%= yield :left_column %>
+	</div>
+	<div class="spacer"></div>
+<% end %>
+
+<%= render :template => "layouts/application", :locals => {:page_title => page_title} %>

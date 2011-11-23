@@ -1,0 +1,60 @@
+<% content_for :head do %>
+	<%= stylesheet_link_tag "forms" %>
+	<%= stylesheet_link_tag "table" %>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("div#left_column").remove();
+			$("div#right_column").css("float","none");
+			$("div#right_column").css("display","block");
+			$("div#right_column").css("margin-left","0");
+			$("div#right_column").css("width","auto");
+		});
+	</script>
+<% end %>
+
+<%= form_for company, :url => company_path(company) do |f| %>
+	<div class="toolbar">
+		<%= f.submit "Save Changes", :class=> "icon_buttons"%>
+		<input type="button" onclick="window.location='<%=company_path%>'" value="Cancel" class="icon_buttons"/>
+		<% if !company[:updated_at].blank? %>
+		<span style="color:#000;float:right;line-height:2">
+			Last updated on: <%= company[:updated_at].strftime("%b %d, %Y") %>
+		</span>	
+		<% end %>	
+	</div>
+	<div class="entry_row">
+		<div class="entry_label">Name</div>
+		<div class="entry_value"><%= f.text_field :name %></div>
+	</div>
+	<table width="100%" class="listing">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Reassign</th>
+				<th>Remove</th>
+			</tr>
+		</thead>
+		<tbody>
+		<% company.divisions.each do |d|%>
+			<tr>
+			
+				<td>
+					<%= f.fields_for :divisions,d do |df| %>
+					<%= df.text_field :name%>					
+				</td>
+				<td>
+					<%= df.collection_select(:company_id, Company.all, :id,:name)%>
+				</td>
+				<td>
+					<a href="#">Remove</a>
+					<% end %>
+				</td>			
+			</tr>
+		<% end %>
+		</tbody>
+	</table>
+	<div class="toolbar">
+		<%= f.submit "Save Changes", :class=> "icon_buttons"%>
+		<input type="button" onclick="window.location='<%=company_path%>'" value="Cancel" class="icon_buttons"/>
+	</div>			
+<% end %>
