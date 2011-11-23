@@ -26,7 +26,6 @@
 		<div class="entry_label">Name</div>
 		<div class="entry_value"><%= f.text_field :name %></div>
 	</div>
-	<% if company.divisions.size > 0 %>
 	<table width="100%" class="listing">
 		<thead>
 			<tr>
@@ -57,6 +56,5 @@
 	<div class="toolbar">
 		<%= f.submit "Save Changes", :class=> "icon_buttons"%>
 		<input type="button" onclick="window.location='<%=company_path%>'" value="Cancel" class="icon_buttons"/>
-	</div>		
-	<% end %>
+	</div>			
 <% end %>
