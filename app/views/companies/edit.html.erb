@@ -10,6 +10,13 @@
 			$("div#right_column").css("width","auto");
 		});
 	</script>
+	<style type="text/css" media="screen">
+		table#division_listing thead tr th:first-child{ width: 10%;}
+		table#division_listing thead tr th:first-child + th {text-align:left;width:50%;}
+		table#division_listing thead tr th:last-child {text-align:center;}
+		div#right_column h2,table#division_listing caption {font-family:'Nobile',Sans-serif;margin-top:1.5em;font-size:14pt;font-weight:bold;}
+		
+	</style>
 <% end %>
 
 <%= form_for company, :url => company_path(company) do |f| %>
@@ -22,31 +29,38 @@
 		</span>	
 		<% end %>	
 	</div>
+	<h2>Basic Company Information</h2>
 	<div class="entry_row">
 		<div class="entry_label">Name</div>
 		<div class="entry_value"><%= f.text_field :name %></div>
 	</div>
-	<table width="100%" class="listing">
+	
+	<table width="100%" class="listing" id="division_listing">
+		<caption>Manage Divisions</caption>
 		<thead>
 			<tr>
-				<th>Name</th>
-				<th>Reassign</th>
-				<th>Remove</th>
+				<th>Delete</th>
+				<th>Division</th>
+				<th>Assign to Company</th>
 			</tr>
 		</thead>
 		<tbody>
 		<% company.divisions.each do |d|%>
 			<tr>
-			
 				<td>
 					<%= f.fields_for :divisions,d do |df| %>
-					<%= df.text_field :name%>					
+					<%= df.check_box :_destroy, :disabled => d.new_record? %>				
+				</td>			
+				<td>			
+					<%= df.text_field :name, :placeholder => (d.new_record? ? "Division":"") %>	
 				</td>
-				<td>
-					<%= df.collection_select(:company_id, Company.all, :id,:name)%>
-				</td>
-				<td>
-					<a href="#">Remove</a>
+				<td>	
+					<% if d.new_record? %>
+						<%= df.hidden_field :company_id, :value => company[:id]%>
+						New division for <%= company[:name]%>
+					<% else %>						
+						<%= df.collection_select(:company_id, Company.all, :id,:name )%>				
+					<% end %>
 					<% end %>
 				</td>			
 			</tr>

@@ -19,6 +19,10 @@ class DivisionsController < ApplicationController
     
   end
   
+  def new
+    
+  end
+  
   def stores
     division_id = params[:id]
     

@@ -91,11 +91,16 @@
 				link_for_division += divisions_array[i].name;
 				link_for_division += "</a>";
 				
-				var link_for_stores = "<a href='" +
-					division_link_prefix + "/" + divisions_array[i].id + 
-					"/stores'>";
-				link_for_stores += divisions_array[i].stores_count;
-				link_for_stores += "</a>";
+				var link_for_stores = "";
+				if( divisions_array[i].stores_count > 0){
+					link_for_stores = "<a href='" +
+						division_link_prefix + "/" + divisions_array[i].id + 
+						"/stores'>";
+					link_for_stores += divisions_array[i].stores_count;
+					link_for_stores += "</a>";
+				}
+				else
+					link_for_stores += "-";
 
 				// Generating HTML code for table cells
 				var division_column = "<td>" + link_for_division + "</td>";
@@ -151,7 +156,6 @@
 		$(document).ready(function(){
 			state_listing = $("table#state_listing");
 			division_listing = $("table#division_listing");
-			setTimeout('$("p.warning,p.notice").fadeOut("fast")',5000);
 
 			// Hide all listings on first load
 			// Listings are shown when the corresponding
@@ -224,6 +228,15 @@
 		<tr>
 			<th scope="col">Divisions</th>
 			<th scope="col">Stores</th>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<%= form_for company.divisions.new, :url => new_company_division_path(company[:id]), :method => :get do |f|%>
+					<%= f.label :name%>
+					<%= f.text_field :name %>
+					<%= f.submit%>
+				<% end %>
+			</td>
 		</tr>
 	</thead>
 	<tbody/>

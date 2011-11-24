@@ -50,6 +50,7 @@ class CompaniesController < ApplicationController
     page_title = "Edit Company Details"
 
     company = Company.find(company_id, :include => :divisions)
+    company.divisions.new
 
     respond_to do |format|
       format.html {render :locals => {:page_title => page_title,:company => company}}

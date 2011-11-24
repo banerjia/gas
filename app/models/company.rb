@@ -9,7 +9,8 @@ class Company < ActiveRecord::Base
   
   attr_accessible :name, :divisions_attributes
   
-  accepts_nested_attributes_for :divisions
+  accepts_nested_attributes_for \
+      :divisions, :reject_if => lambda { |a| a[:name].blank? }, :allow_destroy => true
   
   def states_with_stores
     Store.find(:all,
@@ -21,4 +22,3 @@ class Company < ActiveRecord::Base
   end
   
 end
-#"INNER JOIN tblStates ON stores.state_code = tblStates.state_code and stores.country = tblStates.country"
