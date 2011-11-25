@@ -176,10 +176,10 @@
 	<div class="toolbar">Tools</div> 
 	<ul class="nav_items">
 		<li class="current" id="div_company_information">Company Information</li>
+		<li id="table_state_listing" onclick="get_state_listing()">States with stores</li>
 		<% if !company.divisions.blank? %>
 		<li id="table_division_listing" onclick="get_division_listing()">Divisions</li>
 		<% end %>
-		<li id="table_state_listing" onclick="get_state_listing()">Stores by State</li>
 		<li><%= link_to "All Companies", companies_path%></li>
 	</ul>
 <% end %>

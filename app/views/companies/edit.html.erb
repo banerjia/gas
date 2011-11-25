@@ -11,7 +11,6 @@
 		});
 	</script>
 	<style type="text/css" media="screen">
-		table#division_listing {width:100%;}
 		table#division_listing thead tr th:first-child{ width: 10%;}
 		table#division_listing thead tr th:first-child + th {text-align:left;width:50%;}
 		table#division_listing thead tr th:last-child {text-align:center;}
@@ -36,7 +35,7 @@
 		<div class="entry_value"><%= f.text_field :name %></div>
 	</div>
 	
-	<table class="listing" id="division_listing">
+	<table width="100%" class="listing" id="division_listing">
 		<caption>Manage Divisions</caption>
 		<thead>
 			<tr>
