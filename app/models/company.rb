@@ -15,10 +15,18 @@ class Company < ActiveRecord::Base
   def states_with_stores
     Store.find(:all,
                :conditions => {:company_id => self[:id]},
-               :select => "stores.state_code, state_name, count(id) as `number_of_stores`",
+               :select => "stores.country, stores.state_code, state_name, count(id) as `number_of_stores`",
                :order => "stores.country, stores.state_code",
                :group => "stores.country, stores.state_code",
                :joins => :state)
+  end
+  
+  def has_divisions?
+    self.divisions.size > 0
+  end
+  
+  def has_stores_without_division?
+    return self.has_divisions? && self.divisions.sum(:stores_count)!=self.stores.size
   end
   
 end

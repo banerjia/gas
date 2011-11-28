@@ -19,7 +19,7 @@ class CompaniesController < ApplicationController
     company_id = params[:id]
     current_user_is_admin = true
 
-    company = Company.find(company_id, :include => :divisions)
+    company = Company.find(company_id)
 
     page_title = "Company Details for " + company[:name]
 
@@ -103,7 +103,7 @@ class CompaniesController < ApplicationController
     end  
   end
 
-  def stores_in_state
+  def stores_in_state_snippet
     company_id = params[:company_id]          # Company ID
     state = params[:state]                    # State for which the stores are being fetched
     start_at = params[:start_at] || 0         # Used for pagination - starting record for the page

@@ -31,6 +31,12 @@
 		var loading_container = null;
 		var loading_message = null;
 		var default_loading_message = "Attempting to retrieve the information you requested";
+		
+		function toTitleCase(str)
+		{
+		    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+		}
+
 	
 		function switch_sections( target_section ){
 			var previous_section = $(current_section).attr("id");
@@ -57,7 +63,7 @@
 				// The following lines will result in the HTML code:
 				// <a href="/graeters/companies/999/stores/<state acronym>"> State Name </a>
 				var link_for_state = "<a href='" + 
-				state_link_prefix + "/" + states_array[i].state_code + 
+				state_link_prefix + "/" + states_array[i].country + "-" + states_array[i].state_code + 
 				"'>";
 				link_for_state += states_array[i].number_of_stores;
 				link_for_state += "</a>";
@@ -107,7 +113,7 @@
 				var stores_column = "<td>" + link_for_stores + "</td>";
 
 				// Generating HTML code for the table row
-				var row_html = "<tr>" + 
+				var row_html = ( i%2 !=0 ? "<tr class='alternate'>": "<tr>") + 
 				division_column +
 				stores_column +
 				"</tr>";
@@ -124,6 +130,7 @@
 				jQuery(loading_container).show();
 				jQuery.ajax({
 					url: '<%= company_states_path(company)%>',
+					type: 'POST',
 					dataType: "json",
 					success: function(data){
 						jData_states = data.states;
@@ -176,9 +183,12 @@
 	<div class="toolbar">Tools</div> 
 	<ul class="nav_items">
 		<li class="current" id="div_company_information">Company Information</li>
-		<li id="table_state_listing" onclick="get_state_listing()">States with stores</li>
-		<% if !company.divisions.blank? %>
-		<li id="table_division_listing" onclick="get_division_listing()">Divisions</li>
+		<% if company.has_divisions? %>
+			<li id="table_division_listing" onclick="get_division_listing()">Divisions</li>
+		<% end %>
+		<li id="table_state_listing" onclick="get_state_listing()">Stores by States</li>
+		<% if company.has_divisions? && company.has_stores_without_division? %>
+			<li id="table_state_listing" onclick="get_state_listing()">Stores not assigned to a division</li>
 		<% end %>
 		<li><%= link_to "All Companies", companies_path%></li>
 	</ul>
@@ -228,15 +238,6 @@
 		<tr>
 			<th scope="col">Divisions</th>
 			<th scope="col">Stores</th>
-		</tr>
-		<tr>
-			<td colspan="2">
-				<%= form_for company.divisions.new, :url => new_company_division_path(company[:id]), :method => :get do |f|%>
-					<%= f.label :name%>
-					<%= f.text_field :name %>
-					<%= f.submit%>
-				<% end %>
-			</td>
 		</tr>
 	</thead>
 	<tbody/>
