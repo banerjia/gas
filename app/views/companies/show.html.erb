@@ -44,21 +44,20 @@
 
 	
 		function switch_sections( target_section ){
-			var previous_section = $(current_section).attr("id");
-			var next_section = $(target_section).attr("id");
-			$(current_section).removeClass("current").removeClass("loading");
-			if(jQuery(target_section).attr("onclick"))
-				$(target_section).addClass("loading");
-			else
-				$(target_section).addClass("current");
-			current_section = $(target_section);
+			var liLoading = jQuery("li.loading");
+			var previous_section = jQuery(current_section).attr("id");
+			var next_section = jQuery(target_section).attr("id");
+			jQuery(current_section).removeClass("current");
+			if( liLoading == null || liLoading.attr("id") != jQuery(target_section).attr("id") )
+				jQuery(target_section).addClass("current");
+			current_section = jQuery(target_section);
 		
 			previous_section = previous_section.substring( 0,previous_section.indexOf("_")) + "#" +
 							   previous_section.substring( previous_section.indexOf("_") + 1);
 			next_section = next_section.substring( 0, next_section.indexOf("_")) + "#" +
 						   next_section.substring(next_section.indexOf("_")+1);
-			$(previous_section).hide();
-			$(next_section).show();
+			jQuery(previous_section).hide();
+			jQuery(next_section).show();
 		
 		}
 
@@ -131,15 +130,18 @@
 			}
 		}
 
-		function get_state_listing(){
+		function get_state_listing(targetLI){
 			if(jData_states == null){
-				//if no data was previously fetch - fetch it
+				var liState = null;
+				liState = jQuery(targetLI);
+				// if no data was previously fetched - fetch it
 				jQuery(loading_message).text(default_loading_message);
 				jQuery(loading_container).show();
 				if( jqAjaxRequest != null ) {
 					jqAjaxRequest.abort();
 					jqAjaxRequest = null;
 				}
+				jQuery(liState).addClass("loading");
 				jqAjaxRequest = jQuery.ajax({
 					url: '<%= company_states_path(company)%>',
 					type: 'POST',
@@ -149,18 +151,20 @@
 						jData_states = data.states;
 						populate_state_listing( jData_states, state_listing );
 						jQuery(loading_container).fadeOut();
+						jQuery("li.loading").removeClass("loading").addClass("current");
 					},
 					error: function(data){
 						jqAjaxRequest = null;
 						jQuery(loading_message).html("We were unable to find the information. <a href='javascript:get_state_listing()'>Retry</a>.");
+						jQuery("li.loading").removeClass("loading").addClass("current");
 					}
 				});
 			}
-			jQuery(current_section).removeClass("loading").addClass("current");
 		}
 		
-		function get_division_listing(){
+		function get_division_listing(targetLI){
 			if(jData_divisions == null){
+				jQuery(targetLI).addClass("loading");
 				jQuery(loading_container).show();
 				if( jqAjaxRequest != null ) {
 					jqAjaxRequest.abort();
@@ -174,30 +178,32 @@
 						jData_divisions = data.divisions;
 						populate_division_listing( jData_divisions, division_listing);
 						jQuery(loading_container).fadeOut();
+						jQuery("li.loading").removeClass("loading").addClass("current");
 					},
 					error: function(data){
 						jqAjaxRequest = null;
 						jQuery(loading_message).html("We were unable to find the information. <a href='javascript:get_division_listing()'>Retry</a>.");
+						jQuery("li.loading").removeClass("loading").addClass("current");
 					}
 				});
 			}
 		}
 
-		$(document).ready(function(){
-			state_listing = $("table#state_listing");
-			division_listing = $("table#division_listing");
+		jQuery(document).ready(function(){
+			state_listing = jQuery("table#state_listing");
+			division_listing = jQuery("table#division_listing");
 
 			// Hide all listings on first load
 			// Listings are shown when the corresponding
 			// links are clicked on the page. 
-			$("table.listing").hide();
-			$("ul.nav_items li").click(function(){
-				switch_sections( $(this) );
+			jQuery("table.listing").hide();
+			jQuery("ul.nav_items li").click(function(){
+				switch_sections( jQuery(this) );
 			});
-			current_section = $("ul.nav_items li.current")[0];
-			loading_container = $("div.loading");
-			loading_message = $("span#loading_message",loading_container);
-			$(loading_container).hide();
+			current_section = jQuery("ul.nav_items li.current")[0];
+			loading_container = jQuery("div.loading");
+			loading_message = jQuery("span#loading_message",loading_container);
+			jQuery(loading_container).hide();
 		})
 	</script>
 
@@ -207,11 +213,11 @@
 	<ul class="nav_items">
 		<li class="current" id="div_company_information">Company Information</li>
 		<% if company.has_divisions? %>
-			<li id="table_division_listing" onclick="get_division_listing()">Divisions</li>
+			<li id="table_division_listing" onclick="get_division_listing(this)">Divisions</li>
 		<% end %>
-		<li id="table_state_listing" onclick="get_state_listing()">Stores by States</li>
+		<li id="table_state_listing" onclick="get_state_listing(this)">Stores by States</li>
 		<% if company.has_divisions? && company.has_stores_without_division? %>
-			<li id="table_state_listing" onclick="get_state_listing()">Stores not assigned to a division</li>
+			<li id="table_state_listing" onclick="get_state_listing(this)">Stores not assigned to a division</li>
 		<% end %>
 		<li><%= link_to "All Companies", companies_path%></li>
 	</ul>

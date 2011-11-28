@@ -116,7 +116,6 @@ div.toolbar .icon_buttons{
 
 ul.nav_items { list-style: none; padding-left:0.3em; text-align:left;}
 ul.nav_items li {
-	background-position:5px center;
 	background-repeat: no-repeat;
 	color:#900;
 	cursor:pointer;
