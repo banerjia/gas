@@ -1,15 +1,17 @@
 Graeters::Application.routes.draw do
-  root :to => 'companies#index'
+defaults( :format => :html ) do 
+  root :to => 'companies#index', :format => :html
   constraints( :id => /\d+/) do
   
     resources :stores do
       get "audits", :on => :member
-      get "new_audit", :on => :member
-    end
+      get "new_audit", :on => :member 
+    end	
+	
     resources :companies do
-      get "stores", :on => :member
-	    match "stores/:country-:state" => "stores#index", :constraints => {:state => /[a-zA-Z]{2,}/}, :as => "stores_in_state"
-	    match "states" => "companies#company_states", :as => "states", :format => :json, :via => :post
+      get "stores", :on => :member 
+	  match "stores/:country-:state" => "stores#index", :constraints => {:state => /[a-zA-Z]{2,}/,:country => /[a-zA-Z]{2}/}, :as => "stores_in_state"
+	  match "states" => "companies#company_states", :as => "states", :format => :json
 	    
       resources :divisions do
           resources "stores", :on => :member
@@ -17,7 +19,7 @@ Graeters::Application.routes.draw do
     end
     
     resources :audits   
-
+	
   end
 
   
@@ -78,4 +80,5 @@ Graeters::Application.routes.draw do
   # This is a legacy wild controller route that's not recommended for RESTful applications.
   # Note: This route will make all actions in every controller accessible via GET requests.
   # match ':controller(/:action(/:id(.:format)))'
+end
 end
