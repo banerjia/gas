@@ -8,12 +8,11 @@ Graeters::Application.routes.draw do
     end
     resources :companies do
       get "stores", :on => :member
-	    match "stores/:state" => "companies#stores_in_state", :constraints => {:state => /[a-zA-Z]{2,}/}, :as => "stores_in_state"
-	    match "states" => "companies#company_states", :as => "states", :format => :json
-
+	    match "stores/:country-:state" => "stores#index", :constraints => {:state => /[a-zA-Z]{2,}/}, :as => "stores_in_state"
+	    match "states" => "companies#company_states", :as => "states", :format => :json, :via => :post
+	    
       resources :divisions do
-        get "stores", :on => :member
-        match "stores/:state" => "divisions#stores_in_state", :constraints => {:state => /[a-zA-Z]{2,}/}, :as => "stores_in_state"
+          resources "stores", :on => :member
       end
     end
     

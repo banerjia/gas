@@ -1,8 +1,8 @@
 fieldset.form_sections { border: 2px solid #ccc }
 
 div.entry_row { background-color: #ccc; display: block; margin: 0 0 2px 0;padding:0;width:auto}
-div.entry_label { background-color: transparent; color:#000; float: left; font-weight:bold;line-height: 1.3;width: 18% }
-div.entry_value { background-color: #eee; margin-left:19% }
+div.entry_label { background-color: transparent; color:#000; float: left; font-weight:bold;line-height: 1.3;width: 19% }
+div.entry_value { background-color: #eee; margin-left:20% }
 div.entry_row div { padding: 0.5em;}
 
 div.buttons { background-color: transparent; display:block; margin: 1em 0; padding: 0.5em 0 }

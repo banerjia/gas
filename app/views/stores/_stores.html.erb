@@ -5,6 +5,11 @@
 		
 		var start_at = 10; 
 		var result_count = 11;
+		function toTitleCase(str)
+		{
+		    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+		}
+
 		function load_more(){
 			$.ajax({
 				url: '<%=ajax_path%>',
@@ -19,8 +24,8 @@
 					for( i = 0; i < stores_found; i++){
 						var store_information = "<td>" +
 													"<a href='<%=stores_path%>/" + stores[i].id + "'>" + stores[i].name + "</a><br/>" +
-													stores[i].street_address + ", " +
-													stores[i].city + ", " + 
+													toTitleCase(stores[i].street_address) + ", " +
+													toTitleCase(stores[i].city) + ", " + 
 													stores[i].state_code + " - " +
 													stores[i].zip + 
 												"</td>";
