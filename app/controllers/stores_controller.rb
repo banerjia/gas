@@ -11,10 +11,10 @@ class StoresController < ApplicationController
         
         conditions =  Hash.new
         
-        conditions[:company_id] = company_id unless company_id.blank?
-        conditions[:division_id] = division_id unless division_id.blank?
-        conditions[:state_code] =  state_code unless state_code.blank?
-        conditions[:country] = country unless country.blank?
+        conditions[:company_id] = company_id unless company_id.nil?
+        conditions[:division_id] = division_id unless division_id.nil?
+        conditions[:state_code] =  state_code unless state_code.nil?
+        conditions[:country] = country unless country.nil?
 
         stores_found = Store.find(:all, \
                             :conditions => conditions,\
@@ -31,10 +31,16 @@ class StoresController < ApplicationController
               :except => [:division_id, :company_id, :phone,:created_at, :updated_at])
           end
           format.html do
-            if !division_id.blank?
-              render "stores_by_section", :locals => {:page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].division[:name] + " Division", :stores => stores_found}
-            else
-              render "stores_by_section", :locals => {:page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name], :stores => stores_found}
+            if !division_id.nil?
+              render "stores_by_section", :locals => \
+				{:page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].division[:name] + " Division", \
+				:stores => stores_found, \
+				:ajax_path => company_division_stores_path(stores_found[0][:company_id],stores_found[0][:division_id], :format => :json)}
+            else			
+              render "stores_by_section", :locals => {\
+				:page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name], \
+				:stores => stores_found, \
+				:ajax_path => company_stores_in_state_path(stores_found[0][:company_id],stores_found[0][:country],stores_found[0][:state_code], :format => :json)}
             end
           end
         end

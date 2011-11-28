@@ -10,13 +10,17 @@
 		
 		div.loading{
 			background-color:#eee;
-			background-image: url(<%= image_path("ajax-loader-fb.gif")%>);
-			background-position: 98% center;
 			background-repeat: no-repeat;
 			border:2px solid #ccc;
 			line-height: 2.2;
 			padding-left:0.3em;
 		}
+		
+		li.loading, div.loading{
+			background-image: url(<%= image_path("ajax-loader-fb.gif")%>);
+			background-position: 98% center;
+		}
+		
 
 		table.listing {border-bottom:none;width:100%;}
 
@@ -31,6 +35,7 @@
 		var loading_container = null;
 		var loading_message = null;
 		var default_loading_message = "Attempting to retrieve the information you requested";
+		var jqAjaxRequest = null;
 		
 		function toTitleCase(str)
 		{
@@ -41,8 +46,11 @@
 		function switch_sections( target_section ){
 			var previous_section = $(current_section).attr("id");
 			var next_section = $(target_section).attr("id");
-			$(current_section).removeClass("current");
-			$(target_section).addClass("current");
+			$(current_section).removeClass("current").removeClass("loading");
+			if(jQuery(target_section).attr("onclick"))
+				$(target_section).addClass("loading");
+			else
+				$(target_section).addClass("current");
 			current_section = $(target_section);
 		
 			previous_section = previous_section.substring( 0,previous_section.indexOf("_")) + "#" +
@@ -128,33 +136,48 @@
 				//if no data was previously fetch - fetch it
 				jQuery(loading_message).text(default_loading_message);
 				jQuery(loading_container).show();
-				jQuery.ajax({
+				if( jqAjaxRequest != null ) {
+					jqAjaxRequest.abort();
+					jqAjaxRequest = null;
+				}
+				jqAjaxRequest = jQuery.ajax({
 					url: '<%= company_states_path(company)%>',
 					type: 'POST',
 					dataType: "json",
 					success: function(data){
+						jqAjaxRequest = null;
 						jData_states = data.states;
 						populate_state_listing( jData_states, state_listing );
 						jQuery(loading_container).fadeOut();
 					},
 					error: function(data){
+						jqAjaxRequest = null;
 						jQuery(loading_message).html("We were unable to find the information. <a href='javascript:get_state_listing()'>Retry</a>.");
 					}
 				});
 			}
+			jQuery(current_section).removeClass("loading").addClass("current");
 		}
 		
 		function get_division_listing(){
 			if(jData_divisions == null){
 				jQuery(loading_container).show();
-				jQuery.ajax({
-					url: '<%= company_divisions_path(company)%>',
-					data: {"format":"json"},
+				if( jqAjaxRequest != null ) {
+					jqAjaxRequest.abort();
+					jqAjaxRequest = null;
+				}
+				jqAjaxRequest = jQuery.ajax({
+					url: '<%= company_divisions_path(company,:format => :json)%>',
 					dataType: "json",
 					success: function(data){
+						jqAjaxRequest = null;
 						jData_divisions = data.divisions;
 						populate_division_listing( jData_divisions, division_listing);
 						jQuery(loading_container).fadeOut();
+					},
+					error: function(data){
+						jqAjaxRequest = null;
+						jQuery(loading_message).html("We were unable to find the information. <a href='javascript:get_division_listing()'>Retry</a>.");
 					}
 				});
 			}

@@ -31,8 +31,8 @@
 	<tbody>
 		<% companies.each do |company| %>
 		<tr>
-			<td><%= link_to company[:name], company_path( company ) %></td>
-			<td class="cell-right-align"><%= link_to company.stores.size, stores_company_path( company ) %></td>
+			<td><%= link_to company[:name], company_path( company, :format => :html ) %></td>
+			<td class="cell-right-align"><%= link_to company.stores.size, stores_company_path( company, :format=> :html ) %></td>
 		</tr>
 		<% end %>
 	</tbody>

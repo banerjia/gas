@@ -12,4 +12,4 @@
 <% content_for :left_column do %>
 <% end %>
 
-<%= render :partial => "stores", :locals => {:store_collection =>  stores, :ajax_path => company_division_stores_path(stores[0][:company_id],stores[0][:division_id])}%>
+<%= render :partial => "stores", :locals => {:store_collection =>  stores, :ajax_path => ajax_path}%>
