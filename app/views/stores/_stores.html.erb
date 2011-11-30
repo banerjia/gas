@@ -13,7 +13,7 @@
 		function load_more(){
 			$.ajax({
 				url: '<%=ajax_path%>',
-				data: {"start_at": start_at, "result_count" : result_count, "format" : "json"},
+				data: {"start_at": start_at, "result_count" : result_count},
 				dataType: "json",
 				success: function(data){
 					if(parseInt(data.stores_found) < result_count ) $("table#store_listing tfoot").hide().remove();

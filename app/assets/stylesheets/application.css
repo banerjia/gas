@@ -91,7 +91,7 @@ a.icon_buttons{
 }
 a.icon_buttons + a.icon_buttons {margin-left: 1em;}
 
-div.toolbar{
+div#left_column h2, div.toolbar{
 	background-color:#B0C4DE;
 	color:#fff;
 	margin: 0;
@@ -100,6 +100,8 @@ div.toolbar{
 	text-align:left;
 	width: auto;
 }
+
+div#left_column h2 {font-size:11pt}
 
 div.toolbar .icon_buttons{
 	background-color: #005B9A;
