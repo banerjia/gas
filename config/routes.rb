@@ -1,6 +1,7 @@
 Graeters::Application.routes.draw do
 	defaults( :format => :html ) do 
 	  root :to => 'companies#index', :format => :html
+	  
 	  constraints( :id => /\d+/) do
 	  
 		resources :stores do
