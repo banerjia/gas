@@ -4,10 +4,12 @@
 	<style type="text/css" media="screen">			
 		div.ajax_issue{
 			background-color:#eee;
+			background-image: url(<%= image_path("error_16x16.png")%>);
+			background-position: 5px center;
 			background-repeat: no-repeat;
 			border:2px solid #ccc;
 			line-height: 2.2;
-			padding-left:0.3em;
+			padding-left:25px;
 		}
 		
 		li.loading{
@@ -25,6 +27,9 @@
 		// These variables hold the links to the AJAX calls made within the get_listing function
 		var ajax_link_states = "<%= company_states_path(company,:format => :json)%>";
 		var ajax_link_divisions = "<%= company_divisions_path(company,:format => :json)%>";
+		
+		var link_prefix_state = "<%= company_stores_path(company)%>";
+		var link_prefix_division = "<%= company_divisions_path(company)%>";
 
 		jQuery(document).ready(function(){
 			state_listing = jQuery("table#state_listing");
@@ -54,7 +59,7 @@
 		<% end %>
 		<li id="table_state_listing" onclick="get_listing(this, 'state')">Stores by States</li>
 		<% if company.has_divisions? && company.has_stores_without_division? %>
-			<li id="table_state_listing" onclick="get_state_listing(this)">Stores not assigned to a division</li>
+			<li id="table_state_listing" onclick="get_state_listing(this)">Stores w/o a division</li>
 		<% end %>
 		<li class="no-section-change"><%= link_to "All Companies", companies_path%></li>
 	</ul>

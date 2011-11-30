@@ -9,10 +9,10 @@ defaults( :format => :html ) do
     end	
 	
     resources :companies do
-      get "stores", :on => :member 
-	  match "stores/:country-:state" => "stores#index", :constraints => {:state => /[a-zA-Z]{2,}/,:country => /[a-zA-Z]{2}/}, :as => "stores_in_state"
-	  match "states" => "companies#company_states", :as => "states", :format => :json
-	    
+      #get "stores", :on => :member
+	    match "states" => "companies#company_states", :as => "states", :format => :json
+	    match "stores/:country-:state" => "stores#index", :constraints => {:state => /[a-zA-Z]{2,}/,:country => /[a-zA-Z]{2}/}, :as => "stores_by_state"	     
+      resources :stores       
       resources :divisions do
           resources "stores", :on => :member
       end

@@ -75,14 +75,11 @@
 	function populate_listing( data_array, target_table, type_of_listing){
 		var number_of_items = data_array.length;
 		var link_prefix = null;
-		switch(type_of_listing)			{
-			case "state":
-				link_prefix = "<%= stores_company_path(company)%>";
-				break;
-			case "division":
-				link_prefix = "<%= company_divisions_path(company)%>";
-				break;
-		}
+		
+		// Deducing the link URL prefix to use based on the 
+		// type_of_listing parameter and the naming convention
+		// used for link_prefix defined in show.html.erb
+		eval("link_prefix = link_prefix_" + type_of_listing);
 		
 		for( var iIterator = 0; iIterator < number_of_items; iIterator++ ){
 			// Creating a table row
@@ -141,6 +138,8 @@
 		var loading_container = null;
 		var ajax_link = null;
 		
+		if(typeof targetLI == "string") targetLI = jQuery("li#" + targetLI);
+		
 		// Populating generic objects with appropriate information
 		// Note: naming conventions play a major role in reducing
 		// "if" and "switch" blocks
@@ -162,6 +161,9 @@
 			// originating this request
 			liItem.addClass("loading");
 			
+			if(jQuery(ajax_message_container).is(":visible"))
+				jQuery(ajax_message_container).hide();
+			
 			// Make the request
 			jqAjaxRequest = jQuery.ajax({
 				url: ajax_link,
@@ -177,7 +179,16 @@
 					eval("listing_container = " + type_of_listing + "_listing");
 					populate_listing(ajax_data, listing_container, type_of_listing);
 					jQuery("li.loading").removeClass("loading").addClass("current");
-					eval("jData." + type_of_listing +"s = ajax_data");						
+					eval("jData." + type_of_listing +"s = ajax_data");									
+				},
+				error: function(data){
+					jqAjaxRequest = null;
+					ajax_data = null;
+					var error_message = "It appears that the requested information is currently unavailable. ";
+					error_message += 'Please <a onclick="get_listing(\'' + jQuery(targetLI).attr("id") + '\',\'' + type_of_listing +'\')">retry</a>.';
+					update_ajax_message(error_message, "ajax_issue");
+					jQuery("li.loading").removeClass("loading").addClass("current");
+					eval("jData." + type_of_listing +"s = ajax_data");
 				}
 			});					
 		}			
@@ -187,4 +198,6 @@
 		// function to update the ajax message div
 		// in case there was a problem retrieving
 		// information from the web service
+		jQuery(ajax_message).html(message);
+		jQuery(ajax_message_container).addClass(message_type).show();
 	}
