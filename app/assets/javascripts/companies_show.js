@@ -1,4 +1,3 @@
-
 	// Note: A lot of the JS code relies on naming conventions.
 	// For variables, objects or HTML elements related to state have the word "state",
 	// in singular or plural form, as a distinct part of the name/id. Eg. obj_state, 
@@ -39,98 +38,12 @@
 	var ajax_message = null;
 	var jqAjaxRequest = null;
 	
-	
-	// Function to convert any string to propercase
-	function toTitleCase(str)
-	{
-	    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-	}
-
 
 	// Function to facilitate switching sections based on the nav item selected. 
-	function switch_sections( target_section ){	
-		if(jQuery(target_section).attr("class") == "no-section-change") return;		
-		var previous_section = jQuery(current_section).attr("id");
-		var next_section = jQuery(target_section).attr("id");
-		jQuery(current_section).removeClass("current");
-		// Condition to avoid conflicts with showing the loading animation. Basically the logic is that 
-		// if the target li tag has the "loading" class attached to it then don't add the "current"
-		// class to it. A list block item can only have one background-image.
-		var liLoading = jQuery("li.loading");
-		if( liLoading == null || liLoading.attr("id") != jQuery(target_section).attr("id") )
-			jQuery(target_section).addClass("current");
-		
-		current_section = jQuery(target_section);
-	
-		previous_section = previous_section.substring( 0,previous_section.indexOf("_")) + "#" +
-						   previous_section.substring( previous_section.indexOf("_") + 1);
-		next_section = next_section.substring( 0, next_section.indexOf("_")) + "#" +
-					   next_section.substring(next_section.indexOf("_")+1);
-		jQuery(previous_section).hide();
-		jQuery(next_section).show();
-	
-	}
+
 	
 	// Generic function to populate listing
-	function populate_listing( data_array, target_table, type_of_listing){
-		var number_of_items = data_array.length;
-		var link_prefix = null;
-		
-		// Deducing the link URL prefix to use based on the 
-		// type_of_listing parameter and the naming convention
-		// used for link_prefix defined in show.html.erb
-		eval("link_prefix = link_prefix_" + type_of_listing);
-		
-		for( var iIterator = 0; iIterator < number_of_items; iIterator++ ){
-			// Creating a table row
-			var table_row = jQuery("<tr/>");
-			
-			// Logic for alternate row
-			// To be used for non HTML5 browsers
-			if(iIterator%2 != 0) table_row.addClass("alternate");
-			
-			// Generate link for list of stores in a state
-			// The following lines will result in the HTML code:
-			// <a href="/graeters/companies/999/stores/<state acronym>"> <number of stores> </a>
-			// Or
-			// <a href="/graeters/companies/999/divisions/999/stores"> <number of stores> </a>
-			
-			var column_stores_link = jQuery("<td/>");
-			var aTag_stores = jQuery("<a/>");
-			
-			// The following line produces a link string: /graeters/companies/<999>/stores/US-OH
-			var first_column_data = null;
-			switch(type_of_listing){
-				case "state":
-					link = link_prefix + "/" + data_array[iIterator].country + "-" + data_array[iIterator].state_code;
-					first_column_data = data_array[iIterator].state_name;
-					break;
-				case "division":
-					link = link_prefix + "/" + data_array[iIterator].id + "/stores";
-					first_column_data = data_array[iIterator].name;
-					break;						
-			}
-			
-			aTag_stores.attr("href", link);
-			aTag_stores.html(data_array[iIterator].stores_count);
-			
-			// Adding the link tag to the column
-			column_stores_link.append(aTag_stores);
-			
-			// Adding the columns to the table row
-			// First .append - State Name
-			// Second .append - link to stores
-			 
-			table_row
-				.append(
-					jQuery("<td/>").html(first_column_data)
-				)
-				.append(column_stores_link);
 
-			// Appending the table row to the table
-			target_table.append( table_row );
-		}
-	}
 
 	function get_listing(targetLI, type_of_listing){
 		// Generic objects
@@ -193,7 +106,7 @@
 			});					
 		}			
 	}
-	
+/*	
 	function update_ajax_message(message, message_type){
 		// function to update the ajax message div
 		// in case there was a problem retrieving
@@ -201,3 +114,4 @@
 		jQuery(ajax_message).html(message);
 		jQuery(ajax_message_container).addClass(message_type).show();
 	}
+*/
