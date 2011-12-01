@@ -1,10 +1,15 @@
+# Generic function to change the case of text from lower/upper-case to propercase.
 @toTitleCase = (input_text) ->
 	input_text.replace /\w\S*/g, (text) ->
 		text.charAt(0).toUpperCase() + text.substr(1).toLowerCase()
 
-
+# Generic function to switch back and forth between the different sections of the page
 @switch_sections = ( target_section )->
+	# This is patch to prevent a Javascript error when there is no
+	# section associated with a list item. List items that contain
+	# links to other pages will be handled by this line. 
 	return 0 if jQuery(target_section).attr("class") == "no-section-change"
+	
 	previous_section = jQuery(@current_section).attr("id")
 	next_section = jQuery(target_section).attr("id")
 	jQuery(@current_section).removeClass("current")
