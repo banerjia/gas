@@ -13,6 +13,7 @@ class StoresController < ApplicationController
         
         conditions[:company_id] = company_id unless company_id.nil?
         conditions[:division_id] = division_id unless division_id.nil?
+        conditions[:division_id] = nil if !division_id.nil? && division_id.to_i == 0
         conditions[:state_code] =  state_code unless state_code.nil?
         conditions[:country] = country unless country.nil?
 
@@ -31,16 +32,21 @@ class StoresController < ApplicationController
               :except => [:division_id, :company_id, :phone,:created_at, :updated_at])
           end
           format.html do
-            if !division_id.nil?
-              render "stores_by_section", :locals => \
-				{:page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].division[:name] + " Division", \
-				:stores => stores_found, \
-				:ajax_path => company_division_stores_path(stores_found[0][:company_id],stores_found[0][:division_id], :format => :json)}
-            else			
-              render "stores_by_section", :locals => {\
-				:page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name], \
-				:stores => stores_found, \
-				:ajax_path => company_stores_in_state_path(stores_found[0][:company_id],stores_found[0][:country],stores_found[0][:state_code], :format => :json)}
+            if stores_found.count > 0
+              if !division_id.nil?
+                division_name = (!stores_found[0].division.nil? ? stores_found[0].division[:name] : "Unassigned")
+                render "stores_by_section", :locals => \
+  				{:page_title => stores_found[0].company[:name] + " Stores in " + division_name + " Division", \
+  				:stores => stores_found, \
+  				:ajax_path => company_division_stores_path(stores_found[0][:company_id],division_id, :format => :json)}
+              else			
+                render "stores_by_section", :locals => {\
+  				:page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name], \
+  				:stores => stores_found, \
+  				:ajax_path => company_stores_by_state_path(stores_found[0][:company_id],stores_found[0][:country],stores_found[0][:state_code], :format => :json)}
+              end
+            else
+              redirect_to companies_path
             end
           end
         end

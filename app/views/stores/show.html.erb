@@ -60,8 +60,7 @@
 		function get_completed_audits(){
 			if(completed_audits != null ) {populate_audits(completed_audits);return};
 			$.ajax({
-				url: '<%= audits_store_path(store)%>',
-				data: {"format":"json"},
+				url: '<%= audits_store_path(store,:format => :json)%>',
 				dataType: "json",
 				success: function(data){
 					completed_audits = data.audits;
@@ -133,7 +132,7 @@
 <% end %>
 
 <% content_for :left_column  do %>
-	<div class="toolbar"><strong>Tools</strong></div> 
+	<h2>Tools</h2> 
 	<ul class="nav_items">
 		<li class="current" id="div_store_information">Store Information</li>
 		<% if !store.completed_audits.blank? %>

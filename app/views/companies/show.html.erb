@@ -1,193 +1,35 @@
 <% content_for :head do %>
 	<%= stylesheet_link_tag "table"%>
 	<%= stylesheet_link_tag "forms"%>
-	<style type="text/css" media="screen">	
-		div#sub_container{
-			text-align: left;
-			margin:0 auto;
-			width:70%;
-		}
-		
-		div.loading{
+	<style type="text/css" media="screen">			
+		div.ajax_issue{
 			background-color:#eee;
+			background-image: url(<%= image_path("error_16x16.png")%>);
+			background-position: 5px center;
 			background-repeat: no-repeat;
 			border:2px solid #ccc;
 			line-height: 2.2;
-			padding-left:0.3em;
+			padding-left:25px;
 		}
 		
-		li.loading, div.loading{
+		li.loading{
 			background-image: url(<%= image_path("ajax-loader-fb.gif")%>);
 			background-position: 98% center;
 		}
-		
 
 		table.listing {border-bottom:none;width:100%;}
 
 		table.listing tbody tr td {border-bottom:none}
 	</style>
+	<%= javascript_include_tag "companies_show" %>
 	<script type="text/javascript">
-		var current_section;
-		var state_listing;
-		var division_listing;
-		var jData_states = null;
-		var jData_divisions = null;
-		var loading_container = null;
-		var loading_message = null;
-		var default_loading_message = "Attempting to retrieve the information you requested";
-		var jqAjaxRequest = null;
-		
-		function toTitleCase(str)
-		{
-		    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-		}
-
 	
-		function switch_sections( target_section ){
-			var liLoading = jQuery("li.loading");
-			var previous_section = jQuery(current_section).attr("id");
-			var next_section = jQuery(target_section).attr("id");
-			jQuery(current_section).removeClass("current");
-			if( liLoading == null || liLoading.attr("id") != jQuery(target_section).attr("id") )
-				jQuery(target_section).addClass("current");
-			current_section = jQuery(target_section);
+		// These variables hold the links to the AJAX calls made within the get_listing function
+		var ajax_link_states = "<%= company_states_path(company,:format => :json)%>";
+		var ajax_link_divisions = "<%= company_divisions_path(company,:format => :json)%>";
 		
-			previous_section = previous_section.substring( 0,previous_section.indexOf("_")) + "#" +
-							   previous_section.substring( previous_section.indexOf("_") + 1);
-			next_section = next_section.substring( 0, next_section.indexOf("_")) + "#" +
-						   next_section.substring(next_section.indexOf("_")+1);
-			jQuery(previous_section).hide();
-			jQuery(next_section).show();
-		
-		}
-
-		function populate_state_listing( states_array, tardisplay_table){
-			var number_of_states = states_array.length;
-			var state_link_prefix = '<%=stores_company_path(company)%>';
-			for( i = 0; i < number_of_states; i++){
-
-				// Generate link for list of stores in a state
-				// The following lines will result in the HTML code:
-				// <a href="/graeters/companies/999/stores/<state acronym>"> State Name </a>
-				var link_for_state = "<a href='" + 
-				state_link_prefix + "/" + states_array[i].country + "-" + states_array[i].state_code + 
-				"'>";
-				link_for_state += states_array[i].number_of_stores;
-				link_for_state += "</a>";
-
-				// Generating HTML code for table cells
-				var state_column = "<td>" + states_array[i].state_name + "</td>";
-				var stores_column = "<td>" + link_for_state + "</td>";
-
-				// Generating HTML code for the table row
-				var row_html = "<tr>" + 
-				state_column +
-				stores_column +
-				"</tr>";
-
-				// Appending the table row to the table
-				tardisplay_table.append( row_html );
-			}
-		}
-
-		function populate_division_listing( divisions_array, tardisplay_table){
-			var number_of_divisions = divisions_array.length;
-			var division_link_prefix = '<%=company_divisions_path(company)%>';
-			for( i = 0; i < number_of_divisions; i++){
-
-				// Generate link for list of stores in a state
-				// The following lines will result in the HTML code:
-				// <a href="/graeters/companies/999/stores/<state acronym>"> State Name </a>
-				var link_for_division = "<a href='" + 
-				division_link_prefix + "/" + divisions_array[i].id + 
-				"'>";
-				link_for_division += divisions_array[i].name;
-				link_for_division += "</a>";
-				
-				var link_for_stores = "";
-				if( divisions_array[i].stores_count > 0){
-					link_for_stores = "<a href='" +
-						division_link_prefix + "/" + divisions_array[i].id + 
-						"/stores'>";
-					link_for_stores += divisions_array[i].stores_count;
-					link_for_stores += "</a>";
-				}
-				else
-					link_for_stores += "-";
-
-				// Generating HTML code for table cells
-				var division_column = "<td>" + link_for_division + "</td>";
-				var stores_column = "<td>" + link_for_stores + "</td>";
-
-				// Generating HTML code for the table row
-				var row_html = ( i%2 !=0 ? "<tr class='alternate'>": "<tr>") + 
-				division_column +
-				stores_column +
-				"</tr>";
-
-				// Appending the table row to the table
-				tardisplay_table.append( row_html );
-			}
-		}
-
-		function get_state_listing(targetLI){
-			if(jData_states == null){
-				var liState = null;
-				liState = jQuery(targetLI);
-				// if no data was previously fetched - fetch it
-				jQuery(loading_message).text(default_loading_message);
-				jQuery(loading_container).show();
-				if( jqAjaxRequest != null ) {
-					jqAjaxRequest.abort();
-					jqAjaxRequest = null;
-				}
-				jQuery(liState).addClass("loading");
-				jqAjaxRequest = jQuery.ajax({
-					url: '<%= company_states_path(company)%>',
-					type: 'POST',
-					dataType: "json",
-					success: function(data){
-						jqAjaxRequest = null;
-						jData_states = data.states;
-						populate_state_listing( jData_states, state_listing );
-						jQuery(loading_container).fadeOut();
-						jQuery("li.loading").removeClass("loading").addClass("current");
-					},
-					error: function(data){
-						jqAjaxRequest = null;
-						jQuery(loading_message).html("We were unable to find the information. <a href='javascript:get_state_listing()'>Retry</a>.");
-						jQuery("li.loading").removeClass("loading").addClass("current");
-					}
-				});
-			}
-		}
-		
-		function get_division_listing(targetLI){
-			if(jData_divisions == null){
-				jQuery(targetLI).addClass("loading");
-				jQuery(loading_container).show();
-				if( jqAjaxRequest != null ) {
-					jqAjaxRequest.abort();
-					jqAjaxRequest = null;
-				}
-				jqAjaxRequest = jQuery.ajax({
-					url: '<%= company_divisions_path(company,:format => :json)%>',
-					dataType: "json",
-					success: function(data){
-						jqAjaxRequest = null;
-						jData_divisions = data.divisions;
-						populate_division_listing( jData_divisions, division_listing);
-						jQuery(loading_container).fadeOut();
-						jQuery("li.loading").removeClass("loading").addClass("current");
-					},
-					error: function(data){
-						jqAjaxRequest = null;
-						jQuery(loading_message).html("We were unable to find the information. <a href='javascript:get_division_listing()'>Retry</a>.");
-						jQuery("li.loading").removeClass("loading").addClass("current");
-					}
-				});
-			}
-		}
+		var link_prefix_state = "<%= company_stores_path(company)%>";
+		var link_prefix_division = "<%= company_divisions_path(company)%>";
 
 		jQuery(document).ready(function(){
 			state_listing = jQuery("table#state_listing");
@@ -201,25 +43,22 @@
 				switch_sections( jQuery(this) );
 			});
 			current_section = jQuery("ul.nav_items li.current")[0];
-			loading_container = jQuery("div.loading");
-			loading_message = jQuery("span#loading_message",loading_container);
-			jQuery(loading_container).hide();
+			ajax_message_container = jQuery("div#ajax_message_container");
+			ajax_message = jQuery("span#ajax_message",ajax_message_container);
+			jQuery(ajax_message_container).hide();
 		})
 	</script>
 
 <% end %>
 <% content_for :left_column  do %>
-	<div class="toolbar">Tools</div> 
+	<h2>Tools</h2> 
 	<ul class="nav_items">
 		<li class="current" id="div_company_information">Company Information</li>
 		<% if company.has_divisions? %>
-			<li id="table_division_listing" onclick="get_division_listing(this)">Divisions</li>
+			<li id="table_division_listing" onclick="get_listing(this, 'division')">Divisions</li>
 		<% end %>
-		<li id="table_state_listing" onclick="get_state_listing(this)">Stores by States</li>
-		<% if company.has_divisions? && company.has_stores_without_division? %>
-			<li id="table_state_listing" onclick="get_state_listing(this)">Stores not assigned to a division</li>
-		<% end %>
-		<li><%= link_to "All Companies", companies_path%></li>
+		<li id="table_state_listing" onclick="get_listing(this, 'state')">Stores by States</li>
+		<li class="no-section-change"><%= link_to "All Companies", companies_path%></li>
 	</ul>
 <% end %>
 <div id="company_information">
@@ -250,8 +89,8 @@
 	<div class="spacer"></div>
 </div>
 
-<div class="loading">
-	<span id="loading_message">Getting information ..</span>
+<div id="ajax_message_container">
+	<span id="ajax_message">Getting information ..</span>
 </div>
 <table id="state_listing" class="listing">
 	<thead>
@@ -268,6 +107,14 @@
 			<th scope="col">Divisions</th>
 			<th scope="col">Stores</th>
 		</tr>
+		<% if company.has_divisions? && company.has_stores_without_division? %>
+		<tr>
+			<td colspan="2">
+				We discovered some stores in <%=company[:name]%> that are not assigned to any of the <%= pluralize(company.divisions.size, "division") %>. <br/>
+				<%= link_to "View Stores",company_division_stores_path(company,0, :format => :html)%>
+			</td>
+		</tr>
+		<% end %>
 	</thead>
 	<tbody/>
 </table>

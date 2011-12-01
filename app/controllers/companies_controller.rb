@@ -70,7 +70,7 @@ class CompaniesController < ApplicationController
     end    
   end
 
-  def stores  
+  def stores_snippet  
     company_id = params[:id]
     limit = params[:limit]
 
@@ -101,37 +101,6 @@ class CompaniesController < ApplicationController
         :include => inclusions)
       end
     end  
-  end
-
-  def stores_in_state_snippet
-    company_id = params[:company_id]          # Company ID
-    state = params[:state]                    # State for which the stores are being fetched
-    start_at = params[:start_at] || 0         # Used for pagination - starting record for the page
-    # Number of records to return. 11 is the default.
-    # When 11 is selected, only 10 records are actually displayed.
-    # Presence of the 11th record is used as a flag for scripts to 
-    # show the Next/More button to load more records.
-    result_count = params[:result_count] || 11
-
-    stores_found = Store.find( :all,
-    :conditions => {:company_id => company_id, :state_code => state},
-    :include => [:last_audit,:pending_audit], :limit => "#{start_at},#{result_count}"
-    )
-
-    return_value = Hash.new
-    return_value[:stores_found] = stores_found.length
-    return_value[:stores] = stores_found
-
-    respond_to do |format|
-      format.json {render :json => return_value.to_json(
-        :include => $store_inclusions,
-        :exceptions => $exceptions)}
-      format.xml { render :xml => return_value.to_xml(
-        :include => $store_inclusions,
-        :exceptions => $exceptions) }
-      format.html { render "state_stores", :locals => {:page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name], :stores => stores_found}}
-    end
-
   end
   
   def company_states
