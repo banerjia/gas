@@ -58,9 +58,6 @@
 			<li id="table_division_listing" onclick="get_listing(this, 'division')">Divisions</li>
 		<% end %>
 		<li id="table_state_listing" onclick="get_listing(this, 'state')">Stores by States</li>
-		<% if company.has_divisions? && company.has_stores_without_division? %>
-			<li id="table_state_listing" onclick="get_state_listing(this)">Stores w/o a division</li>
-		<% end %>
 		<li class="no-section-change"><%= link_to "All Companies", companies_path%></li>
 	</ul>
 <% end %>
@@ -110,6 +107,14 @@
 			<th scope="col">Divisions</th>
 			<th scope="col">Stores</th>
 		</tr>
+		<% if company.has_divisions? && company.has_stores_without_division? %>
+		<tr>
+			<td colspan="2">
+				We discovered some stores in <%=company[:name]%> that are not assigned to any of the <%= pluralize(company.divisions.size, "division") %>. <br/>
+				<%= link_to "View Stores",company_division_stores_path(company,0, :format => :html)%>
+			</td>
+		</tr>
+		<% end %>
 	</thead>
 	<tbody/>
 </table>
