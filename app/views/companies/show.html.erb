@@ -1,27 +1,12 @@
 <% content_for :head do %>
 	<%= stylesheet_link_tag "table"%>
 	<%= stylesheet_link_tag "forms"%>
-	<style type="text/css" media="screen">			
-		div.ajax_issue{
-			background-color:#eee;
-			background-image: url(<%= image_path("error_16x16.png")%>);
-			background-position: 5px center;
-			background-repeat: no-repeat;
-			border:2px solid #ccc;
-			line-height: 2.2;
-			padding-left:25px;
-		}
-		
-		li.loading{
-			background-image: url(<%= image_path("ajax-loader-fb.gif")%>);
-			background-position: 98% center;
-		}
-
-		table.listing {border-bottom:none;width:100%;}
-
-		table.listing tbody tr td {border-bottom:none}
-	</style>
+	<%= stylesheet_link_tag "show_company" %>
 	<%= javascript_include_tag "show_company" %>
+	<style type="text/css" media="screen">
+		div.ajax_issue{ background-image: url(<%= image_path("error_16x16.png") %>) }
+		li.loading{ background-image: url( <%= image_path( "ajax-loader-fb.gif" ) %> ) }
+	</style>
 	<script type="text/javascript">
 	
 		// These variables hold the links to the AJAX calls made within the get_listing function
