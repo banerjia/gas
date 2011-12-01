@@ -4,8 +4,8 @@ table.listing {border-bottom:2px solid #ccc;border-collapse:collapse}
 table.listing caption {font-family:Verdana,Tahoma,Arial,Sans-serif;margin-bottom:0.5em;text-align:left;}
 table.listing thead tr th {background-color:#5F6B61;color:#fff;font-weight:normal;text-transform:uppercase;text-align:center;}
 table.listing thead tr th:first-child {text-align:left; width:70%}
-table.listing tbody tr:nth-child(even) td,table.listing1 tbody tr td {background-color:#efefef}
-table.listing tbody tr:nth-child(odd) td,table.listing1 tbody tr.alternate td {background-color:#fff}
+table.listing tbody tr:nth-child(even) td,table.listing tbody tr td {background-color:#efefef}
+table.listing tbody tr:nth-child(odd) td,table.listing tbody tr.alternate td {background-color:#fff}
 table.listing tbody tr td:first-child {text-align:left}
 table.listing tbody tr td:last-child, table.listing tfoot th + td {text-align: center}
 table.listing th {padding:0.6em;}
