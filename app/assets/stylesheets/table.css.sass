@@ -1,0 +1,88 @@
+@mixin table-even-row
+	td
+		background:
+			color: #efefef
+
+@mixin table-odd-row
+	td
+		background:
+			color: #fff
+	
+fieldset
+	&.information_blocks
+		legend
+			font:
+				size: 12pt
+				weight: bold
+			margin:
+				bottom: 0.5em
+				top: 0
+			text-align: left
+
+table
+	&.listing
+		border:
+			bottom: 2px solid #ccc
+			collapse: collapse
+	
+		caption
+			font:
+				family: Verdana, Tahoma, Arial, Sans-serif
+			margin:
+				bottom: 0.5em
+			text:
+				align: left
+		
+		td
+			text:
+				align: center
+
+		thead
+			tr
+				th
+					background:
+						color: #5f6b61
+					color: #fff
+					font:
+						weight: bold
+					padding: 0.6em
+					text:
+						align: center
+						transform: uppercase
+					&:first-child
+						text:
+							align: left
+							width: 70%
+		tbody
+			tr
+				&:nth-child(even)
+					@include table-even-row
+				&:nth-child(odd)
+					@include table-odd-row
+					
+				&.alternate
+					@include table-even-row
+				td
+					background:
+						color: #fff
+						
+					&:first-child
+						text:
+							align: left
+					&:last-child
+						text
+							align: center
+							
+				th
+					padding: 0.6em
+	
+				td
+					padding: 1em
+			
+					&.cell-right-align
+						text:
+							align: right
+		tfoot
+			th + td
+				text:
+					align: left
