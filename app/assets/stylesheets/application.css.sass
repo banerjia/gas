@@ -15,6 +15,18 @@
 		align: left
 	width: auto
 
+@mixin flash-messages
+	background:
+		color: #eee
+		position: 8px 8px
+		repeat: no-repeat
+	border: 3px solid #fcc
+	min-height: 35px
+	margin: 0.4em auto
+	padding:
+		top: 15px
+		left: 50px
+
 body
 	@include overall-font
 	background:
@@ -110,22 +122,18 @@ div
 			min-width: 6em
 
 p
-	&.warning
-		background:
-			color: #eee
-			position: 8px 8px
-			repeat: no-repeat
-		border: 3px solid #fcc
-		min-height: 35px
-		margin: 0.4em auto
-		padding:
-			top: 15px
-			left: 50px
+	&.error
+		@include flash-messages
 	
 	&.notice
-		extend &.warning
+		@include flash-messages
 		border:
 			color: #9c9
+	&.warning
+		@extend .error
+	
+	&.information
+		@extend .notice
 
 
 ul
@@ -148,6 +156,11 @@ ul
 			padding:
 				left: 26px
 			min-height: 20px
+			
+			&.current			
+				background-position: 5px center
+				color: #000
+				cursor: default
 
 
 		

@@ -5,22 +5,13 @@
   <link href='http://fonts.googleapis.com/css?family=Nobile' rel='stylesheet' type='text/css'/>
   <%= stylesheet_link_tag "application"%>
   <%= csrf_meta_tags %>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <style type="text/css" media="screen">
-	p.warning{
-		background-image: url(<%= image_path("warning_32x32.png")%>);
-	}
-
-	p.notice{
-		background-image: url(<%= image_path("notice_32x32.png")%> );
-	}
-	
-	ul.nav_items li.current {
-		background-image:url(<%= image_path("current_16x16.png")%>);
-		background-position:5px center;
-		color: #000;
-		cursor:default;
-	}
+	p.error{background-image: url(<%= image_path("exclamation_32x32.png")%>);}
+	p.warning{background-image: url(<%= image_path("warning_32x32.png")%>);}
+	p.notice{background-image: url(<%= image_path("success_32x32.png")%> );}	
+	p.information{background-image: url(<%= image_path("information_32x32.png")%>);}	
+	ul.nav_items li.current {background-image:url(<%= image_path("current_16x16.png")%>);}
   </style>
   <%= yield :head %>
 </head>
@@ -34,7 +25,7 @@
 				<p class="notice"><%= flash[:notice]%></p>
 			<% end %>
 			<% if !flash[:warning].blank? %>
-				<p class="warning"><%=flash[:warning]%></p>
+				<p class="error"><%=flash[:warning]%></p>
 			<% end %>
 			<%= yield :body %>
 		</div>

@@ -29,12 +29,14 @@
 		</span>	
 		<% end %>	
 	</div>
+	<%= f.error_messages %>
 	<h2>Basic Company Information</h2>
 	<div class="entry_row">
 		<div class="entry_label"><%= f.label :name %></div>
-		<div class="entry_value"><%= f.text_field :name %></div>
+		<div class="entry_value">
+			<%= f.text_field :name %>
+		</div>
 	</div>
-	
 	<table width="100%" class="listing" id="division_listing">
 		<caption>Manage Divisions</caption>
 		<thead>

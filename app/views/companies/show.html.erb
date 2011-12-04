@@ -6,6 +6,10 @@
 	<style type="text/css" media="screen">
 		div.ajax_issue{ background-image: url(<%= image_path("error_16x16.png") %>) }
 		li.loading{ background-image: url( <%= image_path( "ajax-loader-fb.gif" ) %> ) }
+		
+		td.information{
+			padding:0.5em;
+		}
 	</style>
 	<script type="text/javascript">
 	
@@ -94,7 +98,7 @@
 		</tr>
 		<% if company.has_divisions? && company.has_stores_without_division? %>
 		<tr>
-			<td colspan="2">
+			<td colspan="2" class="information">
 				We discovered some stores in <%=company[:name]%> that are not assigned to any of the <%= pluralize(company.divisions.size, "division") %>. <br/>
 				<%= link_to "View Stores",company_division_stores_path(company,0, :format => :html)%>
 			</td>

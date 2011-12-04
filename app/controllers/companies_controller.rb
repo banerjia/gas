@@ -65,42 +65,8 @@ class CompaniesController < ApplicationController
       flash[:notice] = "The information for " + company[:name] + " has been updated."
       redirect_to :action => "show", :id => company_id
     else
-      flash[:warning] = "Company information could not be updated"
       render :edit, :locals => {:page_title => "Edit Company Details",:company => company}
     end    
-  end
-
-  def stores_snippet  
-    company_id = params[:id]
-    limit = params[:limit]
-
-    # Assigning the :include information in a single local variable
-    # helps in providing the same information for both JSON and XML
-    # format.
-    inclusions = $store_inclusions
-
-    stores = Store.find(:all, 
-    :conditions => {:company_id => company_id},
-    :include => [:last_audit, :pending_audit],
-    :limit => limit)
-
-    return_value = Hash.new
-    return_value[:number_of_stores] = stores.length
-    return_value[:stores] = stores
-
-    respond_to do |format|
-      format.json do
-        render :json => return_value.to_json(
-        :except => $exceptions,
-        :include => inclusions)
-      end
-
-      format.xml do 
-        render :xml => return_value.to_xml(
-        :except => $exceptions,
-        :include => inclusions)
-      end
-    end  
   end
   
   def company_states
