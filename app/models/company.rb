@@ -5,7 +5,7 @@ class Company < ActiveRecord::Base
   has_many :states, :through => :stores, :uniq => :true
   
   validates_presence_of :name, \
-                        :message => "^ Company name cannot be blank. Please provide a company name."
+                        :message => "Company name cannot be blank. Please provide a company name."
                         
   validates_associated :divisions
   

@@ -1,11 +1,12 @@
+$errors_msg_shading: #FF8600
 @mixin overall-font
 	font:
 		family: "Nobile", Sans-serif
 		
 @mixin left-column-h2
 	background:
-		color: #b0c4de
-	color: #fff
+		color: #d5d5e5
+	color: #000
 	font:
 		size: 11pt
 	margin: 0
@@ -17,14 +18,15 @@
 
 @mixin flash-messages
 	background:
-		color: #eee
+		color: #f3f4f5
 		position: 8px 8px
 		repeat: no-repeat
-	border: 3px solid #fcc
-	min-height: 35px
+	border: 2px solid #fcc
+	font:
+		size: 8pt/2
+	min-height: 24px
 	margin: 0.4em auto
-	padding:
-		top: 15px
+	padding: 0.4em
 		left: 50px
 
 body
@@ -40,6 +42,7 @@ body
 	
 	input
 		@include overall-font
+		padding: 0.2em 0.3em
 	
 	select
 		@include overall-font
@@ -96,34 +99,65 @@ div
 			&:hover
 				text:
 					decoration: underline
-	&#left_column
+	&#left_column >
 		h2
 			@include left-column-h2
+			margin:
+				left: -0.45em
+				right: -0.45em
 	
 	&.toolbar
 		@include left-column-h2
 
 		.icon_buttons
 			background:
-				color: #005b9a
-			border: 1px solid #ddd
+				color: #6898ce
+			border: 2px solid #fff
 			color: #fff
 			display: inline-block
 			font:
 				family: Verdana, Tahoma, Arial, Sans-serif
 				weight: bold
-				size: 10pt/2
+				size: 11pt/2
+			letter-spacing: 1.2px
 			margin:
 				right: 1em
 				left: 0
 			padding: 0.4em
 			text:
 				align: center
+				transform: uppercase
 			min-width: 6em
+	&.form_errors
+		background:
+			color: #eee
+		border:
+			color: $errors_msg_shading
+			size: 2px
+			style: solid
+		display: block
+		margin: 0 0 0.4em 0
+		padding: 0.4em
+			top: 0
+		width: auto
+	
+	&.form_errors >
+		h2
+			background:
+				color: $errors_msg_shading
+			color: #fff
+			font:
+				size: 11.5pt
+			margin: 0 -0.42em 0.4em -0.42em
+			padding:
+				left: 0.4em			
+
 
 p
 	&.error
 		@include flash-messages
+		border:
+			color: #D0A9AA
 	
 	&.notice
 		@include flash-messages
@@ -161,6 +195,48 @@ ul
 				background-position: 5px center
 				color: #000
 				cursor: default
+
+.information
+	background:
+		color: #d5d5e5
+		position: 10px 10px
+		repeat: no-repeat
+	border: 2px solid #ccc
+	font:
+		size: 9pt/2
+	padding: 0.7em
+		left: 55px
+		
+	a			
+		&:link
+			background:
+				color: #6898ce
+			border: 2px solid #fff
+			color: #fff
+			display: inline-block
+			font:
+				weight: bold
+			line-height: 1
+			padding: 0.4em
+			text:
+				decoration: none
+		&:visited
+			color: #fff
+		&:hover
+			text:
+				decoration: none
+	p
+		margin:
+			top: 0
+			bottom: 0.4em
+			
+.error_field
+	@extend input:text
+	@extend select
+	border: 2px solid red
+			
+
+	
 
 
 		

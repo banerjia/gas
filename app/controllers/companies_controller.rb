@@ -62,7 +62,7 @@ class CompaniesController < ApplicationController
     company_id = params[:id]
     company = Company.find(company_id)
     if company.update_attributes(params[:company])
-      flash[:notice] = "The information for " + company[:name] + " has been updated."
+      flash[:error] = "The information for " + company[:name] + " has been updated."
       redirect_to :action => "show", :id => company_id
     else
       render :edit, :locals => {:page_title => "Edit Company Details",:company => company}

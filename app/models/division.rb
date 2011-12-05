@@ -5,7 +5,7 @@ class Division < ActiveRecord::Base
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :company_id, \
-                          :message => " already exists. Please choose a different name"
+                          :message => "Division name already exists. Please choose a different name."
 
   attr_accessible :name, :company_id
 

@@ -57,6 +57,10 @@ Variables
 	###
 	return 0 if jQuery(target_section).attr("class") is "no-section-change"
 	
+	jQuery("p.notice, p.error, p.warning, p.information").fadeOut( () ->
+		jQuery(this).remove()	
+	)
+	
 	previous_section = jQuery(@current_section).attr("id")
 	next_section = jQuery(target_section).attr("id")
 	jQuery(@current_section).removeClass("current")

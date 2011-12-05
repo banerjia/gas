@@ -1,15 +1,11 @@
 <% content_for :head do %>
-	<%= stylesheet_link_tag "table"%>
-	<%= stylesheet_link_tag "forms"%>
-	<%= stylesheet_link_tag "show_company" %>
+	<%= stylesheet_link_tag "table", :media => "screen"%>
+	<%= stylesheet_link_tag "forms", :media => "screen"%>
+	<%= stylesheet_link_tag "show_company", :media => "screen" %>
 	<%= javascript_include_tag "show_company" %>
 	<style type="text/css" media="screen">
-		div.ajax_issue{ background-image: url(<%= image_path("error_16x16.png") %>) }
-		li.loading{ background-image: url( <%= image_path( "ajax-loader-fb.gif" ) %> ) }
-		
-		td.information{
-			padding:0.5em;
-		}
+		div.ajax_issue{ background-image: url(<%= image_path("error_24x24.png")%>) }
+		li.loading{ background-image: url( <%= image_path("ajax-loader-fb.gif")%> ) }
 	</style>
 	<script type="text/javascript">
 	
@@ -99,8 +95,8 @@
 		<% if company.has_divisions? && company.has_stores_without_division? %>
 		<tr>
 			<td colspan="2" class="information">
-				We discovered some stores in <%=company[:name]%> that are not assigned to any of the <%= pluralize(company.divisions.size, "division") %>. <br/>
-				<%= link_to "View Stores",company_division_stores_path(company,0, :format => :html)%>
+				<p>We discovered some stores in <%=company[:name]%> that are not assigned to any division.</p>
+				<p style="text-align:center"><%= link_to "View Stores",company_division_stores_path(company,0, :format => :html), :style => "color: #fff;text-decoration: none"%></p>
 			</td>
 		</tr>
 		<% end %>

@@ -8,7 +8,7 @@ gem 'rails', '3.1.2'
 gem 'mysql2'
 gem 'composite_primary_keys'
 gem 'cloudfiles'
-gem 'dynamic_form', "~> 1.1.4"
+#gem 'dynamic_form', "~> 1.1.4"
 
 # Gems used only for assets and not required
 # in production environments by default.

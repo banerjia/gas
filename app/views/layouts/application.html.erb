@@ -7,10 +7,10 @@
   <%= csrf_meta_tags %>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <style type="text/css" media="screen">
-	p.error{background-image: url(<%= image_path("exclamation_32x32.png")%>);}
-	p.warning{background-image: url(<%= image_path("warning_32x32.png")%>);}
-	p.notice{background-image: url(<%= image_path("success_32x32.png")%> );}	
-	p.information{background-image: url(<%= image_path("information_32x32.png")%>);}	
+	p.error{background-image: url(<%= image_path("error_24x24.png")%>);}
+	p.warning{background-image: url(<%= image_path("warning_24x24.png")%>);}
+	p.notice{background-image: url(<%= image_path("success_24x24.png")%> );}	
+	.information{background-image: url(<%= image_path("information_32x32.png")%>);}	
 	ul.nav_items li.current {background-image:url(<%= image_path("current_16x16.png")%>);}
   </style>
   <%= yield :head %>
@@ -25,7 +25,10 @@
 				<p class="notice"><%= flash[:notice]%></p>
 			<% end %>
 			<% if !flash[:warning].blank? %>
-				<p class="error"><%=flash[:warning]%></p>
+				<p class="warning"><%=flash[:warning]%></p>
+			<% end %>
+			<% if !flash[:error].blank? %>
+				<p class="error"><%=flash[:error]%></p>
 			<% end %>
 			<%= yield :body %>
 		</div>
