@@ -59,12 +59,10 @@ table
 					@include table-even-row
 				&:nth-child(odd)
 					@include table-odd-row
-					
-				&.alternate
-					@include table-even-row
 				td
 					background:
 						color: #fff
+					padding: 1em					
 						
 					&:first-child
 						text:
@@ -72,16 +70,16 @@ table
 					&:last-child
 						text
 							align: center
-							
-				th
-					padding: 0.6em
-	
-				td
-					padding: 1em
 			
 					&.cell-right-align
 						text:
 							align: right
+					
+				&.alternate
+					@include table-even-row
+							
+				th
+					padding: 0.6em
 		tfoot
 			th + td
 				text:
