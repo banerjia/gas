@@ -4,18 +4,19 @@ Graeters::Application.routes.draw do
 	  root :to => 'companies#index', :format => :html	  
 	  constraints( :id => /\d+/) do
 	  
+		match "stores/search" => "stores#search", :as => "stores_search"
 		resources :stores do
-		  get "audits", :on => :member
-		  get "new_audit", :on => :member 
+			match "audits" => "audits#search", :as => "audits"
+			match "audits/new" => "audits#new", :as => "new_audit", :via => :get, :format => :html
 		end	
 		
 		resources :companies do
-		  #get "stores", :on => :member
 			match "states" => "companies#company_states", :as => "states", :format => :json
-			match "stores/:country-:state" => "stores#index", :constraints => {:state => /[a-zA-Z]{2,}/,:country => /[a-zA-Z]{2}/}, :as => "stores_by_state"	     
-		  resources :stores       
+			match "stores/:country-:state" => "stores#search", :constraints => {:state => /[a-zA-Z]{2,}/,:country => /[a-zA-Z]{2}/}, :as => "stores_by_state"	     
+			match "stores" => "stores#search", :as => "stores"
+			
 		  resources :divisions do
-			  resources "stores", :on => :member
+			  match "stores" => "stores#search", :as => "stores"
 		  end
 		end
 		

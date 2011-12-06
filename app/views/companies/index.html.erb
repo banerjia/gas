@@ -1,6 +1,13 @@
 <% content_for :head do %>
 	<%= stylesheet_link_tag "table"%>
 	<style type="text/css" media="screen">
+		div#left_column {display:none;}
+		div#right_column{
+			float: none;
+			display: block;
+			margin-left: 0;
+			width: auto;
+		}
 		table#company_listing {
 			border-bottom:none;
 			margin:auto;
@@ -12,11 +19,7 @@
 	</style>
 	<script type="text/javascript">
 		$(document).ready(function(){
-			$("div#left_column").remove();
-			$("div#right_column").css("float","none");
-			$("div#right_column").css("display","block");
-			$("div#right_column").css("margin-left","0");
-			$("div#right_column").css("width","auto");
+			jQuery("div#left_column").remove();
 		});
 	</script>
 <% end %>
