@@ -1,21 +1,4 @@
 <% content_for :head do %>
-	<style type="text/css" media="screen">
-		div#left_column, div#right_column{
-			padding: 0.4em;
-			padding-top: 0;
-		}
-		
-		div#left_column{
-			border: 3px solid #eee;
-			margin-left:0;
-			width:250px;
-		}
-		div#right_column{
-			float:right;
-			margin-right: 0;
-			width: 720px;
-		}
-	</style>
 	<script type="text/javascript">	
 		$(document).ready(function(){			
 			var min_height = Math.min( $("div#right_column").height(), $("div#left_column").height());

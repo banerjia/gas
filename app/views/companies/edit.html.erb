@@ -5,10 +5,6 @@
 	<script type="text/javascript">
 		jQuery(document).ready(function(){
 			jQuery("div#left_column").remove();
-			jQuery("div#right_column").css("float","none");
-			jQuery("div#right_column").css("display","block");
-			jQuery("div#right_column").css("margin-left","0");
-			jQuery("div#right_column").css("width","auto");
 			jQuery("input#company_name").focus();
 			
 		<% if company.errors.any? && !company.errors[:divisions].blank? %>
@@ -17,6 +13,13 @@
 		});
 	</script>
 	<style type="text/css" media="screen">
+		div#left_column {display:none;}
+		div#right_column{
+			float: none;
+			display: block;
+			margin-left: 0;
+			width: auto;
+		}
 		table#division_listing thead tr th { background-color: #bbb; color: #000}
 		table#division_listing thead tr th:first-child{ width: 10%;}
 		table#division_listing thead tr th:first-child + th, table#division_listing tbody tr td:first-child + td {text-align:left;width:50%;}
@@ -36,7 +39,6 @@
 	</style>
 <% end %>
 
-	
 <%= form_for company, :url => company_path(company) do |f| %>
 	<div class="toolbar">
 		<%= f.submit "Save Changes", :class=> "icon_buttons"%>
@@ -52,7 +54,7 @@
 		<h2>Please review some of the entries</h2>
 		<ul>
 		<% company.errors.each do |attr_name, message|%>
-			<% if !attr_name.to_s.starts_with?("division") %>
+			<% if attr_name.to_s != "divisions" %>
 			<li><%= message %></li>
 			<% end %>
 		<% end %>

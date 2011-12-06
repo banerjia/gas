@@ -1,4 +1,6 @@
 $errors_msg_shading: #FF8600
+$wrapper-width: 1024px
+$left-column-width: 250px
 @mixin overall-font
 	font:
 		family: "Nobile", Sans-serif
@@ -28,6 +30,10 @@ $errors_msg_shading: #FF8600
 	margin: 0.4em auto
 	padding: 0.4em
 		left: 50px
+
+@mixin column-padding
+	padding: 0.4em
+		top: 0
 
 body
 	@include overall-font
@@ -67,7 +73,7 @@ div
 		padding: 0 1px
 		text:
 			align: left
-		width: 1024px
+		width: $wrapper-width
 		
 		
 	&.page_blocks
@@ -99,12 +105,25 @@ div
 			&:hover
 				text:
 					decoration: underline
-	&#left_column >
-		h2
-			@include left-column-h2
-			margin:
-				left: -0.45em
-				right: -0.45em
+	
+	&#left_column
+		@include column-padding
+		border: 3px solid #eee
+		margin:
+			left: 0
+		width: $left-column-width
+				
+		& >
+			h2
+				@include left-column-h2
+				margin:
+					left: -0.45em
+					right: -0.45em
+	&#right_column
+		float: right
+		margin:
+			right: 0
+		width: ($wrapper-width - $left-column-width - 54px)
 	
 	&.toolbar
 		@include left-column-h2
@@ -128,6 +147,7 @@ div
 				align: center
 				transform: uppercase
 			min-width: 6em
+
 	&.form_errors
 		background:
 			color: #eee
@@ -234,12 +254,5 @@ ul
 	@extend input:text
 	@extend select
 	border: 2px solid red
-			
-
-	
-
-
-		
-
 
 	
