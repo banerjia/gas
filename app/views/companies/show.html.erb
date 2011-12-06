@@ -6,6 +6,7 @@
 	<style type="text/css" media="screen">
 		div.ajax_issue{ background-image: url(<%= image_path("error_24x24.png")%>) }
 		li.loading{ background-image: url( <%= image_path("ajax-loader-fb.gif")%> ) }
+		table.listing, div#ajax_message_container { display:none }
 	</style>
 	<script type="text/javascript">
 	
@@ -23,7 +24,6 @@
 			// Hide all listings on first load
 			// Listings are shown when the corresponding
 			// links are clicked on the page. 
-			jQuery("table.listing").hide();
 			jQuery("ul.nav_items li").click(function(){
 				switch_sections( jQuery(this) );
 			});
