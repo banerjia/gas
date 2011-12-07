@@ -43,10 +43,7 @@ class StoresController < ApplicationController
 
       selected_store = Store.find( selected_store_id )
       states = State.find(:all,:select => [:country, :state_code, :state_name], :order => [:country,:state_name])
-      companies = Company.find(:all)
-      
-      
-      
+      companies = Company.find(:all)      
       
       respond_to do |format|
         format.html do           
@@ -126,6 +123,7 @@ class StoresController < ApplicationController
                 render "stores_by_section", :locals => \
 					{:page_title => stores_found[0].company[:name] + " Stores in " + division_name + " Division", \
 					:stores => stores_found, \
+					:allow_mass_edits => true, \
 					:ajax_path => company_division_stores_path(stores_found[0][:company_id],division_id, :format => :json)}
               else			
                 render "stores_by_section", :locals => {\

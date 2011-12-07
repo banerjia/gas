@@ -19,4 +19,4 @@
 	</ul>
 <% end %>
 
-<%= render :partial => "stores", :locals => {:store_collection =>  stores, :ajax_path => ajax_path}%>
+<%= render :partial => "stores", :locals => {:store_collection =>  stores, :ajax_path => ajax_path, :allow_mass_edits => (defined?(allow_mass_edits) ? allow_mass_edits : false)}%>

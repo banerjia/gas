@@ -1,3 +1,6 @@
+<%
+	mass_changes = (defined?(allow_mass_edits) ? allow_mass_edits : false)
+%>
 <% content_for :head do %>
 	<%= javascript_include_tag "dateformat" %>
 	<script type="text/javascript">
@@ -52,11 +55,18 @@
 	</script>
 	<style type="text/css" media="screen">
 		table#store_listing { width: 100%;}
+		<% if mass_changes %>
+		table#store_listing tbody tr td:first-child{ text-align: center}
+		table#store_listing tbody tr td:first-child + td {text-align: left}
+		<% end %>
 	</style>
 <% end %>
 <table id="store_listing" class="listing">
 	<thead>
 		<tr>
+			<% if mass_changes %>
+			<th scope="col">Select All</th>
+			<% end %>
 			<th scope="col">Store</th>
 			<th scope="col">Last Audit</th>
 		</th>
@@ -64,7 +74,7 @@
 	<% if store_collection.length > 10 %>
 	<tfoot>
 		<tr>
-			<td colspan="2">
+			<td colspan="<%= mass_changes ? 3 : 2 %>">
 				<a id="load_more_stores" onclick="load_more()">Get more stores ..</a>
 			</td>
 		</tr>
@@ -73,6 +83,9 @@
 	<tbody id="page_1">
 		<% store_collection[0..9].each do |store|%>
 		<tr>
+			<% if mass_changes %>
+			<td><input type="checkbox" name="select_entry"/></td>
+			<% end %>
 			<td><%=link_to store[:name], store_path(store)%><br/><%=store.address%></td>
 			<td>
 				<%= !store.last_audit.blank? ? link_to(store.last_audit[:score],"#") : '&nbsp;'.html_safe%><br/>
