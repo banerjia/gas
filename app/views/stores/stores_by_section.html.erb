@@ -15,8 +15,13 @@
 <% content_for :left_column do %>
 	<h2>Tools</h2>
 	<ul class="nav_items">
-		<li><a href="#">Find Stores</a></li>
+		<li><%= link_to "Companies", companies_path %></li>
+		<li><%= link_to "Audits", audits_path %></li>
+		<li><%= link_to_unless_current "Add a store", new_store_path %></li>
 	</ul>
 <% end %>
 
-<%= render :partial => "stores", :locals => {:store_collection =>  stores, :ajax_path => ajax_path, :allow_mass_edits => (defined?(allow_mass_edits) ? allow_mass_edits : false)}%>
+<%= render :partial => "stores", \
+	:locals => {:store_collection =>  stores, \
+	:ajax_path => ajax_path, \
+	:allow_mass_edits => (defined?(allow_mass_edits) ? allow_mass_edits : false)}%>

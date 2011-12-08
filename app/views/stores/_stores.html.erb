@@ -1,5 +1,5 @@
 <%
-	mass_changes = (defined?(allow_mass_edits) ? allow_mass_edits : false)
+	include_checkbox_column = (defined?(allow_mass_edits) ? allow_mass_edits : false)
 %>
 <% content_for :head do %>
 	<%= javascript_include_tag "dateformat" %>
@@ -55,26 +55,30 @@
 	</script>
 	<style type="text/css" media="screen">
 		table#store_listing { width: 100%;}
-		<% if mass_changes %>
+		<% if include_checkbox_column %>
 		table#store_listing tbody tr td:first-child{ text-align: center}
 		table#store_listing tbody tr td:first-child + td {text-align: left}
 		<% end %>
 	</style>
 <% end %>
+<div class="toolbar">
+	<input type="button" class="icon_buttons" value="Refine"/>
+	<input type="button" class="icon_buttons" value="Add to Queue"/>
+</div>
 <table id="store_listing" class="listing">
 	<thead>
 		<tr>
-			<% if mass_changes %>
+			<% if include_checkbox_column %>
 			<th scope="col">Select All</th>
 			<% end %>
 			<th scope="col">Store</th>
 			<th scope="col">Last Audit</th>
-		</th>
+		</tr>
 	</thead>
 	<% if store_collection.length > 10 %>
 	<tfoot>
 		<tr>
-			<td colspan="<%= mass_changes ? 3 : 2 %>">
+			<td colspan="<%= include_checkbox_column ? 3 : 2 %>">
 				<a id="load_more_stores" onclick="load_more()">Get more stores ..</a>
 			</td>
 		</tr>
@@ -83,7 +87,7 @@
 	<tbody id="page_1">
 		<% store_collection[0..9].each do |store|%>
 		<tr>
-			<% if mass_changes %>
+			<% if include_checkbox_column %>
 			<td><input type="checkbox" name="select_entry"/></td>
 			<% end %>
 			<td><%=link_to store[:name], store_path(store)%><br/><%=store.address%></td>
