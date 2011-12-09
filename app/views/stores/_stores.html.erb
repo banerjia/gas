@@ -52,12 +52,23 @@
 				}
 			})
 		}
+		function select_scope(scope){
+			switch(scope){
+				case 'all':
+					jQuery("input:checkbox").attr("checked",true);
+					break;
+				case 'none':
+					jQuery("input:checkbox").attr("checked",false);
+					break;
+			}
+		}
 	</script>
 	<style type="text/css" media="screen">
 		table#store_listing { width: 100%;}
+		table.listing td.selection_row{ text-align: left;}
 		<% if include_checkbox_column %>
 		table#store_listing tbody tr td:first-child{ text-align: center}
-		table#store_listing tbody tr td:first-child + td {text-align: left}
+		table#store_listing tbody tr td:first-child + td, table#store_listing thead tr th:first-child + th  {text-align: left}
 		<% end %>
 	</style>
 <% end %>
@@ -69,11 +80,20 @@
 	<thead>
 		<tr>
 			<% if include_checkbox_column %>
-			<th scope="col">Select All</th>
+			<th scope="col"><span style="visibility:hidden">Select</span></th>
 			<% end %>
 			<th scope="col">Store</th>
 			<th scope="col">Last Audit</th>
 		</tr>
+		<% if include_checkbox_column %>
+		<tr>
+			<td colspan="3" class="selection_row">
+				Select: 
+					<a onclick="select_scope('all')">All</a>,
+					<a onclick="select_scope('none')">None</a>
+			</td>
+		</tr>
+		<% end %>
 	</thead>
 	<% if store_collection.length > 10 %>
 	<tfoot>

@@ -120,13 +120,13 @@ class StoresController < ApplicationController
             if stores_found.count > 0
               if !division_id.nil?
                 division_name = (!stores_found[0].division.nil? ? stores_found[0].division[:name] : "Unassigned")
-                render "stores_by_section", :locals => \
+                render "search_results", :locals => \
 					{:page_title => stores_found[0].company[:name] + " Stores in " + division_name + " Division", \
 					:stores => stores_found, \
 					:allow_mass_edits => true, \
 					:ajax_path => company_division_stores_path(stores_found[0][:company_id],division_id, :format => :json)}
               else			
-                render "stores_by_section", :locals => {\
+                render "search_results", :locals => {\
 					:page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name], \
 					:stores => stores_found, \
 					:ajax_path => company_stores_by_state_path(stores_found[0][:company_id],stores_found[0][:country],stores_found[0][:state_code], :format => :json)}
