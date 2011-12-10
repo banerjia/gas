@@ -7,7 +7,7 @@ Graeters::Application.routes.draw do
 		match "stores/search" => "stores#search", :as => "stores_search"
 		resources :stores do
 			match "audits" => "audits#search", :as => "audits"
-			match "audits/new" => "audits#new", :as => "new_audit", :via => :get, :format => :html
+			#match "audits/new" => "audits#new", :as => "new_audit", :via => :get, :format => :html
 		end	
 		
 		resources :companies do

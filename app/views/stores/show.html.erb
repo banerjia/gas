@@ -61,7 +61,7 @@
 		function get_completed_audits(){
 			if(completed_audits != null ) {populate_audits(completed_audits);return};
 			$.ajax({
-				url: '<%= audits_store_path(store,:format => :json)%>',
+				url: '<%= store_audits_path(store,:format => :json)%>',
 				dataType: "json",
 				success: function(data){
 					completed_audits = data.audits;

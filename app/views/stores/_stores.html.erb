@@ -43,6 +43,9 @@
 						
 							
 						table_body.append( "<tr>" + 
+						<% if include_checkbox_column %>
+							"<td>&nbsp;</td>" +
+						<% end %>
 											 store_information	+ 
 											 audit_information +
 										   "</tr>"					
@@ -69,6 +72,7 @@
 		<% if include_checkbox_column %>
 		table#store_listing tbody tr td:first-child{ text-align: center}
 		table#store_listing tbody tr td:first-child + td, table#store_listing thead tr th:first-child + th  {text-align: left}
+		td.selection_row{ background-color: #eee;padding: 0.5em}
 		<% end %>
 	</style>
 <% end %>
