@@ -1,6 +1,3 @@
-<%
-	include_checkbox_column = (defined?(allow_mass_edits) ? allow_mass_edits : false)
-%>
 <% content_for :head do %>
 	<%= javascript_include_tag "dateformat" %>
 	<script type="text/javascript">
@@ -27,8 +24,8 @@
 					for( i = 0; i < stores_found; i++){
 						var store_information = "<td>" +
 													"<a href='<%=stores_path%>/" + stores[i].id + "'>" + stores[i].name + "</a><br/>" +
-													toTitleCase(stores[i].street_address) + ", " +
-													toTitleCase(stores[i].city) + ", " + 
+													stores[i].street_address.toTitleCase() + ", " +
+													stores[i].city.toTitleCase() + ", " + 
 													stores[i].state_code + " - " +
 													stores[i].zip + 
 												"</td>";
@@ -43,9 +40,6 @@
 						
 							
 						table_body.append( "<tr>" + 
-						<% if include_checkbox_column %>
-							"<td>&nbsp;</td>" +
-						<% end %>
 											 store_information	+ 
 											 audit_information +
 										   "</tr>"					
@@ -70,60 +64,20 @@
 	<style type="text/css" media="screen">
 		table#store_listing { width: 100%;}
 		table.listing td.selection_row{ text-align: left;}
-		<% if include_checkbox_column %>
-		table#store_listing tbody tr td:first-child{ text-align: center}
-		table#store_listing tbody tr td:first-child + td, table#store_listing thead tr th:first-child + th  {text-align: left}
-		td.selection_row{ background-color: #eee;padding: 0.5em}
-		td.selection_row > a[onclick] { 
-			color: #900; 
-			cursor: pointer; 
-			display: inline-block;
-			margin-left: 0.3em;
-			text-decoration: none;
-		}
-		td.selection_row > a[onclick]:hover {text-decoration: underline;}
-		<% end %>
 	</style>
 <% end %>
-<div class="toolbar">
-	<input type="button" class="icon_buttons" value="Refine"/>
-	<input type="button" class="icon_buttons" value="Edit" disabled="disabled"/>
-</div>
-<div id="form_refine">
-	<%= form_tag :url=> {:controller => "stores", :action => "search"} do%>
-		<div style="display:none">
-			<%= hidden_field_tag :company_id%>
-			<%= hidden_field_tag :division_id%>
-		</div>
-		<div class="entry_row">
-			<div class="entry_label">Store Name</div>
-			<div class="entry_value"><%= text_field_tag :store %></div>
-		</div>
-	<% end %>
-</div>
+
 <table id="store_listing" class="listing">
 	<thead>
 		<tr>
-			<% if include_checkbox_column %>
-			<th scope="col"><span style="visibility:hidden">Select</span></th>
-			<% end %>
 			<th scope="col">Store</th>
 			<th scope="col">Last Audit</th>
 		</tr>
-		<% if include_checkbox_column %>
-		<tr>
-			<td colspan="3" class="selection_row">
-				Select:
-					<a class="selection_link" onclick="select_scope('all')">All</a>,
-					<a class="selection_link" onclick="select_scope('none')">None</a>
-			</td>
-		</tr>
-		<% end %>
 	</thead>
 	<% if store_collection.length > 10 %>
 	<tfoot>
 		<tr>
-			<td colspan="<%= include_checkbox_column ? 3 : 2 %>">
+			<td colspan="2">
 				<a id="load_more_stores" onclick="load_more()">Get more stores ..</a>
 			</td>
 		</tr>
@@ -132,9 +86,6 @@
 	<tbody id="page_1">
 		<% store_collection[0..9].each do |store|%>
 		<tr>
-			<% if include_checkbox_column %>
-			<td><input type="checkbox" name="select_entry"/></td>
-			<% end %>
 			<td><%=link_to store[:name], store_path(store)%><br/><%=store.address%></td>
 			<td>
 				<%= !store.last_audit.blank? ? link_to(store.last_audit[:score],"#") : '&nbsp;'.html_safe%><br/>

@@ -20,7 +20,17 @@
 		<li><%= link_to_unless_current "Add a store", new_store_path %></li>
 	</ul>
 <% end %>
-
+<div id="refine">
+	<form>
+		<div class="entry_row">
+			<div class="entry_label">Search</div>
+			<div class="entry_value">
+				<input type="text" placeholder="[Search by store name]"/>
+				<input type="button" value="Search" style="float:right"/>
+			</div>
+		</div>
+	</form>
+</div>
 <%= render :partial => "stores", \
 	:locals => {:store_collection =>  stores, \
 	:ajax_path => ajax_path, \
