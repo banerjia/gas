@@ -1,45 +1,60 @@
-					stores_found = (stores_found == result_count ? stores_found - 1: stores_found);
-					var stores = data.stores;
-					var table_body = $("table#store_listing tbody");
-					for( i = 0; i < stores_found; i++){
-						var store_information = "<td>" +
-													"<a href='<%=stores_path%>/" + stores[i].id + "'>" + stores[i].name + "</a><br/>" +
-													stores[i].street_address.toTitleCase() + ", " +
-													stores[i].city.toTitleCase() + ", " + 
-													stores[i].state_code + " - " +
-													stores[i].zip + 
-												"</td>";
-						var audit_information = "<td>&nbsp;</td>";
+<% content_for :page_js do %>
+	<script type="text/javascript">
+	// Since first page is already loaded this causes the next call to start listing the second page
 
-						if(stores[i].last_audit)
-							audit_information = "<td><a href='<%=audits_path%>/" + stores[i].last_audit.id + "'>" + 
-													stores[i].last_audit.score + 
-													"</a><br/>" +
-													dateFormat(stores[i].last_audit.created_at,"mmm dd, yyyy") + 
-													"</td>";
-						
-							
-						table_body.append( "<tr>" + 
-											 store_information	+ 
-											 audit_information +
-										   "</tr>"					
-						);
-					}
-					start_at += result_count - 1;
+	var start_at = 10; 
+	var result_count = 11;
+
+	function load_more(){
+		$.ajax({
+			url: '<%=ajax_path%>',
+			data: {"start_at": start_at, "result_count" : result_count},
+			dataType: "json",
+			success: function(data){
+				if(parseInt(data.stores_found) < result_count ) $("table#store_listing tfoot").hide().remove();
+				var stores_found = parseInt(data.stores_found);
+				stores_found = (stores_found == result_count ? stores_found - 1: stores_found);
+				var stores = data.stores;
+				var table_body = $("table#store_listing tbody");
+				for( i = 0; i < stores_found; i++){
+					var store_information = "<td>" +
+					"<a href='<%=stores_path%>/" + stores[i].id + "'>" + stores[i].name + "</a><br/>" +
+					stores[i].street_address.toTitleCase() + ", " +
+					stores[i].city.toTitleCase() + ", " + 
+					stores[i].state_code + " - " +
+					stores[i].zip + 
+					"</td>";
+					var audit_information = "<td>&nbsp;</td>";
+
+					if(stores[i].last_audit)
+					audit_information = "<td><a href='<%=audits_path%>/" + stores[i].last_audit.id + "'>" + 
+					stores[i].last_audit.score + 
+					"</a><br/>" +
+					dateFormat(stores[i].last_audit.created_at,"mmm dd, yyyy") + 
+					"</td>";
+
+
+					table_body.append( "<tr>" + 
+					store_information	+ 
+					audit_information +
+					"</tr>");
 				}
-			})
-		}
-		function select_scope(scope){
-			switch(scope){
-				case 'all':
-					jQuery("input:checkbox").attr("checked",true);
-					break;
-				case 'none':
-					jQuery("input:checkbox").attr("checked",false);
-					break;
+				start_at += result_count - 1;
 			}
+		});
+	}
+	function select_scope(scope){
+		switch(scope){
+			case 'all':
+			jQuery("input:checkbox").attr("checked",true);
+			break;
+			case 'none':
+			jQuery("input:checkbox").attr("checked",false);
+			break;
 		}
+	}
 	</script>
+	<%= javascript_include_tag "dateformat" %>
 <% end %>
 <% content_for :head do %>
 	<%= stylesheet_link_tag :forms %>
