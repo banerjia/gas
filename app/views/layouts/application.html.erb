@@ -6,7 +6,6 @@
   <%= javascript_include_tag :application %>
   <%= stylesheet_link_tag "application"%>
   <%= csrf_meta_tags %>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <style type="text/css" media="screen">
 	p.error{background-image: url(<%= image_path("error_24x24.png")%>);}
 	p.warning{background-image: url(<%= image_path("warning_24x24.png")%>);}
@@ -34,5 +33,13 @@
 			<%= yield :body %>
 		</div>
 	</div>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script type="text/javascript">	
+		$(document).ready(function(){			
+			var min_height = Math.min( $("div#right_column").height(), $("div#left_column").height());
+			$("div#right_column, div#left_column").css("min-height", min_height+"px");
+		});
+	</script>
+	<%= yield :page_js %>
 </body>
 </html>

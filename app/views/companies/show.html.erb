@@ -2,14 +2,14 @@
 	<%= stylesheet_link_tag "table", :media => "screen"%>
 	<%= stylesheet_link_tag "forms", :media => "screen"%>
 	<%= stylesheet_link_tag "show_company", :media => "screen" %>
-	<%= javascript_include_tag "show_company" %>
 	<style type="text/css" media="screen">
 		div.ajax_issue{ background-image: url(<%= image_path("error_24x24.png")%>) }
 		li.loading{ background-image: url( <%= image_path("ajax-loader-fb.gif")%> ) }
 		table.listing, div#ajax_message_container { display:none }
 	</style>
-	<script type="text/javascript">
-	
+<% end %>
+<% content_for :page_js  do %>
+	<script type="text/javascript">	
 		// These variables hold the links to the AJAX calls made within the get_listing function
 		var ajax_link_states = "<%= company_states_path(company,:format => :json)%>";
 		var ajax_link_divisions = "<%= company_divisions_path(company,:format => :json)%>";
@@ -32,8 +32,8 @@
 			ajax_message = jQuery("span#ajax_message",ajax_message_container);
 			jQuery(ajax_message_container).hide();
 		})
-	</script>
-
+	</script>	
+	<%= javascript_include_tag "show_company" %>
 <% end %>
 <% content_for :left_column  do %>
 	<h2>Tools</h2> 

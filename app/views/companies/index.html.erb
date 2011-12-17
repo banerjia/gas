@@ -1,13 +1,6 @@
 <% content_for :head do %>
-	<%= stylesheet_link_tag "table"%>
+	<%= stylesheet_link_tag :table %>
 	<style type="text/css" media="screen">
-		div#left_column {display:none;}
-		div#right_column{
-			float: none;
-			display: block;
-			margin-left: 0;
-			width: auto;
-		}
 		table#company_listing {
 			border-bottom:none;
 			margin:auto;
@@ -16,12 +9,14 @@
 		}
 		table#company_listing th:last-child, table#company_listing td:last-child{ text-align:right}
 		div#page_body{ text-align: center;}
+		div#left_column{ display: none;}
+		div#right_column{
+			float:none;
+			display:block;
+			margin-left:0;
+			width:auto;
+		}
 	</style>
-	<script type="text/javascript">
-		$(document).ready(function(){
-			jQuery("div#left_column").remove();
-		});
-	</script>
 <% end %>
 
 <table id="company_listing" class="listing">
