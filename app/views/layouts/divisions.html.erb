@@ -16,12 +16,6 @@
 			width: 720px;
 		}
 	</style>
-	<script type="text/javascript">	
-		$(document).ready(function(){			
-			var min_height = Math.min( $("div#right_column").height(), $("div#left_column").height());
-			$("div#right_column, div#left_column").css("min-height", min_height+"px");
-		});
-	</script>
 <% end %>
 
 <% content_for :body do %>

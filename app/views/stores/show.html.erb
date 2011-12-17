@@ -35,7 +35,8 @@
 			text-indent: -2000px;
 		}
 	</style>
-
+<% end %>
+<% content_for :page_js do %>
 	<script type="text/javascript">
 		var current_section;
 		var store_id = <%= store[:id] %>;

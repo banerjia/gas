@@ -1,4 +1,4 @@
-<% content_for :head do %>
+<% content_for :page_js do %>
 	<%= javascript_include_tag "dateformat" %>
 	<script type="text/javascript">
 		// Since first page is already loaded this causes the next call to start listing the second page
@@ -50,6 +50,8 @@
 			})
 		}
 	</script>
+<% end %>
+<% content_for :head do %>
 	<style type="text/css" media="screen">
 		table#store_listing { width: 100%;}
 	</style>

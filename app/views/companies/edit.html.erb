@@ -1,17 +1,6 @@
 <% content_for :head do %>
 	<%= stylesheet_link_tag "forms" %>
 	<%= stylesheet_link_tag "table" %>
-	<%= javascript_include_tag "edit_company" %>
-	<script type="text/javascript">
-		jQuery(document).ready(function(){
-			jQuery("div#left_column").remove();
-			jQuery("input#company_name").focus();
-			
-		<% if company.errors.any? && !company.errors[:divisions].blank? %>
-			division_errors();
-		<% end %>
-		});
-	</script>
 	<style type="text/css" media="screen">
 		div#left_column {display:none;}
 		div#right_column{
@@ -37,6 +26,20 @@
 			padding: 0.3em;
 		}
 	</style>
+<% end %>
+
+<% content_for :page_js do %>
+	<script type="text/javascript">
+		jQuery(document).ready(function(){
+			jQuery("div#left_column").remove();
+			jQuery("input#company_name").focus();
+		
+		<% if company.errors.any? && !company.errors[:divisions].blank? %>
+			division_errors();
+		<% end %>
+		});
+	</script>
+	<%= javascript_include_tag "edit_company" %>
 <% end %>
 
 <%= form_for company, :url => company_path(company) do |f| %>

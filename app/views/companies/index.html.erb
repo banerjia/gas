@@ -1,5 +1,5 @@
 <% content_for :head do %>
-	<%= stylesheet_link_tag "table"%>
+	<%= stylesheet_link_tag :table %>
 	<style type="text/css" media="screen">
 		table#company_listing {
 			border-bottom:none;
@@ -9,16 +9,14 @@
 		}
 		table#company_listing th:last-child, table#company_listing td:last-child{ text-align:right}
 		div#page_body{ text-align: center;}
+		div#left_column{ display: none;}
+		div#right_column{
+			float:none;
+			display:block;
+			margin-left:0;
+			width:auto;
+		}
 	</style>
-	<script type="text/javascript">
-		$(document).ready(function(){
-			$("div#left_column").remove();
-			$("div#right_column").css("float","none");
-			$("div#right_column").css("display","block");
-			$("div#right_column").css("margin-left","0");
-			$("div#right_column").css("width","auto");
-		});
-	</script>
 <% end %>
 
 <table id="company_listing" class="listing">
