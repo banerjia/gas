@@ -26,6 +26,8 @@ Graeters::Application.configure do
   config.assets.compress = true
   config.assets.precompile = [/^[^_]/]
   config.assets.digest = false 
+  config.assets.js_compressor = :uglifier
+  config.assets.css_compressor = :yui
 
   # Expands the lines which load the assets
   config.assets.debug = true
