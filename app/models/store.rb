@@ -7,7 +7,16 @@ class Store < ActiveRecord::Base
   has_many :audits
   has_one :pending_audit, :class_name => "Audit", :conditions => {:status => 0}, :order => "created_at desc"
   has_one :last_audit, :class_name => "Audit", :conditions => {:status => 1}, :order => "created_at desc"
-  
+
+  define_index do
+    indexes :name
+    indexes city
+    indexes state_code
+    indexes company(:name), :as => :company_name
+
+    has :id, created_at, updated_at
+  end
+ 
   before_save do |store|
     store[:name] = store[:name].strip
     store[:street_address] = store[:street_address].strip

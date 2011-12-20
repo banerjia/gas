@@ -8,7 +8,7 @@ gem 'rails', '3.1.2'
 gem 'mysql2'
 gem 'asset_sync'
 gem 'composite_primary_keys'
-
+gem 'thinking-sphinx'
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
@@ -32,3 +32,4 @@ group :test do
   # Pretty printed test output
   gem 'turn', :require => false
 end
+
