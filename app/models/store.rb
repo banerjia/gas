@@ -11,8 +11,10 @@ class Store < ActiveRecord::Base
   define_index do
     indexes :name
     indexes city
-    indexes state_code
+    indexes state(:state_name), :as => :state_name
+    indexes country 
     indexes company(:name), :as => :company_name
+    indexes zip
 
     has :id, created_at, updated_at
   end
