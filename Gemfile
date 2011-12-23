@@ -9,6 +9,7 @@ gem 'mysql2'
 gem 'asset_sync'
 gem 'composite_primary_keys'
 gem 'thinking-sphinx'
+gem 'geokit-rails3'
 
 # Gems used only for assets and not required
 # in production environments by default.
