@@ -3,7 +3,6 @@ class Store < ActiveRecord::Base
   belongs_to :company
   belongs_to :division
   belongs_to :state, :foreign_key => [:country, :state_code]
-  belongs_to :zip_code, :foreign_key => [:country, :zip]
   
   has_many :audits
   has_one :pending_audit, :class_name => "Audit", :conditions => {:status => 0}, :order => "created_at desc"
@@ -12,13 +11,14 @@ class Store < ActiveRecord::Base
   define_index do
     indexes :name
     indexes city
-    indexes state(:state_name), :as => :state_name
-    indexes country 
+    indexes state_code
+    indexes country
+    indexes state(:state_name), :as => :state_name 
     indexes company(:name), :as => :company_name
     indexes zip
 
     # id is symbolised because it's  a Sphinx keyword
-    has :id, company_id, division_id, state_code, created_at, updated_at, latitude, longitude
+    has :id, created_at, updated_at, latitude, longitude, company_id, division_id
     #set_property :delta => true
   end
  

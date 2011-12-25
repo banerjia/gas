@@ -71,6 +71,7 @@ class StoresController < ApplicationController
   end
 
   def search
+    stores_found = nil
     company_id = params[:company_id]
     division_id = params[:division_id]
     state_code = params[:state]
@@ -80,17 +81,25 @@ class StoresController < ApplicationController
     result_count = params[:result_count] || 11
 
     conditions =  Hash.new
+    with_options = Hash.new
 
-    conditions[:company_id] = company_id unless company_id.nil?
-    conditions[:division_id] = division_id unless division_id.nil?
-    conditions[:division_id] = nil if !division_id.nil? && division_id.to_i == 0
+    with_options[:company_id] = company_id unless company_id.nil?
+    with_options[:division_id] = division_id unless division_id.nil?
+    with_options[:division_id] = nil if !division_id.nil? && division_id.to_i == 0
     conditions[:state_code] =  state_code unless state_code.nil?
     conditions[:country] = country unless country.nil?
 
-    stores_found = Store.find(:all, \
-    :conditions => conditions,\
-    :include => [:division,:pending_audit,:last_audit], \
-    :limit => "#{start_at},#{result_count}")
+    #if defined?(params[:q])
+      stores_found = Store.search params[:q], \
+                      :with => with_options, \
+                      :conditions => conditions, \
+                      :include => [:division, :pending_audit, :last_audit]
+    #else
+      #stores_found = Store.find(:all, \
+      #:conditions => conditions,\
+      #:include => [:division,:pending_audit,:last_audit], \
+      #:limit => "#{start_at},#{result_count}")
+    #end
 
     return_value = Hash.new
     return_value[:stores] = stores_found
@@ -99,7 +108,7 @@ class StoresController < ApplicationController
       format.json do
         render :json => return_value.to_json(
         :include => $store_inclusions,
-        :except => [:division_id, :company_id, :phone,:created_at, :updated_at])
+        :except => $exclusions + [:phone])
       end
       format.html do
         if stores_found.count > 0

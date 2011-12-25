@@ -4,7 +4,6 @@ class State < ActiveRecord::Base
 	
 	has_many :stores
 	has_many :companies, :through => :stores, :uniq => :true
-	has_many :zip_codes, :foreign_key => [:country, :state_code]
 	
 
 end
