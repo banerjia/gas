@@ -76,7 +76,9 @@ class StoresController < ApplicationController
     division_id = params[:division_id]
     state_code = params[:state]
     country = params[:country]
-
+    
+    page = params[:page] || 1
+    page = page.to_i
     start_at = params[:start_at] || 0
     result_count = params[:result_count] || 11
 
@@ -85,21 +87,16 @@ class StoresController < ApplicationController
 
     with_options[:company_id] = company_id unless company_id.nil?
     with_options[:division_id] = division_id unless division_id.nil?
-    with_options[:division_id] = nil if !division_id.nil? && division_id.to_i == 0
+    #with_options[:division_id] =  if !division_id.nil? && division_id.to_i == 0
     conditions[:state_code] =  state_code unless state_code.nil?
     conditions[:country] = country unless country.nil?
 
-    #if defined?(params[:q])
-      stores_found = Store.search params[:q], \
-                      :with => with_options, \
-                      :conditions => conditions, \
-                      :include => [:division, :pending_audit, :last_audit]
-    #else
-      #stores_found = Store.find(:all, \
-      #:conditions => conditions,\
-      #:include => [:division,:pending_audit,:last_audit], \
-      #:limit => "#{start_at},#{result_count}")
-    #end
+    stores_found = Store.search params[:q], \
+                    :with => with_options, \
+                    :conditions => conditions, \
+                    :include => [:division, :pending_audit, :last_audit], \
+                    :page => page, \
+                    :per_page => result_count
 
     return_value = Hash.new
     return_value[:stores] = stores_found
@@ -111,19 +108,23 @@ class StoresController < ApplicationController
         :except => $exclusions + [:phone])
       end
       format.html do
+        params.delete(:action)
+        params.delete(:controller)
+        params[:format] = :json
         if stores_found.count > 0
           if !division_id.nil?
             division_name = (!stores_found[0].division.nil? ? stores_found[0].division[:name] : "Unassigned")
+            params[:division_id] = nil if stores_found[0].division.nil?
             render "search_results", :locals => \
-            {:page_title => stores_found[0].company[:name] + " Stores in " + division_name + " Division", \
-              :stores => stores_found, \
-              :allow_mass_edits => true, \
-              :ajax_path => company_division_stores_path(stores_found[0][:company_id],division_id, :format => :json)}
-          else			
-              render "search_results", :locals => {\
-                :page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name], \
+              {:page_title => stores_found[0].company[:name] + " Stores in " + division_name + " Division", \
                 :stores => stores_found, \
-                :ajax_path => company_stores_by_state_path(stores_found[0][:company_id],stores_found[0][:country],stores_found[0][:state_code], :format => :json)}
+                :allow_mass_edits => true, \
+                :ajax_path => stores_search_path(params)}
+          else			
+            render "search_results", :locals => {\
+              :page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name], \
+              :stores => stores_found, \
+              :ajax_path => stores_search_path(params)}
           end
         else
           redirect_to companies_path

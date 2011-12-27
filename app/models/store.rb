@@ -10,6 +10,7 @@ class Store < ActiveRecord::Base
 
   define_index do
     indexes :name
+    indexes store_number
     indexes city
     indexes state_code
     indexes country
@@ -18,7 +19,8 @@ class Store < ActiveRecord::Base
     indexes zip
 
     # id is symbolised because it's  a Sphinx keyword
-    has :id, created_at, updated_at, latitude, longitude, company_id, division_id
+    has :id, created_at, updated_at, latitude, longitude, company_id
+    has "IFNULL(division_id,0)", :type => :integer, :as => :division_id
     #set_property :delta => true
   end
  

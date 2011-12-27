@@ -2,13 +2,17 @@
 	<script type="text/javascript">
 	// Since first page is already loaded this causes the next call to start listing the second page
 
-	var start_at = 10; 
+	var page = 2; 
 	var result_count = 11;
+	
+	<% if defined?(ajax_path) %>
+	var ajax_path = '<%= ajax_path.html_safe %>';
+	<% end %>
 
 	function load_more(){
 		$.ajax({
-			url: '<%=ajax_path%>',
-			data: {"start_at": start_at, "result_count" : result_count},
+			url: ajax_path,
+			data: {"page": page, "result_count" : result_count},
 			dataType: "json",
 			success: function(data){
 				if(parseInt(data.stores_found) < result_count ) $("table#store_listing tfoot").hide().remove();
@@ -39,19 +43,9 @@
 					audit_information +
 					"</tr>");
 				}
-				start_at += result_count - 1;
+				page++;
 			}
 		});
-	}
-	function select_scope(scope){
-		switch(scope){
-			case 'all':
-			jQuery("input:checkbox").attr("checked",true);
-			break;
-			case 'none':
-			jQuery("input:checkbox").attr("checked",false);
-			break;
-		}
 	}
 	</script>
 	<%= javascript_include_tag "dateformat" %>
@@ -80,7 +74,7 @@
 		</tr>
 	</tfoot>
 	<% end %>
-	<tbody id="page_1">
+	<tbody id="original_listing">
 		<% store_collection[0..9].each do |store|%>
 		<tr>
 			<td><%=link_to store[:name], store_path(store)%><br/><%=store.address%></td>
@@ -91,4 +85,5 @@
 		</tr>
 		<% end %>
 	</tbody>
+	<tbody id="search_results"/>
 </table>

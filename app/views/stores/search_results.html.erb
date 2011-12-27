@@ -1,3 +1,11 @@
+<% content_for :page_js do %>
+	<script type="text/javascript">
+		var ajax_path = '<%=ajax_path.html_safe%>';
+		function search(){
+			$("tbody#original_listing").hide();
+		}
+	</script>
+<% end %>
 <% content_for :head do %>
 	<%= stylesheet_link_tag "table"%>
 	<style type="text/css" media="screen">
@@ -10,6 +18,9 @@
 		table.listing{
 			border-bottom:none;
 		}
+		input#q{
+			width:30em;
+		}
 	</style>
 <% end %>
 <% content_for :left_column do %>
@@ -21,17 +32,15 @@
 	</ul>
 <% end %>
 <div id="refine">
-	<form>
+	<form onsubmit = "return false">
 		<div class="entry_row">
 			<div class="entry_label">Search</div>
 			<div class="entry_value">
-				<input type="text" placeholder="[Search by store name]"/>
-				<input type="button" value="Search" style="float:right"/>
+				<input type="text" placeholder="[Search by store name]" name="q" id="q"/>
+				<input type="button" value="Search" style="float:right" onclick="search()"/>
 			</div>
 		</div>
 	</form>
 </div>
 <%= render :partial => "stores", \
-	:locals => {:store_collection =>  stores, \
-	:ajax_path => ajax_path, \
-	:allow_mass_edits => (defined?(allow_mass_edits) ? allow_mass_edits : false)}%>
+	:locals => {:store_collection =>  stores}%>
