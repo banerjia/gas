@@ -33,20 +33,25 @@
 		<div class="entry_row">
 			<div class="entry_label">Search</div>
 			<div class="entry_value">
-				<% if defined?(options) && !options[:q].nil? then%>
+			<% if defined?(options) then %>
+				<% if !options[:q].nil? then%>
 					<input type="text" name="q" id="q" value="<%=options[:q]%>"/>
 				<% else %>
 					<input type="text" name="q" id="q"/>
 				<% end %>
-				<% if defined?(options) && !options[:company_id].nil? then%>
+				<div style="display:none">
+				<% if !options[:company_id].nil? then%>
 					<input type="hidden" name="company_id" value="<%=options[:company_id]%>"/>
 				<% end %>
-				<% if defined?(options) && !options[:division_id].nil? then%>
+				<% if !options[:division_id].nil? then%>
 					<input type="hidden" name="division_id" value="<%=options[:division_id]%>"/>
 				<% end %>
-				<% if defined?(options) && !options[:state_code].nil? then%>
+				<% if !options[:state_code].nil? then%>
 					<input type="hidden" name="state_code" value="<%=options[:state_code]%>"/>
+					<input type="hidden" name="country" value="<%=options[:country]%>"/>
 				<% end %>
+				</div>
+			<% end %>
 				<input type="submit" value="Search" style="float:right"/>
 			</div>
 		</div>

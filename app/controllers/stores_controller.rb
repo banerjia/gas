@@ -89,7 +89,7 @@ class StoresController < ApplicationController
     with_options[:division_id] = division_id unless division_id.nil?
     #with_options[:division_id] =  if !division_id.nil? && division_id.to_i == 0
     conditions[:state_code] =  state_code unless state_code.nil?
-    conditions[:country] = country unless country.nil?
+    conditions[:country] = country || 'US' unless state_code.nil?
 
     stores_found = Store.search params[:q], \
                     :with => with_options, \

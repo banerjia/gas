@@ -10,6 +10,7 @@ class Store < ActiveRecord::Base
 
   define_index do
     indexes :name
+    indexes street_address
     indexes store_number
     indexes city
     indexes state_code
