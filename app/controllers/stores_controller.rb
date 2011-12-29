@@ -96,7 +96,8 @@ class StoresController < ApplicationController
                     :conditions => conditions, \
                     :include => [:division, :pending_audit, :last_audit], \
                     :page => page, \
-                    :per_page => result_count
+                    :per_page => result_count, \
+                    :match_mode => :extended
 
     return_value = Hash.new
     return_value[:stores] = stores_found
