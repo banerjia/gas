@@ -101,6 +101,7 @@ class StoresController < ApplicationController
     return_value = Hash.new
     return_value[:stores] = stores_found
     return_value[:stores_found] = stores_found.count
+    conditions[:q] = params[:q] unless params[:q].nil?
     respond_to do |format|
       format.json do
         render :json => return_value.to_json(
@@ -124,7 +125,8 @@ class StoresController < ApplicationController
             render "search_results", :locals => {\
               :page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name], \
               :stores => stores_found, \
-              :ajax_path => stores_search_path(params)}
+              :ajax_path => stores_search_path(params),\
+              :options => conditions.merge(with_options)}
           end
         else
           redirect_to companies_path

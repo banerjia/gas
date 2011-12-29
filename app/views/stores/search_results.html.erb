@@ -1,11 +1,8 @@
 <% content_for :page_js do %>
 	<script type="text/javascript">
-		var ajax_path = '<%=ajax_path.html_safe%>';
-		function search(){
-			$("tbody#original_listing").hide();
-		}
+		var ajax_path = '<%= ajax_path.html_safe %>';
 	</script>
-<% end %>
+<% end  %>
 <% content_for :head do %>
 	<%= stylesheet_link_tag "table"%>
 	<style type="text/css" media="screen">
@@ -32,12 +29,25 @@
 	</ul>
 <% end %>
 <div id="refine">
-	<form onsubmit = "return false">
+	<form method="get" action="<%= stores_search_path(:format => :html)%>">
 		<div class="entry_row">
 			<div class="entry_label">Search</div>
 			<div class="entry_value">
-				<input type="text" placeholder="[Search by store name]" name="q" id="q"/>
-				<input type="button" value="Search" style="float:right" onclick="search()"/>
+				<% if defined?(options) && !options[:q].nil? then%>
+					<input type="text" name="q" id="q" value="<%=options[:q]%>"/>
+				<% else %>
+					<input type="text" name="q" id="q"/>
+				<% end %>
+				<% if defined?(options) && !options[:company_id].nil? then%>
+					<input type="hidden" name="company_id" value="<%=options[:company_id]%>"/>
+				<% end %>
+				<% if defined?(options) && !options[:division_id].nil? then%>
+					<input type="hidden" name="division_id" value="<%=options[:division_id]%>"/>
+				<% end %>
+				<% if defined?(options) && !options[:state_code].nil? then%>
+					<input type="hidden" name="state_code" value="<%=options[:state_code]%>"/>
+				<% end %>
+				<input type="submit" value="Search" style="float:right"/>
 			</div>
 		</div>
 	</form>
