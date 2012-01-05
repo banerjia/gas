@@ -24,9 +24,9 @@
 					var store_link = jQuery("<a/>");
 					jQuery(store_link).attr("href", "<%= stores_path %>/" + stores[i].id);
 					jQuery(store_link).text(stores[i].name);
-					var store_address = stores[i].street_address.toTitleCase()+
-										stores[i].city.toTitleCase() + 
-										stores[i].state_code + "-" +
+					var store_address = stores[i].street_address.toTitleCase()+', ' + 
+										stores[i].city.toTitleCase() + ', ' + 
+										stores[i].state_code + " - " +
 										stores[i].zip;
 					jQuery(store_information).append(store_link).append("<br/>").append(store_address);
 					
