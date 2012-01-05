@@ -1,49 +1,52 @@
 <% content_for :page_js do %>
 	<script type="text/javascript">
 	// Since first page is already loaded this causes the next call to start listing the second page
-
-	var page = 2; 
-	var result_count = 11;
+	var next_page = 2; 
+	var result_count = 10;
 	
 	<% if defined?(ajax_path) %>
 	var ajax_path = '<%= ajax_path.html_safe %>';
 	<% end %>
 
 	function load_more(){
-		$.ajax({
+		jQuery.ajax({
 			url: ajax_path,
-			data: {"page": page, "result_count" : result_count},
+			data: {"page": next_page, "result_count" : result_count},
 			dataType: "json",
 			success: function(data){
-				if(parseInt(data.stores_found) < result_count ) $("table#store_listing tfoot").hide().remove();
-				var stores_found = parseInt(data.stores_found);
-				stores_found = (stores_found == result_count ? stores_found - 1: stores_found);
+				if(!data.more_pages) jQuery("table#store_listing tfoot").hide().remove();
+				stores_found = data.stores_found;
 				var stores = data.stores;
-				var table_body = $("table#store_listing tbody");
+				var table_body = jQuery("table#store_listing tbody");
 				for( i = 0; i < stores_found; i++){
-					var store_information = "<td>" +
-					"<a href='<%=stores_path%>/" + stores[i].id + "'>" + stores[i].name + "</a><br/>" +
-					stores[i].street_address.toTitleCase() + ", " +
-					stores[i].city.toTitleCase() + ", " + 
-					stores[i].state_code + " - " +
-					stores[i].zip + 
-					"</td>";
-					var audit_information = "<td>&nbsp;</td>";
-
-					if(stores[i].last_audit)
-					audit_information = "<td><a href='<%=audits_path%>/" + stores[i].last_audit.id + "'>" + 
-					stores[i].last_audit.score + 
-					"</a><br/>" +
-					dateFormat(stores[i].last_audit.created_at,"mmm dd, yyyy") + 
-					"</td>";
-
-
-					table_body.append( "<tr>" + 
-					store_information	+ 
-					audit_information +
-					"</tr>");
+					var row = jQuery("<tr/>");
+					var store_information = jQuery("<td/>");
+					var store_link = jQuery("<a/>");
+					jQuery(store_link).attr("href", "<%= stores_path %>/" + stores[i].id);
+					jQuery(store_link).text(stores[i].name);
+					var store_address = stores[i].street_address.toTitleCase()+
+										stores[i].city.toTitleCase() + 
+										stores[i].state_code + "-" +
+										stores[i].zip;
+					jQuery(store_information).append(store_link).append("<br/>").append(store_address);
+					
+					jQuery(row).append(store_information);
+					
+					var audit_information = jQuery("<td/>");
+					if(stores[i].last_audit){
+						var audit_link = jQuery("<a/>");
+						jQuery(audit_link).attr("href", "<%= audits_path %>/" + store[i].last_audit.id);
+						jQuery(audit_link).text(stores[i].last_audit_score);
+						var audit_date = dateFormat(stores[i].last_audit.created_at,"mmm dd, yyyy");
+						jQuery(audit_information).append(audit_link).append("<br/>").append(audit_date);
+					}
+					else
+						jQuery(audit_information).append("&nbsp;");
+					
+					jQuery(row).append( audit_information );
+					table_body.append( row );
 				}
-				page++;
+				next_page++;
 			}
 		});
 	}
@@ -51,10 +54,9 @@
 	<%= javascript_include_tag "dateformat" %>
 <% end %>
 <% content_for :head do %>
-	<%= stylesheet_link_tag :forms %>
 	<style type="text/css" media="screen">
 		table#store_listing { width: 100%;}
-		table.listing td.selection_row{ text-align: left;}
+		table#store
 	</style>
 <% end %>
 
@@ -65,7 +67,7 @@
 			<th scope="col">Last Audit</th>
 		</tr>
 	</thead>
-	<% if store_collection.length > 10 %>
+	<% if more_pages then %>
 	<tfoot>
 		<tr>
 			<td colspan="2">
@@ -85,5 +87,4 @@
 		</tr>
 		<% end %>
 	</tbody>
-	<tbody id="search_results"/>
 </table>

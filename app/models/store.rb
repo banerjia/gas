@@ -9,13 +9,13 @@ class Store < ActiveRecord::Base
   has_one :last_audit, :class_name => "Audit", :conditions => {:status => 1}, :order => "created_at desc"
 
   define_index do
-    indexes :name
+    indexes :name, :sortable => true
     indexes street_address
     indexes store_number
-    indexes city
-    indexes state_code
-    indexes country
-    indexes state(:state_name), :as => :state_name 
+    indexes city, :sortable => true
+    indexes state_code, :sortable => true
+    indexes country, :sortable => true
+    indexes state(:state_name), :as => :state_name, :sortable => true
     indexes company(:name), :as => :company_name
     indexes zip
 

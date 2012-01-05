@@ -80,15 +80,15 @@ class StoresController < ApplicationController
     page = params[:page] || 1
     page = page.to_i
     start_at = params[:start_at] || 0
-    result_count = params[:result_count] || 11
+    result_count = (params[:result_count] || 10).to_i
 
     conditions =  Hash.new
     with_options = Hash.new
 
     with_options[:company_id] = company_id unless company_id.nil?
     with_options[:division_id] = division_id unless division_id.nil?
-    #with_options[:division_id] =  if !division_id.nil? && division_id.to_i == 0
     conditions[:state_code] =  state_code unless state_code.nil?
+    # Only include country if state_code is specified.
     conditions[:country] = country || 'US' unless state_code.nil?
 
     stores_found = Store.search params[:q], \
@@ -97,10 +97,19 @@ class StoresController < ApplicationController
                     :include => [:division, :pending_audit, :last_audit], \
                     :page => page, \
                     :per_page => result_count, \
-                    :match_mode => :extended
+                    :match_mode => :extended, \
+                    :order => [:country, :state_name, :city]
+                    
+    total_found = Store.search_count params[:q], \
+                  :with => with_options, \
+                  :conditions => conditions, \
+                  :match_mode => :extended
+                  
+    total_pages = (total_found.to_f / result_count)
 
     return_value = Hash.new
     return_value[:stores] = stores_found
+    return_value[:more_pages] = (total_pages > page)
     return_value[:stores_found] = stores_found.count
     conditions[:q] = params[:q] unless params[:q].nil?
     respond_to do |format|
@@ -119,22 +128,22 @@ class StoresController < ApplicationController
             params[:division_id] = nil if stores_found[0].division.nil?
             render "search_results", :locals => \
               {:page_title => stores_found[0].company[:name] + " Stores in " + division_name + " Division", \
-                :stores => stores_found, \
-                :allow_mass_edits => true, \
-                :ajax_path => stores_search_path(params)}
+                :stores => stores_found, :ajax_path => stores_search_path(params), :more_pages => return_value[:more_pages]}
           else			
             render "search_results", :locals => {\
               :page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name], \
               :stores => stores_found, \
               :ajax_path => stores_search_path(params),\
-              :options => conditions.merge(with_options)}
+              :options => conditions.merge(with_options), :more_pages => return_value[:more_pages]}
           end
         else
-          redirect_to companies_path
+          render "search_results", :locals => {\
+			:page_title => "Information Unavailable", \
+			:options => conditions.merge( with_options ), \
+			:stores => nil
+			}			
         end
       end
     end
-
   end
-
 end
