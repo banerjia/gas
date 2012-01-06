@@ -4,7 +4,7 @@ Graeters::Application.routes.draw do
 	  root :to => 'companies#index', :format => :html	  
 	  constraints( :id => /\d+/) do
 	  
-		match "stores/search" => "stores#search", :as => "stores_search"
+		match "stores/search" => 'stores#search', :as => "stores_search"
 		resources :stores do
 			match "audits" => "audits#search", :as => "audits"
 			#match "audits/new" => "audits#new", :as => "new_audit", :via => :get, :format => :html

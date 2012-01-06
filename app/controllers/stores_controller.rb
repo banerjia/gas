@@ -98,7 +98,8 @@ class StoresController < ApplicationController
                     :page => page, \
                     :per_page => result_count, \
                     :match_mode => :extended, \
-                    :order => [:country, :state_name, :city]
+                    :order => 'country ASC, state_name ASC, city ASC', \
+                    :sort_mode => :extended
                     
     total_found = Store.search_count params[:q], \
                   :with => with_options, \
@@ -138,10 +139,9 @@ class StoresController < ApplicationController
           end
         else
           render "search_results", :locals => {\
-			:page_title => "Information Unavailable", \
-			:options => conditions.merge( with_options ), \
-			:stores => nil
-			}			
+			        :page_title => "Information Unavailable", \
+			        :options => conditions.merge( with_options ), \
+			        :stores => nil}			
         end
       end
     end

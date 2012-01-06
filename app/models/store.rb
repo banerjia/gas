@@ -15,8 +15,8 @@ class Store < ActiveRecord::Base
     indexes city, :sortable => true
     indexes state_code, :sortable => true
     indexes country, :sortable => true
-    indexes state(:state_name), :as => :state_name, :sortable => true
-    indexes company(:name), :as => :company_name
+    indexes state(:state_name), :as => :state_name, :sortable => true, :facet => true
+    indexes company(:name), :as => :company_name, :facet => true
     indexes zip
 
     # id is symbolised because it's  a Sphinx keyword
