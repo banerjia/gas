@@ -65,7 +65,7 @@ class Store < ActiveRecord::Base
     !pending_audit.blank?
   end
   
-  def completed_audits( limit = 25)
+  def completed_audits( limit = "0,25")
     audits.where({:status => 1}).order("created_at desc").limit( limit ).includes(:audit_journal)    
   end
   
@@ -75,7 +75,7 @@ class Store < ActiveRecord::Base
     return_value += ", " + self[:city].strip.titlecase
     return_value += ", " + self[:state_code]
     return_value += " - " + self[:zip].strip unless self[:zip].blank?
-    return_value += "(" + self[:country] + ")" unless self[:country] == "US"
+    return_value += " (" + self[:country] + ")" unless self[:country] == "US"
     return return_value
   end
 end

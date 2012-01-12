@@ -45,7 +45,7 @@
 			<% else %>
 				<input type="text" name="q" id="q"/>
 			<% end %>
-			<% if defined?(options) then %>
+			<% if defined?(options) && !options.nil? then %>
 				<div style="display:none">
 				<% if !options[:company_id].nil? then%>
 					<input type="hidden" name="company_id" value="<%=options[:company_id]%>"/>
@@ -68,5 +68,5 @@
 	<%= render :partial => "stores", \
 		:locals => {:store_collection =>  stores, :more_pages => more_pages}%>
 <% else %>
-	We were unable to locate any stotes matching the criteria you provided. Please review the search criteria.
+	We were unable to locate any stores matching the criteria you provided. Please review the search criteria.
 <% end %>

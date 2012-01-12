@@ -6,6 +6,6 @@ class Audit < ActiveRecord::Base
   has_one :audit_journal
   
   def is_pending?
-	self[:status] == 0
+	  self[:status] == 0
   end
 end

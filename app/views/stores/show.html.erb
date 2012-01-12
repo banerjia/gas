@@ -100,7 +100,7 @@
 											"<td colspan='3' " +
 												"style='text-align:left' class='comments' " +
 												"id='comment_block_" + audits[i].id + "'>" + 
-												"<strong>Comments:</strong>" +
+												"<strong>Comments:</strong> " +
 													audits[i].audit_journal.body +
 											"</td>" +
 									"</tr>";
@@ -166,7 +166,7 @@
 		<div class="entry_value">
 			<%= link_to store.company[:name], company_path(store.company)%> &nbsp;
 			<% if !store.division.blank? %>
-				(<%= link_to store.division[:name], company_division_path(store.division)%> division)
+				(<%= store.division[:name] %> division)
 			<% end %>
 		</div>
 	</div>
@@ -180,7 +180,7 @@
 	</div>
 	<% if !store.completed_audits.blank?%>
 	<div class="entry_row">
-		<div class="entry_label">Last Audit Score</div>
+		<div class="entry_label">Last Audit</div>
 		<div class="entry_value"><%= link_to store.last_audit[:score], audit_path( store.last_audit, :format=>:json )%> (<%= store.last_audit[:created_at].strftime("%b %d, %Y")%>)</div>
 	</div>
 	<% end %>
