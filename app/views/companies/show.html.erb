@@ -60,7 +60,7 @@
 	<div class="entry_row">
 		<div class="entry_label">Stores</div>
 		<div class="entry_value">
-			<%= company.stores.size%>
+			<%= link_to company.stores.size, company_stores_path(company)%>
 		</div>
 	</div>
 	<div class="entry_row">
