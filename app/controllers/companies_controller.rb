@@ -5,13 +5,14 @@ class CompaniesController < ApplicationController
 
   def index
     all_companies = Company.find(:all, :order => :name)
+	@page_title = "Companies"
     return_value = Hash.new
     return_value[:number_of_companies] = all_companies.length
     return_value[:companies] = all_companies
     respond_to do |format|
       format.json { render :json => return_value.to_json(:except => $exceptions)}
       format.xml { render :xml => all_companies.to_xml(:except => $exceptions)}
-      format.html { render :locals => {:page_title => "Companies", :companies => all_companies} }
+      format.html { render :locals => {:companies => all_companies} }
     end    
   end
 
@@ -21,7 +22,7 @@ class CompaniesController < ApplicationController
 
     company = Company.find(company_id)
 
-    page_title = "Company Details for " + company[:name]
+    @page_title = "Company Details for " + company[:name]
 
     return_value = Hash.new
     return_value[:details] = company
@@ -40,20 +41,20 @@ class CompaniesController < ApplicationController
         )
       end
 
-      format.html { render :locals => {:page_title => page_title, :company => company, :current_user_is_admin => current_user_is_admin}}
+      format.html { render :locals => {:company => company, :current_user_is_admin => current_user_is_admin}}
     end
 
   end
 
   def edit
     company_id = params[:id]
-    page_title = "Edit Company Details"
+    @page_title = "Edit Company Details"
 
     company = Company.find(company_id, :include => :divisions)
     company.divisions.new
 
     respond_to do |format|
-      format.html {render :locals => {:page_title => page_title,:company => company}}
+      format.html {render :locals => {:company => company}}
       format.json {render :json => company.to_json}
     end
   end
@@ -61,11 +62,12 @@ class CompaniesController < ApplicationController
   def update
     company_id = params[:id]
     company = Company.find(company_id)
+	@page_title = "Edit Company Details"
     if company.update_attributes(params[:company])
       flash[:notice] = "The information for " + company[:name] + " has been updated."
       redirect_to :action => "show", :id => company_id
     else
-      render :edit, :locals => {:page_title => "Edit Company Details",:company => company}
+      render :edit, :locals => {:company => company}
     end    
   end
   

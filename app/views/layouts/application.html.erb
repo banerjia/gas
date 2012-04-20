@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title><%=page_title%></title>
+  <title><%= @page_title or "Untitled" %></title>
   <link href='http://fonts.googleapis.com/css?family=Nobile' rel='stylesheet' type='text/css'/>
   <%= javascript_include_tag :application %>
   <%= stylesheet_link_tag "application"%>
@@ -18,7 +18,7 @@
 <body>
 	<div id="wrapper">
 		<div id="page_header" class="page_blocks">
-			<h1><%=page_title %></h1>
+			<h1><%= @page_title or "Untitled" %></h1>
 		</div>
 		<div id="page_body" class="page_blocks">
 			<% if !flash[:notice].blank?%>

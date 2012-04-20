@@ -14,7 +14,7 @@ class StoresController < ApplicationController
 
     store = Store.find(:first,:conditions => {:id => store_id}, :include => [:last_audit,:pending_audit,:company,:division])
 
-    page_title = store[:name].titlecase + " Dashboard"
+    @page_title = store[:name].titlecase + " Dashboard"
 
     respond_to do |format|
       format.json do
@@ -31,14 +31,14 @@ class StoresController < ApplicationController
         :except => exceptions)		
       end
 
-      format.html { render :locals => {:page_title => page_title,:store => store}}
+      format.html { render :locals => {:store => store}}
     end
 
   end
 
   def edit
     selected_store_id = params[:id]
-    page_title = "Edit Store Information"
+    @page_title = "Edit Store Information"
 
     selected_store = Store.find( selected_store_id )
     states = State.find(:all,:select => [:country, :state_code, :state_name], :order => [:country,:state_name])
@@ -46,7 +46,7 @@ class StoresController < ApplicationController
 
     respond_to do |format|
       format.html do           
-        render :locals => {:store => selected_store, :page_title => page_title, :states => states, :companies => companies }
+        render :locals => {:store => selected_store, :states => states, :companies => companies }
       end
     end
   end
@@ -127,19 +127,19 @@ class StoresController < ApplicationController
           if !division_id.nil?
             division_name = (!stores_found[0].division.nil? ? stores_found[0].division[:name] : "Unassigned")
             params[:division_id] = nil if stores_found[0].division.nil?
+			@page_title = stores_found[0].company[:name] + " Stores in " + division_name + " Division"                 
             render "search_results", :locals => \
-              {:page_title => stores_found[0].company[:name] + " Stores in " + division_name + " Division", \
-                :stores => stores_found, :ajax_path => stores_search_path(params), :more_pages => return_value[:more_pages]}
-          else			
+              {:stores => stores_found, :ajax_path => stores_search_path(params), :more_pages => return_value[:more_pages]}
+          else	
+			@page_title = stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name]              		  
             render "search_results", :locals => {\
-              :page_title => stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name], \
               :stores => stores_found, \
               :ajax_path => stores_search_path(params),\
               :options => conditions.merge(with_options), :more_pages => return_value[:more_pages]}
           end
         else
+		  @page_title = "Information Unavailable"
           render "search_results", :locals => {\
-			        :page_title => "Information Unavailable", \
 			        :options => conditions.merge( with_options ), \
 			        :stores => nil}			
         end
