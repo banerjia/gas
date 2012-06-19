@@ -30,6 +30,8 @@
 			<% if defined?(options) && !options[:company_id].nil?  then %>
 				<%= link_to "About " + stores[0].company.name, company_path(options[:company_id]) %>
 			<% end %>
+		</li>
+		<li>
 			<%= link_to "All Companies", companies_path %>			
 		</li>
 	</ul>

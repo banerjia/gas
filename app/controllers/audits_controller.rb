@@ -1,4 +1,14 @@
 class AuditsController < ApplicationController
+  def show
+	audit_id = params[:audit_id]
+	@page_title = "Audit for ... on ..."
+	audit = Audit.find(audit_id)
+	
+	respond_to do |format|
+	  format.html { render :locals => { :audit => audit } }
+	end
+  end
+  
   def search
     limit = params[:limit] || 25
     store_id = params[:store_id]
