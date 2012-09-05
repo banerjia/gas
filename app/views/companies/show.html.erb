@@ -12,8 +12,6 @@
 	<script type="text/javascript">	
 		// These variables hold the links to the AJAX calls made within the get_listing function
 		var ajax_link_states = "<%= company_states_path(company,:format => :json)%>";
-		var ajax_link_divisions = "<%= company_divisions_path(company,:format => :json)%>";
-		
 		var link_prefix_state = "<%= company_stores_path(company)%>";
 		var link_prefix_division = "<%= company_divisions_path(company)%>";
 
@@ -39,9 +37,6 @@
 	<h2>Tools</h2> 
 	<ul class="nav_items">
 		<li class="current" id="div_company_information">Company Information</li>
-		<% if company.has_divisions? %>
-			<li id="table_division_listing" onclick="get_listing(this, 'division')">Divisions</li>
-		<% end %>
 		<li id="table_state_listing" onclick="get_listing(this, 'state')">Stores by States</li>
 		<li class="no-section-change"><%= link_to "All Companies", companies_path%></li>
 	</ul>
@@ -83,23 +78,6 @@
 			<th scope="col">State</th>
 			<th scope="col">Stores</th>
 		</tr>
-	</thead>
-	<tbody/>
-</table>
-<table id="division_listing" class="listing">
-	<thead>
-		<tr>
-			<th scope="col">Divisions</th>
-			<th scope="col">Stores</th>
-		</tr>
-		<% if company.has_divisions? && company.has_stores_without_division? %>
-		<tr>
-			<td colspan="2" class="information">
-				<p>We discovered some stores in <%=company[:name]%> that are not assigned to any division.</p>
-				<p style="text-align:center"><%= link_to "View Stores",company_division_stores_path(company,0, :format => :html), :style => "color: #fff;text-decoration: none"%></p>
-			</td>
-		</tr>
-		<% end %>
 	</thead>
 	<tbody/>
 </table>

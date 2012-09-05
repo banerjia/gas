@@ -1,7 +1,6 @@
 class Store < ActiveRecord::Base
   
   belongs_to :company
-  belongs_to :division
   belongs_to :state, :foreign_key => [:country, :state_code]
   
   has_many :audits

@@ -15,9 +15,6 @@ Graeters::Application.routes.draw do
 			match "stores/:country-:state" => "stores#search", :constraints => {:state => /[a-zA-Z]{2,}/,:country => /[a-zA-Z]{2}/}, :as => "stores_by_state"	     
 			match "stores" => "stores#search", :as => "stores"
 			
-		  resources :divisions do
-			  match "stores" => "stores#search", :as => "stores"
-		  end
 		end
 		
 		resources :audits   

@@ -30,7 +30,6 @@ class CompaniesController < ApplicationController
       format.json do
         return_value[:details][:states_with_stores] = company.states_with_stores
         render :json => return_value.to_json(
-        :include => {:divisions => {:only => [:id, :name, :number_of_stores]}},
         :except => $exceptions
         )
       end
@@ -50,7 +49,7 @@ class CompaniesController < ApplicationController
     company_id = params[:id]
     @page_title = "Edit Company Details"
 
-    company = Company.find(company_id, :include => :divisions)
+    company = Company.find(company_id)
     company.divisions.new
 
     respond_to do |format|

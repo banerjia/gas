@@ -8,11 +8,10 @@ class StoresController < ApplicationController
 
     inclusions = {:last_audit => {:only => [:id,:score]}, 
     :pending_audit => {:only => [:id, :score]},
-    :company => {:only => [:id,:name]},
-    :division => {:only =>[:id,:name]}}
-    exceptions = [:division_id,:company_id]
+    :company => {:only => [:id,:name]}}
+    exceptions = [:company_id]
 
-    store = Store.find(:first,:conditions => {:id => store_id}, :include => [:last_audit,:pending_audit,:company,:division])
+    store = Store.find(:first,:conditions => {:id => store_id}, :include => [:last_audit,:pending_audit,:company])
 
     @page_title = store[:name].titlecase + " Dashboard"
 
@@ -73,7 +72,6 @@ class StoresController < ApplicationController
   def search
     stores_found = nil
     company_id = params[:company_id]
-    division_id = params[:division_id]
     state_code = params[:state]
     country = params[:country]
     
@@ -86,7 +84,6 @@ class StoresController < ApplicationController
     with_options = Hash.new
 
     with_options[:company_id] = company_id unless company_id.nil?
-    with_options[:division_id] = division_id unless division_id.nil?
     conditions[:state_code] =  state_code unless state_code.nil?
     # Only include country if state_code is specified.
     conditions[:country] = country || 'US' unless state_code.nil?
@@ -94,7 +91,7 @@ class StoresController < ApplicationController
     stores_found = Store.search params[:q], \
                     :with => with_options, \
                     :conditions => conditions, \
-                    :include => [:division, :pending_audit, :last_audit], \
+                    :include => [:pending_audit, :last_audit], \
                     :page => page, \
                     :per_page => result_count, \
                     :match_mode => :extended, \
@@ -123,20 +120,12 @@ class StoresController < ApplicationController
         params.delete(:action)
         params.delete(:controller)
         params[:format] = :json
-        if stores_found.count > 0
-          if !division_id.nil?
-            division_name = (!stores_found[0].division.nil? ? stores_found[0].division[:name] : "Unassigned")
-            params[:division_id] = nil if stores_found[0].division.nil?
-			@page_title = stores_found[0].company[:name] + " Stores in " + division_name + " Division"                 
-            render "search_results", :locals => \
-              {:stores => stores_found, :ajax_path => stores_search_path(params), :more_pages => return_value[:more_pages]}
-          else	
+        if stores_found.count > 0	
 			@page_title = stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name]              		  
             render "search_results", :locals => {\
               :stores => stores_found, \
               :ajax_path => stores_search_path(params),\
               :options => conditions.merge(with_options), :more_pages => return_value[:more_pages]}
-          end
         else
 		  @page_title = "Information Unavailable"
           render "search_results", :locals => {\

@@ -165,9 +165,6 @@
 		<div class="entry_label">Company</div>
 		<div class="entry_value">
 			<%= link_to store.company[:name], company_path(store.company)%> &nbsp;
-			<% if !store.division.blank? %>
-				(<%= store.division[:name] %> division)
-			<% end %>
 		</div>
 	</div>
 	<div class="entry_row">
