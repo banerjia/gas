@@ -34,9 +34,6 @@
 			jQuery("div#left_column").remove();
 			jQuery("input#company_name").focus();
 		
-		<% if company.errors.any? && !company.errors[:divisions].blank? %>
-			division_errors();
-		<% end %>
 		});
 	</script>
 	<%= javascript_include_tag "edit_company" %>
@@ -71,38 +68,6 @@
 			<%= f.text_field :name, :class => (company.errors.any? && !company.errors[:name].blank? ? "error_field": "") %>
 		</div>
 	</div>
-	<table width="100%" class="listing" id="division_listing">
-		<caption>Manage Divisions</caption>
-		<thead>
-			<tr>
-				<th>Delete</th>
-				<th>Division</th>
-				<th>Assign to Company</th>
-			</tr>
-		</thead>
-		<tbody>
-		<% company.divisions.each do |d|%>
-			<tr <%= cycle( "","class='alternate'") %>>
-				<td>
-					<%= f.fields_for :divisions,d do |df| %>
-					<%= df.check_box :_destroy, :disabled => d.new_record? %>				
-				</td>			
-				<td>			
-					<%= df.text_field :name, :placeholder => (d.new_record? ? "Division":"") %>	
-				</td>
-				<td>	
-					<% if d.new_record? %>
-						<%= df.hidden_field :company_id, :value => company[:id]%>
-						New division for <%= company[:name]%>
-					<% else %>						
-						<%= df.collection_select(:company_id, Company.all, :id,:name )%>				
-					<% end %>
-					<% end %>
-				</td>			
-			</tr>
-		<% end %>
-		</tbody>
-	</table>
 	<div class="toolbar">
 		<%= f.submit "Save Changes", :class=> "icon_buttons"%>
 		<input type="button" onclick="window.location='<%=company_path%>'" value="Cancel" class="icon_buttons"/>

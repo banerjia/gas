@@ -13,7 +13,6 @@
 		// These variables hold the links to the AJAX calls made within the get_listing function
 		var ajax_link_states = "<%= company_states_path(company,:format => :json)%>";
 		var link_prefix_state = "<%= company_stores_path(company)%>";
-		var link_prefix_division = "<%= company_divisions_path(company)%>";
 
 		jQuery(document).ready(function(){
 			state_listing = jQuery("table#state_listing");
