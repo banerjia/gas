@@ -35,7 +35,7 @@ class Store < ActiveRecord::Base
     
     # Only populate the longitude and latitude information if 
     # the zipcode has changed
-    if store_zip_changed?
+    if zip_changed?
       
       # If zip code has been left blank, attempt to fetch it
       # using Geokit.
