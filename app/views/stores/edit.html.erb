@@ -7,6 +7,7 @@
 			padding: 0.5em;
 			text-transform:uppercase;
 		}
+		div#left_column, div#right_column { display:none }
 	</style>
 <% end %>
 
@@ -18,7 +19,7 @@
 			<div class="entry_value"><%= f.text_field :name %></div>		
 		</div>
 		<div class="entry_row">
-			<div class="entry_label">Store Number</div>
+			<div class="entry_label">Store#</div>
 			<div class="entry_value"><%= f.text_field :store_number %></div>		
 		</div>
 		<div class="entry_row">
@@ -51,7 +52,7 @@
 			</div>
 		<div class="entry_row">
 			<div class="entry_label">Phone</div>
-			<div class="entry_value"><%= f.text_field :phone %></div>
+			<div class="entry_value"><%= f.telephone_field :phone %></div>
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">Date Added</div>
@@ -62,8 +63,8 @@
 			<div class="entry_value"><%= store[:updated_at].strftime("%b %d, %Y") %></div>
 		</div>
 		<div class="buttons">
-			<%= f.submit "Save Changes" %>
-			<%= link_to "Cancel", store_path(store), :class=> "button"%>
+			<%= f.submit "Save Changes", :class => "button"%>
+			<input type="button" class="button" value="Cancel" onclick="window.location='<%= store_path(store)%>'"/>
 		</div>
 	</fieldset>
 	<% end %>
