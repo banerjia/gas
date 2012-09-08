@@ -1,6 +1,6 @@
 class ZipCode < ActiveRecord::Base
   
-  set_primary_keys :country, :zip
+  self.primary_keys = [:country, :zip]
   
   belongs_to :state, :foreign_key => [:country, :state_code]
   has_many :stores, :foreign_key => [:country, :zip]
