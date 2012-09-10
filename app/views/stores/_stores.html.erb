@@ -56,18 +56,6 @@
 <% content_for :head do %>
 	<style type="text/css" media="screen">
 		table#store_listing { width: 100%;}
-		table#store_listing tfoot td{
-			background-color: #A99EA7;
-			padding: 1.5em;
-			text-align: center;
-		}
-		a#load_more_stores { 
-			color: #fff;
-			cursor: pointer;
-			font-weight: bold;
-			letter-spacing: 1.5px;
-			text-transform: capitalize;
-		}
 	</style>
 <% end %>
 
@@ -82,7 +70,8 @@
 	<tfoot>
 		<tr>
 			<td colspan="2">
-				<a id="load_more_stores" onclick="load_more()">More stores available</a>
+				<a id="load_more_stores" class="load_more" onclick="load_more()">More stores available</a>
+
 			</td>
 		</tr>
 	</tfoot>

@@ -158,10 +158,12 @@
 			<%= store[:name] %>
 		</div>
 	</div>
+	<%- if !store[:store_number].blank? && !store[:store_number].empty? -%>
 	<div class="entry_row">
 		<div class="entry_label">Store#</div>
-		<div class="entry_value"><%= !store[:store_number].blank? ? store[:store_number]: "&nbsp;".html_safe %></div>
+		<div class="entry_value"><%= store[:store_number] %></div>
 	</div>
+	<%- end -%>
 	<div class="entry_row">
 		<div class="entry_label">Company</div>
 		<div class="entry_value">
@@ -194,6 +196,11 @@
 			<th scope="col">Score</th>
 		</tr>
 	</thead>
+	<tfoot>
+		<tr>
+			<td colspan="3" class="table_more_cell"><a>More Audits...</a></td>
+		</tr>
+	</tfoot>
 	<tbody>
 	</tbody>
 </table>
