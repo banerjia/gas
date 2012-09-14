@@ -20,7 +20,6 @@ class Store < ActiveRecord::Base
 
     # id is symbolised because it's  a Sphinx keyword
     has :id, created_at, updated_at, latitude, longitude, company_id
-    has "IFNULL(division_id,0)", :type => :integer, :as => :division_id
     #set_property :delta => true
   end
  

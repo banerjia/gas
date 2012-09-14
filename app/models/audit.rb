@@ -1,6 +1,6 @@
 class Audit < ActiveRecord::Base
   
-  belongs_to :store
+  belongs_to :store, :counter_cache => true
   
   has_many :metrics
   has_one :audit_journal
