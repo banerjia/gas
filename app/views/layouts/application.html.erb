@@ -19,6 +19,16 @@
 	<div id="wrapper">
 		<div id="page_header" class="page_blocks">
 			<h1><%= @page_title or "Untitled" %></h1>
+			<div id="top_nav">
+				<ul>
+					<li <%= current_page?(companies_path) ? raw("class='current'"): "" -%>>
+						<%=link_to_unless_current "Companies", companies_path -%>
+					</li>
+					<li>Resources</li>
+					<li>Order</li>
+					<li>Logout</li>
+				</ul>
+			</div>
 		</div>
 		<div id="page_body" class="page_blocks">
 			<% if !flash[:notice].blank?%>

@@ -88,10 +88,55 @@ div
 		background:
 			color: #933
 		color: #fff
+		padding: 
+			bottom: 0
 	
 		h1
 			@includes overall-font
 			line-height: 1.5
+	
+	&#top_nav
+		ul
+			border-top: 2px solid #eee
+			list-style: none
+			margin: auto -0.5em
+				bottom: 0
+			padding: 0
+			width: auto
+			
+			li
+				border:
+					right: 2px solid #fff
+					
+				display: inline-block
+				font:
+					weight: bold
+				letter-spacing: 1.5px
+				line-height: 2
+				margin: auto 0
+				text:
+					align: center
+					transform: uppercase
+				width: 24%
+				
+				a
+					color: #fff
+					display: block
+					margin: 0
+					text:
+						decoration: none
+					width: auto
+					
+					&:hover
+						background-color: #eee
+						color: #000
+					
+				&.current
+					background-color: #eee
+					color: #000
+			
+			li:last-child
+				border: none
 		
 		
 	&#page_body
