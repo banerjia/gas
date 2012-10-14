@@ -62,7 +62,7 @@
 		function get_completed_audits(){
 			if(completed_audits != null ) {populate_audits(completed_audits);return};
 			$.ajax({
-				url: '<%= audits_store_path(store,:format => :json)%>',
+				url: '<%= store_audits_path(store,:format => :json)%>',
 				dataType: "json",
 				success: function(data){
 					completed_audits = data.audits;
@@ -100,7 +100,7 @@
 											"<td colspan='3' " +
 												"style='text-align:left' class='comments' " +
 												"id='comment_block_" + audits[i].id + "'>" + 
-												"<strong>Comments:</strong>" +
+												"<strong>Comments:</strong> " +
 													audits[i].audit_journal.body +
 											"</td>" +
 									"</tr>";
@@ -140,6 +140,7 @@
 		<% if !store.completed_audits.blank? %>
 		<li id="table_completed_audits">Completed Audits</li>
 		<% end %>
+		<li><%= link_to "All Companies", companies_path %></li>
 	</ul>
 <% end %>
 <div id="store_information">
@@ -148,7 +149,7 @@
 		<% if !store.pending_audit.blank? %>
 		<span id="pending_audit_msg">This store has a <%= link_to "pending audit", audit_path(store.pending_audit)%></span>
 		<% else %>
-		<input type="button" value="New Audit"onclick="window.location='new_audit_store_path(store)'" class="icon_buttons"/>
+		<input type="button" value="New Audit" onclick="window.location='new_audit_store_path(store)'" class="icon_buttons"/>
 		<% end %>
 	</div>
 	<div class="entry_row">
@@ -157,30 +158,31 @@
 			<%= store[:name] %>
 		</div>
 	</div>
+	<%- if !store[:store_number].blank? && !store[:store_number].empty? -%>
 	<div class="entry_row">
-		<div class="entry_label">Store Number</div>
-		<div class="entry_value"><%= !store[:store_number].blank? ? store[:store_number]: "&nbsp;".html_safe %></div>
+		<div class="entry_label">Store#</div>
+		<div class="entry_value"><%= store[:store_number] %></div>
 	</div>
+	<%- end -%>
 	<div class="entry_row">
 		<div class="entry_label">Company</div>
 		<div class="entry_value">
 			<%= link_to store.company[:name], company_path(store.company)%> &nbsp;
-			<% if !store.division.blank? %>
-				(<%= link_to store.division[:name], company_division_path(store.division)%> division)
-			<% end %>
 		</div>
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">Address</div>
 		<div class="entry_value"><%= store.address%></div>
 	</div>
+	<% if !store[:phone].blank? && !store[:phone].empty? %>
 	<div class="entry_row">
 		<div class="entry_label">Phone</div>
-		<div class="entry_value"><%= !store[:phone].blank? ? store[:phone]: "&nbsp;".html_safe %></div>
+		<div class="entry_value"><%= store[:phone] %></div>
 	</div>
+	<% end %>
 	<% if !store.completed_audits.blank?%>
 	<div class="entry_row">
-		<div class="entry_label">Last Audit Score</div>
+		<div class="entry_label">Last Audit</div>
 		<div class="entry_value"><%= link_to store.last_audit[:score], audit_path( store.last_audit, :format=>:json )%> (<%= store.last_audit[:created_at].strftime("%b %d, %Y")%>)</div>
 	</div>
 	<% end %>
@@ -194,6 +196,11 @@
 			<th scope="col">Score</th>
 		</tr>
 	</thead>
+	<tfoot>
+		<tr>
+			<td colspan="3" class="table_more_cell"><a class="load_more" onclick="load_more()">More Audits...</a></td>
+		</tr>
+	</tfoot>
 	<tbody>
 	</tbody>
 </table>

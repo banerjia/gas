@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title><%=page_title%></title>
+  <title><%= @page_title or "Untitled" %></title>
   <link href='http://fonts.googleapis.com/css?family=Nobile' rel='stylesheet' type='text/css'/>
+  <%= javascript_include_tag :application %>
   <%= stylesheet_link_tag "application"%>
   <%= csrf_meta_tags %>
   <style type="text/css" media="screen">
@@ -17,7 +18,19 @@
 <body>
 	<div id="wrapper">
 		<div id="page_header" class="page_blocks">
-			<h1><%=page_title %></h1>
+			<h1><%= @page_title or "Untitled" %></h1>
+			<div id="top_nav">
+				<ul>
+					<li <%= current_page?(companies_path) ? raw("class='current'"): "" -%>>
+						<%=link_to_unless_current "Companies", companies_path -%>
+					</li>
+					<li <%= current_page?(resources_path) ? raw("class='current'"): "" -%>>
+						<%=link_to_unless_current "Resources", resources_path -%>
+					</li>
+					<li>Order</li>
+					<li>Logout</li>
+				</ul>
+			</div>
 		</div>
 		<div id="page_body" class="page_blocks">
 			<% if !flash[:notice].blank?%>

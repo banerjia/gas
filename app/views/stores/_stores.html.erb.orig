@@ -1,5 +1,8 @@
 <% content_for :page_js do %>
+<<<<<<< HEAD
 	<%= javascript_include_tag "dateformat" %>
+=======
+>>>>>>> origin/stores
 	<script type="text/javascript">
 	// Since first page is already loaded this causes the next call to start listing the second page
 	var next_page = 2; 
@@ -7,7 +10,8 @@
 	
 	<% if defined?(ajax_path) %>
 	var ajax_path = '<%= ajax_path.html_safe %>';
-	
+	<% end %>
+
 	function load_more(){
 		jQuery.ajax({
 			url: ajax_path,
@@ -51,7 +55,10 @@
 		});
 	}
 	</script>
+<<<<<<< HEAD
+=======
 	<%= javascript_include_tag "dateformat" %>
+>>>>>>> origin/stores
 <% end %>
 <% content_for :head do %>
 	<style type="text/css" media="screen">

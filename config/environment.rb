@@ -4,5 +4,7 @@ ENV["RAILS_ENV"] = 'development'
 require File.expand_path('../application', __FILE__)
 # Initialize the rails application
 Graeters::Application.initialize! do |config|
-	config.gem "cloudfiles"
-end
+	config.gem( 
+		'thinking-sphinx', :version => '2.0.13'
+	)
+end 
