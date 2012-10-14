@@ -24,7 +24,9 @@
 					<li <%= current_page?(companies_path) ? raw("class='current'"): "" -%>>
 						<%=link_to_unless_current "Companies", companies_path -%>
 					</li>
-					<li>Resources</li>
+					<li <%= current_page?(resources_path) ? raw("class='current'"): "" -%>>
+						<%=link_to_unless_current "Resources", resources_path -%>
+					</li>
 					<li>Order</li>
 					<li>Logout</li>
 				</ul>
