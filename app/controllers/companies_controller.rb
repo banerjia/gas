@@ -5,7 +5,7 @@ class CompaniesController < ApplicationController
 
   def index
     all_companies = Company.find(:all, :order => :name)
-	@page_title = "Companies"
+	@page_title = "Chains"
     return_value = Hash.new
     return_value[:number_of_companies] = all_companies.length
     return_value[:companies] = all_companies
@@ -22,7 +22,7 @@ class CompaniesController < ApplicationController
 
     company = Company.find(company_id)
 
-    @page_title = "Company Details for " + company[:name]
+    @page_title = "Details for " + company[:name]
 
     return_value = Hash.new
     return_value[:details] = company
@@ -47,7 +47,7 @@ class CompaniesController < ApplicationController
 
   def edit
     company_id = params[:id]
-    @page_title = "Edit Company Details"
+    @page_title = "Edit Chain Details"
 
     company = Company.find(company_id)
 
@@ -60,7 +60,6 @@ class CompaniesController < ApplicationController
   def update
     company_id = params[:id]
     company = Company.find(company_id)
-	@page_title = "Edit Company Details"
     if company.update_attributes(params[:company])
       flash[:notice] = "The information for " + company[:name] + " has been updated."
       redirect_to :action => "show", :id => company_id

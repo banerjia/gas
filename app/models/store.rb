@@ -7,6 +7,8 @@ class Store < ActiveRecord::Base
   has_one :pending_audit, :class_name => "Audit", :conditions => {:status => 0}, :order => "created_at desc"
   has_one :last_audit, :class_name => "Audit", :conditions => {:status => 1}, :order => "created_at desc"
 
+  has_many :orders
+
   define_index do
     indexes :name, :sortable => true
     indexes street_address

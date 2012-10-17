@@ -2,7 +2,9 @@
 <html>
 <head>
   <title><%= @page_title or "Untitled" %></title>
+<!-- Commented for use in India 
   <link href='http://fonts.googleapis.com/css?family=Nobile' rel='stylesheet' type='text/css'/>
+-->
   <%= javascript_include_tag :application %>
   <%= stylesheet_link_tag "application"%>
   <%= csrf_meta_tags %>
@@ -22,12 +24,13 @@
 			<div id="top_nav">
 				<ul>
 					<li <%= current_page?(companies_path) ? raw("class='current'"): "" -%>>
-						<%=link_to_unless_current "Companies", companies_path -%>
+						<%=link_to_unless_current "Chains", companies_path -%>
 					</li>
 					<li <%= current_page?(resources_path) ? raw("class='current'"): "" -%>>
 						<%=link_to_unless_current "Resources", resources_path -%>
 					</li>
-					<li>Order</li>
+					<li>Complaints</li>
+					<li>Reports</li>
 					<li>Logout</li>
 				</ul>
 			</div>
@@ -45,7 +48,7 @@
 			<%= yield :body %>
 		</div>
 	</div>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<%= javascript_include_tag :jquery -%>
 	<script type="text/javascript">	
 		$(document).ready(function(){			
 			var min_height = Math.min( $("div#right_column").height(), $("div#left_column").height());

@@ -1,0 +1,37 @@
+<%= form_for [@store, @store.orders.build] do |f| -%>
+	<div class="entry_row">
+		<div class="entry_label">
+			<%= f.label :delivery_date, "Delivery Date" -%>
+		</div>
+		<div class="entry_value">
+			<%= f.text_field :delivery_date -%>
+		</div>
+	</div>
+	<div class="entry_row">
+		<div class="toggle">
+			<%= f.check_box :fulfilled -%>
+			<%= f.label :fulfilled, "Order has been fulfilled" -%>
+		</div>
+	</div>
+	<%= f.fields_for :product_orders do |product_order_form| -%>
+	<table id="product_listing">
+		<thead>
+			<tr>
+				<th>Product</th>
+				<th>Quantity</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td><%= product_order_form.select :product_id, options_from_collection_for_select(Product.all, :id, :name) -%></td>
+				<td><%= product_order_form.text_field :quantity -%></td>
+			</tr>
+		</tbody>
+	</table>
+	<%- end -%>
+	<%= f.submit "Save" -%>
+<%- end -%>
+
+<% content_for :head do -%>
+	<%= stylesheet_link_tag :forms -%>
+<% end -%>

@@ -1,0 +1,15 @@
+<% content_for :page_js do -%>
+	<%= javascript_include_tag :jquery_ujs -%>
+<% end -%>
+
+<%= link_to "Add New Product", new_product_path -%>
+
+<ul>
+	<%- @product_list.each do |each_product| -%>
+		<li><%= each_product[:name] %><br/>
+			<%= each_product[:active] ? "" : raw('Inactive <br/>')%>
+			<%= link_to "Edit", edit_product_path( each_product ) %> | 
+			<%= link_to "Delete", product_path(each_product), :method => :delete, :confirm => 'Delete' -%>
+		</li>
+	<%- end -%>
+</ul>

@@ -33,18 +33,10 @@
 		jQuery(document).ready(function(){
 			jQuery("div#left_column").remove();
 			jQuery("input#company_name").focus();
-		
-<<<<<<< HEAD
-		<% if company.errors.any? && !company.errors[:divisions].blank? %>
-			division_errors();
-		<% end %>
 		});
 	</script>
 	<%= javascript_include_tag "edit_company" %>
-=======
-		});
-	</script>
->>>>>>> origin/stores
+
 <% end %>
 
 <%= form_for company, :url => company_path(company) do |f| %>

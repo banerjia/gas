@@ -1,10 +1,11 @@
 source 'http://rubygems.org'
 gem 'rails', '3.2.8'
 gem 'mysql2'
-gem 'asset_sync'
+#gem 'asset_sync'
 gem 'composite_primary_keys'
 gem 'geokit-rails3'
 gem 'thinking-sphinx'
+gem 'dynamic_form'
 
 # Gems used only for assets and not required
 # in production environments by default.
