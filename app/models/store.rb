@@ -2,12 +2,13 @@ class Store < ActiveRecord::Base
   
   belongs_to :company
   belongs_to :state, :foreign_key => [:country, :state_code]
+
+  has_many :orders
   
   has_many :audits
   has_one :pending_audit, :class_name => "Audit", :conditions => {:status => 0}, :order => "created_at desc"
   has_one :last_audit, :class_name => "Audit", :conditions => {:status => 1}, :order => "created_at desc"
 
-  has_many :orders
 
   define_index do
     indexes :name, :sortable => true
