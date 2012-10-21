@@ -1,0 +1,59 @@
+
+<div class="entry_row">
+	<div class="entry_label">
+		<%= f.label :name, "Name" -%>
+	</div>
+	<div class="entry_value">
+		<%= f.text_field :name -%>
+	</div>	
+</div>
+<div class="entry_row">
+	<div class="entry_label">
+		<%= f.label :code, "Code" -%>
+	</div>
+	<div class="entry_value">
+		<%= f.text_field :code, :max_length => 10, :style => "text-transform:uppercase" -%>
+	</div>
+</div>
+<div class="entry_row">
+	<div class="entry_label">
+		<%= f.label :product_category_id, "Product Category" -%>
+	</div>
+	<div class="entry_value">
+		<input type="radio" name="category_type" value="existing" checked/>
+		Select: <%= f.collection_select :product_category_id, ProductCategory.all, :id, :proper_name -%><br/> 
+		<input type="radio" name="category_type" value="new"/>
+		Create a new category: <input type="text" name="new_category"/>
+	</div>
+</div>
+<div class="entry_row">
+	<div class="entry_label">
+		<%= f.label :available_from, "Available" -%>
+	</div>
+	<div class="entry_value">
+		<%= f.text_field :available_from, :max_length => 10, :placeholder => 'From' -%>
+		-
+		<%= f.text_field :available_till, :max_length => 10, :placeholder => 'Till' -%>
+	</div>
+</div>
+<div class="entry_row">
+	<div class="entry_label">
+		<%= f.label :active, "Active" -%>
+	</div>
+	<div class="entry_value">
+		<%= f.check_box :active -%>
+		<%= f.label :active, "This product is actively used." -%>
+	</div>
+</div>
+
+<% content_for :head do -%>
+	<%= stylesheet_link_tag :forms -%>
+<% end -%>
+
+<% content_for :page_js do -%>
+<script type="text/javascript">
+	$(document).ready( function(){
+		$("input#product_name").focus();
+	})
+</script>
+<% end -%>

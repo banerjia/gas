@@ -2,14 +2,49 @@
 	<%= javascript_include_tag :jquery_ujs -%>
 <% end -%>
 
+<% content_for :head do -%>
+	<%= stylesheet_link_tag :table -%>
+	<style type="text/css" media="screen">
+		table.listing{
+			width:99%;
+		}
+		table.listing span.edit_buttons {display:none}
+		table.listing tr:hover span.edit_buttons {display:inline-block}
+	</style>
+<% end -%>
+
 <%= link_to "Add New Product", new_product_path -%>
 
-<ul>
-	<%- @product_list.each do |each_product| -%>
-		<li><%= each_product[:name] %><br/>
-			<%= each_product[:active] ? "" : raw('Inactive <br/>')%>
-			<%= link_to "Edit", edit_product_path( each_product ) %> | 
-			<%= link_to "Delete", product_path(each_product), :method => :delete, :confirm => 'Delete' -%>
-		</li>
-	<%- end -%>
-</ul>
+<%- @products_listing_by_category.each do |category| -%>
+	<table id="category_<%= category[:name] %>" class="listing">
+		<caption><%= category.proper_name %></caption>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Code</th>
+				<th>Status</th>
+				<%- if category[:limited_availability] -%>
+				<th>Availablity</th>
+				<%- end -%>
+			</tr>
+		</thead>
+		<tbody>
+		<%- category.products.each do |product| -%>
+			<tr>
+				<td>
+					<%= product[:name] -%>
+						<span class="edit_buttons">
+							<%= link_to "Edit", edit_product_path(product) -%> | 
+							<%= link_to "Delete", product_path(product), :method => :delete, :confirm => "Do you want to delete #{product[:name]}" -%>
+						</span>
+				</td>
+				<td><%= product[:code] -%></td>
+				<td><%= product[:active] ? "Active" : "Inactive" -%></td>
+				<%- if category[:limited_availability] -%>
+				<td><%= product.availability -%></td>
+				<%- end -%>
+		<%- end -%>
+		</tbody>
+	</table>
+<%- end -%>
+

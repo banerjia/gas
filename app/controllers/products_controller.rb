@@ -1,7 +1,7 @@
 class ProductsController < ApplicationController
   def index
     @page_title = "Products"
-    @product_list = Product.find(:all, :order => "created_at desc")
+    @products_listing_by_category = ProductCategory.find(:all, :include => [:products])
   end
   
   def show
@@ -15,9 +15,14 @@ class ProductsController < ApplicationController
   
   
   def create
+    if params[:category_type] == "new"
+      product_category = ProductCategory.find_or_create_by_name( {:name => params[:new_category], :limited_availability => !( params[:product][:available_from].blank? && params[:product][:available_till].blank? )})
+      params[:product][:product_category_id] = product_category[:id]
+    end
+    
     @product = Product.new(params[:product])
     if @product.save
-      redirect_to :action => "index"
+      redirect_to :action => (params[:commit] == "Save" ? "index" : "new")
     else
       render "new"
     end    
@@ -29,6 +34,11 @@ class ProductsController < ApplicationController
   end
   
   def update
+    if params[:category_type] == "new"
+      product_category = ProductCategory.new( {:name => params[:new_category], :limited_availabilty => !( params[:product][:available_from].blank? && params[:product][:available_till].blank? )})
+      params[:product][:product_category_id] = product_category[:id]
+    end
+    
     @product = Product.find( params[:id] )
     if @product.update_attributes!(params[:product])
       redirect_to :action => "index"

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121017192726) do
+ActiveRecord::Schema.define(:version => 20121021081615) do
 
   create_table "audit_journals", :primary_key => "audit_id", :force => true do |t|
     t.string    "title",      :limit => 50
@@ -62,23 +62,30 @@ ActiveRecord::Schema.define(:version => 20121017192726) do
   end
 
   create_table "orders", :force => true do |t|
+    t.string   "invoice_number", :limit => 20
     t.datetime "delivery_date"
-    t.boolean  "fulfilled",     :default => false, :null => false
-    t.integer  "store_id"
-    t.datetime "created_at",                       :null => false
-    t.datetime "updated_at",                       :null => false
+    t.boolean  "fulfilled",                                                   :default => false, :null => false
+    t.string   "route_number",   :limit => 5
+    t.integer  "store_id",       :limit => 8,                                                    :null => false
+    t.decimal  "invoice_amount",               :precision => 10, :scale => 2, :default => 0.0,   :null => false
+    t.datetime "created_at",                                                                     :null => false
+    t.datetime "updated_at",                                                                     :null => false
   end
 
   add_index "orders", ["fulfilled", "id"], :name => "index_orders_on_fulfilled_and_id"
   add_index "orders", ["store_id"], :name => "index_orders_on_store_id"
 
+  create_table "product_categories", :force => true do |t|
+    t.string  "name",                 :limit => 50,                    :null => false
+    t.integer "volume_unit_id",       :limit => 2,  :default => 1
+    t.boolean "limited_availability",               :default => false, :null => false
+  end
+
   create_table "product_orders", :id => false, :force => true do |t|
-    t.integer  "order_id",                                   :null => false
-    t.integer  "product_id",                                 :null => false
-    t.integer  "quantity",       :limit => 2, :default => 1, :null => false
-    t.integer  "volume_unit_id", :limit => 2, :default => 1, :null => false
-    t.datetime "created_at",                                 :null => false
-    t.datetime "updated_at",                                 :null => false
+    t.integer "order_id",                                   :null => false
+    t.integer "product_id",                                 :null => false
+    t.integer "quantity",       :limit => 2, :default => 1, :null => false
+    t.integer "volume_unit_id", :limit => 2, :default => 1, :null => false
   end
 
   add_index "product_orders", ["order_id", "product_id"], :name => "index_product_orders_on_order_id_and_product_id", :unique => true
@@ -86,14 +93,18 @@ ActiveRecord::Schema.define(:version => 20121017192726) do
   add_index "product_orders", ["volume_unit_id", "quantity"], :name => "index_product_orders_on_volume_unit_id_and_quantity"
 
   create_table "products", :force => true do |t|
-    t.string   "name",       :limit => 250,                   :null => false
-    t.string   "code",       :limit => 10,                    :null => false
-    t.boolean  "active",                    :default => true, :null => false
-    t.datetime "created_at",                                  :null => false
-    t.datetime "updated_at",                                  :null => false
+    t.string   "name",                :limit => 250,                   :null => false
+    t.string   "code",                :limit => 10,                    :null => false
+    t.integer  "product_category_id",                :default => 1,    :null => false
+    t.string   "available_from",      :limit => 10
+    t.string   "available_till",      :limit => 10
+    t.boolean  "active",                             :default => true, :null => false
+    t.datetime "created_at",                                           :null => false
+    t.datetime "updated_at",                                           :null => false
   end
 
   add_index "products", ["active", "code"], :name => "index_products_on_active_and_code"
+  add_index "products", ["active", "product_category_id"], :name => "index_products_on_active_and_product_category_id"
   add_index "products", ["code", "name"], :name => "index_products_on_code_and_name"
 
   create_table "states", :id => false, :force => true do |t|
@@ -122,7 +133,6 @@ ActiveRecord::Schema.define(:version => 20121017192726) do
 
   create_table "stores", :force => true do |t|
     t.integer   "company_id",     :limit => 3,                                                   :null => false
-    t.integer   "division_id",    :limit => 3
     t.string    "name",           :limit => 150
     t.string    "street_address", :limit => 200
     t.string    "suite",          :limit => 100

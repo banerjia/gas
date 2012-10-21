@@ -2,14 +2,46 @@
 	<%= javascript_include_tag :jquery_ujs -%>
 <% end -%>
 
-<%= link_to "Add New Product", new_product_path -%>
+<% content_for :head do -%>
+	<%= stylesheet_link_tag :table -%>
+	<style type="text/css" media="screen">
+		table#order_list{
+			margin: auto 1px;
+			width: 99%;
+		}
+		
+		table#order_list tfoot td{
+			
+		}	
+	</style>
+<% end -%>
 
-<ul>
-	<%- @product_list.each do |each_product| -%>
-		<li><%= each_product[:name] %><br/>
-			<%= each_product[:active] ? "" : raw('Inactive <br/>')%>
-			<%= link_to "Edit", edit_product_path( each_product ) %> | 
-			<%= link_to "Delete", product_path(each_product), :method => :delete, :confirm => 'Delete' -%>
-		</li>
+<table id="order_list" class="listing">
+	<thead>
+		<tr>
+			<th>Date</th>
+			<th>Invoice Number</th>
+			<th>Invoice Amount</th>
+			<th>Delivery Date</th>
+			<th>Fulfilled</th>
+		</tr>
+	</thead>
+	<tfoot>
+		<tr>
+			<td colspan="5" class="table_more_cell">
+				<%= link_to "Create a new order...", new_store_order_path(@store), :class => "load_more" -%>
+			</td>
+		</tr>
+	</tfoot>
+	<tbody>
+	<%- @store_orders.each do |order| -%>
+		<tr>
+			<td><%= order[:created_at].strftime("%b %d, %Y")  %></td>
+			<td><%= link_to (order[:invoice_number].blank? ? "Not Available" : order[:invoice_number]), edit_store_order_path(@store,order) -%></td>			
+			<td><%= order[:invoice_amount].blank? ? "Not Available" : number_to_currency(order[:invoice_amount]) -%></td>
+			<td><%= order[:delivery_date].blank? ? raw("Not Available") : order[:delivery_date].strftime("%b %d, %Y") %></td>
+			<td><%= !order[:fulfilled] ? raw("Awaiting Delivery") : "Delivered" %></td>
+		</tr>
 	<%- end -%>
-</ul>
+	</tbody>
+</table>

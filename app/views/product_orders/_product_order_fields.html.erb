@@ -1,0 +1,5 @@
+<tr>
+	<td><%= f.grouped_collection_select :product_id, ProductCategory.all, :products, :name, :id, :name -%></td>
+	<td><%= f.text_field :quantity -%></td>
+	<td><%= link_to_function "X", "remove_product(this)", :style => "text-decoration:none" -%></td>
+</tr>
