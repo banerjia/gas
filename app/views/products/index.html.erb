@@ -21,11 +21,11 @@
 		<thead>
 			<tr>
 				<th>Name</th>
-				<th>Code</th>
-				<th>Status</th>
 				<%- if category[:limited_availability] -%>
 				<th>Availablity</th>
 				<%- end -%>
+				<th>Code</th>
+				<th>Status</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -38,11 +38,11 @@
 							<%= link_to "Delete", product_path(product), :method => :delete, :confirm => "Do you want to delete #{product[:name]}" -%>
 						</span>
 				</td>
-				<td><%= product[:code] -%></td>
-				<td><%= product[:active] ? "Active" : "Inactive" -%></td>
 				<%- if category[:limited_availability] -%>
 				<td><%= product.availability -%></td>
 				<%- end -%>
+				<td><%= product[:code] -%></td>
+				<td><%= product[:active] ? "Active" : "Inactive" -%></td>
 		<%- end -%>
 		</tbody>
 	</table>

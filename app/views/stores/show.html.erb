@@ -140,6 +140,9 @@
 		<% if !store.completed_audits.blank? %>
 		<li id="table_completed_audits">Completed Audits</li>
 		<% end %>
+		<%- if store.orders.count > 0 -%>
+		<li id="table_orders">Orders</li>
+		<%- end -%>
 		<li><%= link_to "All Companies", companies_path %></li>
 	</ul>
 <% end %>
@@ -178,7 +181,7 @@
 	<% if !store[:phone].blank? && !store[:phone].empty? %>
 	<div class="entry_row">
 		<div class="entry_label">Phone</div>
-		<div class="entry_value"><%= store[:phone] %></div>
+		<div class="entry_value"><%= number_to_phone(store[:phone]) %></div>
 	</div>
 	<% end %>
 	<% if !store.completed_audits.blank?%>
@@ -189,7 +192,7 @@
 	<% end %>
 </div>
 <table class="listing" id="completed_audits">
-	<caption>Store Listing</caption>
+	<caption>Audits</caption>
 	<thead>
 		<tr>
 			<th scope="col">Audit Date</th>
@@ -204,4 +207,16 @@
 	</tfoot>
 	<tbody>
 	</tbody>
+</table>
+<table class="listing" id="table_orders">
+	<caption>Orders</caption>
+	<thead>
+		<tr>
+			<th>Date</th>
+			<th>Invoice Number</th>
+			<th>Amount</th>
+			<th>Delivery Date</th>
+			<th>Fulfilled</th>
+		</tr>
+	</thead>
 </table>

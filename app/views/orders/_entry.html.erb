@@ -1,6 +1,15 @@
 <div id="order_basics">
 	<div class="entry_row">
 		<div class="entry_label">
+			<strong>Store</strong>
+		</div>
+		<div class="entry_value">
+			<%= @store[:name] -%><br/>
+			<%= @store.address -%>			
+		</div>
+	</div>
+	<div class="entry_row">
+		<div class="entry_label">
 			<%= f.label :invoice_number, "Invoice" -%>
 		</div>
 		<div class="entry_value">
@@ -17,7 +26,7 @@
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">
-			<%= f.label :delivery_date, "Delivery By" -%>
+			<%= f.label :delivery_date, "Deliver By" -%>
 		</div>
 		<div class="entry_value">
 			<%= f.text_field :delivery_date -%>
@@ -68,19 +77,21 @@
 <style type="text/css" media="screen">
 	table#products{
 		border: 2px solid #ddd;
-		margin-left: 54%;
-		width: 45%;
+		margin-left: 47%;
+		width: 53%;
 	}
 	table#products input[type=text] { text-align: right; width: 30px }
 	div#order_basics{
 		border: 2px solid #ddd;
 		float:left;
 		margin-left: 0;
-		width: 53%;
+		width: 45%;
 	}
+	
 	div.buttons{
+		background-color: #eee;
+		border: 2px solid #ddd;
 		display: block;
-		margin: 0;
 	}
 </style>	
 <% end -%>

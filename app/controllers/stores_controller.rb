@@ -1,6 +1,7 @@
 class StoresController < ApplicationController
 
   def index
+    redirect_to :action => "search"
   end
 
   def show
@@ -121,7 +122,7 @@ class StoresController < ApplicationController
         params.delete(:controller)
         params[:format] = :json
         if stores_found.count > 0	
-			@page_title = stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name]              		  
+			      @page_title = stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name]              		  
             render "search_results", :locals => {\
               :stores => stores_found, \
               :ajax_path => stores_search_path(params),\
