@@ -41,10 +41,12 @@
 		var current_section;
 		var store_id = <%= store[:id] %>;
 		var completed_audits = null;
+		var orders = null;
 		
 		function switch_sections( target_section ){
 			var previous_section = $(current_section).attr("id");
 			var next_section = $(target_section).attr("id");
+			var onshow = $(target_section).attr("onshow");
 			$(current_section).removeClass("current");
 			$(target_section).addClass("current");
 			current_section = $(target_section);
@@ -53,7 +55,8 @@
 							   previous_section.substring( previous_section.indexOf("_") + 1);
 			next_section = next_section.substring( 0, next_section.indexOf("_")) + "#" +
 						   next_section.substring(next_section.indexOf("_")+1);
-			if(next_section == "table#completed_audits") get_completed_audits();
+
+			if(onshow) eval( onshow );
 			$(previous_section).hide();
 			$(next_section).show();
 			
@@ -62,13 +65,53 @@
 		function get_completed_audits(){
 			if(completed_audits != null ) {populate_audits(completed_audits);return};
 			$.ajax({
-				url: '<%= store_audits_path(store,:format => :json)%>',
+				url: '<%= store_audits_path(store,:format => :json) -%>',
 				dataType: "json",
 				success: function(data){
 					completed_audits = data.audits;
 					populate_audits(completed_audits);
-				}
+				},
+				error: function(){ alert ("Uh oh"); }
 			});
+		}
+		
+		function get_orders(){
+			//if(orders != null ) {populate_orders( orders ); return}
+			
+			$.ajax({
+				url: '<%= store_orders_path( store, :format => :json) -%>',
+				data: {"l":"15"},
+				dataType: "json",
+				success: function(data){
+					orders = data.orders;
+					populate_orders( orders );
+				},
+				error: function(){ alert ("Uh oh"); }
+			});
+		}
+		
+		function populate_orders( orders ){
+			var target_table_body = $("table#orders tbody");
+			if ( orders.length == 0 || $("tr", target_table_body).length > 0) return;
+			
+			var order_url_prefix = '<%= store_orders_path(store) -%>';
+			for( i = 0; i < orders.length; i++){
+				target_table_body.append(
+						$("<tr/>").append(
+							$("<td/>").text( (new Date(orders[i].created_at)).toLocaleDateString() )
+						).append(
+							$("<td/>").append(
+								$("<a/>").attr("href", order_url_prefix + '/' + orders[i].id).text(orders[i].invoice_number)
+							)
+						).append(
+							$("<td/>").text(orders[i].invoice_amount)								
+						).append(
+							$("<td/>").text( (orders[i].delivery_date ? (new Date(orders[i].delivery_date)).toLocaleDateString() : "N/A"))
+						).append(
+							$("<td/>").text( (orders[i].fulfilled ? "Yes": "No"))
+						)					
+					);
+			}			
 		}
 		
 		function populate_audits(audits){
@@ -138,10 +181,10 @@
 	<ul class="nav_items">
 		<li class="current" id="div_store_information">Store Information</li>
 		<% if !store.completed_audits.blank? %>
-		<li id="table_completed_audits">Completed Audits</li>
+		<li id="table_completed_audits" onshow="get_completed_audits()">Completed Audits</li>
 		<% end %>
 		<%- if store.orders.count > 0 -%>
-		<li id="table_orders">Orders</li>
+		<li id="table_orders" onshow="get_orders()">Orders</li>
 		<%- end -%>
 		<li><%= link_to "All Companies", companies_path %></li>
 	</ul>
@@ -208,7 +251,8 @@
 	<tbody>
 	</tbody>
 </table>
-<table class="listing" id="table_orders">
+<%- if store.orders.count > 0 -%>
+<table class="listing" id="orders">
 	<caption>Orders</caption>
 	<thead>
 		<tr>
@@ -219,4 +263,15 @@
 			<th>Fulfilled</th>
 		</tr>
 	</thead>
+	<%- if store.orders.count > 25 -%>
+	<tfoot>
+		<tr>
+			<td colspan="5" class="table_cell_more">
+				<%= link_to "More Orders", store_orders_path(@store) -%>
+			</td>
+		</tr>
+	</tfoot>
+	<%- end -%>
+	<tbody/>
 </table>
+<%- end -%>

@@ -16,6 +16,9 @@
 	</style>
 <% end -%>
 
+<p><strong>Store: </strong><%= link_to @store[:name], store_path(@store) -%> | 
+<strong>Company: </strong><%= link_to @store.company[:name], company_path(@store.company) -%>
+</p>
 <table id="order_list" class="listing">
 	<thead>
 		<tr>

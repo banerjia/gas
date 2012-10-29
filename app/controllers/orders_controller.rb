@@ -1,19 +1,24 @@
 class OrdersController < ApplicationController
   def index
+    limit = params[:l]
+    offset = params[:o]
     @store = Store.find(params[:store_id])
-    @store_orders = @store.orders
+    @store_orders = @store.orders.order("created_at desc").limit(limit).offset(offset)
     @page_title = "Orders for #{@store[:name]}"
     
     respond_to do |format|
       format.html
       format.json do
-        render :json => @store_orders.to_json
+        return_value = Hash.new
+        return_value[:orders] = @store_orders
+        render :json => return_value.to_json
       end
     end
   end
   
   def show
-    
+    @store = Store.find( params[:store_id] )
+    @order = Order.find( params[:id] )
   end
   
   def new
