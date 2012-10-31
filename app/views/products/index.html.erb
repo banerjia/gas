@@ -6,10 +6,20 @@
 	<%= stylesheet_link_tag :table -%>
 	<style type="text/css" media="screen">
 		table.listing{
+			margin-bottom: 1em;
 			width:99%;
 		}
 		table.listing span.edit_buttons {display:none}
 		table.listing tr:hover span.edit_buttons {display:inline-block}
+		
+		table.listing caption{
+			border: 2px solid #ccc;
+			background-color: #eee;
+			font-weight: bold;
+			padding: 2em auto;
+		}
+		table.listing th:first-child {width:5%}
+		table.listing th:first-child+th, table.listing td:first-child+td {text-align: left}
 	</style>
 <% end -%>
 
@@ -20,29 +30,27 @@
 		<caption><%= category.proper_name %></caption>
 		<thead>
 			<tr>
+				<th><span style="visibility:hidden">Edit</span></th>
 				<th>Name</th>
 				<%- if category[:limited_availability] -%>
 				<th>Availablity</th>
 				<%- end -%>
 				<th>Code</th>
 				<th>Status</th>
+				<th><span style="visibility:hidden">Delete</span></th>
 			</tr>
 		</thead>
 		<tbody>
 		<%- category.products.each do |product| -%>
 			<tr>
-				<td>
-					<%= product[:name] -%>
-						<span class="edit_buttons">
-							<%= link_to "Edit", edit_product_path(product) -%> | 
-							<%= link_to "Delete", product_path(product), :method => :delete, :confirm => "Do you want to delete #{product[:name]}" -%>
-						</span>
-				</td>
+				<td><%= link_to "Edit", edit_product_path(product), :class => 'edit_link' -%></td>
+				<td><%= product[:name] -%></td>
 				<%- if category[:limited_availability] -%>
 				<td><%= product.availability -%></td>
 				<%- end -%>
 				<td><%= product[:code] -%></td>
 				<td><%= product[:active] ? "Active" : "Inactive" -%></td>
+				<td><%= link_to "Delete", product_path(product), :method => :delete, :confirm => "Do you want to delete #{product[:name]}", :class => 'edit_link' -%></td>
 		<%- end -%>
 		</tbody>
 	</table>
