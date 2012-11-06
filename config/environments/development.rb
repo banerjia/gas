@@ -23,7 +23,7 @@ Graeters::Application.configure do
     authentication: "plain",
     enable_starttls_auto: true,
     user_name: 'webdesign.banerji@gmail.com',
-    password: 'dnmkac12'
+    password: ''
   }
 
   # Print deprecation notices to the Rails logger
