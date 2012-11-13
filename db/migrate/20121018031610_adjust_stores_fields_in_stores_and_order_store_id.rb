@@ -1,6 +1,5 @@
 class AdjustStoresFieldsInStoresAndOrderStoreId < ActiveRecord::Migration
   def up
-	remove_column :stores, :division_id
 
 	execute <<-SQL
 		ALTER TABLE `orders`
