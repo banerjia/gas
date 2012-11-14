@@ -1,4 +1,6 @@
 class Store < ActiveRecord::Base
+  include Tire::Search::Search
+  include Tire::Search::Callbacks
   
   belongs_to :company
   belongs_to :state, :foreign_key => [:country, :state_code]
@@ -9,23 +11,15 @@ class Store < ActiveRecord::Base
   has_one :pending_audit, :class_name => "Audit", :conditions => {:status => 0}, :order => "created_at desc"
   has_one :last_audit, :class_name => "Audit", :conditions => {:status => 1}, :order => "created_at desc"
 
-
-  define_index do
-    indexes :name, :sortable => true
-    indexes street_address
-    indexes store_number
-    indexes city, :sortable => true
-    indexes state_code, :sortable => true
-    indexes country, :sortable => true
-    indexes state(:state_name), :as => :state_name, :sortable => true, :facet => true
-    indexes company(:name), :as => :company_name, :facet => true
-    indexes zip
-
-    # id is symbolised because it's  a Sphinx keyword
-    has :id, created_at, updated_at, latitude, longitude, company_id
-    #set_property :delta => true
+  tire do 
+	index_name('stores')
+	mapping do 
+		indexes :id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
+		indexes :name, :type => 'string', :analyzer => 'snowball'
+		indexes :store_address, :type => 'string', :as => 'address', :analyzer => 'snowball'
+	end
   end
- 
+
   before_save do |store|
     store[:name] = store[:name].strip
     store[:street_address] = store[:street_address].strip
