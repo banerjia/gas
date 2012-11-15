@@ -89,20 +89,8 @@ class StoresController < ApplicationController
     # Only include country if state_code is specified.
     conditions[:country] = country || 'US' unless state_code.nil?
 
-    stores_found = Store.search params[:q], \
-                    :with => with_options, \
-                    :conditions => conditions, \
-                    :include => [:pending_audit, :last_audit], \
-                    :page => page, \
-                    :per_page => result_count, \
-                    :match_mode => :extended, \
-                    :order => 'country ASC, state_name ASC, city ASC', \
-                    :sort_mode => :extended
-                    
-    total_found = Store.search_count params[:q], \
-                  :with => with_options, \
-                  :conditions => conditions, \
-                  :match_mode => :extended
+    stores_found = Store.search params
+    total_found = 10                
                   
     total_pages = (total_found.to_f / result_count)
 

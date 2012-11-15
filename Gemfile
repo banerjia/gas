@@ -4,7 +4,7 @@ gem 'mysql2'
 gem 'asset_sync'
 gem 'composite_primary_keys'
 gem 'geokit-rails3'
-gem 'thinking-sphinx'
+#gem 'thinking-sphinx'
 gem 'dynamic_form'
 
 # Gems used only for assets and not required
@@ -21,3 +21,4 @@ group :test do
   gem 'turn', :require => false
 end
 gem 'roadie'
+gem 'tire'

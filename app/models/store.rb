@@ -1,6 +1,6 @@
 class Store < ActiveRecord::Base
-  include Tire::Search::Search
-  include Tire::Search::Callbacks
+  include Tire::Model::Search
+  include Tire::Model::Callbacks
   
   belongs_to :company
   belongs_to :state, :foreign_key => [:country, :state_code]
@@ -72,5 +72,11 @@ class Store < ActiveRecord::Base
     return_value += " - " + self[:zip].strip unless self[:zip].blank?
     return_value += " (" + self[:country] + ")" unless self[:country] == "US"
     return return_value
+  end
+
+  def self.search(params)
+	tire.search do
+		query {string params[:q] } if params[:q].present?
+	end
   end
 end
