@@ -12,12 +12,22 @@ class Store < ActiveRecord::Base
   has_one :last_audit, :class_name => "Audit", :conditions => {:status => 1}, :order => "created_at desc"
 
   tire do 
-	index_name('stores')
-	mapping do 
-		indexes :id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
-		indexes :name, :type => 'string', :analyzer => 'snowball'
-		indexes :store_address, :type => 'string', :as => 'address', :analyzer => 'snowball'
-	end
+  	index_name('stores')
+  	mapping do 
+  		indexes :id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
+  		indexes :name, :type => 'string', :analyzer => 'snowball'
+  		indexes :store_address, :type => 'string', :as => 'address', :analyzer => 'snowball'
+  		indexes :state_code, :type => 'string', :analyzer => 'not_analyzed', :include_in_all => false
+  		indexes :country, :type => 'string', :index => 'not_analyzed', :include_in_all => false
+  		indexes :state_name, :type => 'string', :as => 'state.state_name', :analyzer => 'snowball'
+  		indexes :company_id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
+  	end
+  end
+  
+  def self.search( params )
+    tire.search :load => {:include => 'company' } do 
+      query {string params[:q]} if params[:q].present?
+    end
   end
 
   before_save do |store|
@@ -72,11 +82,5 @@ class Store < ActiveRecord::Base
     return_value += " - " + self[:zip].strip unless self[:zip].blank?
     return_value += " (" + self[:country] + ")" unless self[:country] == "US"
     return return_value
-  end
-
-  def self.search(params)
-	tire.search do
-		query {string params[:q] } if params[:q].present?
-	end
   end
 end
