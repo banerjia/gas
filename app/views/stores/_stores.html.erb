@@ -3,7 +3,7 @@
 	<script type="text/javascript">
 	// Since first page is already loaded this causes the next call to start listing the second page
 	var next_page = 2; 
-	var result_count = 10;
+	var per_page = 25;
 	
 	<% if defined?(ajax_path) %>
 	var ajax_path = '<%= ajax_path.html_safe %>';
@@ -12,7 +12,7 @@
 	function load_more(){
 		jQuery.ajax({
 			url: ajax_path,
-			data: {"page": next_page, "result_count" : result_count},
+			data: {"page": next_page, "per_page" : per_page},
 			dataType: "json",
 			success: function(data){
 				if(!data.more_pages) jQuery("table#store_listing tfoot").hide().remove();
@@ -78,7 +78,7 @@
 	</tfoot>
 	<% end %>
 	<tbody id="original_listing">
-		<% store_collection[0..9].each do |store|%>
+		<% store_collection.each do |store|%>
 		<tr>
 			<td><%=link_to store[:name], store_path(store)%><br/><%=store.address%></td>
 			<td>

@@ -78,8 +78,7 @@ class StoresController < ApplicationController
     
     page = params[:page] || 1
     page = page.to_i
-    start_at = params[:start_at] || 0
-    result_count = (params[:result_count] || 10).to_i
+    result_count = (params[:per_page] || 25).to_i
 
     conditions =  Hash.new
     with_options = Hash.new
@@ -90,13 +89,11 @@ class StoresController < ApplicationController
     conditions[:country] = country || 'US' unless state_code.nil?
 
     stores_found = Store.search params
-    total_found = 10                
                   
-    total_pages = (total_found.to_f / result_count)
 
     return_value = Hash.new
     return_value[:stores] = stores_found
-    return_value[:more_pages] = (total_pages > page)
+    return_value[:more_pages] = (stores_found.total_pages > page)
     return_value[:stores_found] = stores_found.count
     conditions[:q] = params[:q] unless params[:q].nil?
     respond_to do |format|

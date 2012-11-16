@@ -51,11 +51,8 @@
 				<% if !options[:company_id].nil? then%>
 					<input type="hidden" name="company_id" value="<%=options[:company_id]%>"/>
 				<% end %>
-				<% if !options[:division_id].nil? then%>
-					<input type="hidden" name="division_id" value="<%=options[:division_id]%>"/>
-				<% end %>
 				<% if !options[:state_code].nil? then%>
-					<input type="hidden" name="state_code" value="<%=options[:state_code]%>"/>
+					<input type="hidden" name="state" value="<%=options[:state_code]%>"/>
 					<input type="hidden" name="country" value="<%=options[:country]%>"/>
 				<% end %>
 				</div>

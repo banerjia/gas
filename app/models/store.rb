@@ -25,8 +25,15 @@ class Store < ActiveRecord::Base
   end
   
   def self.search( params )
-    tire.search :load => {:include => 'company' } do 
-      query {string params[:q]} if params[:q].present?
+    tire.search :load => {:include => 'company'}, :per_page => params[:per_page] || 25, :page => params[:page] || 1 do 
+	query do
+
+		boolean do
+			must { string params[:q]} if params[:q].present?
+			must { string "company_id:#{params[:company_id]}" } if params[:company_id].present?
+			must { string "state_code:#{params[:state]}" } if params[:state].present?
+		end
+      	end	
     end
   end
 
