@@ -21,6 +21,14 @@ Graeters::Application.routes.draw do
       resources :audits
       resources :resources, :only => ["index"]
       resources :products
+
+	get "logout" => "sessions#destroy", :as => "logout"
+	get "login" => "sessions#new", :as => "login"
+	get "signup" => "people#new", :as => "signup"
+	resources :people
+	resources :sessions
+
+
     end
     #match "products" => "products#index", :via => :get, :as => :products
     #match "products" => "products#create", :via => :post

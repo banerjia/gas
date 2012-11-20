@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121021081615) do
+ActiveRecord::Schema.define(:version => 20121119172522) do
 
   create_table "audit_journals", :primary_key => "audit_id", :force => true do |t|
     t.string    "title",      :limit => 50
@@ -74,6 +74,23 @@ ActiveRecord::Schema.define(:version => 20121021081615) do
 
   add_index "orders", ["fulfilled", "id"], :name => "index_orders_on_fulfilled_and_id"
   add_index "orders", ["store_id"], :name => "index_orders_on_store_id"
+
+  create_table "people", :force => true do |t|
+    t.string   "email",                                              :null => false
+    t.string   "crypted_password"
+    t.string   "salt"
+    t.boolean  "is_admin",                        :default => false, :null => false
+    t.datetime "created_at",                                         :null => false
+    t.datetime "updated_at",                                         :null => false
+    t.string   "remember_me_token"
+    t.datetime "remember_me_token_expires_at"
+    t.string   "reset_password_token"
+    t.datetime "reset_password_token_expires_at"
+    t.datetime "reset_password_email_sent_at"
+  end
+
+  add_index "people", ["remember_me_token"], :name => "index_people_on_remember_me_token"
+  add_index "people", ["reset_password_token"], :name => "index_people_on_reset_password_token"
 
   create_table "product_categories", :force => true do |t|
     t.string  "name",                 :limit => 50,                    :null => false

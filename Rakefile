@@ -5,8 +5,3 @@
 require File.expand_path('../config/application', __FILE__)
 
 Graeters::Application.load_tasks
-begin
-	require 'thinking_sphinx/tasks'
-rescue LoadError
-	puts 'You cannot load Thinking Sphinx tasks unless'
-end
