@@ -18,22 +18,16 @@
   <%= yield :head %>
 </head>
 <body>
-
-
-
-<% if current_user %>
-  Logged in as <%= current_user.email %>.
-  <%= link_to "Log out", logout_path %>
-<% else %>
-  <%= link_to "Sign up", signup_path %> or
-  <%= link_to "log in", login_path %>.
-<% end %>
-
 	<div id="wrapper">
 		<header>
 		<div id="page_header" class="page_blocks">
 			<p style="margin:0;margin-bottom:2px;font-size:9pt;font-weight:bold;text-align:right">Beta</p>
-			<h1 style="margin-top:1px"><%= @page_title or "Untitled" %></h1>
+			
+			<!-- TITLE -->
+			<h1 style="margin-top:1px"><%= @page_title || "Untitled" %></h1>
+			
+			<%- if current_user || true -%>
+			<!-- Display top nav after login -->
 			<div id="top_nav">
 				<ul>
 					<li <%= current_page?(companies_path) ? raw("class='current'"): "" -%>>
@@ -42,15 +36,20 @@
 					<li <%= current_page?(stores_path) ? raw("class='current'"):"" -%>>
 						<%= link_to_unless_current "Stores", stores_path -%>
 					</li>
+					<%- if true #current_user.is_admin  %>
 					<li <%= current_page?(products_path) ? raw("class='current'"):"" -%>>
 						<%= link_to_unless_current "Products", products_path -%>
 					</li>
-					<li>Logout</li>
+					<%- end -%>
+					<li><%= link_to "Signout", logout_path %></li>
 				</ul>
 			</div>
+			<!-- End top nav -->
+			<%- end -%>
 		</div>
 		</header>
 		<div id="page_body" class="page_blocks">
+			<!-- NOTICES -->
 			<% if !flash[:notice].blank?%>
 				<p class="notice"><%= flash[:notice]%></p>
 			<% end %>
@@ -60,6 +59,8 @@
 			<% if !flash[:error].blank? %>
 				<p class="error"><%=flash[:error]%></p>
 			<% end %>
+			<!-- END NOTICES -->
+			
 			<%= yield :body %>
 		</div>
 		<footer>

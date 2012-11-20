@@ -72,21 +72,7 @@ class StoresController < ApplicationController
 
   def search
     stores_found = nil
-    company_id = params[:company_id]
-    state_code = params[:state]
-    country = params[:country]
     
-    page = params[:page] || 1
-    page = page.to_i
-    result_count = (params[:per_page] || 25).to_i
-
-    conditions =  Hash.new
-    with_options = Hash.new
-
-    with_options[:company_id] = company_id unless company_id.nil?
-    conditions[:state_code] =  state_code unless state_code.nil?
-    # Only include country if state_code is specified.
-    conditions[:country] = country || 'US' unless state_code.nil?
 
     stores_found = Store.search params
                   
@@ -111,11 +97,11 @@ class StoresController < ApplicationController
             render "search_results", :locals => {\
               :stores => stores_found, \
               :ajax_path => stores_search_path(params),\
-              :options => conditions.merge(with_options), :more_pages => return_value[:more_pages]}
+              :options => params, :more_pages => return_value[:more_pages]}
         else
 		  @page_title = "Information Unavailable"
           render "search_results", :locals => {\
-			        :options => conditions.merge( with_options ), \
+			        :options => params, \
 			        :stores => nil}			
         end
       end

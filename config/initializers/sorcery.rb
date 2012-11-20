@@ -291,4 +291,6 @@ Rails.application.config.sorcery.configure do |config|
     # user.reset_password_expiration_period =
 
   end
+
+  config.user_class = 'Person'
  end
