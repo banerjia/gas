@@ -1,6 +1,6 @@
-<% content_for :head do %>
-	<%= stylesheet_link_tag :forms %>
-	<%= stylesheet_link_tag :table %>
+<%- content_for :head do -%>
+	<%= stylesheet_link_tag :forms -%>
+	<%= stylesheet_link_tag :table -%>
 	<style type="text/css" media="screen">
 		table.listing {
 			border-bottom:none;
@@ -9,38 +9,12 @@
 		}
 		table.listing caption{display:none;}
 
-		span#pending_audit_msg{
-			background-image: url( <%= image_path("exclaim_24x24.png")%>);
-			background-position: 5px center;
-			background-repeat: no-repeat;
-			display:inline-block;
-			float:right;
-			margin-left:1em;
-			padding:5px 5px 5px 35px;			
-		}
-		span#pending_audit_msg a{text-decoration:underline;}
-		
-		a.comments span{
-			visibility:hidden;
-		}
-		a.comments{
-			background-image: url( <%= image_path("attachment_yellow_16x16.png")%>);
-			background-position: left center;
-			background-repeat: no-repeat;
-			cursor:pointer;
-			display:inline-block;
-			margin-left:0;
-			min-height: 16px;
-			min-width: 16px;
-			text-indent: -2000px;
-		}
 	</style>
-<% end %>
-<% content_for :page_js do %>
+<%- end -%>
+<%- content_for :page_js do -%>
 	<script type="text/javascript">
 		var current_section;
-		var store_id = <%= store[:id] %>;
-		var completed_audits = null;
+		var store_id = <%= store[:id] -%>;
 		var orders = null;
 		
 		function switch_sections( target_section ){
@@ -60,19 +34,6 @@
 			$(previous_section).hide();
 			$(next_section).show();
 			
-		}
-		
-		function get_completed_audits(){
-			if(completed_audits != null ) {populate_audits(completed_audits);return};
-			$.ajax({
-				url: '<%= store_audits_path(store,:format => :json) -%>',
-				dataType: "json",
-				success: function(data){
-					completed_audits = data.audits;
-					populate_audits(completed_audits);
-				},
-				error: function(){ alert ("Uh oh"); }
-			});
 		}
 		
 		function get_orders(){
@@ -114,57 +75,6 @@
 			}			
 		}
 		
-		function populate_audits(audits){
-			var target_table_body = $("table#completed_audits tbody");
-			
-			// Check if the table is already populated
-			if( audits.length == 0 || $("tr", target_table_body).length > 0) return;
-			
-			var audit_url_prefix = '<%= audits_path %>';
-			var link_id_prefix = "comment_link_for_block_";
-			var td_id_prefix = "comment_block_";
-			
-			
-			for( i = 0; i < audits.length ; i++){
-				var audit_date = new Date(audits[i].created_at);
-				var audit_summary_row = "<tr>" +
-											"<td>" + 
-												"<a href='" + audit_url_prefix + "/" + audits[i].id +"'>" +
-													audit_date.toLocaleDateString() + 
-												"</a>" +
-												"<a class='comments' id='" + link_id_prefix + audits[i].id +"'>" +
-													"Comments" +
-												"</a>" +
-											"</td>" +
-											"<td>" + audits[i].auditor_name + "</td>" + 
-											"<td>" + audits[i].score + "</td>" +
-										"</tr>";
-				var comments_row = "<tr>" +
-											"<td colspan='3' " +
-												"style='text-align:left' class='comments' " +
-												"id='comment_block_" + audits[i].id + "'>" + 
-												"<strong>Comments:</strong> " +
-													audits[i].audit_journal.body +
-											"</td>" +
-									"</tr>";
-				target_table_body.append(audit_summary_row);
-				target_table_body.append(comments_row);											
-									
-			}
-			$("td.comments", target_table_body).hide();
-
-			$("a.comments", target_table_body).click(function(){
-				var sender_id = $(this).attr("id");
-				var target_id = sender_id.replace("_link_for","");
-				var target_object = $("td#" + target_id);
-				
-				if(target_object.is(":visible"))
-					target_object.hide();
-				else
-					target_object.show();
-			});
-		}
-		
 		$(document).ready(function(){
 			current_section = $("ul.nav_items li.current")[0];
 			$("table.listing").hide();
@@ -174,83 +84,53 @@
 			
 		});
 	</script>
-<% end %>
+<%- end -%>
 
-<% content_for :left_column  do %>
+<%- content_for :left_column  do -%>
 	<h2>Tools</h2> 
 	<ul class="nav_items">
 		<li class="current" id="div_store_information">Store Information</li>
-		<% if !store.completed_audits.blank? %>
-		<li id="table_completed_audits" onshow="get_completed_audits()">Completed Audits</li>
-		<% end %>
 		<%- if store.orders.count > 0 -%>
-		<li id="table_orders" onshow="get_orders()">Orders</li>
+			<li id="table_orders">Orders</li>
 		<%- end -%>
-		<li><%= link_to "All Companies", companies_path %></li>
 	</ul>
-<% end %>
+<%- end -%>
 <div id="store_information">
 	<div class="toolbar">
-		<input type="button" value="Edit Store" onclick="window.location='<%=edit_store_path( store)%>'" class= "icon_buttons"/>
-		<% if !store.pending_audit.blank? %>
-		<span id="pending_audit_msg">This store has a <%= link_to "pending audit", audit_path(store.pending_audit)%></span>
-		<% else %>
-		<input type="button" value="New Audit" onclick="window.location='new_audit_store_path(store)'" class="icon_buttons"/>
-		<% end %>
-		<input type="button" value="New Order" onclick="window.location='<%=new_store_order_path(store)%>'" class="icon_buttons"/>
+		<%- if true #current_user.is_admin -%>
+			<input type="button" value="Edit Store" onclick="window.location='<%=edit_store_path( store)-%>'" class= "icon_buttons"/>
+		<%- end -%>
+		<input type="button" value="New Order" onclick="window.location='<%=new_store_order_path(store)-%>'" class="icon_buttons"/>
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">Name</div>
 		<div class="entry_value">
-			<%= store[:name] %>
+			<%= store[:name] -%>
 		</div>
 	</div>
 	<%- if !store[:store_number].blank? && !store[:store_number].empty? -%>
 	<div class="entry_row">
 		<div class="entry_label">Store#</div>
-		<div class="entry_value"><%= store[:store_number] %></div>
+		<div class="entry_value"><%= store[:store_number] -%></div>
 	</div>
 	<%- end -%>
 	<div class="entry_row">
 		<div class="entry_label">Company</div>
 		<div class="entry_value">
-			<%= link_to store.company[:name], company_path(store.company)%> &nbsp;
+			<%= link_to store.company[:name], company_path(store.company)-%> &nbsp;
 		</div>
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">Address</div>
-		<div class="entry_value"><%= store.address%></div>
+		<div class="entry_value"><%= store.address-%></div>
 	</div>
-	<% if !store[:phone].blank? && !store[:phone].empty? %>
+	<%- if !store[:phone].blank? && !store[:phone].empty? -%>
 	<div class="entry_row">
 		<div class="entry_label">Phone</div>
-		<div class="entry_value"><%= number_to_phone(store[:phone]) %></div>
+		<div class="entry_value"><%= number_to_phone(store[:phone]) -%></div>
 	</div>
-	<% end %>
-	<% if !store.completed_audits.blank?%>
-	<div class="entry_row">
-		<div class="entry_label">Last Audit</div>
-		<div class="entry_value"><%= link_to store.last_audit[:score], audit_path( store.last_audit, :format=>:json )%> (<%= store.last_audit[:created_at].strftime("%b %d, %Y")%>)</div>
-	</div>
-	<% end %>
+	<%- end -%>
 </div>
-<table class="listing" id="completed_audits">
-	<caption>Audits</caption>
-	<thead>
-		<tr>
-			<th scope="col">Audit Date</th>
-			<th scope="col">Auditor</th>
-			<th scope="col">Score</th>
-		</tr>
-	</thead>
-	<tfoot>
-		<tr>
-			<td colspan="3" class="table_more_cell"><a class="load_more" onclick="load_more()">More Audits...</a></td>
-		</tr>
-	</tfoot>
-	<tbody>
-	</tbody>
-</table>
 <%- if store.orders.count > 0 -%>
 <table class="listing" id="orders">
 	<caption>Orders</caption>
