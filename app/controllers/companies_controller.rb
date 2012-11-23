@@ -4,8 +4,8 @@ class CompaniesController < ApplicationController
   :pending_audit => {:only => [:id, :score, :created_at,:auditor_name]}}
 
   def index
-    all_companies = Company.find(:all, :order => :name)
-	@page_title = "Chains"
+    all_companies = Company.find(:all, :conditions => {:active => true }, :order => :name)
+	  @page_title = "Chains"
     return_value = Hash.new
     return_value[:number_of_companies] = all_companies.length
     return_value[:companies] = all_companies

@@ -1,5 +1,5 @@
 class Company < ActiveRecord::Base
-
+  attr_accessible :name, :active
   has_many :stores
   has_many :states, :through => :stores, :uniq => :true
   

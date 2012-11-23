@@ -1,0 +1,26 @@
+<div id="refine">
+	<form method="get" action="<%= stores_search_path(:format => :html)%>">
+		<div class="entry_row">
+			<div class="entry_label"><%= defined?(search_label) ? search_label : "Search" -%></div>
+			<div class="entry_value">
+			<% if defined?(options) && !options[:q].nil? then%>
+				<input type="text" name="q" id="q" value="<%=options[:q]%>"/>
+			<% else %>
+				<input type="text" name="q" id="q"/>
+			<% end %>
+			<% if defined?(options) && !options.nil? then %>
+				<div style="display:none">
+				<% if !options[:company_id].nil? then%>
+					<input type="hidden" name="company_id" value="<%=options[:company_id]%>"/>
+				<% end %>
+				<% if !options[:state_code].nil? then%>
+					<input type="hidden" name="state" value="<%=options[:state]%>"/>
+					<input type="hidden" name="country" value="<%=options[:country]%>"/>
+				<% end %>
+				</div>
+			<% end %>
+				<input type="submit" value="Search" style="float:right"/>
+			</div>
+		</div>
+	</form>
+</div>

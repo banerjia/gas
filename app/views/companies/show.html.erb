@@ -35,17 +35,16 @@
 <% content_for :left_column  do %>
 	<h2>Tools</h2> 
 	<ul class="nav_items">
-		<li class="current" id="div_company_information">Company Information</li>
+		<li class="current" id="div_chain_information">Chain Information</li>
 		<li id="table_state_listing" onclick="get_listing(this, 'state')">States with Stores</li>
-		<li class="no-section-change"><%= link_to "All Companies", companies_path%></li>
 	</ul>
 <% end %>
-<div id="company_information">
+<div id="chain_information">
 	<div class="toolbar">
 		<input type="button" value="Edit" onclick="window.location='<%=edit_company_path(company)%>'" class="icon_buttons"/>
 	</div>
 	<div class="entry_row">
-		<div class="entry_label">Company</div>
+		<div class="entry_label">Chain</div>
 		<div class="entry_value" >
 			<%= company[:name]%>
 			

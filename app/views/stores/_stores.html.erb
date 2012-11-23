@@ -3,7 +3,7 @@
 	<script type="text/javascript">
 	// Since first page is already loaded this causes the next call to start listing the second page
 	var next_page = 2; 
-	var per_page = 25;
+	var per_page = <%= $per_page -%>;
 	
 	<% if defined?(ajax_path) %>
 	var ajax_path = '<%= ajax_path.html_safe %>';

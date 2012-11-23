@@ -5,6 +5,8 @@ class ApplicationController < ActionController::Base
                         :pending_audit => {:only => [:id, :score, :created_at,:auditor_name]}}
   $exclusions = [:created_at, :updated_at, :longitude, :latitude]
   
+  $per_page = 10
+  
   #before_filter :require_login, :except => [:not_authenticated]
   before_filter :set_cache_buster
 

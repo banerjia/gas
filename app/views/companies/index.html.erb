@@ -1,5 +1,6 @@
 <% content_for :head do %>
 	<%= stylesheet_link_tag :table %>
+	<%= stylesheet_link_tag :forms -%>
 	<style type="text/css" media="screen">
 		table#company_listing {
 			border-bottom:none;
@@ -16,8 +17,11 @@
 			margin-left:0;
 			width:auto;
 		}
+		input#q { width: 85% }
 	</style>
 <% end %>
+
+<%= render :partial => 'stores/store_search', :locals => {:search_label => "Search for a store"} %>
 
 <table id="company_listing" class="listing">
 	<thead>
