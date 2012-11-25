@@ -16,7 +16,7 @@
 			Invoice
 		</div>
 		<div class="entry_value">
-			<%= @order[:invoice_number] -%>
+			<%= !@order[:invoice_number].blank? ? @order[:invoice_number] : raw("&nbsp;") -%>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -24,7 +24,7 @@
 			Route
 		</div>
 		<div class="entry_value">
-			<%= @order[:route_number] -%>
+			<%= !@order[:route_number].blank? ? @order[:route_number] : raw("&nbsp;") -%>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -32,7 +32,7 @@
 			Deliver By
 		</div>
 		<div class="entry_value">
-			<%= @order[:delivery_date] -%>
+			<%= !@order[:delivery_date].blank? ? @order[:delivery_date] : raw("&nbsp;") -%>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -40,7 +40,7 @@
 			Amount
 		</div>
 		<div class="entry_value">
-			<%= @order[:invoice_amount] -%>
+			<%= number_to_currency(@order[:invoice_amount]) -%>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -59,16 +59,16 @@
 			<th>Quantity</th>
 		</tr>
 	</thead>
-	<% @order.product_categories.each do |category| -%>
+	<% @product_categories.each do |category| -%>
 		<tbody>
 			<tr>
 				<td colspan="2" class="category_heading"><%= category[:name] -%></td>
 			</tr>
 			
-			<% category.products.each do |product| -%>
+			<% @products_by_category["category_#{category[:id]}"].each do |product_order| -%>
 			<tr>
-				<td><%= product[:name]-%></td>
-				<td>0</td>
+				<td><%= product_order.product[:name] -%></td>
+				<td><%= product_order[:quantity] -%></td>
 			</tr>
 			<%- end -%>
 		</tbody>

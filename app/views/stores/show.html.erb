@@ -87,11 +87,11 @@
 <%- end -%>
 
 <%- content_for :left_column  do -%>
-	<h2>Tools</h2> 
+	<h2>Links</h2> 
 	<ul class="nav_items">
 		<li class="current" id="div_store_information">Store Information</li>
 		<%- if store.orders.count > 0 -%>
-			<li id="table_orders">Orders</li>
+			<li id="table_orders" onshow="get_orders()">Orders</li>
 		<%- end -%>
 	</ul>
 <%- end -%>

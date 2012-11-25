@@ -34,7 +34,7 @@
 		<% companies.each do |company| %>
 		<tr>
 			<td><%= link_to company[:name], company_path( company, :format => :html ) %></td>
-			<td class="cell-right-align"><%= link_to company.stores.size, company_stores_path( company, :format=> :html ) %></td>
+			<td class="cell-right-align"><%= link_to number_with_delimiter(company.stores.size), company_stores_path( company, :format=> :html ) %></td>
 		</tr>
 		<% end %>
 	</tbody>

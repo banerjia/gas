@@ -82,8 +82,12 @@
 		<tr>
 			<td><%=link_to store[:name], store_path(store)%><br/><%=store.address%></td>
 			<td>
-				<%= !store.last_audit.blank? ? link_to(store.last_audit[:score],"#") : '&nbsp;'.html_safe%><br/>
-				<%= !store.last_audit.blank? ? store.last_audit[:created_at].strftime("%b %d, %Y") : '&nbsp;'.html_safe %>
+				<%- if store.last_audit -%>				
+					<%= store.last_audit[:score] -%><br/>
+					<span <%= store.last_audit[:created_at] < 2.weeks.ago ? raw('class="warning"'):'' -%>><%= store.last_audit[:created_at].strftime("%b %d, %Y") -%></span>
+				<%- else -%>
+				  &nbsp;
+				<%- end -%>
 			</td>
 		</tr>
 		<% end %>
