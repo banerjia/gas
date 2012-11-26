@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121120011918) do
+ActiveRecord::Schema.define(:version => 20121123151806) do
 
   create_table "audit_journals", :primary_key => "audit_id", :force => true do |t|
     t.string    "title",      :limit => 50
@@ -35,11 +35,11 @@ ActiveRecord::Schema.define(:version => 20121120011918) do
   add_index "audits", ["store_id", "status", "created_at", "id", "score"], :name => "Store_Audit_History"
 
   create_table "companies", :force => true do |t|
-    t.string    "name",            :limit => 150,                :null => false
-    t.integer   "stores_count",    :limit => 3,   :default => 0, :null => false
-    t.integer   "divisions_count", :limit => 3,   :default => 0, :null => false
-    t.timestamp "created_at",                                    :null => false
-    t.timestamp "updated_at",                                    :null => false
+    t.string    "name",         :limit => 150,                :null => false
+    t.integer   "stores_count", :limit => 3,   :default => 0, :null => false
+    t.integer   "active",       :limit => 1,   :default => 1, :null => false
+    t.timestamp "created_at",                                 :null => false
+    t.timestamp "updated_at",                                 :null => false
   end
 
   add_index "companies", ["id"], :name => "CompanyID_UNIQUE", :unique => true

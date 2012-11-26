@@ -3,7 +3,7 @@
 	<script type="text/javascript">
 	// Since first page is already loaded this causes the next call to start listing the second page
 	var next_page = 2; 
-	var per_page = 25;
+	var per_page = <%= $per_page -%>;
 	
 	<% if defined?(ajax_path) %>
 	var ajax_path = '<%= ajax_path.html_safe %>';
@@ -82,8 +82,12 @@
 		<tr>
 			<td><%=link_to store[:name], store_path(store)%><br/><%=store.address%></td>
 			<td>
-				<%= !store.last_audit.blank? ? link_to(store.last_audit[:score],"#") : '&nbsp;'.html_safe%><br/>
-				<%= !store.last_audit.blank? ? store.last_audit[:created_at].strftime("%b %d, %Y") : '&nbsp;'.html_safe %>
+				<%- if store.last_audit -%>				
+					<%= store.last_audit[:score] -%><br/>
+					<span <%= store.last_audit[:created_at] < 2.weeks.ago ? raw('class="warning"'):'' -%>><%= store.last_audit[:created_at].strftime("%b %d, %Y") -%></span>
+				<%- else -%>
+				  &nbsp;
+				<%- end -%>
 			</td>
 		</tr>
 		<% end %>

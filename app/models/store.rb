@@ -25,7 +25,7 @@ class Store < ActiveRecord::Base
   end
   
   def self.search( params )
-    tire.search :load => {:include => 'company'}, :per_page => params[:per_page] || 25, :page => params[:page] || 1 do 
+    tire.search :load => {:include => ['company', 'last_audit']}, :per_page => params[:per_page], :page => params[:page] || 1 do 
       query do
         boolean do
     			must { string params[:q]} if params[:q].present?

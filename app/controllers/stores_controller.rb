@@ -78,7 +78,7 @@ class StoresController < ApplicationController
     
     page = params[:page] || 1
     page = page.to_i
-    result_count = (params[:per_page] || 25).to_i
+    params[:per_page] = (params[:per_page] || $per_page).to_i
 
     conditions =  Hash.new
     with_options = Hash.new

@@ -54,9 +54,7 @@
 		<h2>Please review some of the entries</h2>
 		<ul>
 		<% company.errors.each do |attr_name, message|%>
-			<% if attr_name.to_s != "divisions" %>
 			<li><%= message %></li>
-			<% end %>
 		<% end %>
 		</ul>
 	</div>
@@ -66,6 +64,13 @@
 		<div class="entry_label"><%= f.label :name %></div>
 		<div class="entry_value">
 			<%= f.text_field :name, :class => (company.errors.any? && !company.errors[:name].blank? ? "error_field": "") %>
+		</div>
+	</div>
+	<div class="entry_row">
+		<div class="entry_label">Status</div>
+		<div class="entry_value">
+			<%= f.check_box :active -%>
+			<%= f.label :active, "This chain actively sells Graeters products" -%>
 		</div>
 	</div>
 	<div class="toolbar">

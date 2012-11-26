@@ -24,44 +24,17 @@
 	</style>
 <% end %>
 <% content_for :left_column do %>
-	<h2>Tools</h2>
+	<h2>Links</h2>
 	<ul class="nav_items">
 		<% if defined?(options) && !options[:company_id].nil?  then %>
 		<li>
 				<%= link_to "About " + stores[0].company.name, company_path(options[:company_id]) %>
 		</li>		
 		<% end %>
-		<li>
-			<%= link_to "All Companies", companies_path %>			
-		</li>
 	</ul>
 <% end %>
-<div id="refine">
-	<form method="get" action="<%= stores_search_path(:format => :html)%>">
-		<div class="entry_row">
-			<div class="entry_label">Search</div>
-			<div class="entry_value">
-			<% if defined?(options) && !options[:q].nil? then%>
-				<input type="text" name="q" id="q" value="<%=options[:q]%>"/>
-			<% else %>
-				<input type="text" name="q" id="q"/>
-			<% end %>
-			<% if defined?(options) && !options.nil? then %>
-				<div style="display:none">
-				<% if !options[:company_id].nil? then%>
-					<input type="hidden" name="company_id" value="<%=options[:company_id]%>"/>
-				<% end %>
-				<% if !options[:state_code].nil? then%>
-					<input type="hidden" name="state" value="<%=options[:state]%>"/>
-					<input type="hidden" name="country" value="<%=options[:country]%>"/>
-				<% end %>
-				</div>
-			<% end %>
-				<input type="submit" value="Search" style="float:right"/>
-			</div>
-		</div>
-	</form>
-</div>
+<%= render :partial => 'store_search', :locals => {:options => options} %>
+
 <% if !stores.nil? then %>
 	<%= render :partial => "stores", \
 		:locals => {:store_collection =>  stores, :more_pages => more_pages}%>

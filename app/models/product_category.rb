@@ -1,5 +1,6 @@
 class ProductCategory < ActiveRecord::Base
   has_many :products, :dependent => :nullify
+  has_many :product_orders, :through => :products
 #  belongs_to :volume_unit
   
 #  attr_accessible :name, :limited_availability
