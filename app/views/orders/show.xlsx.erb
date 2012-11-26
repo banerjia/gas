@@ -1,0 +1,30 @@
+<?xml version="1.0"i encoding="utf-8" standalone="yes"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+  xmlns:x="urn:schemas-microsoft-com:office:excel"
+  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:html="http://www.w3.org/TR/REC-html40">
+  <Worksheet ss:Name="Order">
+    <ss:Style ss:ID="Header">
+  	<ss:Font ss:Bold="1"/>	
+    </ss:Style>
+    <Table ss:ExpandedColumnCount="2" ss:ExpandedRowCount="5" x:FullColumns="1" x:FullRows="1">
+      <Row>
+	<Cell><Data ss:Type="String">Stock Code SKU</Data></Cell>
+	<Cell><Data ss:Type="String">Description</Data></Cell>
+	<Cell><Data ss:Type="String">Measure Unit</Data></Cell>
+	<Cell><Data ss:Type="String">Quantity</Data></Cell>
+      </Row>
+    <% @product_categories.each do |category, index| -%>
+    <% @products_by_category["category_#{category[:id]}"].each do |product_order| -%>
+      <Row>
+        <Cell><Data ss:Type="String"><%= product_order.product[:code] %></Data></Cell>
+        <Cell><Data ss:Type="String"><%= product_order.product[:name] %></Data></Cell>
+        <Cell><Data ss:Type="String"><%= product_order.volume_unit[:name] %></Data></Cell>
+        <Cell><Data ss:Type="Number"><%= product_order[:quantity] %></Data></Cell>
+      </Row>
+    <% end %>
+    <% end %>
+    </Table>
+  </Worksheet>
+</Workbook>
