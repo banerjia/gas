@@ -52,37 +52,42 @@
 		</div>
 	</div>
 </div>
-<table id="products" class="listing">
-	<thead>
-		<tr>
-			<th>Product</th>
-			<th>Quantity</th>
-		</tr>
-	</thead>
-	<% @product_categories.each do |category| -%>
-		<tbody>
+
+<div id="product_listing">
+	<table id="products" class="listing">
+		<thead>
 			<tr>
-				<td colspan="2" class="category_heading"><%= category[:name] -%></td>
+				<th>Product</th>
+				<th>Quantity</th>
 			</tr>
+		</thead>
+		<% @product_categories.each do |category| -%>
+			<tbody>
+				<tr>
+					<td colspan="2" class="category_heading"><%= category[:name] -%></td>
+				</tr>
 			
-			<% @products_by_category["category_#{category[:id]}"].each do |product_order| -%>
-			<tr>
-				<td><%= product_order.product[:name] -%></td>
-				<td><%= product_order[:quantity] -%></td>
-			</tr>
-			<%- end -%>
-		</tbody>
-	<%- end -%>
-</table>
+				<% @products_by_category["category_#{category[:id]}"].each do |product_order| -%>
+				<tr>
+					<td><%= product_order.product[:name] -%></td>
+					<td><%= product_order[:quantity] -%></td>
+				</tr>
+				<%- end -%>
+			</tbody>
+		<%- end -%>
+	</table>
+</div>
 <div class="spacer"></div>
 
 <% content_for :head do -%>
 <style type="text/css" media="screen">
-	table#products{
+	div#product_listing{
 		border: 2px solid #ddd;
 		margin-left: 47%;
-		width: 53%;
+		margin-right: 0;
+		width: auto;
 	}
+	table#products {width:100%}
 	table#products input[type=text] { text-align: right; width: 30px }
 	div#order_basics{
 		border: 2px solid #ddd;

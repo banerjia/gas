@@ -17,6 +17,7 @@ class OrdersController < ApplicationController
   end
   
   def show
+    # This apprach has been taken to reduce the number of SELECT statements
     @store = Store.find( params[:store_id] )
     @order = Order.find( params[:id], :include => {:product_orders => [:product]})
     @products_by_category = Hash.new
@@ -24,7 +25,8 @@ class OrdersController < ApplicationController
     product_category_ids = product_orders.map{ |product_order| product_order.product[:product_category_id]}.uniq
     @product_categories = ProductCategory.find( product_category_ids )
     @product_categories.each do | category |
-      @products_by_category["category_#{category[:id]}"] = product_orders.map{ |product_order| product_order if product_order.product[:product_category_id] ==  category[:id] }.compact
+      @products_by_category["category_#{category[:id]}"] = \
+          product_orders.map{ |product_order| product_order if product_order.product[:product_category_id] ==  category[:id] }.compact
     end
   end
   
