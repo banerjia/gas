@@ -101,7 +101,7 @@
 			source_link = $( click_link );
 			close_form = $( source_link ).parent();
 			email_link = $( close_form).parent().prev("span.email_link");
-			close_form.hide();
+			close_form.parent().hide();
 			email_link.show();
 		}
 	</script>
