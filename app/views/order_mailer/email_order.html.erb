@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+<body>
+<table border="0" cellspacing="0" cellpadding="4" width="100%">
+	<tr>
+		<td bgcolor="#993333">
+			<h1 style="color:#ffffff">Order Created for Invoice <%= @order[:invoice_number] -%></h1>
+		</td>
+	</tr>
+	<tr>
+		<td bgcolor="#DDDDDD">
+			<p><br/>
+			The order sheet for the invoice <strong><%= @order[:invoice_number] -%></strong> is accessible via the following links:<br/>
+			<a href="<%= store_order_url( @order[:store_id], @order[:id], :host => 'abhishekbanerji.com/graeters' ) -%>" target="_blank">HTML</a> |
+			<a href="<%= store_order_url( @order[:store_id], @order[:id], {:host => 'abhishekbanerji.com/graeters', :format => :xls} ) -%>">Download Excel File</a>
+			<br/>
+			</p>
+		</td>
+	</tr>
+</table>
+</body>
+</html>

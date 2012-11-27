@@ -65,6 +65,16 @@ class OrdersController < ApplicationController
   end
   
   def destroy
+    order = Order.find( params[:id ] )
+    order.delete
+    redirect_to store_orders( order[:store_id] )
+  end
+  
+  def send_email
+    order = Order.find( params[:order] )
+    send_to = params[:email]
     
+    email = OrderMailer.email_order( send_to, order )
+    email.deliver
   end
 end

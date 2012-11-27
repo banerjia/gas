@@ -21,7 +21,9 @@ Graeters::Application.routes.draw do
       resources :audits
       resources :resources, :only => ["index"]
       resources :products
-
+      
+      post "order/email" => "orders#send_email", :as => "email_order"
+      
       get "signout" => "sessions#destroy", :as => "logout"
       get "signin" => "sessions#new", :as => "login"
       resources :people
