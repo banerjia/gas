@@ -71,10 +71,21 @@ class OrdersController < ApplicationController
   end
   
   def send_email
-    order = Order.find( params[:order] )
     send_to = params[:email]
+
+    @order = Order.find( params[:order], :include => {:product_orders => [:product]})
+    @store = Store.find( @order[:store_id] )
+    @products_by_category = Hash.new
+    product_orders = @order.product_orders
+    product_category_ids = product_orders.map{ |product_order| product_order.product[:product_category_id]}.uniq
+    @product_categories = ProductCategory.find( product_category_ids )
+    @product_categories.each do | category |
+      @products_by_category["category_#{category[:id]}"] = \
+          product_orders.map{ |product_order| product_order if product_order.product[:product_category_id] ==  category[:id] }.compact
+    end
+    att_body = render_to_string( :action => :show, :formats => :xls)
     
-    email = OrderMailer.email_order( send_to, order )
+    email = OrderMailer.email_order( send_to, @order, att_body )
     email.deliver
   end
 end
