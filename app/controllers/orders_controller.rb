@@ -18,8 +18,8 @@ class OrdersController < ApplicationController
   
   def show
     # This apprach has been taken to reduce the number of SELECT statements
-    @store = Store.find( params[:store_id] )
     @order = Order.find( params[:id], :include => {:product_orders => [:product]})
+    @store = Store.find( @order[:store_id] )
     @products_by_category = Hash.new
     product_orders = @order.product_orders
     product_category_ids = product_orders.map{ |product_order| product_order.product[:product_category_id]}.uniq
@@ -87,5 +87,6 @@ class OrdersController < ApplicationController
     
     email = OrderMailer.email_order( send_to, @order, att_body )
     email.deliver
+    render :nothing => true
   end
 end
