@@ -1,4 +1,6 @@
+<% content_for :body do -%>
 <div class="toolbar">
+	<a href="javascript:window.history.go(-1)">Back</a> | 
 	<%= link_to "Edit", edit_store_order_path(@store, @order) -%>
 </div>
 <div id="order_basics">
@@ -7,7 +9,7 @@
 			<strong>Store</strong>
 		</div>
 		<div class="entry_value">
-			<%= @store[:name] -%><br/>
+			<%= link_to @store[:name], store_path(@store) -%><br/>
 			<%= @store.address -%>			
 		</div>
 	</div>
@@ -16,7 +18,7 @@
 			Invoice
 		</div>
 		<div class="entry_value">
-			<%= !@order[:invoice_number].blank? ? @order[:invoice_number] : raw("&nbsp;") -%>
+			<%= !@order[:invoice_number].blank? ? @order[:invoice_number] : raw("N/A") -%>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -24,7 +26,7 @@
 			Route
 		</div>
 		<div class="entry_value">
-			<%= !@order[:route_number].blank? ? @order[:route_number] : raw("&nbsp;") -%>
+			<%= !@order[:route_number].blank? ? @order[:route_number] : raw("N/A") -%>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -32,7 +34,7 @@
 			Deliver By
 		</div>
 		<div class="entry_value">
-			<%= !@order[:delivery_date].blank? ? @order[:delivery_date] : raw("&nbsp;") -%>
+			<%= !@order[:delivery_date].blank? ? @order[:delivery_date] : raw("N/A") -%>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -77,34 +79,40 @@
 		<%- end -%>
 	</table>
 </div>
-<div class="spacer"></div>
-
-<% content_for :head do -%>
-<style type="text/css" media="screen">
-	div#product_listing{
-		border: 2px solid #ddd;
-		margin-left: 47%;
-		margin-right: 0;
-		width: auto;
-	}
-	table#products {width:100%}
-	table#products input[type=text] { text-align: right; width: 30px }
-	div#order_basics{
-		border: 2px solid #ddd;
-		float:left;
-		margin-left: 0;
-		width: 45%;
-	}
-	
-	div.buttons{
-		background-color: #eee;
-		border: 2px solid #ddd;
-		display: block;
-	}
-</style>	
-<% end -%>
+<%- end -%>
 
 <%- content_for :head do -%>
 	<%= stylesheet_link_tag :forms -%>
 	<%= stylesheet_link_tag :table -%>
+	<style type="text/css" media="screen">
+		div#right_column, div#left_column { display:none}
+		div#product_listing{
+			border: 2px solid #ddd;
+			margin-left: 31%;
+			margin-right: 0;
+			width: auto;
+		}
+		table#products {width:100%}
+		table#products input[type=text] { text-align: right; width: 30px }
+		div#order_basics{
+			border: 2px solid #ddd;
+			float:left;
+			margin-left: 0;
+			width: 30%;
+		}
+
+		div.buttons{
+			background-color: #eee;
+			border: 2px solid #ddd;
+			display: block;
+		}
+		div.entry_row {background-color:transparent}
+		div.entry_label, div.entry_value{
+			display: block;
+			float: none;
+			margin: 0;
+			width:auto
+		}
+		div.entry_label {border: 2px solid #ccc; border-left:none; border-right: none}
+	</style>
 <%- end -%>

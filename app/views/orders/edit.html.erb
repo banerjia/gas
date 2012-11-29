@@ -1,3 +1,4 @@
+<% content_for :body do -%>
 <%= form_for @order, :url => store_order_path(@store, @order) do |f| -%>
 <%= render :partial => 'entry', :locals => {:f => f} -%>
 <div class="spacer"></div>
@@ -6,8 +7,12 @@
 	<input type="button" value="Cancel" onclick="window.location = '<%= store_orders_path( @store ) -%>'" class="button" />
 </div>
 <%- end -%>
+<%- end -%>
 
 <%- content_for :head do -%>
 	<%= stylesheet_link_tag :forms -%>
 	<%= stylesheet_link_tag :table -%>
+	<style type="text/css" media="screen">
+		div#left_column, div#right_column {display:none}
+	</style>
 <%- end -%>

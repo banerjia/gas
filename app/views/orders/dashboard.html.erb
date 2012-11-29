@@ -1,10 +1,7 @@
-
-
 <% content_for :head do -%>
 	<%= stylesheet_link_tag :table -%>
 	<style type="text/css" media="screen">
 		table#order_list{
-			border-bottom: none;
 			margin: auto 1px;
 			width: 99%;
 		}
@@ -18,23 +15,18 @@
 			background-color: #eee;
 			font-weight: bold;
 			padding: 0.7em auto;
-		}
-		table#order_list tbody tr:last-child td {border-bottom:none}	
+		}	
 	</style>
 <% end -%>
-
 <% content_for :left_column do %>
 	<h2>Links</h2>
 	<ul class="nav_items">
-		<li><%= link_to "New Order...", new_store_order_path(@store) -%></li>
-		<li><%= link_to "Store: " + @store[:name], store_path(@store) -%></li>
-		<li><%= link_to "Chain: " + @store.company[:name], company_path(@store.company) -%></li>
 	</ul>
 <% end %>
-
 <table id="order_list" class="listing">
 	<thead>
 		<tr>
+			<th scope="col">Store</th>
 			<th>Date</th>
 			<th>Invoice Number</th>
 			<th>Invoice Amount</th>
@@ -43,10 +35,21 @@
 			<th>Options</th>
 		</tr>
 	</thead>
-	<%- @store_orders.each do |order| -%>
+	<%- if more_pages -%>
+	<tfoot>
 		<tr>
+			<td colspan="7" class="table_more_cell">
+				<%= link_to "More Orders Available...", '#', :class => "load_more" -%>
+			</td>
+		</tr>
+	</tfoot>
+	<%- end -%>
+	<tbody>
+	<%- orders.each do |order| -%>
+		<tr>
+			<td><%= link_to (order[:store_name ] || order.store[:name]), store_path( order[:store_id] ) -%></td>
 			<td><%= order[:created_at].strftime("%b %d, %Y")  %></td>
-			<td><%= link_to (order[:invoice_number].blank? ? "Not Available" : order[:invoice_number]), store_order_path(@store,order) -%></td>			
+			<td><%= link_to (order[:invoice_number].blank? ? "Not Available" : order[:invoice_number]), store_order_path(order[:store_id],order) -%></td>			
 			<td><%= order[:invoice_amount].blank? ? "Not Available" : number_to_currency(order[:invoice_amount]) -%></td>
 			<td><%= order[:delivery_date].blank? ? raw("Not Available") : order[:delivery_date].strftime("%b %d, %Y") %></td>
 			<td><%= !order[:fulfilled] ? raw("Awaiting Delivery") : "Delivered" %></td>

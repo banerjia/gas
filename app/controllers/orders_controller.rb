@@ -1,4 +1,14 @@
 class OrdersController < ApplicationController
+  $order_dashboard_sort = [ \
+                      '`orders`.`created_at`', \
+                      '`orders`.`delivery_date`' \
+                     ]
+  
+  $order_dashboard_conditions = [
+                      ['`orders`.`created_at` >= ?', 2.weeks.ago], \
+                      '`orders`.`fulfilled` = 0' \
+                    ]
+  
   def index
     limit = params[:l]
     offset = params[:o]
@@ -28,6 +38,9 @@ class OrdersController < ApplicationController
       @products_by_category["category_#{category[:id]}"] = \
           product_orders.map{ |product_order| product_order if product_order.product[:product_category_id] ==  category[:id] }.compact
     end
+    
+    @page_title = "Order Sheet for Invoice " + @order[:invoice_number]
+    @browser_title = "Invoice: " + @order[:invoice_number]
   end
   
   def new
@@ -88,5 +101,40 @@ class OrdersController < ApplicationController
     email = OrderMailer.email_order( send_to, @order, att_body )
     email.deliver
     render :nothing => true
+  end
+  
+  def dashboard
+    type_of_listing = params[:type] || 0
+    sort_condition = params[:sort] || 0
+    sort_direction = params[:dir] || "desc"
+    page = (params[:page] || 1 ).to_i - 1
+    per_page = (params[:per_page] || $per_page).to_i
+    
+    #Intentionally adding one more to the per_page to do a "more records" test
+    order_listing = Order.find( :all, \
+                                :conditions => $order_dashboard_conditions[type_of_listing], \
+                                :order => $order_dashboard_sort[sort_condition] + ' ' + sort_direction,
+                                :joins => :store,
+                                :limit => per_page + 1,
+                                :offset => (page * per_page),
+                                :select => '`orders`.`id`, `orders`.`invoice_number`,`orders`.`invoice_amount`,`orders`.`store_id`, `orders`.`delivery_date`,`orders`.`created_at`, `orders`.`fulfilled`, `stores`.`name` as `store_name`')
+    
+    more_pages = (order_listing.size > per_page )
+    
+    # If an extra record was returned for the "more records" test then get rid of it from the final listing
+    order_listing = order_listing[0..$per_page - 1]
+    
+    respond_to do |format|
+      format.html do
+        @page_title = "Orders Dashboard"
+        render "orders/dashboard", :locals => { :orders => order_listing, :more_pages => more_pages }
+      end
+      format.json do
+        return_value = Hash.new
+        return_value[:orders] = order_listing
+        return_value[:more_pages] = more_pages
+        render :json => return_value.to_json
+      end
+    end
   end
 end

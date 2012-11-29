@@ -17,12 +17,14 @@ Graeters::Application.routes.draw do
         match "stores" => "stores#search", :as => "stores"
 
       end
+      
 
       resources :audits
       resources :resources, :only => ["index"]
       resources :products
       
       post "order/email" => "orders#send_email", :as => "email_order"
+      get 'orders' => 'orders#dashboard', :as => "orders_dashboard"
       
       get "signout" => "sessions#destroy", :as => "logout"
       get "signin" => "sessions#new", :as => "login"
