@@ -55,7 +55,7 @@
 			var target_table_body = $("table#orders tbody");
 			if ( orders.length == 0 || $("tr", target_table_body).length > 0) return;
 			
-			var order_url_prefix = '<%= store_orders_path(store) -%>';
+			var order_url_prefix = '<%= orders_path -%>';
 			for( i = 0; i < orders.length; i++){
 				target_table_body.append(
 						$("<tr/>").append(
@@ -100,7 +100,7 @@
 		<%- if true #current_user.is_admin -%>
 			<input type="button" value="Edit Store" onclick="window.location='<%=edit_store_path( store)-%>'" class= "icon_buttons"/>
 		<%- end -%>
-		<input type="button" value="New Order" onclick="window.location='<%=new_store_order_path(store)-%>'" class="icon_buttons"/>
+		<input type="button" value="New Order" onclick="window.location='<%=store_new_order_path(store)-%>'" class="icon_buttons"/>
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">Name</div>

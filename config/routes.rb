@@ -7,7 +7,8 @@ Graeters::Application.routes.draw do
       match "stores/search" => 'stores#search', :as => "stores_search"
       resources :stores do
         match "audits" => "audits#search", :as => "audits"
-        resources :orders
+        match "orders" => "orders#index", :as => "orders"
+        match "orders/new" => "orders#new", :as => "new_order"
         #match "audits/new" => "audits#new", :as => "new_audit", :via => :get, :format => :html
       end	
 
@@ -18,20 +19,22 @@ Graeters::Application.routes.draw do
 
       end
       
+      
+      
+      post "order/email" => "orders#send_email", :as => "email_order"
+      
+      get "signout" => "sessions#destroy", :as => "logout"
+      get "signin" => "sessions#new", :as => "login"
+      get 'orders' => 'orders#dashboard', :as => "orders_dashboard"
 
       resources :audits
       resources :resources, :only => ["index"]
       resources :products
-      
-      post "order/email" => "orders#send_email", :as => "email_order"
-      get 'orders' => 'orders#dashboard', :as => "orders_dashboard"
-      
-      get "signout" => "sessions#destroy", :as => "logout"
-      get "signin" => "sessions#new", :as => "login"
       resources :people
       resources :sessions
 
 
     end
+    resources :orders
   end
 end

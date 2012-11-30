@@ -10,6 +10,8 @@ class OrdersController < ApplicationController
                     ]
   
   def index
+    redirect_to :action => "dashboard" unless params[:store_id].present?
+    
     limit = params[:l]
     offset = params[:o]
     @store = Store.find(params[:store_id])
@@ -45,7 +47,7 @@ class OrdersController < ApplicationController
   
   def new
     @store = Store.find(params[:store_id])
-    @order = @store.orders.build
+    @order = @store.orders.build #Order.new( {:store_id => params[:store_id] } )
     @order.product_orders.build
     @page_title = "New Order for #{@store[:name]}"
   end
@@ -78,9 +80,11 @@ class OrdersController < ApplicationController
   end
   
   def destroy
-    order = Order.find( params[:id ] )
-    order.delete
-    redirect_to store_orders( order[:store_id] )
+    orders_to_delete = params[:id].split(" ")
+    orders_to_delete.each do | order_id |
+      Order.find( order_id ).destroy
+    end
+    redirect_to :action => "dashboard"
   end
   
   def send_email

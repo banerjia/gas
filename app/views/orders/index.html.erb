@@ -26,7 +26,7 @@
 <% content_for :left_column do %>
 	<h2>Links</h2>
 	<ul class="nav_items">
-		<li><%= link_to "New Order...", new_store_order_path(@store) -%></li>
+		<li><%= link_to "New Order...", store_new_order_path(@store) -%></li>
 		<li><%= link_to "Store: " + @store[:name], store_path(@store) -%></li>
 		<li><%= link_to "Chain: " + @store.company[:name], company_path(@store.company) -%></li>
 	</ul>
@@ -46,7 +46,7 @@
 	<%- @store_orders.each do |order| -%>
 		<tr>
 			<td><%= order[:created_at].strftime("%b %d, %Y")  %></td>
-			<td><%= link_to (order[:invoice_number].blank? ? "Not Available" : order[:invoice_number]), store_order_path(@store,order) -%></td>			
+			<td><%= link_to (order[:invoice_number].blank? ? "Not Available" : order[:invoice_number]), order_path(order) -%></td>			
 			<td><%= order[:invoice_amount].blank? ? "Not Available" : number_to_currency(order[:invoice_amount]) -%></td>
 			<td><%= order[:delivery_date].blank? ? raw("Not Available") : order[:delivery_date].strftime("%b %d, %Y") %></td>
 			<td><%= !order[:fulfilled] ? raw("Awaiting Delivery") : "Delivered" %></td>
