@@ -1,5 +1,6 @@
 <% content_for :head do -%>
-	<%= stylesheet_link_tag :table -%>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" media="screen" type="text/css"/>
+        <%= stylesheet_link_tag :table -%>
 	<style type="text/css" media="screen">
 		table#order_list{
 			margin: auto 1px;
@@ -21,7 +22,7 @@
 			font-weight: bold;
 			padding: 0.7em auto;
 		}	
-		table#order_list thead td.toolbar{
+		table#order_list thead tr.toolbar td{
 			background-color: #505050;
 			color: #fff;
 			font-weight: bold;
@@ -36,6 +37,7 @@
 	</ul>
 <% end %>
 <form onsubmit="return false">
+
 <table id="order_list" class="listing">
 	<thead>
 		<tr>
@@ -48,11 +50,15 @@
 			<th scope="col">Date</th>
 			<th scope="col"><span style="display:none">Options</span></th>
 		</tr>
-		<tr>
-			<td colspan="6" class="toolbar" id="toolbar">
+		<tr class="toolbar">
+                        <td>
 				<input type="button" value="Delete" onclick="if( confirm( 'Are you sure you want to delete the selected order(s)') ) {delete_checked_ids(); }"/>
-			</td>
-		</tr>
+                        </td>
+                        <td colspan="5">
+                          <label for="email_addresses">Email selected orders to</label>:
+                                <%= email_field_tag :email_addresses -%>
+                        </td>      
+                </tr>
 	</thead>
 	<%- if more_pages -%>
 	<tfoot>
@@ -88,6 +94,14 @@
 </table>
 </form>
 
+<form action="" class="login_form modal" id="ex2" style="display:none;">
+  <h3>Email Order</h3>
+  <p><label>Email Address(es)</label>:<br/>
+  <input type="text" /></p>
+  <p>Separate multiple email addresses with commas.</p>
+  <p><input type="submit" value="Send Email" /></p>
+</form>
+
 <% content_for :page_js do -%>
 	<%= javascript_include_tag :jquery_ujs -%>
 	<script type="text/javascript">
@@ -96,7 +110,7 @@
 		$(document).ready(function(){
 			$("div.email_form").hide();
 			select_all_checkbox = $("input#select_all");
-			toolbar_td = $("td#toolbar");
+			toolbar_td = $("tr.toolbar");
 			$(select_all_checkbox).click( select_all_toggle );
 			$("input#order").click( function(){
 				toggle_toolbar();
