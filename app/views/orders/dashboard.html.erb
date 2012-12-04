@@ -95,14 +95,8 @@
 			<th scope="col">Invoice Amount</th>
 			<th scope="col">Date</th>
 		</tr>
-<<<<<<< HEAD
-		<tr>
-			<td colspan="5" class="toolbar" id="toolbar">
-				<a href="div#email_order" id="a_email_order">Email Order</a>
-=======
 		<tr class="toolbar">
                         <td>
->>>>>>> origin/prod
 				<input type="button" value="Delete" onclick="if( confirm( 'Are you sure you want to delete the selected order(s)') ) {delete_checked_ids(); }"/>
                         </td>
                         <td colspan="5">
@@ -133,25 +127,6 @@
 	</tbody>
 </table>
 </form>
-
-<<<<<<< HEAD
-<div id="email_order">
-	<form onsubmit="return false;">
-	<div id="email_order-header">
-		<h2>Email Order</h2>
-		<a class="modal_close" href="#"></a>
-	</div>
-		<p>Use commas to separate multiple recipients.</p>
-		<div class="txt-fld">
-			<label for="email_addresses">Email Address(es)</label>
-			<%= text_field_tag :email_addresses -%>
-		</div>
-		
-		<div class="btn-fld"><input type="submit" value="Continue &rarr;"></div>
-	</form>
-	
-</div>
-=======
 <form action="" class="login_form modal" id="ex2" style="display:none;">
   <h3>Email Order</h3>
   <p><label>Email Address(es)</label>:<br/>
@@ -159,7 +134,6 @@
   <p>Separate multiple email addresses with commas.</p>
   <p><input type="submit" value="Send Email" /></p>
 </form>
->>>>>>> origin/prod
 
 <% content_for :page_js do -%>
 	<%= javascript_include_tag :jquery_ujs -%>
