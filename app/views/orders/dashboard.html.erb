@@ -21,11 +21,16 @@
 			background-color: #eee;
 			font-weight: bold;
 			padding: 0.7em auto;
-		}	
+                }
+
+                table#order_list thead tr.toolbar {
+                        display: none;
+                }
+
 		table#order_list thead tr.toolbar td{
 			background-color: #505050;
 			color: #fff;
-			font-weight: bold;
+                        font-weight: bold;
 			padding: 0.5em;
 			text-align: left;
 		}
@@ -126,7 +131,7 @@
 		</tr>
 		<tr class="toolbar">
                         <td colspan="5">
-						<input type="button" rel="div#email_order" id="a_email_order" value="Email Order"/>
+				<input type="button" rel="div#email_order" id="a_email_order" value="Email Order"/>
 				<input type="button" value="Delete" onclick="if( confirm( 'Are you sure you want to delete the selected order(s)') ) {delete_checked_ids(); }"/>
                         </td>    
                 </tr>
@@ -169,62 +174,55 @@
 			<%= text_area_tag :email_body, nil, :rows => 5, :cols => 65 -%>
 		</div>
 		
-		<div class="button_row"><input type="submit" value="Send"></div>
+		<div class="button_row"><input type="button" value="Send" onclick="send_email(this.form)"></div>
 	</form>	
 </div>
 <% content_for :page_js do -%>
 	<%= javascript_include_tag :jquery_ujs -%>
 	<%= javascript_include_tag "jquery.leanModal.min.js" -%>
 	<script type="text/javascript">
-		var select_all_checkbox = null;
-		var toolbar_td = null;
+		var select_all = null;
+                var toolbar = null;
+                var email_order_form = null;
 		$(document).ready(function(){
 			$("div.email_form").hide();
-			select_all_checkbox = $("input#select_all");
-			toolbar_td = $("tr.toolbar");
-			$(select_all_checkbox).click( select_all_toggle );
+			select_all = $("input#select_all");
+			toolbar = $("tr.toolbar");
+			$(select_all).click( select_all_toggle );
 			$("input#order").click( function(){
 				toggle_toolbar();
 				
-				if(!$(this).is(":checked")) $(select_all_checkbox).attr("checked",false);
+				if(!$(this).is(":checked")) $(select_all).attr("checked",false);
 			});
-			$(toolbar_td).hide();
+			$(toolbar).hide();
 			$("input#a_email_order").leanModal({ top : 200, overlay : 0.4, closeButton: ".modal_close" });
 			
 		})
 		
 		function toggle_toolbar( checkbox ){
 			if($("input#order").filter(":checked").length > 0)
-				$(toolbar_td).slideDown();
+				$(toolbar).slideDown();
 			else
-				$(toolbar_td).slideUp();
+				$(toolbar).slideUp();
 		}
 		
-		function send_email( click_link ){
-			source_link = $(click_link);
-			source_form = $(source_link).parent();
-			order = $("input[name='order']", source_form).val();
-			email = $("input[name='email']", source_form).val();
-			
-			$.ajax( {
-					url: "<%= email_order_path -%>",
-					data: {"order": order, "email": email},
-					type: "POST"
-			});
-		}
-		
+                function send_email( click_link ){
+			var ids = $.map( $("input#order").filter(":checked"), function( order ) { return $(order).attr("value") });
+                        params_id = ids.join(" ");
+                }
+
 		function select_all_toggle(){
-			var status = $(select_all_checkbox).is(":checked") ;
+			var status = $(select_all).is(":checked") ;
 			$("input#order").each( function() { $(this).attr("checked", status)});
 			
 			if(status) 
-				$(toolbar_td).slideDown();
+				$(toolbar).fadeIn();
 			else
-				$(toolbar_td).slideUp();
+				$(toolbar).fadeOut();
 		}
 		
 		function delete_checked_ids(){
-			var ids = $.map( $("input#order").filter(":checked"), function( order_checkbox ) { return $(order_checkbox).attr("value") });
+			var ids = $.map( $("input#order").filter(":checked"), function( order ) { return $(order).attr("value") });
 			params_id = ids.join(" ");
 			$.ajax({
 				url: '<%= orders_path -%>/' + params_id ,
@@ -235,6 +233,7 @@
 			});
 			
 		}
-	</script>
-	
-<% end -%>
+
+        
+      </script>
+<%- end -%>
