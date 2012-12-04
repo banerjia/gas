@@ -28,6 +28,52 @@
 			padding: 0.5em;
 			text-align: left;
 		}
+		
+		#lean_overlay {
+		    position: fixed;
+		    z-index: 10000;
+		    top: 0px;
+		    left: 0px;
+		    height:100%;
+		    width:100%;
+		    background: #000;
+		    display: none;
+		}
+
+
+		/*---------------------------------------
+
+			EXAMPLES
+
+		-----------------------------------------*/
+
+		div#email_order {
+
+		     width: 640px;
+		     padding-bottom: 0.5em;
+			display:none;
+
+
+		    background: #FFF;
+		        border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
+		        box-shadow: 0px 0px 4px rgba(0,0,0,0.7); -webkit-box-shadow: 0 0 4px rgba(0,0,0,0.7); -moz-box-shadow: 0 0px 4px rgba(0,0,0,0.7);
+
+		}
+
+
+		div#email_order-header { background: url(<%=image_path("hd-bg.png") -%>); padding: 18px 18px 14px 18px; border-bottom: 1px solid #CCC; border-top-left-radius: 5px; -moz-border-radius-topleft: 5px; -webkit-border-top-left-radius: 5px; border-top-right-radius: 5px; -moz-border-radius-topright: 5px; -webkit-border-top-right-radius: 5px; }
+
+		div#email_order-header  h2 { color: #444; font-weight: bold; margin-bottom: 3px; text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5); }
+		div#email_order-header  p { color: #444; margin: 0; text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5); text-shadow: none; }
+
+		div#email_order .txt-fld { display: block; width: auto; padding: 14px 20px; border-bottom: 1px solid #EEE; text-align: right; }
+		div#email_order .btn-fld { width: auto; overflow: hidden; margin: auto 0.3em}
+
+		div#email_order .txt-fld label { display: block; float: left; width: 30%; padding-top: 8px; color: #222; text-align: left;  }
+		div#email_order .txt-fld input { width: 69%; padding: 8px; border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px; color: #222; background: #F7F7F7; outline: none; border-top: 1px solid #CCC; border-left: 1px solid #CCC; border-right: 1px solid #E7E6E6; border-bottom: 1px solid #E7E6E6; margin-left: 31%; margin-right:0}
+		
+		
+		.modal_close { position: absolute; top: 12px; right: 12px; display: block; width: 14px; height: 14px; background: url(<%=image_path("modal_close.png") -%>); z-index: 2; }
 	</style>
 <% end -%>
 <% content_for :left_column do %>
@@ -46,10 +92,10 @@
 			<th scope="col">Invoice Number</th>
 			<th scope="col">Invoice Amount</th>
 			<th scope="col">Date</th>
-			<th scope="col"><span style="display:none">Options</span></th>
 		</tr>
 		<tr>
-			<td colspan="6" class="toolbar" id="toolbar">
+			<td colspan="5" class="toolbar" id="toolbar">
+				<a href="div#email_order" id="a_email_order">Email Order</a>
 				<input type="button" value="Delete" onclick="if( confirm( 'Are you sure you want to delete the selected order(s)') ) {delete_checked_ids(); }"/>
 			</td>
 		</tr>
@@ -57,7 +103,7 @@
 	<%- if more_pages -%>
 	<tfoot>
 		<tr>
-			<td colspan="6" class="table_more_cell">
+			<td colspan="5" class="table_more_cell">
 				<%= link_to "More Orders Available...", '#', :class => "load_more" -%>
 			</td>
 		</tr>
@@ -71,25 +117,32 @@
 			<td><%= link_to (order[:invoice_number].blank? ? "N/A" : order[:invoice_number]), order_path(order) -%></td>			
 			<td><%= order[:invoice_amount].blank? ? "N/A" : number_to_currency(order[:invoice_amount]) -%></td>
 			<td><%= order[:created_at].strftime("%b %d, %Y")  %></td>
-			<td>
-				<span class="email_link"><a onclick="open_email_form( this )">Email</a></span>
-				<div class="email_form">
-					<form onsubmit="return false">
-						<div style="display:none"><input type="hidden" name="order_id" value="<%=order[:id]-%>"/></div>
-						<input type="text" name="email" placeholder="Email address"/><br/>
-						<input type="button" value="Send" onclick="send_email(this); close_email_form(this)"/>
-						<input type="button" value="Cancel" onclick="close_email_form(this)"/>
-					</form>
-				</div>			
-			</td>
 		</tr>
 	<%- end -%>
 	</tbody>
 </table>
 </form>
 
+<div id="email_order">
+	<form onsubmit="return false;">
+	<div id="email_order-header">
+		<h2>Email Order</h2>
+		<a class="modal_close" href="#"></a>
+	</div>
+		<p>Use commas to separate multiple recipients.</p>
+		<div class="txt-fld">
+			<label for="email_addresses">Email Address(es)</label>
+			<%= text_field_tag :email_addresses -%>
+		</div>
+		
+		<div class="btn-fld"><input type="submit" value="Continue &rarr;"></div>
+	</form>
+	
+</div>
+
 <% content_for :page_js do -%>
 	<%= javascript_include_tag :jquery_ujs -%>
+	<%= javascript_include_tag "jquery.leanModal.min.js" -%>
 	<script type="text/javascript">
 		var select_all_checkbox = null;
 		var toolbar_td = null;
@@ -104,6 +157,7 @@
 				if(!$(this).is(":checked")) $(select_all_checkbox).attr("checked",false);
 			});
 			$(toolbar_td).hide();
+			$("a#a_email_order").leanModal({ top : 200, overlay : 0.4, closeButton: ".modal_close" });
 			
 		})
 		
