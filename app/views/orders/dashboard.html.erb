@@ -206,10 +206,17 @@
 				$(toolbar).slideUp();
 		}
 		
-                function send_email( click_link ){
-			var ids = $.map( $("input#order").filter(":checked"), function( order ) { return $(order).attr("value") });
-                        params_id = ids.join(" ");
-                }
+        function send_email( click_link ){
+				var ids = $.map( $("input#order").filter(":checked"), function( order ) { return $(order).attr("value") });
+				var email = $( "input#email_addresses").val();
+                params_id = ids.join(",");
+				$.ajax({
+					url: '<%= email_order_path -%>',
+					data: {"id" : params_id, "email" : email},
+					type: 'POST'
+				});
+				
+        }
 
 		function select_all_toggle(){
 			var status = $(select_all).is(":checked") ;
@@ -223,9 +230,9 @@
 		
 		function delete_checked_ids(){
 			var ids = $.map( $("input#order").filter(":checked"), function( order ) { return $(order).attr("value") });
-			params_id = ids.join(" ");
+			params_id = ids.join(",");
 			$.ajax({
-				url: '<%= orders_path -%>/' + params_id ,
+				url: '<%= orders_path -%>/'+params_id,
 				type: 'DELETE',
 				success: function(){
 					window.location.reload(true)

@@ -29,8 +29,8 @@
 		<td bgcolor="#EEEEEE" colspan="2">			
 			<p><br/>
 			The order sheet for the invoice <strong><%= @order[:invoice_number] -%></strong> is accessible via the following links:<br/>
-			<a href="<%= store_order_url( @order[:store_id], @order[:id] ) -%>" target="_blank">HTML</a> |
-			<a href="<%= store_order_url( @order[:store_id], @order[:id], :format => :xls ) -%>">Download Excel File</a>
+			<a href="<%= order_url(@order[:id] ) -%>" target="_blank">HTML</a> |
+			<a href="<%= order_url(@order[:id], :format => :xls ) -%>">Download Excel File</a>
 			<br/>
 			</p>
 		</td>

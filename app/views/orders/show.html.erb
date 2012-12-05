@@ -63,13 +63,13 @@
 				<th>Quantity</th>
 			</tr>
 		</thead>
-		<% @product_categories.each do |category| -%>
+		<% @order.organize_products_by_category.each do |product_category| -%>
 			<tbody>
 				<tr>
-					<td colspan="2" class="category_heading"><%= category[:name] -%></td>
+					<td colspan="2" class="category_heading"><%= product_category[:name] -%></td>
 				</tr>
 			
-				<% @products_by_category["category_#{category[:id]}"].each do |product_order| -%>
+				<% product_category[:products].each do |product_order| -%>
 				<tr>
 					<td><%= product_order.product[:name] -%></td>
 					<td><%= product_order[:quantity] -%></td>

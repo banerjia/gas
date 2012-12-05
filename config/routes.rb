@@ -16,12 +16,7 @@ Graeters::Application.routes.draw do
         match "states" => "companies#company_states", :as => "states", :format => :json
         match "stores/:country-:state" => "stores#search", :constraints => {:state => /[a-zA-Z]{2,}/,:country => /[a-zA-Z]{2}/}, :as => "stores_by_state"	     
         match "stores" => "stores#search", :as => "stores"
-
-      end
-      
-      
-      
-      post "order/email" => "orders#send_email", :as => "email_order"
+      end      
       
       get "signout" => "sessions#destroy", :as => "logout"
       get "signin" => "sessions#new", :as => "login"
@@ -35,6 +30,7 @@ Graeters::Application.routes.draw do
 
 
     end
+    post "order/email" => "orders#send_email", :as => "email_order"
     resources :orders
   end
 end

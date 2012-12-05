@@ -32,17 +32,11 @@ class OrdersController < ApplicationController
     # This apprach has been taken to reduce the number of SELECT statements
     @order = Order.find( params[:id], :include => {:product_orders => [:product]})
     @store = Store.find( @order[:store_id] )
-    @products_by_category = Hash.new
-    product_orders = @order.product_orders
-    product_category_ids = product_orders.map{ |product_order| product_order.product[:product_category_id]}.uniq
-    @product_categories = ProductCategory.find( product_category_ids )
-    @product_categories.each do | category |
-      @products_by_category["category_#{category[:id]}"] = \
-          product_orders.map{ |product_order| product_order if product_order.product[:product_category_id] ==  category[:id] }.compact
-    end
     
     @page_title = "Order Sheet for Invoice " + @order[:invoice_number]
     @browser_title = "Invoice: " + @order[:invoice_number]
+    
+    render :locals => {:order => @order}
   end
   
   def new
@@ -63,14 +57,14 @@ class OrdersController < ApplicationController
   end
   
   def edit
-    @store = Store.find(params[:store_id])
     @order = Order.find(params[:id])
+    @store = Store.find(@order[:store_id])
     @page_title = "Update Order: #{@order[:invoice_number]}"
   end
   
   def update
     @order = Order.find( params[:id] )
-    store = Store.find( params[:store_id] )
+    store = Store.find( @order[:store_id] )
     if @order.update_attributes!( params[:order] )
       redirect_to store_orders_path(store)
     else
@@ -80,7 +74,7 @@ class OrdersController < ApplicationController
   end
   
   def destroy
-    orders_to_delete = params[:id].split(" ")
+    orders_to_delete = params[:id].split(/\D+/).map{ |id| id.to_i }
     orders_to_delete.each do | order_id |
       Order.find( order_id ).destroy
     end
@@ -89,18 +83,20 @@ class OrdersController < ApplicationController
   
   def send_email
     send_to = params[:email]
+    order_id = params[:id].split(/\D+/).map{ |id| id.to_i }
 
-    @order = Order.find( params[:order], :include => {:product_orders => [:product]})
-    @store = Store.find( @order[:store_id] )
-    @products_by_category = Hash.new
-    product_orders = @order.product_orders
-    product_category_ids = product_orders.map{ |product_order| product_order.product[:product_category_id]}.uniq
-    @product_categories = ProductCategory.find( product_category_ids )
-    @product_categories.each do | category |
-      @products_by_category["category_#{category[:id]}"] = \
-          product_orders.map{ |product_order| product_order if product_order.product[:product_category_id] ==  category[:id] }.compact
+    @order = Order.find( order_id, :include => [{:product_orders => [:product, :volume_unit]}, :product_categories])
+    #@store = Store.find( @order[:store_id] )
+    
+    att_body = Array.new
+    
+    @order.each do |order|
+      element_to_push = Hash.new
+      element_to_push[:invoice_number] = order[:invoice_number]
+      element_to_push[:order_id] = order[:id]
+      #element_to_push[:body] = render_to_string( :action => :show, :id => order[:id], :formats => :xls)
+      att_body.push( element_to_push )
     end
-    att_body = render_to_string( :action => :show, :formats => :xls)
     
     email = OrderMailer.email_order( send_to, @order, att_body )
     email.deliver
