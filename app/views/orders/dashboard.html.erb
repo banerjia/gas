@@ -116,7 +116,7 @@
 	<ul class="nav_items">
 	</ul>
 <% end %>
-<form onsubmit="return false">
+<form id="order_list_form" onsubmit="return false">
 
 <table id="order_list" class="listing">
 	<thead>
@@ -126,20 +126,19 @@
 				<%= check_box_tag :select_all -%>
 			<th scope="col">Store</th>
 			<th scope="col">Invoice Number</th>
-			<th scope="col">Invoice Amount</th>
 			<th scope="col">Date</th>
 		</tr>
 		<tr class="toolbar">
-                        <td colspan="5">
+                        <td colspan="4">
 				<input type="button" rel="div#email_order" id="a_email_order" value="Email Order"/>
-				<input type="button" value="Delete" onclick="if( confirm( 'Are you sure you want to delete the selected order(s)') ) {delete_checked_ids(); }"/>
+				<input type="button" value="Delete" onclick=" {delete_checked_ids(); }"/>
                         </td>    
                 </tr>
 	</thead>
 	<%- if more_pages -%>
 	<tfoot>
 		<tr>
-			<td colspan="5" class="table_more_cell">
+			<td colspan="4" class="table_more_cell">
 				<%= link_to "More Orders Available...", '#', :class => "load_more" -%>
 			</td>
 		</tr>
@@ -151,7 +150,6 @@
 			<td><%= check_box_tag :order, order[:id] -%></td>
 			<td><%= link_to (order[:store_name ] || order.store[:name]), store_path( order[:store_id] ) -%></td>
 			<td><%= link_to (order[:invoice_number].blank? ? "N/A" : order[:invoice_number]), order_path(order) -%></td>			
-			<td><%= order[:invoice_amount].blank? ? "N/A" : number_to_currency(order[:invoice_amount]) -%></td>
 			<td><%= order[:created_at].strftime("%b %d, %Y")  %></td>
 		</tr>
 	<%- end -%>
@@ -159,7 +157,7 @@
 </table>
 </form>
 <div id="email_order">
-	<form onsubmit="return false;">
+	<form id="email_order_form" onsubmit="return false;">
 		<div id="email_order-header">
 			<h3>Email Order(s)</h3>
 			<a class="modal_close" href="#"></a>
@@ -181,66 +179,8 @@
 	<%= javascript_include_tag :jquery_ujs -%>
 	<%= javascript_include_tag "jquery.leanModal.min.js" -%>
 	<script type="text/javascript">
-		var select_all = null;
-                var toolbar = null;
-                var email_order_form = null;
-		$(document).ready(function(){
-			$("div.email_form").hide();
-			select_all = $("input#select_all");
-			toolbar = $("tr.toolbar");
-			$(select_all).click( select_all_toggle );
-			$("input#order").click( function(){
-				toggle_toolbar();
-				
-				if(!$(this).is(":checked")) $(select_all).attr("checked",false);
-			});
-			$(toolbar).hide();
-			$("input#a_email_order").leanModal({ top : 200, overlay : 0.4, closeButton: ".modal_close" });
-			
-		})
-		
-		function toggle_toolbar( checkbox ){
-			if($("input#order").filter(":checked").length > 0)
-				$(toolbar).slideDown();
-			else
-				$(toolbar).slideUp();
-		}
-		
-        function send_email( click_link ){
-				var ids = $.map( $("input#order").filter(":checked"), function( order ) { return $(order).attr("value") });
-				var email = $( "input#email_addresses").val();
-                params_id = ids.join(",");
-				$.ajax({
-					url: '<%= email_order_path -%>',
-					data: {"id" : params_id, "email" : email},
-					type: 'POST'
-				});
-				
-        }
-
-		function select_all_toggle(){
-			var status = $(select_all).is(":checked") ;
-			$("input#order").each( function() { $(this).attr("checked", status)});
-			
-			if(status) 
-				$(toolbar).fadeIn();
-			else
-				$(toolbar).fadeOut();
-		}
-		
-		function delete_checked_ids(){
-			var ids = $.map( $("input#order").filter(":checked"), function( order ) { return $(order).attr("value") });
-			params_id = ids.join(",");
-			$.ajax({
-				url: '<%= orders_path -%>/'+params_id,
-				type: 'DELETE',
-				success: function(){
-					window.location.reload(true)
-				}
-			});
-			
-		}
-
-        
+		window.order_path = '<%= orders_path -%>';
+		window.email_order_path = '<%= email_order_path -%>';
       </script>
+	<%= javascript_include_tag :orders_dashboard -%>
 <%- end -%>
