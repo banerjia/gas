@@ -6,31 +6,31 @@
 <table border="0" cellspacing="1" cellpadding="4" width="100%">
 	<tr>
 		<td bgcolor="#993333" colspan="2">
-			<h1 style="color:#ffffff">Order Created for Invoice <%= @order[:invoice_number] -%></h1>
+			<h1 style="color:#ffffff">Order Created for Invoice <%= order[:invoice_number] -%></h1>
 		</td>
 	</tr>
 	<tr>
 		<td bgcolor="#CCCCCC" width="20%"><strong>Invoice:</strong></td>
-		<td bgcolor="#EEEEEE"><%= @order[:invoice_number] -%></td>
+		<td bgcolor="#EEEEEE"><%= order[:invoice_number] -%></td>
 	</tr>
 	<tr>
 		<td bgcolor="#CCCCCC"><strong>Order Date:</strong></td>
-		<td bgcolor="#EEEEEE"><%= @order[:created_at] -%></td>
+		<td bgcolor="#EEEEEE"><%= order[:created_at] -%></td>
 	</tr>
 	<tr>
 		<td bgcolor="#CCCCCC"><strong>Total:</strong></td>
-		<td bgcolor="#EEEEEE"><%= number_to_currency(@order[:invoice_total]) -%></td>
+		<td bgcolor="#EEEEEE"><%= number_to_currency(order[:invoice_total]) -%></td>
 	</tr>
 	<tr>
 		<td bgcolor="#CCCCCC"><strong>Deliver By:</strong></td>
-		<td bgcolor="#EEEEEE"><%= @order[:delivery_date] -%></td>
+		<td bgcolor="#EEEEEE"><%= order[:delivery_date] -%></td>
 	</tr>
 	<tr>
 		<td bgcolor="#EEEEEE" colspan="2">			
 			<p><br/>
-			The order sheet for the invoice <strong><%= @order[:invoice_number] -%></strong> is accessible via the following links:<br/>
-			<a href="<%= order_url(@order[:id] ) -%>" target="_blank">HTML</a> |
-			<a href="<%= order_url(@order[:id], :format => :xls ) -%>">Download Excel File</a>
+			The order sheet for the invoice <strong><%= order[:invoice_number] -%></strong> is accessible via the following links:<br/>
+			<a href="<%= order_url(order[:id] ) -%>" target="_blank">HTML</a> |
+			<a href="<%= order_url(order[:id], :format => :xls ) -%>">Download Excel File</a>
 			<br/>
 			</p>
 		</td>

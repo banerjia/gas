@@ -1,5 +1,5 @@
 <% content_for :head do -%>
-    <%= stylesheet_link_tag :table -%>
+  <%= stylesheet_link_tag :table -%>
 	<style type="text/css" media="screen">
 		table#order_list{
 			margin: auto 1px;
@@ -180,6 +180,6 @@
 	<script type="text/javascript">
 		window.order_path = '<%= orders_path -%>';
 		window.email_order_path = '<%= email_order_path -%>';
-      </script>
+   </script>
 	<%= javascript_include_tag :orders_dashboard -%>
 <%- end -%>

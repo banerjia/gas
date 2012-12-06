@@ -9,8 +9,18 @@ class OrderMailer < ActionMailer::Base
 	      :body => view_context.render( :template => 'orders/show.xls.erb', :locals => {:order => Order.find(order_doc[:order_id])} )
       }
     end
-    mail( :to => mailto,
-    :subject => "Order Sheet for Invoice Number: #{@order[:invoice_number]}"
-    )
+#    if order.size < 2
+#      mail( :to => mailto,
+#            :subject => "Order Sheet for Invoice Number: #{@order[:invoice_number]}"
+#          )
+#    else
+      mail( :to => mailto,
+            :subject => "Orders"
+          ) do |format|
+            format.html { render "email_multiple_orders", :locals => {:orders => order } }
+          end
+ #   end
+ #   render :nothing => true
+
   end
 end

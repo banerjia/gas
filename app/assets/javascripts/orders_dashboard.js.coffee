@@ -3,7 +3,6 @@ window.toolbar = null
 window.email_order_form = null
 window.order_list_form = null
 
-
 jQuery( document ).ready () ->
    # Grabbing certain objects that will be repeatedly used throughout
    # the page. Doing so will reduce the number of time jQuery.find
@@ -14,14 +13,14 @@ jQuery( document ).ready () ->
    window.toolbar = jQuery( "table#order_list thead tr.toolbar" )
 
    # Binding events handlers to objects
-   jQuery(window.select_all).click select_all_toggle 
+   jQuery(window.select_all).click select_all_toggle
    jQuery( "input#send_email", window.email_order_form ).click send_email
    jQuery( "input#delete_orders", window.toolbar ).click delete_checked_ids
-   jQuery( "input#order", window.order_list_form ).click () -> 
+   jQuery( "input#order", window.order_list_form ).click () ->
       toggle_toolbar()
-      if( !jQuery(this).is(":checked") ) 
+      if( !jQuery(this).is(":checked") )
          jQuery(select_all).attr("checked", false)
-      return   
+      return
 
    # Initializing the state of certain objects
    jQuery( window.toolbar ).hide()
@@ -29,7 +28,7 @@ jQuery( document ).ready () ->
       top: 200
       overlay: 0.4
       closeButton: ".modal_close"
-   return   
+   return
 
 toggle_toolbar = () ->
    if( jQuery("input#order", window.order_list_form).filter(":checked").length > 0 )
@@ -44,12 +43,14 @@ send_email = () ->
             jQuery( order ).val()
       
    email = jQuery( "input#email_addresses", window.email_order_form ).val()
+   email_body =  jQuery( "textarea#email_body", window.email_order_form ).val().trim()
    params_id = ids.join(",")
    jQuery.ajax
       url: window.email_order_path
-      data: 
+      data:
          "id": params_id
          "email": email
+         "email_body":  email_body if !email_body
       type: "POST"
    return
 
@@ -66,7 +67,7 @@ select_all_toggle = () ->
    return
 
 delete_checked_ids = () ->
-   return if !confirm( 'Are you sure you want to delete the selected order(s)') 
+   return if !confirm( 'Are you sure you want to delete the selected order(s)')
    ids = jQuery.map jQuery("input#order", window.order_list_form )
          .filter( ":checked" ), (order) ->
             jQuery( order ).val()
@@ -81,4 +82,4 @@ delete_checked_ids = () ->
       success: () ->
          window.location.reload(true)
          return
-   return   
+   return
