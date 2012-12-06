@@ -1,5 +1,4 @@
 <% content_for :head do -%>
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" media="screen" type="text/css"/>
     <%= stylesheet_link_tag :table -%>
 	<style type="text/css" media="screen">
 		table#order_list{
@@ -116,7 +115,7 @@
 	<ul class="nav_items">
 	</ul>
 <% end %>
-<form id="order_list_form" onsubmit="return false">
+<form id="order_list_form" onsubmit="return false" method="get">
 
 <table id="order_list" class="listing">
 	<thead>
@@ -131,7 +130,7 @@
 		<tr class="toolbar">
                         <td colspan="4">
 				<input type="button" rel="div#email_order" id="a_email_order" value="Email Order"/>
-				<input type="button" value="Delete" onclick=" {delete_checked_ids(); }"/>
+				<input type="button" value="Delete" id="delete_orders"/>
                         </td>    
                 </tr>
 	</thead>
@@ -157,7 +156,7 @@
 </table>
 </form>
 <div id="email_order">
-	<form id="email_order_form" onsubmit="return false;">
+	<form id="email_order_form" onsubmit="return false;" method="get">
 		<div id="email_order-header">
 			<h3>Email Order(s)</h3>
 			<a class="modal_close" href="#"></a>
@@ -172,7 +171,7 @@
 			<%= text_area_tag :email_body, nil, :rows => 5, :cols => 65 -%>
 		</div>
 		
-		<div class="button_row"><input type="button" value="Send" onclick="send_email(this.form)"></div>
+		<div class="button_row"><input type="button" id="send_email" value="Send" /></div>
 	</form>	
 </div>
 <% content_for :page_js do -%>

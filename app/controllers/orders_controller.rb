@@ -33,6 +33,7 @@ class OrdersController < ApplicationController
     @order = Order.find( params[:id], :include => {:product_orders => [:product]})
     @store = Store.find( @order[:store_id] )
     
+    
     @page_title = "Order Sheet for Invoice " + @order[:invoice_number]
     @browser_title = "Invoice: " + @order[:invoice_number]
     
