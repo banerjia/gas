@@ -13,7 +13,7 @@
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">
-			<%= f.label :invoice_number, "Invoice" -%>
+			<%= f.label :invoice_number, "PO" -%>
 		</div>
 		<div class="entry_value">
 			<%= f.text_field :invoice_number, :style => "text-align : right" -%>
@@ -33,23 +33,6 @@
 		</div>
 		<div class="entry_value">
 			<%= f.text_field :delivery_date -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			<%= f.label :invoice_amount, "Amount" -%>
-		</div>
-		<div class="entry_value">
-			<%= f.text_field :invoice_amount, :style => "text-align : right", :value => number_with_precision( @order[:invoice_amount], :precision => 2) -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			<%= f.label :fulfilled, "Status" -%>
-		</div>
-		<div class="entry_value">
-			<%= f.check_box :fulfilled -%>
-			<%= f.label :fulfilled, "Order has been fulfilled" -%>
 		</div>
 	</div>
 </div>

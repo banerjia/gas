@@ -65,11 +65,7 @@
 								$("<a/>").attr("href", order_url_prefix + '/' + orders[i].id).text(orders[i].invoice_number)
 							)
 						).append(
-							$("<td/>").text(orders[i].invoice_amount)								
-						).append(
 							$("<td/>").text( (orders[i].delivery_date ? (new Date(orders[i].delivery_date)).toLocaleDateString() : "N/A"))
-						).append(
-							$("<td/>").text( (orders[i].fulfilled ? "Yes": "No"))
 						)					
 					);
 			}			
@@ -137,16 +133,14 @@
 	<thead>
 		<tr>
 			<th>Date</th>
-			<th>Invoice Number</th>
-			<th>Amount</th>
+			<th>PO</th>
 			<th>Delivery Date</th>
-			<th>Fulfilled</th>
 		</tr>
 	</thead>
 	<%- if store.orders.count > 25 -%>
 	<tfoot>
 		<tr>
-			<td colspan="5" class="table_cell_more">
+			<td colspan="3" class="table_cell_more">
 				<%= link_to "More Orders", store_orders_path(@store) -%>
 			</td>
 		</tr>

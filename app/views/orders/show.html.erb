@@ -15,7 +15,7 @@
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">
-			Invoice
+			PO
 		</div>
 		<div class="entry_value">
 			<%= !@order[:invoice_number].blank? ? @order[:invoice_number] : raw("N/A") -%>
@@ -35,22 +35,6 @@
 		</div>
 		<div class="entry_value">
 			<%= !@order[:delivery_date].blank? ? @order[:delivery_date] : raw("N/A") -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Amount
-		</div>
-		<div class="entry_value">
-			<%= number_to_currency(@order[:invoice_amount]) -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Status
-		</div>
-		<div class="entry_value">
-			<%= @order[:fulfilled]? "Order fulfilled" : "Awaiting Delivery" -%>
 		</div>
 	</div>
 </div>
