@@ -1,26 +1,31 @@
 class OrderMailer < ActionMailer::Base
   default from: "Graeters Orders <tagoretownapps+graeters_orders@gmail.com>"
-  def email_order( mailto, order, order_docs )
-    @order = order.first
+
+  def email_order( mailto, order_list, dummy )
     view_context = ActionView::Base.new(ActionController::Base.view_paths, {})
-    order_docs.each do |order_doc|
-      attachments["OrderSheetForInvoice_#{order_doc[:invoice_number]}.xls"] = { 
+    order_list.each do |order|
+      attachments["OrderSheetForInvoice_#{order[:invoice_number]}.xlsx"] = { 
 	      :content_type => "application/octet-stream",
-	      :body => view_context.render( :template => 'orders/show.xls.erb', :locals => {:order => Order.find(order_doc[:order_id])} )
+	      :body => view_context.render( :template => 'orders/show.xlsx.axlsx', :locals => {:order => order} )
       }
     end
-#    if order.size < 2
-#      mail( :to => mailto,
-#            :subject => "Order Sheet for Invoice Number: #{@order[:invoice_number]}"
-#          )
-#    else
-      mail( :to => mailto,
-            :subject => "Orders"
-          ) do |format|
-            format.html { render "email_multiple_orders", :locals => {:orders => order } }
-          end
- #   end
- #   render :nothing => true
 
+    if order_list.size > 1
+      # Handle emails with multiple orders
+      
+      mail( :to => mailto, :subject => "Graeters Cloud: Order sheets") do |format|
+        format.html do 
+          render "email_multiple_orders", :locals => { :orders => order_list }
+        end
+      end
+    else
+      # Handle instance when only one order is being emailed
+      # format defaults to email_order.html.erb because of naming conventions
+
+      order = order_list
+      mail( :to => mailto, 
+            :subject =>  "Order Sheet for PO: #{order[:invoice_number]}"
+          )
+    end
   end
 end
