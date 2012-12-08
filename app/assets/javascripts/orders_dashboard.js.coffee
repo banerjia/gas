@@ -50,8 +50,9 @@ send_email = () ->
       data:
          "id": params_id
          "email": email
-         "email_body":  email_body if !email_body
+         "email_body":  email_body if email_body
       type: "POST"
+   jQuery(".modal_close" ).trigger("click")
    return
 
 select_all_toggle = () ->

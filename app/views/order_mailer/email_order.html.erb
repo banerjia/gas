@@ -2,39 +2,53 @@
    "http://www.w3.org/TR/html4/strict.dtd">
 
 <html lang="en">
+<head>
+  <style type="text/css">
+    body, html, table {
+      background-color: #eee;
+      display: block;
+      font-family: Arial, Sans-serif;
+		font-size: 11pt;
+      text-align: center;
+      margin: 0;
+      padding-top: 0;
+      width: auto
+    }
+  </style>
+</head>
 <body>
 <table border="0" cellspacing="1" cellpadding="4" width="100%">
 	<tr>
 		<td bgcolor="#993333" colspan="2">
-			<h1 style="color:#ffffff">Order Created for Invoice <%= order[:invoice_number] -%></h1>
+			<h1 style="color:#ffffff">Order Created for PO <%= order[:invoice_number] -%></h1>
 		</td>
 	</tr>
 	<tr>
-		<td bgcolor="#CCCCCC" width="20%"><strong>Invoice:</strong></td>
+		<td bgcolor="#CCCCCC" width="20%"><strong>PO:</strong></td>
 		<td bgcolor="#EEEEEE"><%= order[:invoice_number] -%></td>
 	</tr>
 	<tr>
 		<td bgcolor="#CCCCCC"><strong>Order Date:</strong></td>
 		<td bgcolor="#EEEEEE"><%= order[:created_at] -%></td>
-	</tr>
-	<tr>
-		<td bgcolor="#CCCCCC"><strong>Total:</strong></td>
-		<td bgcolor="#EEEEEE"><%= number_to_currency(order[:invoice_total]) -%></td>
-	</tr>
 	<tr>
 		<td bgcolor="#CCCCCC"><strong>Deliver By:</strong></td>
 		<td bgcolor="#EEEEEE"><%= order[:delivery_date] -%></td>
 	</tr>
 	<tr>
-		<td bgcolor="#EEEEEE" colspan="2">			
-			<p><br/>
-			The order sheet for the invoice <strong><%= order[:invoice_number] -%></strong> is accessible via the following links:<br/>
+		<td bgcolor="#CCCCCC"><strong>Links</strong></td>
+		<td bgcolor="#EEEEEE">
 			<a href="<%= order_url(order[:id] ) -%>" target="_blank">HTML</a> |
-			<a href="<%= order_url(order[:id], :format => :xls ) -%>">Download Excel File</a>
-			<br/>
-			</p>
+			<a href="<%= order_url(order[:id], :format => :xlsx ) -%>">Download Excel Spreadsheet</a>
 		</td>
 	</tr>
+	<%- if defined? optional_message -%>
+	<tr>
+		<td bgcolor="#ffffff" colspan="2">          
+			<h2>Additional Message</h2>
+            <p><%= optional_message -%></p> 
+		</td>
+	</tr>
+    <%- end -%>
 </table>
 </body>
 </html>

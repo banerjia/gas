@@ -84,22 +84,12 @@ class OrdersController < ApplicationController
   
   def send_email
     send_to = params[:email]
+    optional_message = params[:email_body]
     order_id = params[:id].split(/\D+/).map{ |id| id.to_i }
 
-    @order = Order.find( order_id, :include => [{:product_orders => [:product, :volume_unit]}, :product_categories])
-    #@store = Store.find( @order[:store_id] )
+    order = Order.find( order_id, :include => [{:product_orders => [:product, :volume_unit]}, :store])
     
-    att_body = Array.new
-    
-    @order.each do |order|
-      element_to_push = Hash.new
-      element_to_push[:invoice_number] = order[:invoice_number]
-      element_to_push[:order_id] = order[:id]
-      #element_to_push[:body] = render_to_string( :action => :show, :id => order[:id], :formats => :xls)
-      att_body.push( element_to_push )
-    end
-    
-    email = OrderMailer.email_order( send_to, @order, att_body )
+    email = OrderMailer.email_order( send_to, order, optional_message )
     email.deliver
     render :nothing => true
   end
