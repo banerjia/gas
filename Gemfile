@@ -1,7 +1,6 @@
 source 'http://rubygems.org'
 gem 'rails', '3.2.9'
 gem 'mysql2'
-gem 'asset_sync'
 gem 'composite_primary_keys'
 gem 'geokit-rails3'
 gem 'dynamic_form'
@@ -12,6 +11,7 @@ group :assets do
   gem 'sass-rails' , "  ~> 3.2.3"
   gem 'coffee-rails' , "~> 3.2.1"
   gem 'uglifier', '>=1.0.3', :require => 'uglifier'
+  gem 'asset_sync'
 end
 
 gem 'jquery-rails'
