@@ -14,16 +14,16 @@ Graeters::Application.configure do
   config.action_controller.perform_caching = false
 
   # Don't care if the mailer can't send
-  config.action_mailer.default_url_options = { host: "railscasts.com" }
+  config.action_mailer.default_url_options = { host: "devvbx.com/graeters" }
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: "smtp.gmail.com",
-    port: 587,
-    authentication: "plain",
-    enable_starttls_auto: true,
-    user_name: 'webdesign.banerji@gmail.com',
-    password: ''
+    address: AppConfig["smtp_server"],
+    port: AppConfig["smtp_port"],
+    authentication: AppConfig["smtp_authentication_type"],
+    enable_starttls_auto: AppConfig["smtp_enable_starttls_auto"],
+    user_name: AppConfig["email_username"], 
+    password: AppConfig["email_password"]
   }
 
   # Print deprecation notices to the Rails logger

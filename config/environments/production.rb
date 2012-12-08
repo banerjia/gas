@@ -15,7 +15,7 @@ Graeters::Application.configure do
   config.assets.compress = true
 
   # Don't fallback to assets pipeline if a precompiled asset is missed
-  config.assets.compile = false
+  config.assets.compile = true #false
 
   # Generate digests for assets URLs
   config.assets.digest = true
@@ -40,13 +40,23 @@ Graeters::Application.configure do
   # config.cache_store = :mem_cache_store
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server
-  # config.action_controller.asset_host = "http://assets.example.com"
+  # config.action_controller.asset_host = "http://assets.abhishekbanerji.com"
 
   # Precompile additional assets (application.js, application.css, and all non-JS/CSS are already added)
-  # config.assets.precompile += %w( search.js )
+  config.assets.precompile += %w( dateformat.js jquery.leanModal.min.js orders_dashboard.js show_company.js forms.css show_company.css table.css )
 
   # Disable delivery errors, bad email addresses will be ignored
-  # config.action_mailer.raise_delivery_errors = false
+  config.action_mailer.raise_delivery_errors = false
+  config.action_mailer.default_url_options = { host: "devvbx.com/graeters" }
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: AppConfig["smtp_server"],
+    port: AppConfig["smtp_port"],
+    authentication: AppConfig["smtp_authentication_type"],
+    enable_starttls_auto: AppConfig["smtp_enable_starttls_auto"],
+    user_name: AppConfig["email_username"], 
+    password: AppConfig["email_password"]
+  }
 
   # Enable threaded mode
   # config.threadsafe!
