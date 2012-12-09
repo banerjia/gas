@@ -50,12 +50,12 @@ Graeters::Application.configure do
   config.action_mailer.default_url_options = { host: "devvbx.com/graeters" }
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: AppConfig["smtp_server"],
-    port: AppConfig["smtp_port"],
-    authentication: AppConfig["smtp_authentication_type"],
-    enable_starttls_auto: AppConfig["smtp_enable_starttls_auto"],
-    user_name: AppConfig["email_username"], 
-    password: AppConfig["email_password"]
+    address: ENV["smtp_server"],
+    port: ENV["smtp_port"],
+    authentication: ENV["smtp_authentication_type"],
+    enable_starttls_auto: ENV["smtp_enable_starttls_auto"],
+    user_name: ENV["email_username"], 
+    password: ENV["email_password"]
   }
 
   # Enable threaded mode

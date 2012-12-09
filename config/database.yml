@@ -14,8 +14,8 @@ development:
   reconnect: false
   database: graeters_bridge
   pool: 5
-  username: <%= AppConfig["db_username"] -%> 
-  password: <%= AppConfig["db_password"] -%>
+  username: <%=ENV['db_username']%> 
+  password: <%=ENV['db_password']%>
   socket: /var/run/mysqld/mysqld.sock 
 
 # Warning: The database defined as "test" will be erased and
@@ -37,6 +37,6 @@ production:
   reconnect: false
   database: graeters_bridge
   pool: 5
-  username: <%= AppConfig["db_username"] -%> 
-  password: <%= AppConfig["db_password"] -%>
+  username: <%=ENV['db_username']%> 
+  password: <%=ENV['db_password']%>
   socket: /var/run/mysqld/mysqld.sock
