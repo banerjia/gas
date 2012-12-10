@@ -40,14 +40,14 @@ Graeters::Application.configure do
   # config.cache_store = :mem_cache_store
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server
-  # config.action_controller.asset_host = "http://assets.abhishekbanerji.com"
+  config.action_controller.asset_host = "http://assets.abhishekbanerji.com"
 
   # Precompile additional assets (application.js, application.css, and all non-JS/CSS are already added)
-  config.assets.precompile += %w( dateformat.js jquery.leanModal.min.js orders_dashboard.js show_company.js forms.css show_company.css table.css )
+  config.assets.precompile += %w( dateformat.js jquery.leanModal.min.js orders_list.js orders_dashboard.js show_company.js forms.css show_company.css table.css order_list.css )
 
   # Disable delivery errors, bad email addresses will be ignored
   config.action_mailer.raise_delivery_errors = false
-  config.action_mailer.default_url_options = { host: "devvbx.com/graeters" }
+  config.action_mailer.default_url_options = { host: "abhishekbanerji.com/graeters" }
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
     address: ENV["smtp_server"],

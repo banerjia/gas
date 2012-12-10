@@ -57,7 +57,7 @@
 				<% product_category[:products].each do |product_order| -%>
 				<tr>
 					<td><%= product_order.product[:name] -%></td>
-					<td><%= product_order[:quantity] -%></td>
+					<td><%= pluralize( product_order[:quantity], product_order.volume_unit[:unit_code]) -%></td>
 					<td><%= product_order.volume -%></td>
 				</tr>
 				<%- end -%>
