@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121209032351) do
+ActiveRecord::Schema.define(:version => 20121210151508) do
 
   create_table "audit_journals", :primary_key => "audit_id", :force => true do |t|
     t.string    "title",      :limit => 50
@@ -171,11 +171,11 @@ ActiveRecord::Schema.define(:version => 20121209032351) do
   add_index "stores", ["company_id"], :name => "CompanyID"
 
   create_table "volume_units", :force => true do |t|
-    t.string   "name",       :limit => 20,                   :null => false
-    t.string   "unit_code",  :limit => 15, :default => "oz", :null => false
-    t.integer  "multiplier", :limit => 2,  :default => 1,    :null => false
-    t.datetime "created_at",                                 :null => false
-    t.datetime "updated_at",                                 :null => false
+    t.string   "name",              :limit => 20,                                                 :null => false
+    t.string   "unit_code",         :limit => 15,                               :default => "oz", :null => false
+    t.decimal  "sleeve_conversion",               :precision => 5, :scale => 3, :default => 0.0,  :null => false
+    t.datetime "created_at",                                                                      :null => false
+    t.datetime "updated_at",                                                                      :null => false
   end
 
   create_table "zip_codes", :id => false, :force => true do |t|

@@ -45,7 +45,7 @@
 			<tr>
 				<th>Product</th>
 				<th>Quantity</th>
-				<th>Sleve(s)</th>
+				<th>Sleeve(s)</th>
 			</tr>
 		</thead>
 		<% @order.organize_products_by_category.each do |product_category| -%>
@@ -58,7 +58,7 @@
 				<tr>
 					<td><%= product_order.product[:name] -%></td>
 					<td><%= pluralize( product_order[:quantity], product_order.volume_unit[:unit_code]) -%></td>
-					<td><%= pluralize( product_order.sleves, "sleve" ) -%></td>
+					<td><%= pluralize( product_order.sleeves, "sleeve" ) -%></td>
 				</tr>
 				<%- end -%>
 			</tbody>

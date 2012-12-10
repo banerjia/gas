@@ -9,7 +9,7 @@ class ProductOrder < ActiveRecord::Base
   
   attr_accessible :product_id, :order_id, :quantity, :volume_unit_id
   
-  def sleves 
+  def sleeves 
     (self[:quantity] * self.volume_unit[:multiplier]).to_i
   end
 end

@@ -43,6 +43,9 @@ class @OrderList
        params_id = ids.join(",")
        jQuery.ajax
           url: window.email_order_path
+          beforeSend: (xhr) ->
+                           xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))
+                           return
           data:
              "id": params_id
              "email": email
@@ -73,6 +76,15 @@ class @OrderList
        window.location.reload(true)
        jQuery.ajax
           url: window.order_path + '/' + params_id
+          beforeSend: (xhr) ->
+                           xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))
+                           return
+          data:
+             "id": params_id
+             "email": email
+             "email_body":  email_body if email_body
+          type: "POST"
+          
           type: 'POST'
           data:
              "_method": 'delete'

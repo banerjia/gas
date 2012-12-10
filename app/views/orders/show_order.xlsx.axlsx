@@ -18,7 +18,7 @@ wb.styles do |s|
 	wb.add_worksheet( :name => 'Order Sheet' ) do |sheet|
 		sheet.add_row  ['Order Sheet for PO ' + order[:invoice_number] ], :style => head, :height => 40
 		sheet.merge_cells( 'A1:I1' )
-		sheet.add_row %w( PO Chain Address Delivery SKU Description Quantity Measure/Unit Sleves), :style => column_head, :height => 20
+		sheet.add_row %w( PO Chain Address Delivery SKU Description Quantity Measure/Unit Sleeves), :style => column_head, :height => 20
 		sheet.column_widths 10, 20, 60
 		sheet.column_info[5].width = 40
 
@@ -43,7 +43,7 @@ wb.styles do |s|
 			row.add_cell product_order.product[:name]
 			row.add_cell product_order[:quantity]
 			row.add_cell product_order.volume_unit[:unit_code]
-			row.add_cell product_order.sleves
+			row.add_cell product_order.sleeves
 		end
 				
 	end
