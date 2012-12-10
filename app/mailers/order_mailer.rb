@@ -6,7 +6,7 @@ class OrderMailer < ActionMailer::Base
     order_list.each do |order|
       attachments["OrderDetailsForPO-#{order[:invoice_number]}.xlsx"] = { 
 	      :content_type => "application/octet-stream",
-	      :body => view_context.render( :template => 'orders/show', :handlers => [:axlsx], :locals => {:order => order} )
+	      :body => view_context.render( :template => 'orders/show_order', :handlers => [:axlsx], :locals => {:order => order} )
       }
     end
 

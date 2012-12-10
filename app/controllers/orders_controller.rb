@@ -37,12 +37,17 @@ class OrdersController < ApplicationController
     @page_title = "Order Sheet for Invoice " + @order[:invoice_number]
     @browser_title = "Invoice: " + @order[:invoice_number]
     
-    render :locals => {:order => @order}
+    respond_to do |format|
+      format.html { render :locals => {:order => @order} }
+      format.xlsx do 
+        send_data render_to_string(:action => 'show_order', :handlers => [:axlsx], :locals => {:order => @order}), :filename => "OrderforPO_" + @order[:invoice_number]+".xlsx", :type => "application/vnd.openxmlformates-officedocument.spreadsheetml.sheet"
+      end
+    end
   end
   
   def new
     @store = Store.find(params[:store_id])
-    @order = @store.orders.build #Order.new( {:store_id => params[:store_id] } )
+    @order = @store.orders.build 
     @order.product_orders.build
     @page_title = "New Order for #{@store[:name]}"
   end

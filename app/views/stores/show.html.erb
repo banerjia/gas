@@ -52,13 +52,17 @@
 		}
 		
 		function populate_orders( orders ){
-			var target_table_body = $("table#orders tbody");
+			var target_table_body = $("table#order_list tbody");
 			if ( orders.length == 0 || $("tr", target_table_body).length > 0) return;
 			
 			var order_url_prefix = '<%= orders_path -%>';
 			for( i = 0; i < orders.length; i++){
 				target_table_body.append(
 						$("<tr/>").append(
+							$("<td/>").append(
+								$("<input type='checkbox' id ='order'/>").val(orders[i].id)
+							)
+						).append(
 							$("<td/>").text( (new Date(orders[i].created_at)).toLocaleDateString() )
 						).append(
 							$("<td/>").append(
@@ -68,7 +72,8 @@
 							$("<td/>").text( (orders[i].delivery_date ? (new Date(orders[i].delivery_date)).toLocaleDateString() : "N/A"))
 						)					
 					);
-			}			
+			}
+			OrderList.bind_click_event_for_checkboxes();			
 		}
 		
 		$(document).ready(function(){
@@ -87,7 +92,7 @@
 	<ul class="nav_items">
 		<li class="current" id="div_store_information">Store Information</li>
 		<%- if store.orders.count > 0 -%>
-			<li id="table_orders" onshow="get_orders()">Orders</li>
+			<li id="table_order_list" onshow="get_orders()">Orders</li>
 		<%- end -%>
 	</ul>
 <%- end -%>
@@ -128,24 +133,5 @@
 	<%- end -%>
 </div>
 <%- if store.orders.count > 0 -%>
-<table class="listing" id="orders">
-	<caption>Orders</caption>
-	<thead>
-		<tr>
-			<th>Date</th>
-			<th>PO</th>
-			<th>Delivery Date</th>
-		</tr>
-	</thead>
-	<%- if store.orders.count > 25 -%>
-	<tfoot>
-		<tr>
-			<td colspan="3" class="table_cell_more">
-				<%= link_to "More Orders", store_orders_path(@store) -%>
-			</td>
-		</tr>
-	</tfoot>
-	<%- end -%>
-	<tbody/>
-</table>
+	<%= render :partial => 'orders/order_listing' %>
 <%- end -%>

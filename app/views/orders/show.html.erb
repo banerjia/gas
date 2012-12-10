@@ -45,18 +45,20 @@
 			<tr>
 				<th>Product</th>
 				<th>Quantity</th>
+				<th>Total</th>
 			</tr>
 		</thead>
 		<% @order.organize_products_by_category.each do |product_category| -%>
 			<tbody>
 				<tr>
-					<td colspan="2" class="category_heading"><%= product_category[:name] -%></td>
+					<td colspan="3" class="category_heading"><%= product_category[:name] -%></td>
 				</tr>
 			
 				<% product_category[:products].each do |product_order| -%>
 				<tr>
 					<td><%= product_order.product[:name] -%></td>
 					<td><%= product_order[:quantity] -%></td>
+					<td><%= product_order.volume -%></td>
 				</tr>
 				<%- end -%>
 			</tbody>

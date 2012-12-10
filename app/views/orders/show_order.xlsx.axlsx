@@ -1,0 +1,50 @@
+wb = xlsx_package.workbook
+wb.styles do |s|
+	head = s.add_style( {
+				:bg_color => "990000", 
+				:fg_color => "FFFFFF", 
+				:b => true, 
+				:sz => 18
+	})
+	column_head = s.add_style( { 
+					:bg_color => "DDDDDD", 
+					:fg_color => "00",
+					:b => true, 
+					:border => {
+							:style => :thin,
+							:color => "00" 
+					}
+	})
+	wb.add_worksheet( :name => 'Order Sheet' ) do |sheet|
+		sheet.add_row  ['Order Sheet for PO ' + order[:invoice_number] ], :style => head, :height => 40
+		sheet.merge_cells( 'A1:I1' )
+		sheet.add_row %w( PO Chain Address Delivery SKU Description Quantity Measure/Unit Total), :style => column_head, :height => 20
+		sheet.column_widths 10, 20, 60
+		sheet.column_info[5].width = 40
+
+		# Indicates how many rows to skip from the top of the document
+		# when creating the product list.
+		# Note: Even though row index in Excel start at 1 the indexes within
+		# scripts start at 0
+		product_row_offset = 2
+		
+		order.product_orders.each_with_index do |product_order, index|
+			row = sheet.add_row
+			if index == 0 
+				row.add_cell order[:invoice_number]
+				row.add_cell order.store[:name]
+				row.add_cell order.store.address
+				row.add_cell order[:delivery_by]
+			else
+				(0..3).each { row.add_cell }
+			end
+			
+			row.add_cell product_order.product[:code]
+			row.add_cell product_order.product[:name]
+			row.add_cell product_order[:quantity]
+			row.add_cell product_order.volume_unit[:name]
+			row.add_cell product_order.volume
+		end
+				
+	end
+end
