@@ -43,7 +43,7 @@ wb.styles do |s|
 			row.add_cell product_order.product[:name]
 			row.add_cell product_order[:quantity]
 			row.add_cell product_order.volume_unit[:unit_code]
-			row.add_cell product_order.volume
+			row.add_cell product_order.sleves
 		end
 				
 	end
