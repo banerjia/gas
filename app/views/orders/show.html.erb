@@ -1,7 +1,8 @@
 <% content_for :body do -%>
 <div class="toolbar">
 	<a href="javascript:window.history.go(-1)">Back</a> | 
-	<%= link_to "Edit", edit_order_path(@order) -%>
+	<%= link_to "Edit", edit_order_path(@order) -%> |
+	<%= link_to "Download as Excel file", order_path(@order, :format => :xlsx)%>
 </div>
 <div id="order_basics">
 	<div class="entry_row">
