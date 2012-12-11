@@ -52,6 +52,8 @@ wb.styles do |s|
 
 		sheet.add_row %w(Stock\ # Description Measure/Unit Quantity  Sleeves), :style => column_head, :height => 20
 		sheet.column_widths 20, 40
+		
+		sleeve_total = 0
 
 		order.product_orders.each do |product_order|
 			row = sheet.add_row
@@ -61,7 +63,14 @@ wb.styles do |s|
 			row.add_cell product_order[:quantity]
 			row.add_cell product_order.sleeves
 			row.style = row_border
+			sleeve_total += product_order.sleeves
 		end
+
+		total_row = sheet.add_row
+		3.times { total_row.add_cell }
+		total_row.add_cell "Total Sleeves", :style => label
+		total_row.add_cell sleeve_total
+		
 		sheet.rows.last.style = bottom_row_border				
 	end
 end
