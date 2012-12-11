@@ -33,7 +33,6 @@ table
 							align: center
 							width: 10%
 				&.toolbar
-					display: none
 				
 					td
 						background:
@@ -62,6 +61,9 @@ div
 			@include leanModal-boxing
 		-webkit:
 			@include leanModal-boxing
+		padding:
+			bottom: 1em		
+
 
 		#email_order-header
 			background:
@@ -121,16 +123,16 @@ div
 			overflow: hidden
 			width: auto
 
-		&#lean_overlay
-			background: #000
-			display: none
-			height: 100%
-			left: 0px
-			position: fixed
-			top: 0px
-			width: 100%
-			z-index: 100
-			
+	&#lean_overlay
+		background: #000
+		display: none
+		height: 100%
+		left: 0px
+		position: fixed
+		top: 0px
+		width: 100%
+		z-index: 100
+		
 .modal_close
 	background:
 		image: url( <%= image_path("modal_close.png") %>)

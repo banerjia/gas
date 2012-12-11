@@ -62,7 +62,7 @@
 		<p>Use commas to separate multiple recipients.</p>
 		<div class="entry_row">
 			<label for="email_addresses">Email Address(es)</label><br/>
-			<%= email_field_tag :email_addresses -%>
+                        <%= email_field_tag :email_addresses, nil, :multiple => true -%>
 		</div>
 		<div class="entry_row">
 			<label for="email_body">Message</label> - <em>optional</em><br/>

@@ -34,7 +34,7 @@ class OrdersController < ApplicationController
     @store = Store.find( @order[:store_id] )
     
     
-    @page_title = "Order Sheet for Invoice " + @order[:invoice_number]
+    @page_title = "Order Sheet for PO: " + @order[:invoice_number]
     @browser_title = "Invoice: " + @order[:invoice_number]
     
     respond_to do |format|

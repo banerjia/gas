@@ -61,9 +61,9 @@ class @OrderList
           return
 
        if( status )
-          jQuery( window.toolbar ).fadeIn()
+          jQuery( window.toolbar ).fadeIn(800)
        else
-          jQuery( window.toolbar ).fadeOut()
+          jQuery( window.toolbar ).hide()
        return
 
     @delete_checked_ids : () ->

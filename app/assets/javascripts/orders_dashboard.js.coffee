@@ -11,6 +11,7 @@ jQuery( document ).ready () ->
    window.order_list_form = jQuery( "form#order_list_form" )
    window.select_all = jQuery( "input#select_all", window.order_list_form )
    window.toolbar = jQuery( "table#order_list thead tr.toolbar" )
+   jQuery(window.toolbar).hide()
 
    # Binding events handlers to objects
    jQuery(window.select_all).click select_all_toggle
