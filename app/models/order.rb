@@ -8,7 +8,7 @@ class Order < ActiveRecord::Base
   belongs_to :store, :counter_cache => true
   
   # Attributes
-  attr_accessible :invoice_number, :invoice_amount, :route_number, :delivery_date, :fulfilled, :created_at, :product_orders_attributes
+  attr_accessible :invoice_number, :invoice_amount, :route_number, :deliver_by_day, :fulfilled, :created_at, :product_orders_attributes
   
   # Validations
   accepts_nested_attributes_for :product_orders, :allow_destroy => true, \

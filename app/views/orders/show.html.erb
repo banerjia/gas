@@ -34,7 +34,7 @@
 			Deliver By
 		</div>
 		<div class="entry_value">
-			<%= !@order[:delivery_date].blank? ? @order[:delivery_date] : raw("N/A") -%>
+			<%= !@order[:deliver_by_day].blank? ? @order[:deliver_by_day] : raw("N/A") -%>
 		</div>
 	</div>
 </div>
@@ -57,7 +57,7 @@
 				<% product_category[:products].each do |product_order| -%>
 				<tr>
 					<td><%= product_order.product[:name] -%></td>
-					<td><%= pluralize( product_order[:quantity], product_order.volume_unit[:unit_code]) -%></td>
+					<td><%= product_order[:quantity].to_s + ' ' + product_order.volume_unit[:name] -%></td>
 					<td><%= pluralize( product_order.sleeves, "sleeve" ) -%></td>
 				</tr>
 				<%- end -%>

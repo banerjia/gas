@@ -113,7 +113,7 @@ class OrdersController < ApplicationController
                                 :joins => :store,
                                 :limit => per_page + 1,
                                 :offset => (page * per_page),
-                                :select => '`orders`.`id`, `orders`.`invoice_number`,`orders`.`invoice_amount`,`orders`.`store_id`, `orders`.`delivery_date`,`orders`.`created_at`, `orders`.`fulfilled`, `stores`.`name` as `store_name`')
+                                :select => '`orders`.`id`, `orders`.`invoice_number`,`orders`.`invoice_amount`,`orders`.`store_id`, `orders`.`deliver_by_day`,`orders`.`created_at`, `orders`.`fulfilled`, `stores`.`name` as `store_name`')
     
     more_pages = (order_listing.size > per_page )
     

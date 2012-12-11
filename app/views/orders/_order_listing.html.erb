@@ -6,9 +6,16 @@
 			<th scope="col">
 				Select All<br/>
 				<%= check_box_tag :select_all -%>
-			<th scope="col">Store</th>
+			</th>
 			<th scope="col">Invoice Number</th>
-			<th scope="col">Date</th>
+			<th scope="col">
+			<%- if defined?(show_store) && show_store -%>
+				Store
+			<%- else -%>
+			  	Order Created On
+			<%- end -%>
+			</th>
+			<th scope="col">Deliver By</th>
 		</tr>
 		<tr class="toolbar">
              <td colspan="4">
@@ -31,9 +38,15 @@
 	<%- orders.each do |order| -%>
 		<tr>
 			<td><%= check_box_tag :order, order[:id] -%></td>
-			<td><%= link_to (order[:store_name ] || order.store[:name]), store_path( order[:store_id] ) -%></td>
-			<td><%= link_to (order[:invoice_number].blank? ? "N/A" : order[:invoice_number]), order_path(order) -%></td>			
-			<td><%= order[:created_at].strftime("%b %d, %Y")  %></td>
+			<td><%= link_to (order[:invoice_number].blank? ? "N/A" : order[:invoice_number]), order_path(order) -%></td>
+			<td>
+			<%- if defined? show_store && show_store -%>
+				<%= link_to (order[:store_name ] || order.store[:name]), store_path( order[:store_id] ) -%>
+			<%- else -%>
+			  	<%= order[:created_at].strftime("%b %d, %Y") %>
+			<%- end -%>
+			</td>			
+			<td><%= order[:deliver_by_day]  %></td>
 		</tr>
 	<%- end -%>
 	<%- end -%>

@@ -62,14 +62,14 @@
 							$("<td/>").append(
 								$("<input type='checkbox' id ='order'/>").val(orders[i].id)
 							)
+						).append	(
+								$("<td/>").append(
+									$("<a/>").attr("href", order_url_prefix + '/' + orders[i].id).text(orders[i].invoice_number)
+								)
 						).append(
 							$("<td/>").text( (new Date(orders[i].created_at)).toLocaleDateString() )
 						).append(
-							$("<td/>").append(
-								$("<a/>").attr("href", order_url_prefix + '/' + orders[i].id).text(orders[i].invoice_number)
-							)
-						).append(
-							$("<td/>").text( (orders[i].delivery_date ? (new Date(orders[i].delivery_date)).toLocaleDateString() : "N/A"))
+							$("<td/>").text( (orders[i].deliver_by_day ? orders[i].deliver_by_day : "N/A"))
 						)					
 					);
 			}

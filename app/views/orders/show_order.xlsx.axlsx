@@ -7,44 +7,61 @@ wb.styles do |s|
 				:sz => 18
 	})
 	column_head = s.add_style( { 
-					:bg_color => "DDDDDD", 
-					:fg_color => "00",
+					:bg_color => "5f6b61", 
+					:fg_color => "FFFFFF",
 					:b => true, 
 					:border => {
 							:style => :thin,
 							:color => "00" 
 					}
 	})
+	label = s.add_style( {
+					:b => true
+	})
+	bottom_row_border = s.add_style :border => {:style => :thick, :color => "00", :edges => [:bottom] }
+	row_border = s.add_style :border => {:style => :thin, :color => "00", :edges => [:bottom] }
 	wb.add_worksheet( :name => 'Order Sheet' ) do |sheet|
-		sheet.add_row  ['Order Sheet for PO ' + order[:invoice_number] ], :style => head, :height => 40
-		sheet.merge_cells( 'A1:I1' )
-		sheet.add_row %w( PO Chain Address Delivery SKU Description Quantity Measure/Unit Sleeves), :style => column_head, :height => 20
-		sheet.column_widths 10, 20, 60
-		sheet.column_info[5].width = 40
+		sheet.add_row  ['Graeters Order Sheet'], :style => head, :height => 40
+		sheet.merge_cells( 'A1:E1' )
 
-		# Indicates how many rows to skip from the top of the document
-		# when creating the product list.
-		# Note: Even though row index in Excel start at 1 the indexes within
-		# scripts start at 0
-		product_row_offset = 2
+		sheet.add_row
 		
-		order.product_orders.each_with_index do |product_order, index|
+		chain_row = sheet.add_row
+		chain_row.add_cell "Customer", :style => label
+		chain_row.add_cell order.store.company[:name]
+
+		# Blank row separating the labels
+		sheet.add_row		
+
+		po_row = sheet.add_row
+		po_row.add_cell "PO", :style => label
+		po_row.add_cell order[:invoice_number], :style => s.add_style({:alignment => {:horizontal => :left}})
+
+		# Blank row separating the labels
+		sheet.add_row		
+
+		store_row = sheet.add_row
+		store_row.add_cell "Ship to", :style => label
+		store_row.add_cell order.store[:name]
+		store_row = sheet.add_row
+		store_row.add_cell
+		store_row.add_cell order.store.address
+
+		# Blank row separating the labels
+		sheet.add_row		
+
+		sheet.add_row %w(Stock\ # Description Measure/Unit Quantity  Sleeves), :style => column_head, :height => 20
+		sheet.column_widths 20, 40
+
+		order.product_orders.each do |product_order|
 			row = sheet.add_row
-			if index == 0 
-				row.add_cell order[:invoice_number]
-				row.add_cell order.store[:name]
-				row.add_cell order.store.address
-				row.add_cell order[:delivery_by]
-			else
-				(0..3).each { row.add_cell }
-			end
-			
 			row.add_cell product_order.product[:code]
 			row.add_cell product_order.product[:name]
+			row.add_cell product_order.volume_unit[:name]
 			row.add_cell product_order[:quantity]
-			row.add_cell product_order.volume_unit[:unit_code]
 			row.add_cell product_order.sleeves
+			row.style = row_border
 		end
-				
+		sheet.rows.last.style = bottom_row_border				
 	end
 end

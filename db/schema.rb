@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121210151508) do
+ActiveRecord::Schema.define(:version => 20121211014003) do
 
   create_table "audit_journals", :primary_key => "audit_id", :force => true do |t|
     t.string    "title",      :limit => 50
@@ -64,12 +64,13 @@ ActiveRecord::Schema.define(:version => 20121210151508) do
   create_table "orders", :force => true do |t|
     t.string   "invoice_number", :limit => 20
     t.datetime "delivery_date"
-    t.boolean  "fulfilled",                                                   :default => false, :null => false
+    t.string   "deliver_by_day", :limit => 10,                                :default => "Monday"
+    t.boolean  "fulfilled",                                                   :default => false,    :null => false
     t.string   "route_number",   :limit => 5
-    t.integer  "store_id",       :limit => 8,                                                    :null => false
-    t.decimal  "invoice_amount",               :precision => 10, :scale => 2, :default => 0.0,   :null => false
-    t.datetime "created_at",                                                                     :null => false
-    t.datetime "updated_at",                                                                     :null => false
+    t.integer  "store_id",       :limit => 8,                                                       :null => false
+    t.decimal  "invoice_amount",               :precision => 10, :scale => 2, :default => 0.0,      :null => false
+    t.datetime "created_at",                                                                        :null => false
+    t.datetime "updated_at",                                                                        :null => false
   end
 
   add_index "orders", ["fulfilled", "id"], :name => "index_orders_on_fulfilled_and_id"

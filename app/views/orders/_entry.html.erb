@@ -29,10 +29,10 @@
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">
-			<%= f.label :delivery_date, "Deliver By" -%>
+			<%= f.label :deliver_by_day, "Deliver By" -%>
 		</div>
 		<div class="entry_value">
-			<%= f.text_field :delivery_date -%>
+			<%= f.select :deliver_by_day, Date::DAYNAMES -%>
 		</div>
 	</div>
 </div>
