@@ -28,7 +28,7 @@
 	<tfoot>
 		<tr>
 			<td colspan="4" class="table_more_cell">
-				<%= link_to "More Orders Available...", '#', :class => "load_more" -%>
+				<%= link_to_function "More Orders Available...", 'OrderList.load_more_orders()', :class => "load_more" -%>
 			</td>
 		</tr>
 	</tfoot>
@@ -81,6 +81,8 @@
 	<script type="text/javascript">
 		window.order_path = '<%= orders_path -%>';
 		window.email_order_path = '<%= email_order_path -%>';
+		window.orders_dashboard_path = '<%= orders_dashboard_path -%>';
+		window.stores_path = '<%= stores_path -%>'
 		$( document ).ready( function(){
 			OrderList.init();			
 		});

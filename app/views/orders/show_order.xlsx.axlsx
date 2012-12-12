@@ -1,18 +1,17 @@
 wb = xlsx_package.workbook
 wb.styles do |s|
 	head = s.add_style( {
-				:bg_color => "990000", 
-				:fg_color => "FFFFFF", 
+				:fg_color => "00", 
 				:b => true, 
 				:sz => 18
 	})
 	column_head = s.add_style( { 
-					:bg_color => "5f6b61", 
-					:fg_color => "FFFFFF",
+					:fg_color => "00",
 					:b => true, 
 					:border => {
 							:style => :thin,
-							:color => "00" 
+							:color => "00",
+							:edges => [:top, :bottom] 
 					}
 	})
 	label = s.add_style( {
@@ -40,6 +39,13 @@ wb.styles do |s|
 		# Blank row separating the labels
 		sheet.add_row		
 
+		deliver_by= sheet.add_row
+		deliver_by.add_cell "Deliver By", :style => label
+		deliver_by.add_cell order[:deliver_by_day]
+
+		# Blank row separating the labels
+		sheet.add_row		
+
 		store_row = sheet.add_row
 		store_row.add_cell "Ship to", :style => label
 		store_row.add_cell order.store[:name]
@@ -50,7 +56,7 @@ wb.styles do |s|
 		# Blank row separating the labels
 		sheet.add_row		
 
-		sheet.add_row %w(Stock\ # Description Measure/Unit Quantity  Sleeves), :style => column_head, :height => 20
+		sheet.add_row %w(Stock\ # Description U/M Quantity  Sleeves), :style => column_head, :height => 20
 		sheet.column_widths 20, 40
 		
 		sleeve_total = 0
@@ -68,7 +74,7 @@ wb.styles do |s|
 
 		total_row = sheet.add_row
 		3.times { total_row.add_cell }
-		total_row.add_cell "Total Sleeves", :style => label
+		total_row.add_cell "Sleeves", :style => label
 		total_row.add_cell sleeve_total
 		
 		sheet.rows.last.style = bottom_row_border				

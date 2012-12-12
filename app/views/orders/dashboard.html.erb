@@ -3,5 +3,4 @@
 	<ul class="nav_items">
 	</ul>
 <% end %>
-<%= render :partial => 'order_listing', :locals => {:orders => orders, :show_store => true } %>
-
+<%= render :partial => 'order_listing', :locals => {:orders => orders, :show_store => true, :more_pages => more_pages} %>

@@ -1,4 +1,7 @@
 class @OrderList
+	
+    @current_page = 1
+	
     @init : () ->
         window.select_all = null
         window.toolbar = null
@@ -28,9 +31,9 @@ class @OrderList
         
     @toggle_toolbar : () ->
        if( jQuery("input#order", window.order_list_form).filter(":checked").length > 0 )
-          jQuery( window.toolbar ).slideDown()
+          jQuery( window.toolbar ).show() if !jQuery(window.toolbar).is(":visible")
        else
-          jQuery( window.toolbar ).slideUp()
+          jQuery( window.toolbar ).hide()
        return
 
     @send_email : () ->
@@ -61,7 +64,7 @@ class @OrderList
           return
 
        if( status )
-          jQuery( window.toolbar ).fadeIn(800)
+          jQuery( window.toolbar ).show()
        else
           jQuery( window.toolbar ).hide()
        return
@@ -83,8 +86,6 @@ class @OrderList
              "id": params_id
              "email": email
              "email_body":  email_body if email_body
-          type: "POST"
-          
           type: 'POST'
           data:
              "_method": 'delete'
@@ -100,3 +101,49 @@ class @OrderList
             jQuery(select_all).attr("checked", false)
          return
       return
+
+    @load_more_orders : () ->
+        @current_page++
+        jQuery.ajax
+            url: window.orders_dashboard_path + '.json'
+            beforeSend: (xhr) ->
+                xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))
+                return
+            data:
+                "page": @current_page
+            success: (data) ->
+                OrderList.append_orders( data.orders )
+                jQuery("table#order_list tfoot").hide() if !data.more_pages
+                return
+        return
+        
+    @append_orders : ( orders_to_append ) ->
+        target_table_body = jQuery( "table#order_list tbody" )
+        return if orders_to_append.length == 0 
+        status = jQuery( window.select_all ).is(":checked")
+        for order in orders_to_append
+            target_table_body.append () ->
+                row = jQuery("<tr/>")
+                columns = []
+
+                columns[0] = jQuery("<td/>")
+                checkbox = jQuery( "<input type='checkbox' id='order'/>").val( order.id )
+                checkbox.attr("checked", status)
+                columns[0].append( checkbox )
+                
+                columns[1] = jQuery("<td/>")
+                po = if order.invoice_number then order.invoice_number else 'N/A'
+                order_link = jQuery("<a/>").text(po)
+                order_link.attr("href", window.order_path + '/' + order.id )
+                columns[1].append( order_link )
+                
+                columns[2] = jQuery("<td/>")
+                store_link = jQuery("<a/>").text(order.store_name)
+                store_link.attr("href", window.stores_path + '/' + order.store_id )
+                columns[2].append( store_link )
+                
+                columns[3] = jQuery("<td/>").text( order.deliver_by_day )
+        
+                row.append( col ) for col in columns
+        return
+        

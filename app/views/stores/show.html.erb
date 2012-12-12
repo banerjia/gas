@@ -64,8 +64,7 @@
 							)
 						).append	(
 								$("<td/>").append(
-									$("<a/>").attr("href", order_url_prefix + '/' + orders[i].id).text(orders[i].invoice_number)
-								)
+									$("<a/>").attr("href", order_url_prefix + '/' + orders[i].id).text(orders[i].invoice_number ? orders[i].invoice_number : 'N/A'))
 						).append(
 							$("<td/>").text( (new Date(orders[i].created_at)).toLocaleDateString() )
 						).append(

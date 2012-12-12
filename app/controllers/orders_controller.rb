@@ -1,13 +1,6 @@
 class OrdersController < ApplicationController
-  $order_dashboard_sort = [ \
-                      '`orders`.`created_at`', \
-                      '`orders`.`delivery_date`' \
-                     ]
-  
-  $order_dashboard_conditions = [
-                      ['`orders`.`created_at` >= ?', 2.weeks.ago], \
-                      '`orders`.`fulfilled` = 0' \
-                    ]
+                     
+  $sort_fields = %w( `orders`.`created_at` `orders`.`deliver_by_date` `stores.name` )
   
   def index
     redirect_to :action => "dashboard" unless params[:store_id].present?
@@ -99,31 +92,54 @@ class OrdersController < ApplicationController
     render :nothing => true
   end
   
-  def dashboard
-    type_of_listing = params[:type] || 0
+  def dashboard 
     sort_condition = params[:sort] || 0
     sort_direction = params[:dir] || "desc"
-    page = (params[:page] || 1 ).to_i - 1
+    # Look for explanation at REF:1
+    params[:created_at_begin]= params[:created_at_begin] || 2.weeks.ago
+    page = (params[:page] || 1 ).to_i
     per_page = (params[:per_page] || $per_page).to_i
+    orders_conditions = []
+    
+    # REF:1
+    # We are absolutely certain that the begin date will be provided
+    # because the default listing is for orders from the last 2 weeks. 
+    orders_conditions.push( "`orders`.`created_at` >= '#{params[:created_at_begin]}'" )
+  
+    # Adding other conditions as provided
+    orders_conditions.push( "`orders`.`store_id` = #{params[:store_id]}" ) if params[:store_id].present?
+    orders_conditions.push( "`orders`.`created_at` <= '#{params[:created_at_end]}'" ) if params[:created_at_end].present?
+    orders_conditions.push( "`orders`.`invoice_number` = '#{params[:po]}'" ) if params[:po].present?
+    
+    condition_string = orders_conditions.join( " and " )
     
     #Intentionally adding one more to the per_page to do a "more records" test
     order_listing = Order.find( :all, \
-                                :conditions => $order_dashboard_conditions[type_of_listing], \
-                                :order => $order_dashboard_sort[sort_condition] + ' ' + sort_direction,
-                                :joins => :store,
+                                :conditions => condition_string, \
+                                :order => $sort_fields[sort_condition] + ' ' + sort_direction,
+                                :joins => [:store => [:company]],
                                 :limit => per_page + 1,
-                                :offset => (page * per_page),
-                                :select => '`orders`.`id`, `orders`.`invoice_number`,`orders`.`invoice_amount`,`orders`.`store_id`, `orders`.`deliver_by_day`,`orders`.`created_at`, `orders`.`fulfilled`, `stores`.`name` as `store_name`')
+                                :offset => ((page - 1) * per_page),
+                                :select => '`orders`.`id`, 
+                                            `orders`.`invoice_number`,
+                                            `orders`.`deliver_by_day`,
+                                            `orders`.`created_at`,
+                                            `orders`.`store_id`, 
+                                            `stores`.`name` as `store_name`,
+                                            `companies`.`name` as `company_name`,
+                                            `companies`.`id` as `company_id`'
+    )
     
     more_pages = (order_listing.size > per_page )
     
     # If an extra record was returned for the "more records" test then get rid of it from the final listing
-    order_listing = order_listing[0..$per_page - 1]
+    # per_page - 1 => because array indexes start from 0
+    order_listing = order_listing[0..per_page - 1]
     
     respond_to do |format|
       format.html do
         @page_title = "Orders Dashboard"
-        render "orders/dashboard", :locals => { :orders => order_listing, :more_pages => more_pages }
+        render "orders/dashboard", :locals => { :orders => order_listing, :more_pages => more_pages, :current_page => page, :search_params => params }
       end
       format.json do
         return_value = Hash.new
