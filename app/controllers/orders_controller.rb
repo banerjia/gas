@@ -130,15 +130,14 @@ class OrdersController < ApplicationController
 #                                            `companies`.`name` as `company_name`,
 #                                            `companies`.`id` as `company_id`'
 #    )
- 
+    Order.tire.index.refresh 
     tire_order_listing = Order.tire.search :per_page => per_page, :page => page do 
       query do
-        boolean do
-          must{ string q } if defined?(q) && q
-          must{ range :created_at, gte: 2.weeks.ago }
-        end
+           string q  if defined?(q) && q
       end
-      
+
+      filter :range, :created_at => {:gt => 1.day.ago, :lt => 1.day } 
+
       facet 'states' do
         terms [:ship_to_state , :ship_to_state_code]
       end  
@@ -163,10 +162,10 @@ class OrdersController < ApplicationController
 
     if tire_order_listing.facets['chains']['terms'].count > 2
       facets['chains'] = []
-      tire_order_listing.facets['chains']['terms'].each_with_index do |state,index| 
+      tire_order_listing.facets['chains']['terms'].each_with_index do |chain,index| 
         next if index.odd?
-        state[:state_code] = tire_order_listing.facets['chains']['terms'][index + 1]['term']
-        facets['chains'].push(state)
+        chain[:company_id] = tire_order_listing.facets['chains']['terms'][index + 1]['term']
+        facets['chains'].push(chain)
       end
     end
     
