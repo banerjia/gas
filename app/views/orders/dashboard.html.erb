@@ -1,5 +1,5 @@
 <% content_for :left_column do %>
-	<h2>Links</h2>
+	<h2>Options</h2>
 	<%- if defined?(search_params) && search_params[:q].present? -%>
 	<p><%= link_to "All recent orders", orders_dashboard_path -%></p>
 	<%- end -%>

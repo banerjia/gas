@@ -1,4 +1,6 @@
+<% if defined? search_title -%>
 <h2><%= search_title || 'Recent Orders' -%></h2>
+<%- end -%>
 <form id="order_list_form" onsubmit="return false" method="get">
 
 <table id="order_list" class="listing">
