@@ -104,6 +104,7 @@ class @OrderList
 
     @load_more_orders : () ->
         @current_page++
+        querystring_parts = window.location.search.match(/\Wq=([^&$]+)/)
         jQuery.ajax
             url: window.orders_dashboard_path + '.json'
             beforeSend: (xhr) ->
@@ -111,6 +112,7 @@ class @OrderList
                 return
             data:
                 "page": @current_page
+                "q": querystring_parts[1] if querystring_parts
             success: (data) ->
                 OrderList.append_orders( data.orders )
                 jQuery("table#order_list tfoot").hide() if !data.more_pages
@@ -146,4 +148,3 @@ class @OrderList
         
                 row.append( col ) for col in columns
         return
-        

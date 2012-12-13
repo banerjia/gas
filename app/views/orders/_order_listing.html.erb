@@ -1,3 +1,4 @@
+<h2><%= search_title || 'Recent Orders' -%></h2>
 <form id="order_list_form" onsubmit="return false" method="get">
 
 <table id="order_list" class="listing">
@@ -24,7 +25,7 @@
              </td>    
          </tr>
 	</thead>
-	<%- if defined? more_pages -%>
+	<%- if defined?(more_pages) && more_pages -%>
 	<tfoot>
 		<tr>
 			<td colspan="4" class="table_more_cell">
@@ -38,10 +39,10 @@
 	<%- orders.each do |order| -%>
 		<tr>
 			<td><%= check_box_tag :order, order[:id] -%></td>
-			<td><%= link_to (order[:invoice_number].blank? ? "N/A" : order[:invoice_number]), order_path(order) -%></td>
+			<td><%= link_to (order[:invoice_number].blank? ? "N/A" : order[:invoice_number]), order_path(order[:id]) -%></td>
 			<td>
 			<%- if defined? show_store && show_store -%>
-				<%= link_to (order[:store_name ] || order.store[:name]), store_path( order[:store_id] ) -%>
+				<%= link_to order[:store_name ], store_path( order[:store_id] ) -%>
 			<%- else -%>
 			  	<%= order[:created_at].strftime("%b %d, %Y") %>
 			<%- end -%>
@@ -78,7 +79,7 @@
 <% content_for :page_js do -%>
 	<%= javascript_include_tag "jquery.leanModal.min.js" -%>
 	<%= javascript_include_tag :orders_list -%>
-	<script type="text/javascript">
+	<script type="text/javascript">	
 		window.order_path = '<%= orders_path -%>';
 		window.email_order_path = '<%= email_order_path -%>';
 		window.orders_dashboard_path = '<%= orders_dashboard_path -%>';

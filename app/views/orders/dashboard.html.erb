@@ -1,6 +1,34 @@
 <% content_for :left_column do %>
 	<h2>Links</h2>
+	<%- if defined?(search_params) && search_params[:q].present? -%>
+	<p><%= link_to "All recent orders", orders_dashboard_path -%></p>
+	<%- end -%>
+	
+	<%- 
+		if defined?(facets) 
+			if facets['states'] 
+	-%>
+	<h3>Refine by Shipping State</h3>
 	<ul class="nav_items">
+	<%-
+				facets['states'].each do |facet_term|
+	-%>
+					<li><%= link_to facet_term['term'], "?q=ship_to_state_code:#{facet_term[:state_code]}" -%></li>
+	<%-			end
+			end
+	-%>		
 	</ul>
+	<%-		if facets['chains'] -%>
+	<h3>Refine by Chain</h3>
+	<ul class="nav_items">
+	<%-
+				facets['chains'].each do |facet_term|
+	-%>
+					<li><%= link_to facet_term['term'], "?q=company_id:#{facet_term[:company_id]}" -%></li>
+	<%-			end
+			end
+	-%>		
+	</ul>
+	<%- end -%>
 <% end %>
-<%= render :partial => 'order_listing', :locals => {:orders => orders, :show_store => true, :more_pages => more_pages} %>
+<%= render :partial => 'order_listing', :locals => {:orders => orders, :show_store => true, :more_pages => more_pages, :search_title => search_title} %>

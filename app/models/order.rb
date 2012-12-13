@@ -1,4 +1,6 @@
 class Order < ActiveRecord::Base
+  include Tire::Model::Search
+  include Tire::Model::Callbacks
   
   # Associations
   has_many :product_orders, :dependent => :destroy
@@ -14,6 +16,22 @@ class Order < ActiveRecord::Base
   accepts_nested_attributes_for :product_orders, :allow_destroy => true, \
                                 :reject_if => proc { |po| po[:quantity].blank? || (!po[:quantity].blank? && po[:quantity].to_i<=0) }
   
+  # ElasticSearch Index
+  tire do 
+    index_name('orders')
+    mapping do
+      indexes :id, :type => "integer", :index => 'not_analyzed', :include_in_all => false
+      indexes :invoice_number, :type => "string", :index => 'not_analyzed'
+      indexes :store_name, :type => "string", :analyzer => 'snowball', :as => 'store[:name]'
+      indexes :store_id, :type => 'integer', :index => 'not_analyzed', :as => 'store[:id]'
+      indexes :company_id, :type => 'integer', :index => 'not_analyzed', :as => 'store.company[:id]'
+      indexes :company_name, :type => 'string', :analyzer => 'snowball', :as => 'store.company[:name]'
+      indexes :ship_to_state, :type => 'string', :index => 'not_analyzed', :as => 'store.state.state_name'
+      indexes :ship_to_state_code, :type => 'string', :index => 'not_analyzed', :as => 'store[:state_code]'
+      indexes :deliver_by_day, :type => 'string', :index => 'not_analyzed'
+      indexes :created_at, :type => 'date', :index => 'not_analyzed'
+    end
+  end
   # Callbacks  
   before_save do |order|
     # Clean out Product_Orders table to avoid duplication

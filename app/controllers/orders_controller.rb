@@ -99,6 +99,7 @@ class OrdersController < ApplicationController
     params[:created_at_begin]= params[:created_at_begin] || 2.weeks.ago
     page = (params[:page] || 1 ).to_i
     per_page = (params[:per_page] || $per_page).to_i
+    q = params[:q] if params[:q].present?
     orders_conditions = []
     
     # REF:1
@@ -114,36 +115,79 @@ class OrdersController < ApplicationController
     condition_string = orders_conditions.join( " and " )
     
     #Intentionally adding one more to the per_page to do a "more records" test
-    order_listing = Order.find( :all, \
-                                :conditions => condition_string, \
-                                :order => $sort_fields[sort_condition] + ' ' + sort_direction,
-                                :joins => [:store => [:company]],
-                                :limit => per_page + 1,
-                                :offset => ((page - 1) * per_page),
-                                :select => '`orders`.`id`, 
-                                            `orders`.`invoice_number`,
-                                            `orders`.`deliver_by_day`,
-                                            `orders`.`created_at`,
-                                            `orders`.`store_id`, 
-                                            `stores`.`name` as `store_name`,
-                                            `companies`.`name` as `company_name`,
-                                            `companies`.`id` as `company_id`'
-    )
+#    order_listing = Order.find( :all, \
+#                                :conditions => condition_string, \
+#                                :order => $sort_fields[sort_condition] + ' ' + sort_direction,
+#                                :joins => [:store => [:company]],
+#                                :limit => per_page + 1,
+#                                :offset => ((page - 1) * per_page),
+#                                :select => '`orders`.`id`, 
+#                                            `orders`.`invoice_number`,
+#                                            `orders`.`deliver_by_day`,
+#                                            `orders`.`created_at`,
+#                                            `orders`.`store_id`, 
+#                                            `stores`.`name` as `store_name`,
+#                                            `companies`.`name` as `company_name`,
+#                                            `companies`.`id` as `company_id`'
+#    )
+ 
+    tire_order_listing = Order.tire.search :per_page => per_page, :page => page do 
+      query do
+        boolean do
+          must{ string q } if defined?(q) && q
+          must{ range :created_at, gte: 2.weeks.ago }
+        end
+      end
+      
+      facet 'states' do
+        terms [:ship_to_state , :ship_to_state_code]
+      end  
+      
+      facet 'chains' do 
+        terms [:company_name, :company_id]
+      end    
+    end
+
+    more_pages = (tire_order_listing.total_pages > page )
     
-    more_pages = (order_listing.size > per_page )
+    facets = Hash.new
+    
+    if tire_order_listing.facets['states']['terms'].count > 2
+      facets['states'] = []
+      tire_order_listing.facets['states']['terms'].each_with_index do |state,index| 
+        next if index.odd?
+        state[:state_code] = tire_order_listing.facets['states']['terms'][index + 1]['term']
+        facets['states'].push(state)
+      end
+    end
+
+    if tire_order_listing.facets['chains']['terms'].count > 2
+      facets['chains'] = []
+      tire_order_listing.facets['chains']['terms'].each_with_index do |state,index| 
+        next if index.odd?
+        state[:state_code] = tire_order_listing.facets['chains']['terms'][index + 1]['term']
+        facets['chains'].push(state)
+      end
+    end
     
     # If an extra record was returned for the "more records" test then get rid of it from the final listing
     # per_page - 1 => because array indexes start from 0
-    order_listing = order_listing[0..per_page - 1]
+    order_listing = tire_order_listing[0..per_page - 1]
     
     respond_to do |format|
       format.html do
         @page_title = "Orders Dashboard"
-        render "orders/dashboard", :locals => { :orders => order_listing, :more_pages => more_pages, :current_page => page, :search_params => params }
+        search_title = "Recent Orders"
+        if params[:q].present?          
+            search_title += ' for ' + tire_order_listing.facets['chains']['terms'][0]['term'].capitalize if tire_order_listing.facets['chains']['terms'].count==2
+            search_title += ' in ' + tire_order_listing.facets['states']['terms'][0]['term'] if tire_order_listing.facets['states']['terms'].count == 2
+        end
+        render "orders/dashboard", :locals => { :orders => order_listing, :facets => facets, :more_pages => more_pages, :current_page => page, :search_params => params, :search_title => search_title }
       end
       format.json do
         return_value = Hash.new
         return_value[:orders] = order_listing
+        return_value[:facets] = facets
         return_value[:more_pages] = more_pages
         render :json => return_value.to_json
       end
