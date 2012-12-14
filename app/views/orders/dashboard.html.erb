@@ -6,8 +6,8 @@
 	
 	<%- 
 		if defined?(facets) 
-			path_prefix = orders_path + '?es=1&' 
-			path_prefix += search_params.to_param if search_params
+			path_prefix = orders_path + '?es=1' 
+			path_prefix += '&' + search_params.to_param if !search_params.empty?
 			
 			if facets['states'] 
 	-%>
@@ -17,7 +17,7 @@
 				facets['states'].each do |facet_term|
 					states_path = path_prefix +"&shipping_state=#{facet_term['term']}"
 	-%>
-					<li <%= search_params[:shipping_state] ==  facet_term['term'] ? raw("class='current'"): "" -%>><%= link_to facet_term[:state_name], states_path -%></li>
+					<li <%= search_params[:shipping_state] ==  facet_term['term'] ? raw("class='current'"): "" -%>><%= link_to_if search_params[:shipping_state] !=  facet_term['term'],  facet_term[:state_name], states_path -%></li>
 	<%-			end
 			end
 	-%>		
@@ -46,4 +46,4 @@
 		}
 	</style>
 <% end -%>
-<%= render :partial => 'order_listing', :locals => {:orders => orders, :show_store => true, :more_pages => more_pages, :search_title => search_title} %>
+<%= render :partial => 'order_listing', :locals => {:orders => orders, :show_store => true, :more_pages => more_pages, :search_title => 'Orders Created Today'} %>

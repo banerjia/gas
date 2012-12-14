@@ -100,9 +100,6 @@ class OrdersController < ApplicationController
     state_code = params[:shipping_state]
     page = (params[:page] || 1 ).to_i
     per_page = (params[:per_page] || $per_page).to_i
-    q = params[:q] if params[:q].present?
-    facet = params[:facet].split(':') if params[:facet].present?
-    #params[:page].delete if params[:page].present?
     
      
     tire_order_listing = Order.tire.search :per_page => per_page, :page => page do 
@@ -173,7 +170,6 @@ class OrdersController < ApplicationController
         return_value = Hash.new
         return_value[:orders] = order_listing
         return_value[:facets] = facets
-        return_value[:debug] = search_params
         return_value[:more_pages] = more_pages
         render :json => return_value.to_json
       end
