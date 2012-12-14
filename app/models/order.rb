@@ -93,4 +93,93 @@ class Order < ActiveRecord::Base
     
     return products_by_category
   end
+
+  def self.order_search( params , per_page = 10, page = 1  )
+    store_id = params[:store_id] if params[:store_id].present?
+    company_id = params[:company_id] if params[:company_id].present?
+    route_id = params[:route_id] if params[:route_id].present?
+    state_code = params[:shipping_state] if params[:shipping_state].present?
+  
+    # Initialize both dates to nil so that in case the "else"
+    # part is executed the missing date is always set to nil
+    start_date = end_date = nil
+    if !(params[:start_date].present? || params[:end_date].present?)
+        # If neither dates are specified then default to today
+        start_date = end_date = Date.today.to_date
+    else
+	# Otherwise assign the values if they are present. 
+    	start_date = params[:start_date] if params[:start_date].present?
+    	end_date = params[:end_date] if params[:end_date].present?
+    end
+
+    query = params[:q] if params[:q].present?
+    
+    tire_order_listing = self.tire.search :per_page => per_page, :page => page do 
+      query do
+           boolean do
+	     # Based on the logic above either both of the dates or at least one of them
+	     # one of them will have dates in them or will be set to nil. Hence no defined? check for them.
+	     must { range :created_at, {:gte => params[:start_date] } } if start_date
+	     must { range :created_at, {:lte => params[:end_date] } } if end_date
+             must { string query } if defined?(query) && query
+	     must { term :store_id,  store_id.to_i } if defined?(store_id) && store_id
+	     must { term :created_at, Date.today.to_date } unless params[:start_date].present? || params[:end_date].present?
+           end
+      end
+
+      filter :term, :company_id => company_id if defined?(company_id) && company_id
+      filter :term, :ship_to_state_code => state_code if defined?(state_code) && state_code
+      filter :term, :route_id => route_id if defined?(route_id) && route_id
+
+      facet 'states' do
+        terms :ship_to_state_code
+      end  
+      
+      facet 'chains' do 
+        terms :company_id
+      end  
+      
+      facet 'delivery_day' do
+        terms :deliver_by_day
+      end
+        
+      facet 'routes' do
+        terms :route_id
+      end
+      
+      sort  {by :created_at, 'desc'}
+    end
+
+    more_pages = (tire_order_listing.total_pages > page )
+    
+    facets = Hash.new
+
+
+    # Populating States Facet
+    if tire_order_listing.facets['states']['terms'].count > 1
+      facets['states'] = []
+      tire_order_listing.facets['states']['terms'].each_with_index do |state,index| 
+        state[:state_name] = State.find(:first, :conditions => {:state_code => state['term']} )[:state_name]
+        facets['states'].push(state)
+      end
+    end
+    
+    # Populating Chains Facet
+    if tire_order_listing.facets['chains']['terms'].count > 1
+      facets['chains'] = []
+      tire_order_listing.facets['chains']['terms'].each_with_index do |chain,index|
+        chain[:company_name] = Company.find(chain['term'].to_i)[:name]
+        facets['chains'].push(chain)
+      end
+    end
+    
+    # Populating Delivery Day Facets
+    facets['delivery_day'] = tire_order_listing.facets['delivery_day']['terms'] if tire_order_listing.facets['delivery_day']['terms'].count > 1
+
+    return_value = Hash.new
+    return_value[:results] = tire_order_listing
+    return_value[:facets] = facets
+    return_value[:more_pages] = more_pages
+    return return_value
+  end
 end

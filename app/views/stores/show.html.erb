@@ -40,8 +40,11 @@
 			//if(orders != null ) {populate_orders( orders ); return}
 			
 			$.ajax({
-				url: '<%= store_orders_path( store, :format => :json) -%>',
-				data: {"l":"15"},
+				url: '<%= orders_path( :format => :json) -%>',
+				data: {
+				"store_id" : "<%= store[:id] -%>",
+				"end_date" : "<%= Date.today.to_date %>"
+				},
 				dataType: "json",
 				success: function(data){
 					orders = data.orders;
