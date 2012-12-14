@@ -31,13 +31,13 @@
 	<tfoot>
 		<tr>
 			<td colspan="4" class="table_more_cell">
-				<%= link_to_function "More Orders Available...", 'OrderList.load_more_orders()', :class => "load_more" -%>
+				<a onclick="OrderList.load_more_orders()" class="load_more">More Orders Available...</a>
 			</td>
 		</tr>
 	</tfoot>
 	<%- end -%>
 	<tbody>
-	<%- if defined? orders -%>
+	<%- if defined?(orders) && orders.size > 0 -%>
 	<%- orders.each do |order| -%>
 		<tr>
 			<td><%= check_box_tag :order, order[:id] -%></td>
@@ -52,6 +52,10 @@
 			<td><%= order[:deliver_by_day]  %></td>
 		</tr>
 	<%- end -%>
+	<%- else -%>
+	  <tr>
+		<td colspan="3">We were unable to locate orders matching the criteria you provided. Please revise your choices and try again.</td>
+	  </tr>
 	<%- end -%>
 	</tbody>
 </table>

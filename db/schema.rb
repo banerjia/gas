@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121211014003) do
+ActiveRecord::Schema.define(:version => 20121214022838) do
 
   create_table "audit_journals", :primary_key => "audit_id", :force => true do |t|
     t.string    "title",      :limit => 50
@@ -64,13 +64,13 @@ ActiveRecord::Schema.define(:version => 20121211014003) do
   create_table "orders", :force => true do |t|
     t.string   "invoice_number", :limit => 20
     t.datetime "delivery_date"
-    t.string   "deliver_by_day", :limit => 10,                                :default => "Monday"
-    t.boolean  "fulfilled",                                                   :default => false,    :null => false
-    t.string   "route_number",   :limit => 5
-    t.integer  "store_id",       :limit => 8,                                                       :null => false
-    t.decimal  "invoice_amount",               :precision => 10, :scale => 2, :default => 0.0,      :null => false
-    t.datetime "created_at",                                                                        :null => false
-    t.datetime "updated_at",                                                                        :null => false
+    t.integer  "delivery_dow",   :limit => 2
+    t.boolean  "fulfilled",                                                   :default => false, :null => false
+    t.integer  "route_id"
+    t.integer  "store_id",       :limit => 8,                                                    :null => false
+    t.decimal  "invoice_amount",               :precision => 10, :scale => 2, :default => 0.0,   :null => false
+    t.datetime "created_at",                                                                     :null => false
+    t.datetime "updated_at",                                                                     :null => false
   end
 
   add_index "orders", ["fulfilled", "id"], :name => "index_orders_on_fulfilled_and_id"
@@ -125,6 +125,12 @@ ActiveRecord::Schema.define(:version => 20121211014003) do
   add_index "products", ["active", "code"], :name => "index_products_on_active_and_code"
   add_index "products", ["active", "product_category_id"], :name => "index_products_on_active_and_product_category_id"
   add_index "products", ["code", "name"], :name => "index_products_on_code_and_name"
+
+  create_table "routes", :force => true do |t|
+    t.string  "name",         :limit => 50,                :null => false
+    t.integer "stores_count", :limit => 2,  :default => 0, :null => false
+    t.integer "active",       :limit => 1,  :default => 1, :null => false
+  end
 
   create_table "states", :id => false, :force => true do |t|
     t.string  "country",          :limit => 20,  :default => "US", :null => false

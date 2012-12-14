@@ -104,15 +104,23 @@ class @OrderList
 
     @load_more_orders : () ->
         @current_page++
-        querystring_parts = window.location.search.match(/\Wq=([^&$]+)/)
+        querystring = {}
+
+        window.location.search.replace( /([^?=&]+)(=([^&]*))?/g, ($0, $1, $2, $3) -> 
+           querystring[$1] = $3 
+           return
+        )
+        delete querystring['page'] if querystring['page']
+        send_data = {}
+        send_data[k] = v for k,v of querystring
+        send_data['page'] = @current_page
+
         jQuery.ajax
             url: window.orders_dashboard_path + '.json'
             beforeSend: (xhr) ->
                 xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))
                 return
-            data:
-                "page": @current_page
-                "q": querystring_parts[1] if querystring_parts
+            data: send_data
             success: (data) ->
                 OrderList.append_orders( data.orders )
                 jQuery("table#order_list tfoot").hide() if !data.more_pages

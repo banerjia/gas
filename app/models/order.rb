@@ -6,11 +6,12 @@ class Order < ActiveRecord::Base
   has_many :product_orders, :dependent => :destroy
   has_many :products, :through => :product_orders
   has_many :product_categories, :through => :products, :group => :product_category_id
+  belongs_to :route
   
   belongs_to :store, :counter_cache => true
   
   # Attributes
-  attr_accessible :invoice_number, :invoice_amount, :route_number, :deliver_by_day, :fulfilled, :created_at, :product_orders_attributes
+  attr_accessible :invoice_number, :route_id, :delivery_dow, :created_at, :product_orders_attributes
   
   # Validations
   accepts_nested_attributes_for :product_orders, :allow_destroy => true, \
@@ -18,18 +19,20 @@ class Order < ActiveRecord::Base
   
   # ElasticSearch Index
   tire do 
-    index_name('orders')
+    index_name('orders_dashboard')
     mapping do
-      indexes :id, :type => "integer", :index => 'not_analyzed', :include_in_all => false
-      indexes :invoice_number, :type => "string", :index => 'not_analyzed'
-      indexes :store_name, :type => "string", :analyzer => 'snowball', :as => 'store[:name]'
-      indexes :store_id, :type => 'integer', :index => 'not_analyzed', :as => 'store[:id]'
-      indexes :company_id, :type => 'integer', :index => 'not_analyzed', :as => 'store.company[:id]'
-      indexes :company_name, :type => 'string', :analyzer => 'snowball', :as => 'store.company[:name]'
-      indexes :ship_to_state, :type => 'string', :index => 'not_analyzed', :as => 'store.state.state_name'
+      indexes :id,              :type => "integer",   :index => 'not_analyzed', :include_in_all => false
+      indexes :invoice_number,  :type => "string",    :index => 'not_analyzed'
+      indexes :store_name,      :type => "string",    :analyzer => 'snowball',  :as => 'store[:name]'
+      indexes :store_id,        :type => 'integer',   :index => 'not_analyzed', :as => 'store[:id]'
+      indexes :company_id,      :type => 'integer',   :index => 'not_analyzed', :as => 'store.company[:id]'
+      indexes :company_name,    :type => 'string',    :analyzer => 'snowball',  :as => 'store.company[:name]'
+      indexes :ship_to_state,   :type => 'string',    :index => 'not_analyzed', :as => 'store.state.state_name'
       indexes :ship_to_state_code, :type => 'string', :index => 'not_analyzed', :as => 'store[:state_code]'
-      indexes :deliver_by_day, :type => 'string', :index => 'not_analyzed'
-      indexes :created_at, :type => 'date', :index => 'not_analyzed'
+      indexes :deliver_by_day,  :type => 'string',    :index => 'not_analyzed', :as => 'delivery_day_of_the_week'
+      indexes :created_at,      :type => 'date',      :index => 'not_analyzed'
+      indexes :route_id,        :type => 'integer',   :index => 'not_analyzed'
+      indexes :route_name,      :type => 'string',    :index => 'not_analyzed', :as => 'route[:name]'
     end
   end
   # Callbacks  
@@ -66,6 +69,10 @@ class Order < ActiveRecord::Base
         existing_products[key] =  index
       end
     end
+  end
+  
+  def delivery_day_of_the_week
+    return Date::DAYS_INTO_WEEK.invert[self[:delivery_dow]].to_s.capitalize
   end
 
   def organize_products_by_category

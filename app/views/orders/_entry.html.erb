@@ -21,18 +21,19 @@
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">
-			<%= f.label :route_number, "Route" -%>
+			<%= f.label :route_id, "Route" -%>
 		</div>
 		<div class="entry_value">
-			<%= f.select :route_number, %w(\  Amy Jared Jim)-%>
+			<%= f.collection_select :route_id,
+			Route.all, :id, :name -%>
 		</div>
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">
-			<%= f.label :deliver_by_day, "Deliver By" -%>
+			<%= f.label :delivery_dow, "Deliver By" -%>
 		</div>
 		<div class="entry_value">
-			<%= f.select :deliver_by_day, Date::DAYNAMES -%>
+			<%= f.select :delivery_dow, [["No delivery day selected",""]]+Date::DAYS_INTO_WEEK.to_a.map{|d,dow| [d.to_s.capitalize!, dow]} -%>
 		</div>
 	</div>
 </div>
