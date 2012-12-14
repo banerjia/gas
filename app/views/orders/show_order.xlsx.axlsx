@@ -41,7 +41,7 @@ wb.styles do |s|
 
 		deliver_by= sheet.add_row
 		deliver_by.add_cell "Deliver By", :style => label
-		deliver_by.add_cell order[:deliver_by_day]
+		deliver_by.add_cell order.delivery_day_of_the_week
 
 		# Blank row separating the labels
 		sheet.add_row		
