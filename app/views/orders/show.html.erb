@@ -27,7 +27,7 @@
 			Route
 		</div>
 		<div class="entry_value">
-			<%= !@order[:route_number].blank? ? @order[:route_number] : raw("N/A") -%>
+			<%= @order.route[:name] -%>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -35,7 +35,7 @@
 			Deliver By
 		</div>
 		<div class="entry_value">
-			<%= !@order[:deliver_by_day].blank? ? @order[:deliver_by_day] : raw("N/A") -%>
+			<%= @order.delivery_day_of_the_week || 'No delivery day entered'  -%>
 		</div>
 	</div>
 </div>

@@ -16,6 +16,11 @@
 		var current_section;
 		var store_id = <%= store[:id] -%>;
 		var orders = null;
+		// Replaced Date.today with Time.now to make sure 
+		// that records are not bumped down or repeated 
+		// if a new order is added to the system while this listing
+		// is being viewed.
+		window.end_date =  '<%= Time.now -%>';
 		
 		function switch_sections( target_section ){
 			var previous_section = $(current_section).attr("id");
@@ -37,45 +42,15 @@
 		}
 		
 		function get_orders(){
-			//if(orders != null ) {populate_orders( orders ); return}
-			
-			$.ajax({
-				url: '<%= orders_path( :format => :json) -%>',
-				data: {
-				"store_id" : "<%= store[:id] -%>",
-				"end_date" : "<%= Date.today.to_date %>"
-				},
-				dataType: "json",
-				success: function(data){
-					orders = data.orders;
-					populate_orders( orders );
-				},
-				error: function(){ alert ("Uh oh"); }
+			// Only specifying the page_to_load for the first request.
+			// OrderList.current_page takes care of subsequent requests. 
+			// If this is not done then OrderList.load_more_orders will
+			// attempt to pull the second page for the first request.
+			page_to_load = ($("table#order_list tbody tr").length > 0 ? null : 1 );
+			OrderList.load_more_orders({
+				'page': page_to_load,
+				'store_id': <%= store[:id] -%>
 			});
-		}
-		
-		function populate_orders( orders ){
-			var target_table_body = $("table#order_list tbody");
-			if ( orders.length == 0 || $("tr", target_table_body).length > 0) return;
-			
-			var order_url_prefix = '<%= orders_path -%>';
-			for( i = 0; i < orders.length; i++){
-				target_table_body.append(
-						$("<tr/>").append(
-							$("<td/>").append(
-								$("<input type='checkbox' id ='order'/>").val(orders[i].id)
-							)
-						).append	(
-								$("<td/>").append(
-									$("<a/>").attr("href", order_url_prefix + '/' + orders[i].id).text(orders[i].invoice_number ? orders[i].invoice_number : 'N/A'))
-						).append(
-							$("<td/>").text( (new Date(orders[i].created_at)).toLocaleDateString() )
-						).append(
-							$("<td/>").text( (orders[i].deliver_by_day ? orders[i].deliver_by_day : "N/A"))
-						)					
-					);
-			}
-			OrderList.bind_click_event_for_checkboxes();			
 		}
 		
 		$(document).ready(function(){

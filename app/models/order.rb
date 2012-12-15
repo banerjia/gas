@@ -72,7 +72,7 @@ class Order < ActiveRecord::Base
   end
   
   def delivery_day_of_the_week
-    return Date::DAYS_INTO_WEEK.invert[self[:delivery_dow]].to_s.capitalize
+    Date::DAYS_INTO_WEEK.invert[self[:delivery_dow]].to_s.capitalize if Date::DAYS_INTO_WEEK.invert[self[:delivery_dow]]
   end
 
   def organize_products_by_category
@@ -94,7 +94,7 @@ class Order < ActiveRecord::Base
     return products_by_category
   end
 
-  def self.order_search( params , per_page = 10, page = 1  )
+  def self.search_orders( params , per_page = 10, page = 1  )
     store_id = params[:store_id] if params[:store_id].present?
     company_id = params[:company_id] if params[:company_id].present?
     route_id = params[:route_id] if params[:route_id].present?
@@ -107,30 +107,31 @@ class Order < ActiveRecord::Base
         # If neither dates are specified then default to today
         start_date = end_date = Date.today.to_date
     else
-	# Otherwise assign the values if they are present. 
+	    # Otherwise assign the values if they are present. 
     	start_date = params[:start_date] if params[:start_date].present?
     	end_date = params[:end_date] if params[:end_date].present?
-    end
+    end  
 
     query = params[:q] if params[:q].present?
     
     tire_order_listing = self.tire.search :per_page => per_page, :page => page do 
       query do
            boolean do
-	     # Based on the logic above either both of the dates or at least one of them
-	     # one of them will have dates in them or will be set to nil. Hence no defined? check for them.
-	     must { range :created_at, {:gte => params[:start_date] } } if start_date
-	     must { range :created_at, {:lte => params[:end_date] } } if end_date
-             must { string query } if defined?(query) && query
-	     must { term :store_id,  store_id.to_i } if defined?(store_id) && store_id
-	     must { term :created_at, Date.today.to_date } unless params[:start_date].present? || params[:end_date].present?
+	           # Based on the logic above either both of the dates or at least one of them
+	           # one of them will have dates in them or will be set to nil. Hence no defined? check for them.
+      	     must { range :created_at, {:gte => start_date } } unless start_date.nil?
+      	     must { range :created_at, {:lte => end_date.to_s } } unless end_date.nil?
+      	     must { string query } if defined?(query) && query
+      	     must { term :store_id,  store_id.to_i } if defined?(store_id) && store_id
            end
       end
 
-      filter :term, :company_id => company_id if defined?(company_id) && company_id
+      # Filtering for facets
+      filter :term, :company_id => company_id         if defined?(company_id) && company_id
       filter :term, :ship_to_state_code => state_code if defined?(state_code) && state_code
-      filter :term, :route_id => route_id if defined?(route_id) && route_id
+      filter :term, :route_id => route_id             if defined?(route_id) && route_id
 
+      # Defining facets
       facet 'states' do
         terms :ship_to_state_code
       end  
@@ -147,7 +148,7 @@ class Order < ActiveRecord::Base
         terms :route_id
       end
       
-      sort  {by :created_at, 'desc'}
+      sort  {by :created_at, 'desc'} unless params[:sort].present?
     end
 
     more_pages = (tire_order_listing.total_pages > page )
@@ -180,6 +181,7 @@ class Order < ActiveRecord::Base
     return_value[:results] = tire_order_listing
     return_value[:facets] = facets
     return_value[:more_pages] = more_pages
+    return_value[:dates] = [start_date,end_date]
     return return_value
   end
 end

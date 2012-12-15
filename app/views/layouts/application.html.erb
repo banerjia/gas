@@ -31,8 +31,8 @@
 					<li <%= current_page?(companies_path) ? raw("class='current'"): "" -%>>
 						<%=link_to_unless_current "Chains", companies_path -%>
 					</li>
-					<li <%= current_page?(orders_dashboard_path) ? raw("class='current'"): "" -%>>
-						<%=link_to_unless_current "Orders", orders_dashboard_path -%>
+					<li <%= current_page?(orders_search_path) ? raw("class='current'"): "" -%>>
+						<%=link_to_unless_current "Orders", orders_search_path -%>
 					</li>
 					<%- if true #current_user.is_admin  %>
 					<li <%= current_page?(products_path) ? raw("class='current'"):"" -%>>

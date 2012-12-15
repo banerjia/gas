@@ -102,9 +102,9 @@ class @OrderList
          return
       return
 
-    @load_more_orders : () ->
-        @current_page++
-        querystring = {}
+    @load_more_orders : ( options = {} ) ->
+        @current_page = if options['page'] then options['page'] else @current_page + 1
+        querystring = options
 
         window.location.search.replace( /([^?=&]+)(=([^&]*))?/g, ($0, $1, $2, $3) -> 
            querystring[$1] = $3 
@@ -114,9 +114,10 @@ class @OrderList
         send_data = {}
         send_data[k] = v for k,v of querystring
         send_data['page'] = @current_page
+        send_data['end_date'] = window.end_date if window.end_date
 
         jQuery.ajax
-            url: window.orders_dashboard_path + '.json'
+            url: window.orders_search_path + '.json'
             beforeSend: (xhr) ->
                 xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))
                 return

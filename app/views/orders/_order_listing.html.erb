@@ -10,7 +10,7 @@
 				Select All<br/>
 				<%= check_box_tag :select_all -%>
 			</th>
-			<th scope="col">Invoice Number</th>
+			<th scope="col">PO</th>
 			<th scope="col">
 			<%- if defined?(show_store) && show_store -%>
 				Store
@@ -37,25 +37,27 @@
 	</tfoot>
 	<%- end -%>
 	<tbody>
-	<%- if defined?(orders) && orders.size > 0 -%>
-	<%- orders.each do |order| -%>
-		<tr>
-			<td><%= check_box_tag :order, order[:id] -%></td>
-			<td><%= link_to (order[:invoice_number].blank? ? "N/A" : order[:invoice_number]), order_path(order[:id]) -%></td>
-			<td>
-			<%- if defined? show_store && show_store -%>
-				<%= link_to order[:store_name ], store_path( order[:store_id] ) -%>
-			<%- else -%>
-			  	<%= order[:created_at].strftime("%b %d, %Y") %>
-			<%- end -%>
-			</td>			
-			<td><%= order[:deliver_by_day]  %></td>
-		</tr>
-	<%- end -%>
-	<%- else -%>
-	  <tr>
-		<td colspan="3">We were unable to locate orders matching the criteria you provided. Please revise your choices and try again.</td>
-	  </tr>
+	<%- if defined?(orders) -%>
+		<%- if orders.size > 0 -%>
+		<%- orders.each do |order| -%>
+			<tr>
+				<td><%= check_box_tag :order, order[:id] -%></td>
+				<td><%= link_to (order[:invoice_number].blank? ? "N/A" : order[:invoice_number]), order_path(order[:id]) -%></td>
+				<td>
+				<%- if defined? show_store && show_store -%>
+					<%= link_to order[:store_name ], store_path( order[:store_id] ) -%>
+				<%- else -%>
+				  	<%= order[:created_at].strftime("%b %d, %Y") %>
+				<%- end -%>
+				</td>			
+				<td><%= order[:deliver_by_day]  %></td>
+			</tr>
+		<%- end -%>
+		<%- else -%>
+		  <tr>
+			<td colspan="4">We were unable to locate orders matching the criteria you provided. Please revise your choices and try again.</td>
+		  </tr>
+		<%- end -%>
 	<%- end -%>
 	</tbody>
 </table>
@@ -88,7 +90,7 @@
 	<script type="text/javascript">	
 		window.order_path = '<%= orders_path -%>';
 		window.email_order_path = '<%= email_order_path -%>';
-		window.orders_dashboard_path = '<%= orders_dashboard_path -%>';
+		window.orders_search_path = '<%= orders_search_path -%>';
 		window.stores_path = '<%= stores_path -%>'
 		$( document ).ready( function(){
 			OrderList.init();			
