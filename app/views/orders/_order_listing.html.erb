@@ -8,7 +8,7 @@
 		<tr>
 			<th scope="col">
 				Select All<br/>
-				<%= check_box_tag :select_all -%>
+				<%= check_box_tag :select_all if !defined?(orders) || (defined?(orders) && orders.size > 0) -%>
 			</th>
 			<th scope="col">PO</th>
 			<th scope="col">
