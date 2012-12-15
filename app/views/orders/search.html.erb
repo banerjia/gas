@@ -52,7 +52,7 @@
 <% end -%>
 <% content_for :page_js do -%>
 	<script type="text/javascript">
-		window.end_date = '<%= @search_params[:end_date].to_date.today? ? Time.now : @search_params[:end_date] -%>';
+		window.end_date = '<%= !@search_params[:end_date] || @search_params[:end_date].to_date.today? ? Time.now : @search_params[:end_date] -%>';
 	</script>
 <% end -%>
 <%= render :partial => 'order_listing', :locals => {:orders => @orders, :show_store => true, :more_pages => @more_pages, :search_title => @search_title} %>
