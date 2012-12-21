@@ -75,13 +75,17 @@ class Order < ActiveRecord::Base
     Date::DAYS_INTO_WEEK.invert[self[:delivery_dow]].to_s.capitalize if Date::DAYS_INTO_WEEK.invert[self[:delivery_dow]]
   end
 
+  def filename
+    "OrderforPO_" + (self[:invoice_number].blank? ? 'id_' + self[:id].to_s : self[:invoice_number]).to_s + ".xlsx"
+  end
+
   def organize_products_by_category
     products_by_category = Array.new
     productOrders = self.product_orders
     product_category_ids = productOrders.map{ |product_order| product_order.product[:product_category_id]}.uniq
     
     # Camel case used for productCategories to distinguish it from product_categories association
-    productCategories = ProductCategory.find( product_category_ids )
+    productCategories = ProductCategory.find( product_category_ids, :order => :display_order )
     
     productCategories.each do | category |
       element_to_push = Hash.new

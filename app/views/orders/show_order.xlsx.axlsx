@@ -19,6 +19,10 @@ wb.styles do |s|
 	})
 	bottom_row_border = s.add_style :border => {:style => :thick, :color => "00", :edges => [:bottom] }
 	row_border = s.add_style :border => {:style => :thin, :color => "00", :edges => [:bottom] }
+	alternate_row = s.add_style({ 
+					:bg_color => 'EE',
+					:border => {:style => :thin, :color => "00", :edges => [:bottom] }
+	})
 	wb.add_worksheet( :name => 'Order Sheet' ) do |sheet|
 		sheet.add_row  ['Graeters Order Sheet'], :style => head, :height => 40
 		sheet.merge_cells( 'A1:E1' )
@@ -60,16 +64,26 @@ wb.styles do |s|
 		sheet.column_widths 20, 40
 		
 		sleeve_total = 0
+		index = 0
 
-		order.product_orders.each do |product_order|
-			row = sheet.add_row
-			row.add_cell product_order.product[:code]
-			row.add_cell product_order.product[:name]
-			row.add_cell product_order.volume_unit[:name]
-			row.add_cell product_order[:quantity]
-			row.add_cell product_order.sleeves
-			row.style = row_border
-			sleeve_total += product_order.sleeves
+		order.organize_products_by_category.each do |product_category|
+
+			product_category[:products].each do |product_order|
+				row = sheet.add_row
+				row.add_cell product_order.product[:code]
+				row.add_cell product_order.product[:name]
+				row.add_cell product_order.volume_unit[:name]
+				row.add_cell product_order[:quantity]
+				row.add_cell product_order.sleeves
+				if (index%2) != 0
+					row.style = alternate_row
+				else
+					row.style = row_border
+				end
+				sleeve_total += product_order.sleeves
+				index = index + 1
+			end
+
 		end
 
 		total_row = sheet.add_row

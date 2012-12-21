@@ -1,10 +1,10 @@
 class OrderMailer < ActionMailer::Base
-  default from: "Graeters Orders <tagoretownapps+graeters_orders@gmail.com>"
+  default from: "Graeters Orders <tagoretownapps@gmail.com>"
 
   def email_order( mailto, order_list, add_message)
     view_context = ActionView::Base.new(ActionController::Base.view_paths, {})
     order_list.each do |order|
-      attachments["OrderDetailsForPO-#{order[:invoice_number]}.xlsx"] = { 
+      attachments[order.filename] = { 
 	      :content_type => "application/octet-stream",
 	      :body => view_context.render( :template => 'orders/show_order', :handlers => [:axlsx], :locals => {:order => order} )
       }
