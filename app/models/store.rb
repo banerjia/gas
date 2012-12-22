@@ -17,7 +17,7 @@ class Store < ActiveRecord::Base
   		indexes :id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
   		indexes :name, :type => 'string', :analyzer => 'snowball'
   		indexes :store_address, :type => 'string', :as => 'address', :analyzer => 'snowball'
-  		indexes :state_code, :type => 'string', :analyzer => 'not_analyzed', :include_in_all => false
+  		indexes :state_code, :type => 'string', :index=> 'not_analyzed', :include_in_all => false
   		indexes :country, :type => 'string', :index => 'not_analyzed', :include_in_all => false
   		indexes :state_name, :type => 'string', :as => 'state.state_name', :analyzer => 'snowball'
   		indexes :company_id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
