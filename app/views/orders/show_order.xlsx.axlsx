@@ -60,11 +60,11 @@ wb.styles do |s|
 		# Blank row separating the labels
 		sheet.add_row		
 
-		sheet.add_row %w(Stock\ # Description U/M Quantity  Sleeves), :style => column_head, :height => 20
-		sheet.column_widths 20, 40
+		sheet.add_row %w(Stock\ # Description U/M Quantity Sleeves), :style => column_head, :height => 20
 		
 		sleeve_total = 0
 		index = 0
+		
 
 		order.organize_products_by_category.each do |product_category|
 
@@ -90,6 +90,8 @@ wb.styles do |s|
 		3.times { total_row.add_cell }
 		total_row.add_cell "Sleeves", :style => label
 		total_row.add_cell sleeve_total
+		
+		sheet.column_widths 12, 25, 5, 9, 9
 		
 		sheet.rows.last.style = bottom_row_border				
 	end
