@@ -1,7 +1,7 @@
 <% content_for :page_js do %>
-	<% if !stores.nil? then %>
+	<% if !@stores.nil? then %>
 	<script type="text/javascript">
-		var ajax_path = '<%= ajax_path.html_safe %>';
+		var ajax_path = '<%= stores_search_path(options) %>';
 	</script>
 	<% end %>
 <% end  %>
@@ -24,20 +24,20 @@
 	</style>
 <% end %>
 <% content_for :left_column do %>
-	<h2>Links</h2>
+<%- if @facets['regions'] -%>
+	<h2>Regions</h2>
 	<ul class="nav_items">
-		<% if defined?(options) && !options[:company_id].nil?  then %>
-		<li>
-				<%= link_to "About " + stores[0].company.name, company_path(options[:company_id]) %>
-		</li>		
-		<% end %>
+		<% @facets['regions'].each do |region| -%>
+			<li><%= region[:region_name]-%></li>
+		<%- end -%>
 	</ul>
+<%- end -%>
 <% end %>
 <%= render :partial => 'store_search', :locals => {:options => options} %>
 
-<% if !stores.nil? then %>
+<% if !@stores.nil? then %>
 	<%= render :partial => "stores", \
-		:locals => {:store_collection =>  stores, :more_pages => more_pages}%>
+		:locals => {:store_collection =>  @stores, :more_pages => @more_pages}%>
 <% else %>
 	We were unable to locate any stores matching the criteria you provided. Please review the search criteria.
 <% end %>

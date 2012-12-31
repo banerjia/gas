@@ -16,7 +16,7 @@
 			dataType: "json",
 			success: function(data){
 				if(!data.more_pages) jQuery("table#store_listing tfoot").hide().remove();
-				stores_found = data.stores_found;
+				stores_found = data.stores.length;
 				var stores = data.stores;
 				var table_body = jQuery("table#store_listing tbody");
 				for( i = 0; i < stores_found; i++){

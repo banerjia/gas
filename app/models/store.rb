@@ -2,8 +2,10 @@ class Store < ActiveRecord::Base
   include Tire::Model::Search
   include Tire::Model::Callbacks
   
-  belongs_to :company
+  belongs_to :company, :counter_cache => true
   belongs_to :state, :foreign_key => [:country, :state_code]
+  
+  belongs_to :region, :counter_cache => true
 
   has_many :orders
   
@@ -21,29 +23,70 @@ class Store < ActiveRecord::Base
   		indexes :country, :type => 'string', :index => 'not_analyzed', :include_in_all => false
   		indexes :state_name, :type => 'string', :as => 'state.state_name', :analyzer => 'snowball'
   		indexes :company_id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
+  		indexes :region_name, :type => 'string', :analyzer => 'snowball'
+  		indexes :region_id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
   	end
   end
   
   def self.search( params )
-    tire.search :load => {:include => ['company', 'last_audit']}, :per_page => params[:per_page], :page => params[:page] || 1 do 
-      query do
-        boolean do
-    			must { string params[:q]} if params[:q].present?
-    			must { string "company_id:#{params[:company_id]}" } if params[:company_id].present?
-    			must { string "state_code:#{params[:state]}" } if params[:state].present?
-    		end
-      end	
+    facets = Hash.new    
+    return_value = Hash.new
+    page = (params[:page] || 1).to_i
+    
+    results = tire.search :load => {:include => ['company', 'last_audit']}, :per_page => params[:per_page], :page => page do 
+      query { string params[:q]} if params[:q].present?
+      
+      filter :term, :company_id => params[:company_id] if params[:company_id].present?
+      filter :term, :state_code => params[:state] if params[:state].present?
+      filter :term, :region_id => params[:region] if params[:region].present?
+      
+      facet 'chains' do
+        terms :company_id
+      end
+
+      facet 'regions' do 
+        terms :region_id
+      end      
     end
+
+    # Populating Regions Facet
+    if !params[:region].present? && results.facets['regions']['terms'].count > 0
+      facets['regions'] = []
+      results.facets['regions']['terms'].each_with_index do |region,index| 
+        region[:region_name] = Region.find(region['term'] )[:name]
+        facets['regions'].push(region)
+      end
+    end
+
+    # Populating Chains Facet
+    if !params[:company_id].present? && results.facets['chains']['terms'].count > 0
+      facets['chains'] = []
+      results.facets['chains']['terms'].each_with_index do |chain,index|
+        chain[:company_name] = Company.find(chain['term'].to_i)[:name]
+        facets['chains'].push(chain)
+      end
+    end
+    
+    return_value[:more_pages] = (results.total_pages > page )
+    return_value[:results] = results
+    return_value[:facets] = facets
+    return_value[:total] = results.total
+    
+    return return_value
   end
 
   before_save do |store|
+    # Region Changes    
+    if region_id_changed?
+      Region.decrement_counter( :stores_count, store.region_id_was) if store.region_id_was
+      Region.increment_counter( :stores_count, store[:region_id]) if store[:region_id]
+    end
+    
+    # Address Changes
     store[:name] = store[:name].strip
     store[:street_address] = store[:street_address].strip
     store[:suite] = store[:suite].strip
     store[:city] = store[:city].strip
-    
-    # SUGGESTION: Move this section within a Rake task
-    # as it communicates with Google Maps API.
     
     # Only populate the longitude and latitude information if 
     # the zipcode has changed
@@ -87,6 +130,12 @@ class Store < ActiveRecord::Base
     return_value += ", " + self[:state_code]
     return_value += " - " + self[:zip].strip unless self[:zip].blank?
     return_value += " (" + self[:country] + ")" unless self[:country] == "US"
+    return return_value
+  end
+
+  def region_name
+    return_value = nil
+    return_value = self.region[:name] if self.region
     return return_value
   end
 end

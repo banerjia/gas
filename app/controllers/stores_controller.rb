@@ -71,33 +71,19 @@ class StoresController < ApplicationController
   end
 
   def search
-    stores_found = nil
-    company_id = params[:company_id]
-    state_code = params[:state]
-    country = params[:country]
     
-    page = params[:page] || 1
-    page = page.to_i
+    page = (params[:page] || 1).to_i
     params[:per_page] = (params[:per_page] || $per_page).to_i
 
-    conditions =  Hash.new
-    with_options = Hash.new
-
-    with_options[:company_id] = company_id unless company_id.nil?
-    conditions[:state_code] =  state_code unless state_code.nil?
-    # Only include country if state_code is specified.
-    conditions[:country] = country || 'US' unless state_code.nil?
-
-    stores_found = Store.search params
-                  
-
-    return_value = Hash.new
-    return_value[:stores] = stores_found
-    return_value[:more_pages] = (stores_found.total_pages > page)
-    return_value[:stores_found] = stores_found.count
-    conditions[:q] = params[:q] unless params[:q].nil?
+    stores_found = Store.search params                  
+    
     respond_to do |format|
       format.json do
+        return_value = Hash.new
+        return_value[:stores] = stores_found[:results]
+        return_value[:more_pages] = stores_found[:more_pages]
+        return_value[:stores_found] = stores_found[:total]
+        return_value[:facets] = stores_found[:facets]
         render :json => return_value.to_json(
         :include => $store_inclusions,
         :except => $exclusions + [:phone])
@@ -106,14 +92,16 @@ class StoresController < ApplicationController
         params.delete(:action)
         params.delete(:controller)
         params[:format] = :json
-        if stores_found.count > 0	
-			      @page_title = stores_found[0].company[:name] + " Stores in " + stores_found[0].state[:state_name]              		  
+        @stores = stores_found[:results]
+        @facets = stores_found[:facets]
+        @more_pages = stores_found[:more_pages]
+        
+        if @stores.size > 0	
+			      @page_title = @stores[0].company[:name] + " Stores in " + @stores[0].state[:state_name]              		  
             render "search_results", :locals => {\
-              :stores => stores_found, \
-              :ajax_path => stores_search_path(params),\
-              :options => params, :more_pages => return_value[:more_pages]}
+              :options => params}
         else
-		  @page_title = "Information Unavailable"
+		      @page_title = "Information Unavailable"
           render "search_results", :locals => {\
 			        :options => params, \
 			        :stores => nil}			

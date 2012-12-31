@@ -161,7 +161,7 @@ class Order < ActiveRecord::Base
 
 
     # Populating States Facet
-    if tire_order_listing.facets['states']['terms'].count > 1
+    if tire_order_listing.facets['states']['terms'].count > 0
       facets['states'] = []
       tire_order_listing.facets['states']['terms'].each_with_index do |state,index| 
         state[:state_name] = State.find(:first, :conditions => {:state_code => state['term']} )[:state_name]
@@ -170,7 +170,7 @@ class Order < ActiveRecord::Base
     end
     
     # Populating Chains Facet
-    if tire_order_listing.facets['chains']['terms'].count > 1
+    if tire_order_listing.facets['chains']['terms'].count > 0
       facets['chains'] = []
       tire_order_listing.facets['chains']['terms'].each_with_index do |chain,index|
         chain[:company_name] = Company.find(chain['term'].to_i)[:name]
