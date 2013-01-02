@@ -36,7 +36,7 @@
 					var audit_information = jQuery("<td/>");
 					if(stores[i].last_audit){
 						var audit_link = jQuery("<a/>");
-						jQuery(audit_link).attr("href", "<%= audits_path %>/" + stores[i].last_audit.id);
+						//jQuery(audit_link).attr("href", "<%= audits_path %>/" + stores[i].last_audit.id);
 						jQuery(audit_link).text(stores[i].last_audit.score);
 						var audit_date = dateFormat(stores[i].last_audit.created_at,"mmm dd, yyyy");
 						jQuery(audit_information).append(audit_link).append("<br/>").append(audit_date);
@@ -80,7 +80,7 @@
 	<tbody id="original_listing">
 		<% store_collection.each do |store|%>
 		<tr>
-			<td><%=link_to store[:name], store_path(store)%><br/><%=store.address%></td>
+			<td><%=link_to store.name, store_path(store)%><br/><%=store.address%></td>
 			<td>
 				<%- if store.last_audit -%>				
 					<%= store.last_audit[:score] -%><br/>

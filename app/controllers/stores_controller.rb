@@ -89,13 +89,10 @@ class StoresController < ApplicationController
         :except => $exclusions + [:phone])
       end
       format.html do
-        params.delete(:action)
-        params.delete(:controller)
-        params[:format] = :json
+        [:action, :controller, :format].each { |key| params.delete(key) }
         @stores = stores_found[:results]
         @facets = stores_found[:facets]
         @more_pages = stores_found[:more_pages]
-        
         if @stores.size > 0	
 			      @page_title = @stores[0].company[:name] + " Stores in " + @stores[0].state[:state_name]              		  
             render "search_results", :locals => {\

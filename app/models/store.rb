@@ -19,7 +19,9 @@ class Store < ActiveRecord::Base
   		indexes :id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
   		indexes :name, :type => 'string', :analyzer => 'snowball'
   		indexes :store_address, :type => 'string', :as => 'address', :analyzer => 'snowball'
-  		indexes :state_code, :type => 'string', :index=> 'not_analyzed', :include_in_all => false
+  		indexes :zip, :type => 'string', :index => 'not_analyzed', :include_in_all => false
+  		indexes :city, :type => 'string', :index => 'not_analyzed', :include_in_all => false
+  		indexes :state, :type => 'string', :index=> 'not_analyzed', :include_in_all => false, :as => 'state_code'
   		indexes :country, :type => 'string', :index => 'not_analyzed', :include_in_all => false
   		indexes :state_name, :type => 'string', :as => 'state.state_name', :analyzer => 'snowball'
   		indexes :company_id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
@@ -34,15 +36,15 @@ class Store < ActiveRecord::Base
     page = (params[:page] || 1).to_i
     
     results = tire.search :load => {:include => ['company', 'last_audit']}, :per_page => params[:per_page], :page => page do 
-      query { string params[:q]} if params[:q].present?
-      
-      filter :term, :company_id => params[:company_id] if params[:company_id].present?
-      filter :term, :state_code => params[:state] if params[:state].present?
-      filter :term, :region_id => params[:region] if params[:region].present?
-      
-      facet 'chains' do
-        terms :company_id
+      query do
+        boolean do
+          must { string params[:q]} if params[:q].present?
+          must { string "state:#{params[:state]}" } if params[:state].present?
+          must { string "company_id:#{params[:company_id]}" } if params[:company_id].present?
+        end
       end
+      
+      filter :term, :region_id => params[:region] if params[:region].present?
 
       facet 'regions' do 
         terms :region_id
@@ -50,20 +52,11 @@ class Store < ActiveRecord::Base
     end
 
     # Populating Regions Facet
-    if !params[:region].present? && results.facets['regions']['terms'].count > 0
+    if results.facets['regions']['terms'].count > 0
       facets['regions'] = []
       results.facets['regions']['terms'].each_with_index do |region,index| 
         region[:region_name] = Region.find(region['term'] )[:name]
         facets['regions'].push(region)
-      end
-    end
-
-    # Populating Chains Facet
-    if !params[:company_id].present? && results.facets['chains']['terms'].count > 0
-      facets['chains'] = []
-      results.facets['chains']['terms'].each_with_index do |chain,index|
-        chain[:company_name] = Company.find(chain['term'].to_i)[:name]
-        facets['chains'].push(chain)
       end
     end
     
@@ -85,7 +78,7 @@ class Store < ActiveRecord::Base
     # Address Changes
     store[:name] = store[:name].strip
     store[:street_address] = store[:street_address].strip
-    store[:suite] = store[:suite].strip
+    store[:suite] = store[:suite].strip if store[:suite]
     store[:city] = store[:city].strip
     
     # Only populate the longitude and latitude information if 
@@ -137,5 +130,11 @@ class Store < ActiveRecord::Base
     return_value = nil
     return_value = self.region[:name] if self.region
     return return_value
+  end
+  
+  def name
+    return_value = self[:name]
+    return_value += " (#{self[:locality]})" if self[:locality]
+    return return_value    
   end
 end

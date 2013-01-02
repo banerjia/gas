@@ -1,7 +1,7 @@
 <% content_for :page_js do %>
 	<% if !@stores.nil? then %>
 	<script type="text/javascript">
-		var ajax_path = '<%= stores_search_path(options) %>';
+		var ajax_path = '<%= stores_search_path({:format=>:json}.merge(options)) %>';
 	</script>
 	<% end %>
 <% end  %>
@@ -24,14 +24,33 @@
 	</style>
 <% end %>
 <% content_for :left_column do %>
-<%- if @facets['regions'] -%>
-	<h2>Regions</h2>
+<h2>Filtering Options</h2>
+<%- 
+	if @facets['regions'] 
+		params_without_region = options.reject{ |key,value| key.to_s == 'region' }
+		path_prefix = stores_search_path
+		path_prefix += "?" + params_without_region.to_param if params_without_region
+-%>
+	<h3 style="text-align:left">Regions</h3>
 	<ul class="nav_items">
-		<% @facets['regions'].each do |region| -%>
-			<li><%= region[:region_name]-%></li>
+		<%- 
+			@facets['regions'].each do |region| 
+				url = path_prefix + "&" + {:region => region['term']}.to_param
+		-%>
+			<li <%= options[:region].to_i ==  region['term'].to_i ? raw("class='current'"): "" -%>><%= link_to_if options[:region].to_i !=  region['term'].to_i,  region[:region_name], url -%></li>
+		<%- end -%>
+		
+		<%- if options[:region] -%>
+			<li><%= link_to "All Regions", path_prefix -%></li>
 		<%- end -%>
 	</ul>
-<%- end -%>
+<%-
+		params_without_region.delete_if{ true }
+		params_without_region = nil
+	else
+-%>
+		<p>No filtering options available for the current store listing</p>
+	<%- end -%>
 <% end %>
 <%= render :partial => 'store_search', :locals => {:options => options} %>
 
