@@ -24,7 +24,10 @@
 					var store_information = jQuery("<td/>");
 					var store_link = jQuery("<a/>");
 					jQuery(store_link).attr("href", "<%= stores_path %>/" + stores[i].id);
-					jQuery(store_link).text(stores[i].name);
+					if(stores[i].locality)
+						jQuery(store_link).text(stores[i].name + " (" + stores[i].locality + ")");
+					else
+						jQuery(store_link).text(stores[i].name);
 					var store_address = stores[i].street_address.toTitleCase()+', ' + 
 										stores[i].city.toTitleCase() + ', ' + 
 										stores[i].state_code + " - " +
@@ -80,7 +83,7 @@
 	<tbody id="original_listing">
 		<% store_collection.each do |store|%>
 		<tr>
-			<td><%=link_to store.name, store_path(store)%><br/><%=store.address%></td>
+			<td><%=link_to store.name_with_locality, store_path(store)%><br/><%=store.address%></td>
 			<td>
 				<%- if store.last_audit -%>				
 					<%= store.last_audit[:score] -%><br/>

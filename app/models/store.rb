@@ -18,6 +18,8 @@ class Store < ActiveRecord::Base
   	mapping do 
   		indexes :id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
   		indexes :name, :type => 'string', :analyzer => 'snowball'
+  		indexes :locality, :type => 'string', :analyzer => 'snowball'
+  		indexes :name_sort, :type => 'string', :index => 'not_analyzed', :include_in_all => false, :as => 'name_with_locality'
   		indexes :store_address, :type => 'string', :as => 'address', :analyzer => 'snowball'
   		indexes :zip, :type => 'string', :index => 'not_analyzed', :include_in_all => false
   		indexes :city, :type => 'string', :index => 'not_analyzed', :include_in_all => false
@@ -48,7 +50,9 @@ class Store < ActiveRecord::Base
 
       facet 'regions' do 
         terms :region_id
-      end      
+      end     
+      
+      sort  {by :name_sort} 
     end
 
     # Populating Regions Facet
@@ -76,7 +80,7 @@ class Store < ActiveRecord::Base
     end
     
     # Address Changes
-    store[:name] = store[:name].strip
+    #store[:name] = store[:name].strip
     store[:street_address] = store[:street_address].strip
     store[:suite] = store[:suite].strip if store[:suite]
     store[:city] = store[:city].strip
@@ -132,9 +136,21 @@ class Store < ActiveRecord::Base
     return return_value
   end
   
-  def name
+  def name_with_locality
     return_value = self[:name]
     return_value += " (#{self[:locality]})" if self[:locality]
     return return_value    
+  end
+  
+  def self.update_geolocation
+    stores_to_update = find(:all, :conditions => "latitude IS NULL OR longitude IS NULL")
+    stores_to_update.each_with_index do |store, index|
+      lat_lng = Location.get_geolocation( store.address )
+      lat_lng = Location.get_geolocation( store[:zip] ) if lat_lng==[nil,nil]
+      store[:latitude] = lat_lng[0]
+      store[:longitude] = lat_lng[1]
+      store.save
+      sleep(1) if (index%10) == 0
+    end
   end
 end

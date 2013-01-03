@@ -3,11 +3,26 @@ module Location
     miles * 1.6 * 1000
   end
 
-  def self.location_in_radians(lat_long_or_zip, country = 'US')
-    lat_long_or_zip = \
-    Geokit::Geocoders::GoogleGeocoder.geocode(lat_long_or_zip).ll.split(",").map{|item| item.to_f} 
-    if lat_long_or_zip.class != Array
-      lat_long_or_zip.map{|item| item * Math::PI/180}
-    end
+  def self.get_geolocation( address ) 
+   lat_lng = nil
+   begin
+      geoloc = Geokit::Geocoders::GoogleGeocoder.geocode(address)
+      lat_lng = [geoloc.lat,geoloc.lng] 
+   rescue 
+      lat_lng = [nil,nil]
+   end
+
+   return lat_lng
+  end
+
+  def self.get_lat_lng( store ) 
+    if store[:zip].blank?
+        geoloc = Geokit::Geocoders::GoogleGeocoder.geocode(store.address)
+        store[:zip] = geoloc.zip unless geoloc.zip.blank?
+      else
+        geoloc = Geokit::Geocoders::GoogleGeocoder.geocode(store[:zip] + ', ' + store[:country])
+      end
+      
+      lat_lng = [geoloc.lat,geoloc.lng] 
   end
 end
