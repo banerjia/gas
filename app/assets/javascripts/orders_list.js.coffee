@@ -132,6 +132,7 @@ class @OrderList
         target_table_body = jQuery( "table#order_list tbody" )
         return if orders_to_append.length == 0 
         status = jQuery( window.select_all ).is(":checked")
+        show_store = if typeof window.show_store != "undefined" then window.show_store else true
         for order in orders_to_append
             target_table_body.append () ->
                 row = jQuery("<tr/>")
@@ -143,15 +144,14 @@ class @OrderList
                 columns[0].append( checkbox )
                 
                 columns[1] = jQuery("<td/>")
-                po = if order.invoice_number then order.invoice_number else 'N/A'
-                order_link = jQuery("<a/>").text(po)
+                order_link = jQuery("<a/>").text(dateFormat(order.created_at, 'mmm dd, yyyy'))
                 order_link.attr("href", window.order_path + '/' + order.id )
                 columns[1].append( order_link )
                 
-                columns[2] = jQuery("<td/>")
-                store_link = jQuery("<a/>").text(order.store_name)
-                store_link.attr("href", window.stores_path + '/' + order.store_id )
-                columns[2].append( store_link )
+                third_column = if show_store then order.store_name else order.invoice_number
+                third_column = if third_column.length < 1 then 'N/A' else third_column
+                columns[2] = jQuery("<td/>").text(third_column)
+				
                 
                 columns[3] = jQuery("<td/>").text( order.deliver_by_day )
         

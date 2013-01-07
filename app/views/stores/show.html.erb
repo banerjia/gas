@@ -16,6 +16,7 @@
 		var current_section;
 		var store_id = <%= store[:id] -%>;
 		var orders = null;
+		window.show_store = false;
 		// Replaced Date.today with Time.now to make sure 
 		// that records are not bumped down or repeated 
 		// if a new order is added to the system while this listing
@@ -86,6 +87,12 @@
 			<%= store[:name] -%>
 		</div>
 	</div>
+	<div class="entry_row">
+		<div class="entry_label">Locality</div>
+		<div class="entry_value">
+			<%= store[:locality] -%> &nbsp;
+		</div>
+	</div>
 	<%- if !store[:store_number].blank? && !store[:store_number].empty? -%>
 	<div class="entry_row">
 		<div class="entry_label">Store#</div>
@@ -110,5 +117,5 @@
 	<%- end -%>
 </div>
 <%- if store.orders.count > 0 -%>
-	<%= render :partial => 'orders/order_listing' %>
+	<%= render :partial => 'orders/order_listing', :locals => {:show_store => false} %>
 <%- end -%>

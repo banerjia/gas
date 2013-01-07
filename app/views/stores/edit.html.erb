@@ -19,6 +19,10 @@
 			<div class="entry_value"><%= f.text_field :name %></div>		
 		</div>
 		<div class="entry_row">
+			<div class="entry_label">Locality</div>
+			<div class="entry_value"><%= f.text_field :locality %></div>		
+		</div>
+		<div class="entry_row">
 			<div class="entry_label">Store#</div>
 			<div class="entry_value"><%= f.text_field :store_number %></div>		
 		</div>
@@ -29,10 +33,6 @@
 		<div class="entry_row">
 			<div class="entry_label">Street Address</div>
 			<div class="entry_value"><%= f.text_field :street_address %></div>
-		</div>
-		<div class="entry_row">
-			<div class="entry_label">Suite</div>
-			<div class="entry_value"><%= f.text_field :suite %></div>
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">City</div>
@@ -56,11 +56,11 @@
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">Date Added</div>
-			<div class="entry_value"><%= store[:created_at].strftime("%b %d, %Y") %></div>
+			<div class="entry_value"><%= store[:created_at] ? store[:created_at].strftime("%b %d, %Y") : '' -%> &nbsp;</div>
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">Last Updated On</div>
-			<div class="entry_value"><%= store[:updated_at].strftime("%b %d, %Y") %></div>
+			<div class="entry_value"><%= store[:updated_at] ? store[:updated_at].strftime("%b %d, %Y") : '' =%> &nbsp;</div>
 		</div>
 		<div class="buttons">
 			<%= f.submit "Save Changes", :class => "button"%>

@@ -10,7 +10,7 @@
 			<strong>Store</strong>
 		</div>
 		<div class="entry_value">
-			<%= link_to @store[:name], store_path(@store) -%><br/>
+			<%= link_to @store.name_with_locality, store_path(@store) -%><br/>
 			<%= @store.address -%>			
 		</div>
 	</div>

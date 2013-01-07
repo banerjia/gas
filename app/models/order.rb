@@ -127,22 +127,25 @@ class Order < ActiveRecord::Base
       	     must { range :created_at, {:lte => end_date.to_s } } unless end_date.nil?
       	     must { string query } if defined?(query) && query
       	     must { term :store_id,  store_id.to_i } if defined?(store_id) && store_id
+      	     must { term :company_id, company_id } if defined?(company_id) && company_id
+      	     must { term :ship_to_state_code, state_code } if defined?(state_code) && state_code
            end
       end
 
       # Filtering for facets
-      filter :term, :company_id => company_id         if defined?(company_id) && company_id
-      filter :term, :ship_to_state_code => state_code if defined?(state_code) && state_code
       filter :term, :route_id => route_id             if defined?(route_id) && route_id
 
       # Defining facets
-      facet 'states' do
-        terms :ship_to_state_code
-      end  
-      
-      facet 'chains' do 
-        terms :company_id
-      end  
+      if !params[:shipping_state].present?
+        facet 'states' do
+          terms :ship_to_state_code
+        end  
+      end
+      if !params[:company_id].present?
+        facet 'chains' do 
+          terms :company_id
+        end  
+      end
       
       facet 'delivery_day' do
         terms :deliver_by_day
@@ -161,7 +164,7 @@ class Order < ActiveRecord::Base
 
 
     # Populating States Facet
-    if tire_order_listing.facets['states']['terms'].count > 0
+    if tire_order_listing.facets['states'] && tire_order_listing.facets['states']['terms'].count > 0
       facets['states'] = []
       tire_order_listing.facets['states']['terms'].each_with_index do |state,index| 
         state[:state_name] = State.find(:first, :conditions => {:state_code => state['term']} )[:state_name]
@@ -170,7 +173,7 @@ class Order < ActiveRecord::Base
     end
     
     # Populating Chains Facet
-    if tire_order_listing.facets['chains']['terms'].count > 0
+    if tire_order_listing.facets['chains'] && tire_order_listing.facets['chains']['terms'].count > 0
       facets['chains'] = []
       tire_order_listing.facets['chains']['terms'].each_with_index do |chain,index|
         chain[:company_name] = Company.find(chain['term'].to_i)[:name]

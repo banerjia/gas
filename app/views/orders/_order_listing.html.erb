@@ -10,12 +10,12 @@
 				Select All<br/>
 				<%= check_box_tag :select_all if !defined?(orders) || (defined?(orders) && orders.size > 0) -%>
 			</th>
-			<th scope="col">PO</th>
+			<th scope="col">Order Created On</th>
 			<th scope="col">
 			<%- if defined?(show_store) && show_store -%>
 				Store
 			<%- else -%>
-			  	Order Created On
+			  	PO
 			<%- end -%>
 			</th>
 			<th scope="col">Deliver By</th>
@@ -42,12 +42,12 @@
 		<%- orders.each do |order| -%>
 			<tr>
 				<td><%= check_box_tag :order, order[:id] -%></td>
-				<td><%= link_to (order[:invoice_number].blank? ? "N/A" : order[:invoice_number]), order_path(order[:id]) -%></td>
+				<td><%= link_to order[:created_at].to_date.strftime("%b %d, %Y") , order_path(order[:id]) -%></td>
 				<td>
 				<%- if defined? show_store && show_store -%>
-					<%= link_to order[:store_name ], store_path( order[:store_id] ) -%>
+					<%= order[:store_name ] -%>
 				<%- else -%>
-				  	<%= order[:created_at].strftime("%b %d, %Y") %>
+				  	<%= (order[:invoice_number].blank? ? "N/A" : order[:invoice_number]) -%>
 				<%- end -%>
 				</td>			
 				<td><%= order[:deliver_by_day]  %></td>
@@ -86,6 +86,7 @@
 <% end -%>
 <% content_for :page_js do -%>
 	<%= javascript_include_tag "jquery.leanModal.min.js" -%>
+	<%= javascript_include_tag "dateformat.js" -%>
 	<%= javascript_include_tag :orders_list -%>
 	<script type="text/javascript">	
 		window.order_path = '<%= orders_path -%>';

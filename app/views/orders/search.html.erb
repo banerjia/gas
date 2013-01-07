@@ -12,37 +12,58 @@
 		if defined?(@facets) 
 			path_prefix = orders_search_path + '?es=1' 
 			
-			if @facets['states'] 
+			if @facets['states'] || @search_params[:shipping_state].present?
 				search_params_without_state = @search_params.reject{ |key,value| key.to_s == 'shipping_state' }
 	-%>
 	<h3>Filter by Shipping State</h3>
 	<ul class="nav_items">
+	
 	<%-
-				@facets['states'].each do |facet_term|
-					url =  path_prefix
-					url += '&' + search_params_without_state.to_param if !search_params_without_state.empty?
-					url += "&shipping_state=#{facet_term['term']}"
+				if @facets['states']
+					@facets['states'].each do |facet_term|
+						url =  path_prefix
+						url += '&' + search_params_without_state.to_param if !search_params_without_state.empty?
+						url += "&shipping_state=#{facet_term['term']}"
 	-%>
 					<li <%= @search_params[:shipping_state] ==  facet_term['term'] ? raw("class='current'"): "" -%>><%= link_to_if @search_params[:shipping_state] !=  facet_term['term'],  facet_term[:state_name], url -%></li>
-	<%-			end
-				search_params_without_state.delete_if{ true }
-				search_params_without_state = nil
+	<%-				end
+					search_params_without_state.delete_if{ true }
+					search_params_without_state = nil
+				else
+	-%>
+					<li class="current">
+						<%= State.find(['US', @search_params[:shipping_state]])[:state_name] -%>
+						<span style="float:right">
+							<%= link_to "X", path_prefix + search_params_without_state.to_param -%>							
+						</span>
+					</li>
+	<%-			end	
 			end
 	-%>		
 	</ul>
 	<%-		
-			if @facets['chains'] 
+			if @facets['chains'] || @search_params[:company_id].present?
 				search_params_without_chain = @search_params.reject{ |key,value| key.to_s == 'company_id' }
 	-%>
 	<h3>Filter by Chain</h3>
 	<ul class="nav_items">
 	<%-
-				@facets['chains'].each do |facet_term|
-					url =  path_prefix
-					url += '&' + search_params_without_chain.to_param if !search_params_without_chain.empty?
-					url += "&company_id=#{facet_term['term']}"
+				if @facets['chains']
+					@facets['chains'].each do |facet_term|
+						url =  path_prefix
+						url += '&' + search_params_without_chain.to_param if !search_params_without_chain.empty?
+						url += "&company_id=#{facet_term['term']}"
 	-%>
 					<li <%= @search_params[:company_id].to_i ==  facet_term['term'].to_i ? raw("class='current'"): "" -%>><%= link_to_if @search_params[:company_id].to_i !=  facet_term['term'].to_i,  facet_term[:company_name], url -%></li>
+	<%-				end
+				else
+	-%>
+			<li class="current">
+				<%= Company.find(@search_params[:company_id])[:name] -%>
+				<span style="float:right">
+					<%= link_to "X", path_prefix + search_params_without_chain.to_param -%>							
+				</span>
+			</li>	
 	<%-			end
 				search_params_without_chain.delete_if{ true }
 				search_params_without_chain = nil
