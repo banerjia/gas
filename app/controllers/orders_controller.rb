@@ -95,7 +95,7 @@ class OrdersController < ApplicationController
         @search_title = "Orders "
         
         # Sanitize Params
-        [:page, :action, :controller, :format].each{ |key| params.delete(key) }
+        [:page, :action, :controller, :format, :es].each{ |key| params.delete(key) }
         @search_params = params
         
         @orders = search_results[:results]

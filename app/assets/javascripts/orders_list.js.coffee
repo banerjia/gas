@@ -115,6 +115,7 @@ class @OrderList
         send_data[k] = v for k,v of querystring
         send_data['page'] = @current_page
         send_data['end_date'] = window.end_date if window.end_date
+        send_data['start_date'] = send_data['end_date'] if typeof send_data['start_date'] == 'undefined'
 
         jQuery.ajax
             url: window.orders_search_path + '.json'
