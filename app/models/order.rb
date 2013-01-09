@@ -23,7 +23,7 @@ class Order < ActiveRecord::Base
     mapping do
       indexes :id,              :type => "integer",   :index => 'not_analyzed', :include_in_all => false
       indexes :invoice_number,  :type => "string",    :index => 'not_analyzed'
-      indexes :store_name,      :type => "string",    :analyzer => 'snowball',  :as => 'store[:name]'
+      indexes :store_name,      :type => "string",    :analyzer => 'snowball',  :as => 'store.name_with_locality'
       indexes :store_id,        :type => 'integer',   :index => 'not_analyzed', :as => 'store[:id]'
       indexes :company_id,      :type => 'integer',   :index => 'not_analyzed', :as => 'store.company[:id]'
       indexes :company_name,    :type => 'string',    :analyzer => 'snowball',  :as => 'store.company[:name]'
