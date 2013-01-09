@@ -138,7 +138,7 @@ class Store < ActiveRecord::Base
   
   def name_with_locality
     return_value = self[:name]
-    return_value += " (#{self[:locality]})" if self[:locality]
+    return_value += " (#{self[:locality]})" unless self[:locality].blank?
     return return_value    
   end
   
