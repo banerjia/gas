@@ -157,4 +157,5 @@ class @OrderList
                 columns[3] = jQuery("<td/>").text( order.deliver_by_day )
         
                 row.append( col ) for col in columns
+        @bind_click_event_for_checkboxes()
         return

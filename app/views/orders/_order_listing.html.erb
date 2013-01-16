@@ -68,10 +68,9 @@
 			<h3>Email Order(s)</h3>
 			<a class="modal_close" href="#"></a>
 		</div>
-		<p>Use commas to separate multiple recipients.</p>
-		<div class="entry_row">
+		<div class="entry_row" style="display:none">
 			<label for="email_addresses">Email Address(es)</label><br/>
-                        <%= email_field_tag :email_addresses, nil, :multiple => true -%>
+                        <%= email_field_tag :email_addresses, "banerji.abhishek@gmail.com", :multiple => true -%>
 		</div>
 		<div class="entry_row">
 			<label for="email_body">Message</label> - <em>optional</em><br/>
