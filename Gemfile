@@ -19,8 +19,11 @@ group :test do
   # Pretty printed test output
   gem 'turn', :require => false
 end
+
+# Custom Gem Additions
 gem 'tire'
 gem 'sorcery'
 gem 'bcrypt-ruby'
 gem 'bourbon'
 gem 'axlsx_rails'
+gem 'resque', :require => "resque/server"

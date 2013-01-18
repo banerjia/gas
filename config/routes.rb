@@ -32,4 +32,5 @@ Graeters::Application.routes.draw do
     get "orders/search" => "orders#search", :as => "orders_search"
     resources :orders
   end
+  mount Resque::Server, :at => "/resque"
 end
