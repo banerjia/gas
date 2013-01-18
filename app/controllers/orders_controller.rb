@@ -14,7 +14,7 @@ class OrdersController < ApplicationController
     
     @page_title = "Order Sheet for PO: " + @order[:invoice_number]
     @browser_title = "Invoice: " + @order[:invoice_number]
-    
+    Resque.enqueue( SaveOrdersToS3, @order.id)    
     respond_to do |format|
       format.html { render :locals => {:order => @order} }
       format.xlsx do 
