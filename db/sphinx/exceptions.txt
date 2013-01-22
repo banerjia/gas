@@ -1,3 +1,0 @@
-IN => INDIANA
-oh => OHIO
-OH => OHIO

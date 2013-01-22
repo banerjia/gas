@@ -23,7 +23,7 @@ class Order < ActiveRecord::Base
     mapping do
       indexes :id,              :type => "integer",   :index => 'not_analyzed', :include_in_all => false
       indexes :invoice_number,  :type => "string",    :index => 'not_analyzed'
-      indexes :sent,            :type => "boolean",   :index => 'not_analyzed'
+      indexes :sent,     		:type => "boolean",   :index => 'not_analyzed'
       indexes :store_name,      :type => "string",    :analyzer => 'snowball',  :as => 'store.name_with_locality'
       indexes :store_id,        :type => 'integer',   :index => 'not_analyzed', :as => 'store[:id]'
       indexes :company_id,      :type => 'integer',   :index => 'not_analyzed', :as => 'store.company[:id]'
@@ -99,6 +99,7 @@ class Order < ActiveRecord::Base
     return products_by_category
   end
 
+
   def self.search_orders( params , per_page = 10, page = 1  )
     store_id = params[:store_id] if params[:store_id].present?
     company_id = params[:company_id] if params[:company_id].present?
@@ -155,6 +156,10 @@ class Order < ActiveRecord::Base
       facet 'routes' do
         terms :route_id
       end
+	  
+	  facet 'sent' do 
+		terms :sent
+	  end
       
       sort  {by :created_at, 'desc'} unless params[:sort].present?
     end
@@ -179,6 +184,15 @@ class Order < ActiveRecord::Base
       tire_order_listing.facets['chains']['terms'].each_with_index do |chain,index|
         chain[:company_name] = Company.find(chain['term'].to_i)[:name]
         facets['chains'].push(chain)
+      end
+    end
+    
+    # Populating Sent Facet
+    if tire_order_listing.facets['sent'] && tire_order_listing.facets['sent']['terms'].count >= 1
+      facets['sent'] = []
+      tire_order_listing.facets['sent']['terms'].each_with_index do |status,index|
+        status[:term_name] = status['term'] == 'T' ? 'Sent' : 'Pending'
+        facets['sent'].push(status)
       end
     end
     

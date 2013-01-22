@@ -1,7 +1,7 @@
 class @OrderList
-	
+    
     @current_page = 1
-	
+    
     @init : () ->
         window.select_all = null
         window.toolbar = null
@@ -152,9 +152,17 @@ class @OrderList
                 third_column = if show_store then order.store_name else order.invoice_number
                 third_column = if third_column.length < 1 then 'N/A' else third_column
                 columns[2] = jQuery("<td/>").text(third_column)
-				
-                
+
                 columns[3] = jQuery("<td/>").text( order.deliver_by_day )
+
+                columns[4] = jQuery("<td/>");
+                fourth_column_text = "Pending"
+                fourth_column_css = "order_pending"
+                if order.sent
+                    fourth_column_text = "Sent"
+                    fourth_column_css = "order_sent"
+                   
+                columns[4].append( jQuery( "<span/>" ).attr( "class", fourth_column_css ).text( fourth_column_text ) )
         
                 row.append( col ) for col in columns
         @bind_click_event_for_checkboxes()

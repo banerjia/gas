@@ -2,7 +2,6 @@
 <h2><%= search_title || 'Recent Orders' -%></h2>
 <%- end -%>
 <form id="order_list_form" onsubmit="return false" method="get">
-
 <table id="order_list" class="listing">
 	<thead>
 		<tr>
@@ -19,9 +18,10 @@
 			<%- end -%>
 			</th>
 			<th scope="col">Deliver By</th>
+			<th scope="col">Status</th>
 		</tr>
 		<tr class="toolbar">
-             <td colspan="4">
+             <td colspan="5">
 				<input type="button" rel="div#email_order" id="a_email_order" value="Email Order"/>
 				<input type="button" value="Delete" id="delete_orders"/>
              </td>    
@@ -30,7 +30,7 @@
 	<%- if defined?(more_pages) && more_pages -%>
 	<tfoot>
 		<tr>
-			<td colspan="4" class="table_more_cell">
+			<td colspan="5" class="table_more_cell">
 				<a onclick="OrderList.load_more_orders()" class="load_more">More Orders Available...</a>
 			</td>
 		</tr>
@@ -51,11 +51,18 @@
 				<%- end -%>
 				</td>			
 				<td><%= order[:deliver_by_day]  %></td>
+				<td>
+				<%- if order[:sent] -%>
+					<span class="order_sent">Sent</span>
+				<%- else -%>
+					<span class="order_pending">Pending</span>
+				<%- end -%>
+				</td>
 			</tr>
 		<%- end -%>
 		<%- else -%>
 		  <tr>
-			<td colspan="4">We were unable to locate orders matching the criteria you provided. Please revise your choices and try again.</td>
+			<td colspan="5">We were unable to locate orders matching the criteria you provided. Please revise your choices and try again.</td>
 		  </tr>
 		<%- end -%>
 	<%- end -%>
@@ -82,6 +89,21 @@
 </div>
 <% content_for :head do -%>
   <%= stylesheet_link_tag :order_list -%>
+  <style type="text/css" media="screen">
+	span.order_sent, span.order_pending { 
+		color: #fff; 
+		font-family: Verdana, Tahoma, Arial, Sans-serif;
+		font-size: 10pt;  
+		display:inline-block; 
+		letter-spacing: 1.5px;
+		padding: 0.3em; 
+		text-align: center; 
+		text-transform: uppercase; 
+		min-width: 5em; 
+	}
+	span.order_sent{ background-color: #808000 }
+	span.order_pending{ background-color: #C11B17 }
+  </style>
 <% end -%>
 <% content_for :page_js do -%>
 	<%= javascript_include_tag "jquery.leanModal.min.js" -%>

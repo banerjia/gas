@@ -49,7 +49,7 @@ class OrdersController < ApplicationController
     @order = Order.find( params[:id] )
     store = Store.find( @order[:store_id] )
     if @order.update_attributes!( params[:order] )
-      redirect_to store_orders_path(store)
+      redirect_to orders_path
     else
       @store = store
       render "edit"

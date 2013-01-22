@@ -49,9 +49,8 @@
 	<%-
 				if @facets['chains']
 					@facets['chains'].each do |facet_term|
-						url =  path_prefix
-						url += search_params_without_chain.to_param if !search_params_without_chain.empty?
-						url += "&company_id=#{facet_term['term']}"
+						url = [search_params_without_chain.to_param, "company_id=#{facet_term['term']}"].join("&")
+						url = [path_prefix, url].join("?")
 	-%>
 					<li <%= @search_params[:company_id].to_i ==  facet_term['term'].to_i ? raw("class='current'"): "" -%>><%= link_to_if @search_params[:company_id].to_i !=  facet_term['term'].to_i,  facet_term[:company_name], url -%></li>
 	<%-				end
@@ -60,7 +59,7 @@
 			<li class="current">
 				<%= Company.find(@search_params[:company_id])[:name] -%>
 				<span style="float:right">
-					<%= link_to "X", path_prefix + search_params_without_chain.to_param -%>							
+					<%= link_to "X", [path_prefix, search_params_without_chain.to_param].join("?") -%>							
 				</span>
 			</li>	
 	<%-			end
@@ -89,4 +88,4 @@
 		window.end_date = '<%= !@search_params[:end_date] || @search_params[:end_date].to_date.today? ? Time.now : @search_params[:end_date] -%>';
 	</script>
 <% end -%>
-<%= render :partial => 'order_listing', :locals => {:orders => @orders, :show_store => true, :more_pages => @more_pages, :search_title => @search_title} %>
+<%= render :partial => 'order_listing', :locals => {:orders => @orders, :show_store => true, :more_pages => @more_pages, :search_title => @search_title, :search_params => @search_params} %>
