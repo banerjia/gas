@@ -1,11 +1,11 @@
 <% content_for :body do -%>
 <%= form_for @order, :url => orders_path do |f| -%>
-<%= render :partial => 'entry', :locals => {:f => f} -%>
-<div class="spacer"></div>
 <div class="buttons">	
 	<%= f.submit "Save", :class=>"button" -%>
 	<input type="button" value="Cancel" onclick="window.location = '<%= orders_path -%>'" class="button" />
 </div>
+<%= render :partial => 'entry', :locals => {:f => f} -%>
+<div class="spacer"></div>
 <%- end -%>
 	
 <% end -%>

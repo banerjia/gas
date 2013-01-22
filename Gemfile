@@ -26,5 +26,4 @@ gem 'sorcery'
 gem 'bcrypt-ruby'
 gem 'bourbon'
 gem 'axlsx_rails'
-gem 'resque', :require => "resque/server"
 gem 'aws-s3'

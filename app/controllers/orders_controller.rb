@@ -14,7 +14,6 @@ class OrdersController < ApplicationController
     
     @page_title = "Order Sheet for PO: " + @order[:invoice_number]
     @browser_title = "Invoice: " + @order[:invoice_number]
-    Resque.enqueue( SaveOrdersToS3, @order.id)    
     respond_to do |format|
       format.html { render :locals => {:order => @order} }
       format.xlsx do 
@@ -109,16 +108,15 @@ class OrdersController < ApplicationController
         search_date_params = { :start_date => (params[:start_date] || today ).to_date, :end_date => (params[:end_date] || today ).to_date }
 
         @pre_defined_search_options = []
-        @pre_defined_search_options[0] = ["Created today", \
-                                        {:start_date => today, :end_date => today}]
+        @pre_defined_search_options.push(["Created today", \
+                                        {:start_date => today, :end_date => today}]  )                             
+        @pre_defined_search_options.push(["Created this week", \
+                                        {:start_date => today.days_to_week_start.days.ago.to_date, :end_date => today }]) unless today.monday?
                                         
-        @pre_defined_search_options[1] = ["Created this week", \
-                                        {:start_date => today.days_to_week_start.days.ago.to_date, :end_date => today }] if today.days_to_week_start
-                                        
-        @pre_defined_search_options[2] = ["From last week", {:end_date => ((today.days_to_week_start).days.ago - 1.day).to_date, :start_date => ((today.days_to_week_start).days.ago.to_date - 1.week).to_date}]
+        @pre_defined_search_options.push(["From last week", {:end_date => ((today.days_to_week_start).days.ago - 1.day).to_date, :start_date => ((today.days_to_week_start).days.ago.to_date - 1.week).to_date}])
         
-        @pre_defined_search_options[3] = ["Created this month", \
-                                          {:start_date => (today.day - 1).days.ago.to_date, :end_date => today}]
+        @pre_defined_search_options.push(["Created this month", \
+                                          {:start_date => (today.day - 1).days.ago.to_date, :end_date => today}])
                                           
                                           
         @pre_defined_search_options.each do |search_specs|

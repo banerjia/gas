@@ -10,7 +10,7 @@
 	</ul>
 	<%- 
 		if defined?(@facets) 
-			path_prefix = orders_search_path + '?es=1&' 
+			path_prefix = orders_search_path  
 			
 			if @facets['states'] || @search_params[:shipping_state].present?
 				search_params_without_state = @search_params.reject{ |key,value| key.to_s == 'shipping_state' }
@@ -21,9 +21,8 @@
 	<%-
 				if @facets['states']
 					@facets['states'].each do |facet_term|
-						url =  path_prefix
-						url += search_params_without_state.to_param if !search_params_without_state.empty?
-						url += "&shipping_state=#{facet_term['term']}"
+						url = [search_params_without_state.to_param, "shipping_state=#{facet_term['term']}"].join("&")
+						url = [path_prefix, url].join("?")
 	-%>
 					<li <%= @search_params[:shipping_state] ==  facet_term['term'] ? raw("class='current'"): "" -%>><%= link_to_if @search_params[:shipping_state] !=  facet_term['term'],  facet_term[:state_name], url -%></li>
 	<%-				end
@@ -34,7 +33,7 @@
 					<li class="current">
 						<%= State.find(['US', @search_params[:shipping_state]])[:state_name] -%>
 						<span style="float:right">
-							<%= link_to "X", path_prefix + search_params_without_state.to_param -%>							
+							<%= link_to "X", [path_prefix, search_params_without_state.to_param].join("?") -%>							
 						</span>
 					</li>
 	<%-			end	

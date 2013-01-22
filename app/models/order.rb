@@ -11,7 +11,7 @@ class Order < ActiveRecord::Base
   belongs_to :store, :counter_cache => true
   
   # Attributes
-  attr_accessible :invoice_number, :route_id, :delivery_dow, :created_at, :product_orders_attributes
+  attr_accessible :invoice_number, :route_id, :delivery_dow, :created_at, :sent, :product_orders_attributes
   
   # Validations
   accepts_nested_attributes_for :product_orders, :allow_destroy => true, \
@@ -19,10 +19,11 @@ class Order < ActiveRecord::Base
   
   # ElasticSearch Index
   tire do 
-    index_name('orders_dashboard')
+    index_name('orders')
     mapping do
       indexes :id,              :type => "integer",   :index => 'not_analyzed', :include_in_all => false
       indexes :invoice_number,  :type => "string",    :index => 'not_analyzed'
+      indexes :sent,            :type => "boolean",   :index => 'not_analyzed'
       indexes :store_name,      :type => "string",    :analyzer => 'snowball',  :as => 'store.name_with_locality'
       indexes :store_id,        :type => 'integer',   :index => 'not_analyzed', :as => 'store[:id]'
       indexes :company_id,      :type => 'integer',   :index => 'not_analyzed', :as => 'store.company[:id]'
