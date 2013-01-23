@@ -1,5 +1,6 @@
 <% content_for :head do %>
 	<%= stylesheet_link_tag "forms" %>
+	<%= stylesheet_link_tag "table" %>
 	<style type="text/css">
 		fieldset.form_sections legend{
 			background-color:#eee;
@@ -8,12 +9,24 @@
 			text-transform:uppercase;
 		}
 		div#left_column, div#right_column { display:none }
+		table#contacts { width: 99.9%}
+		table#contacts caption{ 
+			font-size: 12pt;
+			font-weight: bold;
+			line-height: 2.2;
+			text-align: center;
+			text-transform: uppercase;
+		}
 	</style>
 <% end %>
 
 <% content_for :body do %>
 	<%= form_for store do |f| %>
 	<fieldset class="form_sections">
+		<div class="buttons">
+			<%= f.submit "Save Changes", :class => "button"%>
+			<input type="button" class="button" value="Cancel" onclick="window.location='<%= store_path(store)%>'"/>
+		</div>
 		<div class="entry_row">
 			<div class="entry_label">Name</div>
 			<div class="entry_value"><%= f.text_field :name %></div>		
@@ -54,14 +67,30 @@
 			<div class="entry_label">Phone</div>
 			<div class="entry_value"><%= f.telephone_field :phone %></div>
 		</div>
-		<div class="entry_row">
-			<div class="entry_label">Date Added</div>
-			<div class="entry_value"><%= store[:created_at] ? store[:created_at].strftime("%b %d, %Y") : '' -%> &nbsp;</div>
-		</div>
-		<div class="entry_row">
-			<div class="entry_label">Last Updated On</div>
-			<div class="entry_value"><%= store[:updated_at] ? store[:updated_at].strftime("%b %d, %Y") : '' =%> &nbsp;</div>
-		</div>
+		<table id="contacts" class="listing">
+			<caption>Store Contacts</caption>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Title</th>
+					<th>Phone</th>
+					<th>E-mail</th>
+					<th><span style="display:none">Options</span></th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<td colspan="5" class="table_more_cell">
+						<%= link_to_add_fields "Add Contact", f, :store_contacts -%>
+					</td>
+				</tr>
+			</tfoot>
+			<tbody>
+				<%= f.fields_for :store_contacts, :include_id => false do |store_contact| -%>
+				<%= render :partial => "store_contacts/store_contact_fields", :locals => {:f => store_contact} -%>
+				<%- end -%>
+			</tbody>
+		</table>
 		<div class="buttons">
 			<%= f.submit "Save Changes", :class => "button"%>
 			<input type="button" class="button" value="Cancel" onclick="window.location='<%= store_path(store)%>'"/>
@@ -69,3 +98,20 @@
 	</fieldset>
 	<% end %>
 <% end %>
+
+<% content_for :page_js do -%>
+<script type="text/javascript">
+function remove_contact( handle ){	
+	if($("table#contacts tbody tr").length == 1)
+		$("table#contacts tbody tr input").val("");
+	else
+		$(handle).closest("tr").remove();
+}
+
+function add_fields(link, association, content) {
+	var new_id = new Date().getTime();
+	var regexp = new RegExp("new_" + association, "g")
+	$("table#contacts tbody").append(content.replace(regexp, new_id));
+}
+</script>
+<% end -%>

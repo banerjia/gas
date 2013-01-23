@@ -6,12 +6,17 @@ class Store < ActiveRecord::Base
   belongs_to :state, :foreign_key => [:country, :state_code]
   
   belongs_to :region, :counter_cache => true
+  
+  has_many :store_contacts
 
   has_many :orders
   
   has_many :audits
   has_one :pending_audit, :class_name => "Audit", :conditions => {:status => 0}, :order => "created_at desc"
   has_one :last_audit, :class_name => "Audit", :conditions => {:status => 1}, :order => "created_at desc"
+
+  accepts_nested_attributes_for :store_contacts, :allow_destroy => true, \
+                                :reject_if => proc { |sc| sc[:name].blank? }
 
   tire do 
   	index_name('stores')
@@ -73,6 +78,9 @@ class Store < ActiveRecord::Base
   end
 
   before_save do |store|
+    # Updating StoreContacts
+    StoreContact.delete_all({:store_id => store[:id]})
+    
     # Region Changes    
     if region_id_changed?
       Region.decrement_counter( :stores_count, store.region_id_was) if store.region_id_was

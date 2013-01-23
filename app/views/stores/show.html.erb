@@ -8,7 +8,6 @@
 			width:100%;
 		}
 		table.listing caption{display:none;}
-
 	</style>
 <%- end -%>
 <%- content_for :page_js do -%>
@@ -57,6 +56,7 @@
 		$(document).ready(function(){
 			current_section = $("ul.nav_items li.current")[0];
 			$("table.listing").hide();
+			$("table#store_contacts").show();
 			$("ul.nav_items li").click(function(){
 				switch_sections( $(this) );
 			});
@@ -114,6 +114,30 @@
 		<div class="entry_label">Phone</div>
 		<div class="entry_value"><%= number_to_phone(store[:phone]) -%></div>
 	</div>
+	<%- end -%>
+	<div class="spacer"></div>
+	<%- if store.store_contacts.count > 0 -%>
+	<h3>Store Contacts</h3>
+	<table id="store_contacts" class="listing">
+		<thead>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Title</th>
+				<th scope="col">Phone</th>
+				<th scope="col">Email</th>
+			</tr>
+		</thead>
+		<tbody>
+			<%- store.store_contacts.each do |store_contact| -%>
+			<tr>
+				<td><%= store_contact[:name]%></td>
+				<td><%= store_contact[:title]%>&nbsp;</td>
+				<td><%= store_contact[:phone]%>&nbsp;</td>
+				<td><%= store_contact[:email]%>&nbsp;</td>
+			</tr>
+			<%- end -%>
+		</tbody>
+	</table>
 	<%- end -%>
 </div>
 <%- if store.orders.count > 0 -%>

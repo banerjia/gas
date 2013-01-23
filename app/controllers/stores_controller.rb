@@ -12,7 +12,7 @@ class StoresController < ApplicationController
     :company => {:only => [:id,:name]}}
     exceptions = [:company_id]
 
-    store = Store.find(:first,:conditions => {:id => store_id}, :include => [:last_audit,:pending_audit,:company])
+    store = Store.find(:first, :conditions => {:id => store_id}, :include => [:store_contacts, :last_audit,:pending_audit,:company])
 
     @page_title = store[:name].titlecase + " Dashboard"
 
