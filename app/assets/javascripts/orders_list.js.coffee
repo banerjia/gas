@@ -76,7 +76,7 @@ class @OrderList
                 jQuery( order ).val()
       
        params_id = ids.join(",")
-       window.location.reload(true)
+       #window.location.reload(true)
        jQuery.ajax
           url: window.order_path + '/' + params_id
           beforeSend: (xhr) ->
@@ -84,12 +84,8 @@ class @OrderList
                            return
           data:
              "id": params_id
-             "email": email
-             "email_body":  email_body if email_body
-          type: 'POST'
-          data:
-             "_method": 'delete'
-          success: () ->
+          type: 'DELETE'
+          complete: () ->
              window.location.reload(true)
              return
        return

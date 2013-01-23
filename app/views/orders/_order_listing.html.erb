@@ -7,7 +7,6 @@
 	<%= link_to_unless_current "All Orders", [orders_search_path, search_params_without_sent.to_param].join("?") -%> | 
 	<%= link_to_unless_current "Completed Orders", [orders_search_path, search_params_without_sent.merge({:sent => 'T'}).to_param].join("?") -%> | 
 	<%= link_to_unless_current "Pending Orders", [orders_search_path, search_params_without_sent.merge({:sent => 'F'}).to_param].join("?") -%>
-	
 </p>
 <%- end -%>
 <form id="order_list_form" onsubmit="return false" method="get">
@@ -86,7 +85,7 @@
 		</div>
 		<div class="entry_row" style="display:none">
 			<label for="email_addresses">Email Address(es)</label><br/>
-                        <%= email_field_tag :email_addresses, "banerji.abhishek@gmail.com", :multiple => true -%>
+                        <%= email_field_tag :email_addresses, ENV['order_email'], :multiple => true -%>
 		</div>
 		<div class="entry_row">
 			<label for="email_body">Message</label> - <em>optional</em><br/>
