@@ -33,6 +33,7 @@ class OrdersController < ApplicationController
     @store = Store.find(params[:store_id])
     @order = @store.orders.new(params[:order])
     if @order.save
+      Order.tire.index.refresh
       redirect_to orders_path
     else
       render "new"
@@ -61,6 +62,7 @@ class OrdersController < ApplicationController
     orders_to_delete.each do | order_id |
       Order.find( order_id ).destroy
     end
+    Order.tire.index.refresh
     redirect_to :action => "dashboard"
   end
   

@@ -4,7 +4,7 @@
 <h2><%= search_title || 'Recent Orders' -%></h2>
 
 <p><strong>Show:</strong> 
-	<%= link_to_unless_current "All Orders", [orders_search_path, search_params_without_sent.to_param].join("?") -%> | 
+	<%= link_to_if search_params[:sent].present?, "All Orders", [orders_search_path, search_params_without_sent.to_param].join("?") -%> | 
 	<%= link_to_unless_current "Completed Orders", [orders_search_path, search_params_without_sent.merge({:sent => 'T'}).to_param].join("?") -%> | 
 	<%= link_to_unless_current "Pending Orders", [orders_search_path, search_params_without_sent.merge({:sent => 'F'}).to_param].join("?") -%>
 </p>
