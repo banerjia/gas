@@ -7,7 +7,9 @@ class OrderMailer < ActionMailer::Base
       attachments[order.filename] = { 
 	      :content_type => "application/octet-stream",
 	      :body => view_context.render( :template => 'orders/show_order', :handlers => [:axlsx], :locals => {:order => order} )
-      }
+      }  
+      order[:email_sent] = true
+      order.save
     end
 
     if order_list.size > 1

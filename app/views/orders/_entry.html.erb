@@ -13,11 +13,10 @@
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">
-			Order sent
+			Email Sent
 		</div>
 		<div class="entry_value">
-			<%= f.radio_button :sent, true -%><label for="order_sent_false">Yes</label>
-			<%= f.radio_button :sent, false -%><label for="order_sent_true">No</label>
+			<%= f[:email_sent] ? "Yes" : "No" -%>
 		</div>
 	</div>
 	<div class="entry_row">

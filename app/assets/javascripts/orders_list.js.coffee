@@ -152,11 +152,11 @@ class @OrderList
                 columns[3] = jQuery("<td/>").text( order.deliver_by_day )
 
                 columns[4] = jQuery("<td/>");
-                fourth_column_text = "Pending"
-                fourth_column_css = "order_pending"
-                if order.sent
+                fourth_column_text = ""
+                fourth_column_css = ""
+                if order.email_sent
                     fourth_column_text = "Sent"
-                    fourth_column_css = "order_sent"
+                    fourth_column_css = "order_email_sent"
                    
                 columns[4].append( jQuery( "<span/>" ).attr( "class", fourth_column_css ).text( fourth_column_text ) )
         

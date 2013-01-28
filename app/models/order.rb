@@ -11,7 +11,7 @@ class Order < ActiveRecord::Base
   belongs_to :store, :counter_cache => true
   
   # Attributes
-  attr_accessible :invoice_number, :route_id, :delivery_dow, :created_at, :sent, :product_orders_attributes
+  attr_accessible :invoice_number, :route_id, :delivery_dow, :created_at, :email_sent, :product_orders_attributes
   
   # Validations
   accepts_nested_attributes_for :product_orders, :allow_destroy => true, \
@@ -23,7 +23,7 @@ class Order < ActiveRecord::Base
     mapping do
       indexes :id,              :type => "integer",   :index => 'not_analyzed', :include_in_all => false
       indexes :invoice_number,  :type => "string",    :index => 'not_analyzed'
-      indexes :sent,     		:type => "boolean",   :index => 'not_analyzed'
+      indexes :email_sent,     	:type => "boolean",   :index => 'not_analyzed'
       indexes :store_name,      :type => "string",    :analyzer => 'snowball',  :as => 'store.name_with_locality'
       indexes :store_id,        :type => 'integer',   :index => 'not_analyzed', :as => 'store[:id]'
       indexes :company_id,      :type => 'integer',   :index => 'not_analyzed', :as => 'store.company[:id]'
@@ -72,7 +72,7 @@ class Order < ActiveRecord::Base
     end  
     
     # Setting the order sent date
-    order[:sent_date] = (order[:sent] ? Date.today : nil) if sent_changed?
+    order[:email_sent_date] = (order[:email_sent] ? Date.today : nil) if email_sent_changed?
   end
   
   def delivery_day_of_the_week
@@ -108,7 +108,7 @@ class Order < ActiveRecord::Base
     company_id = params[:company_id] if params[:company_id].present?
     route_id = params[:route_id] if params[:route_id].present?
     state_code = params[:shipping_state] if params[:shipping_state].present?
-    sent_status = params[:sent] if params[:sent].present?
+    email_sent_status = params[:email_sent] if params[:email_sent].present?
   
     # Initialize both dates to nil so that in case the "else"
     # part is executed the missing date is always set to nil
@@ -135,7 +135,7 @@ class Order < ActiveRecord::Base
       	     must { term :store_id,  store_id.to_i } if defined?(store_id) && store_id
       	     must { term :company_id, company_id } if defined?(company_id) && company_id
       	     must { term :ship_to_state_code, state_code } if defined?(state_code) && state_code
-      	     must { term :sent, sent_status } if defined?(sent_status) && !sent_status.nil?
+      	     must { term :email_sent, email_sent_status } if defined?(email_sent_status) && !email_sent_status.nil?
            end
       end
 
@@ -161,10 +161,6 @@ class Order < ActiveRecord::Base
       facet 'routes' do
         terms :route_id
       end
-	  
-  	  facet 'sent' do 
-  		  terms :sent
-  	  end
       
       sort  {by :created_at, 'desc'} unless params[:sort].present?
     end
