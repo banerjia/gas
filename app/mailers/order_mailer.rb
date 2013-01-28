@@ -9,6 +9,7 @@ class OrderMailer < ActionMailer::Base
 	      :body => view_context.render( :template => 'orders/show_order', :handlers => [:axlsx], :locals => {:order => order} )
       }  
       order[:email_sent] = true
+      order[:email_sent_date] = Date.today
       order.save
     end
 

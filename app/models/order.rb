@@ -38,6 +38,16 @@ class Order < ActiveRecord::Base
   end
   # Callbacks  
   before_save do |order|
+    # Setting the order sent date
+    if email_sent_changed? || email_sent_date_changed?
+    	order[:email_sent_date] = (order[:email_sent] ? Date.today : nil) if email_sent_changed? && order[:email_sent_date].nil?
+
+    # Do not do updates if only email_sent is changed
+    # because it can only be changed from the mailer
+    # script and that does not change any other part of an order
+    	return
+    end
+
     # Clean out Product_Orders table to avoid duplication
     ProductOrder.delete_all({:order_id => order[:id]})
     
@@ -71,8 +81,6 @@ class Order < ActiveRecord::Base
       end
     end  
     
-    # Setting the order sent date
-    order[:email_sent_date] = (order[:email_sent] ? Date.today : nil) if email_sent_changed?
   end
   
   def delivery_day_of_the_week
