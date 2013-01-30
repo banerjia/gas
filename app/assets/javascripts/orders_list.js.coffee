@@ -76,7 +76,6 @@ class @OrderList
                 jQuery( order ).val()
       
        params_id = ids.join(",")
-       #window.location.reload(true)
        jQuery.ajax
           url: window.order_path + '/' + params_id
           beforeSend: (xhr) ->

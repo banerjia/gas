@@ -19,7 +19,12 @@
 			Email Sent
 		</div>
 		<div class="entry_value">
-			<%= @order[:sent] ? 'Yes':'No' -%>
+			<%- if @order[:email_sent] -%>
+				Yes<br/>
+				<%= @order[:email_sent_date].to_date.strftime("%b %d, %Y") -%>
+			<%- else -%>
+				No
+			<%- end -%>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -108,6 +113,12 @@
 			margin: 0;
 			width:auto
 		}
-		div.entry_label {border: 2px solid #ccc; border-left:none; border-right: none}
+		div.entry_label {
+			background-color: #5f6b61;
+			border: 2px solid #ccc; 
+			border-left:none; 
+			border-right: none;
+			color: #fff;
+		}
 	</style>
 <%- end -%>
