@@ -20,6 +20,9 @@ group :test do
   gem 'turn', :require => false
 end
 
+# Securing against JSON vulnerability
+gem 'json', '~> 1.7.7'
+
 # Custom Gem Additions
 gem 'tire'
 gem 'sorcery'

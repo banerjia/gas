@@ -54,7 +54,7 @@ class Store < ActiveRecord::Base
       filter :term, :region_id => params[:region] if params[:region].present?
 
       facet 'regions' do 
-        terms :region_id
+        terms :region_id, :order => 'term'
       end     
       
       sort  {by :name_sort} 
