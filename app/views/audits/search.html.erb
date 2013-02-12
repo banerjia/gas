@@ -1,0 +1,70 @@
+<%-
+  path_prefix = audits_search_path
+  @previous_search.delete(:q)
+  search_params_without_auditor = @previous_search.reject{ |key,value| key.to_s == 'auditor' }
+  search_params_without_chain = @previous_search.reject{ |key,value| key.to_s == 'chain' }
+  search_params_without_score = @previous_search.reject{ |key,value| key.to_s.starts_with?("score") }
+-%>
+
+<%- content_for :left_column do -%>
+  <h3>Find Audits</h3>
+  <ul class="nav_items">
+    <li><%= link_to "Created Today", '#' -%></li>
+    <li><%= link_to "This Week", '#' -%></li>
+    <li><%= link_to "Last Week", '#' -%></li>
+  </ul>
+
+  <h3>Filter by Auditor</h3>
+  <ul class="nav_items">
+    <%- @search_results[:facets]['auditors'].each do |facet| -%>
+      <li><%= link_to facet['term'].titleize, [path_prefix, search_params_without_auditor.merge({:auditor => facet['term']}).to_param].join("?")-%></li>
+    <%- end -%>
+  </ul>
+
+  <h3>Filter by Chain</h3>
+  <ul class="nav_items">
+    <%- @search_results[:facets]['chains'].each do |facet| -%>
+      <li><%= link_to facet[:company_name].titleize, '#' -%></li>
+    <%- end -%>
+  </ul>
+
+  <h3>Filter by Score</h3>
+  <ul class="nav_items">
+    <%- @search_results[:facets]['scores'].each do |facet| -%>
+      <li><%= link_to "#{facet['from'].to_i} - #{facet['to'].to_i}", [path_prefix, search_params_without_score.merge({:score_lower => facet['from'].to_i, :score_upper => facet['to'].to_i}).to_param].join("?") -%></li>
+    <%- end -%>
+  </ul>
+<%- end -%>
+
+<%- content_for :head do -%>
+  <%= stylesheet_link_tag :table -%>
+  <style type="text/css" media="screen">
+    table#audits_list{
+      width: 99.9%
+    }
+  </style>
+<%- end -%>
+
+<h2>Results</h2>
+
+<%- if @search_results[:results].count > 0 -%>
+  <table id="audits_list" class="listing">
+    <thead>
+      <tr>
+	<th scope="col">Store</th>
+	<th scope="col">Audit Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%- @search_results[:results].each do |entry| -%>
+	<tr class="<%= cycle('regular','alternate') -%>">
+	  <td><%= entry.store[:name] -%></td>
+	  <td><%= link_to entry[:score], audit_path( entry[:id] ) -%></td>
+	</tr>
+      <%- end -%>
+    </tbody>
+  </table>
+<%- else -%>
+  <p>No audits found.</p>
+<%- end -%>
+

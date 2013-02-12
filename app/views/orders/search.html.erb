@@ -1,91 +1,91 @@
 <% content_for :left_column do %>
-	<h2>Options</h2>
-	<h3>Find Orders</h3>
-	<ul class="nav_items">
-	<%- @pre_defined_search_options.each do |search_specs| -%>		
-		<li class="<%=search_specs[1][:class]-%>">
-			<%= link_to_if !search_specs[1][:class].present?, search_specs[0], orders_search_path(search_specs[1]) -%>
-		</li>
-	<%- end -%>
-	</ul>
-	<%- 
-		if defined?(@facets) 
-			path_prefix = orders_search_path  
-			
-			if @facets['states'] || @search_params[:shipping_state].present?
-				search_params_without_state = @search_params.reject{ |key,value| key.to_s == 'shipping_state' }
+  <h2>Options</h2>
+  <h3>Find Orders</h3>
+  <ul class="nav_items">
+    <%- @pre_defined_search_options.each do |search_specs| -%>		
+      <li class="<%=search_specs[1][:class]-%>">
+      <%= link_to_if !search_specs[1][:class].present?, search_specs[0], orders_search_path(search_specs[1]) -%>
+      </li>
+    <%- end -%>
+  </ul>
+  <%- 
+    if defined?(@facets) 
+      path_prefix = orders_search_path  
+
+      if @facets['states'] || @search_params[:shipping_state].present?
+	search_params_without_state = @search_params.reject{ |key,value| key.to_s == 'shipping_state' }
+      -%>
+      <h3>Filter by Shipping State</h3>
+      <ul class="nav_items">
+
+	<%- if @facets['states'] -%>
+	  <%-    @facets['states'].each do |facet_term|
+	    url = [search_params_without_state.to_param, "shipping_state=#{facet_term['term']}"].join("&")
+	    url = [path_prefix, url].join("?")
+	  -%>
+	  <li <%= @search_params[:shipping_state] ==  facet_term['term'] ? raw("class='current'"): "" -%>><%= link_to_if @search_params[:shipping_state] !=  facet_term['term'],  facet_term[:state_name], url -%></li>
+	<%- end
+	  search_params_without_state.delete_if{ true }
+	  search_params_without_state = nil
+	else
+      -%>
+      <li class="current">
+      <%= State.find(['US', @search_params[:shipping_state]])[:state_name] -%>
+      <span style="float:right">
+	<%= link_to "X", [path_prefix, search_params_without_state.to_param].join("?") -%>							
+      </span>
+      </li>
+    <%- end -%>
+  <%- end -%>		
+</ul>
+<%-		
+  if @facets['chains'] || @search_params[:company_id].present?
+    search_params_without_chain = @search_params.reject{ |key,value| key.to_s == 'company_id' }
+  -%>
+  <h3>Filter by Chain</h3>
+  <ul class="nav_items">
+    <%-
+      if @facets['chains']
+	@facets['chains'].each do |facet_term|
+	  url = [search_params_without_chain.to_param, "company_id=#{facet_term['term']}"].join("&")
+	  url = [path_prefix, url].join("?")
 	-%>
-	<h3>Filter by Shipping State</h3>
-	<ul class="nav_items">
-	
-	<%-
-				if @facets['states']
-					@facets['states'].each do |facet_term|
-						url = [search_params_without_state.to_param, "shipping_state=#{facet_term['term']}"].join("&")
-						url = [path_prefix, url].join("?")
-	-%>
-					<li <%= @search_params[:shipping_state] ==  facet_term['term'] ? raw("class='current'"): "" -%>><%= link_to_if @search_params[:shipping_state] !=  facet_term['term'],  facet_term[:state_name], url -%></li>
-	<%-				end
-					search_params_without_state.delete_if{ true }
-					search_params_without_state = nil
-				else
-	-%>
-					<li class="current">
-						<%= State.find(['US', @search_params[:shipping_state]])[:state_name] -%>
-						<span style="float:right">
-							<%= link_to "X", [path_prefix, search_params_without_state.to_param].join("?") -%>							
-						</span>
-					</li>
-	<%-			end	
-			end
-	-%>		
-	</ul>
-	<%-		
-			if @facets['chains'] || @search_params[:company_id].present?
-				search_params_without_chain = @search_params.reject{ |key,value| key.to_s == 'company_id' }
-	-%>
-	<h3>Filter by Chain</h3>
-	<ul class="nav_items">
-	<%-
-				if @facets['chains']
-					@facets['chains'].each do |facet_term|
-						url = [search_params_without_chain.to_param, "company_id=#{facet_term['term']}"].join("&")
-						url = [path_prefix, url].join("?")
-	-%>
-					<li <%= @search_params[:company_id].to_i ==  facet_term['term'].to_i ? raw("class='current'"): "" -%>><%= link_to_if @search_params[:company_id].to_i !=  facet_term['term'].to_i,  facet_term[:company_name], url -%></li>
-	<%-				end
-				else
-	-%>
-			<li class="current">
-				<%= Company.find(@search_params[:company_id])[:name] -%>
-				<span style="float:right">
-					<%= link_to "X", [path_prefix, search_params_without_chain.to_param].join("?") -%>							
-				</span>
-			</li>	
-	<%-			end
-				search_params_without_chain.delete_if{ true }
-				search_params_without_chain = nil
-			end
-	-%>		
-	</ul>
-	<%- end -%>
-<% end %>
-<% content_for :head do -%>
-	<style type="text/css" media="screen">
-		page_body#h3 {font-size: 10pt}
-		page_body ul.nav_items li.current {
-			background-color: #ddd;
-			color: #000;
-			font-weight: bold;
-		}
-	</style>
-<% end -%>
-<% content_for :page_js do -%>
-	<script type="text/javascript">
-<%-		if !@search_params[:start_date].present? -%>
-		window.start_date = '<%=Time.now.strftime("%Y-%m-%d")-%>';
-<%-		end 	-%>
-		window.end_date = '<%= !@search_params[:end_date] || @search_params[:end_date].to_date.today? ? Time.now : @search_params[:end_date] -%>';
-	</script>
-<% end -%>
-<%= render :partial => 'order_listing', :locals => {:orders => @orders, :show_store => true, :more_pages => @more_pages, :search_title => @search_title, :search_params => @search_params} %>
+	<li <%= @search_params[:company_id].to_i ==  facet_term['term'].to_i ? raw("class='current'"): "" -%>><%= link_to_if @search_params[:company_id].to_i !=  facet_term['term'].to_i,  facet_term[:company_name], url -%></li>
+	<%-  
+	end
+      else  
+    -%>
+    <li class="current">
+    <%= Company.find(@search_params[:company_id])[:name] -%>
+    <span style="float:right">
+      <%= link_to "X", [path_prefix, search_params_without_chain.to_param].join("?") -%>							
+    </span>
+    </li>	
+    <%-
+      end
+      search_params_without_chain.delete_if{ true }
+      search_params_without_chain = nil
+  end
+-%>		
+      </ul>
+    <%- end -%>
+  <%- end -%>
+  <%- content_for :head do -%>
+    <style type="text/css" media="screen">
+      page_body#h3 {font-size: 10pt}
+      page_body ul.nav_items li.current {
+	background-color: #ddd;
+	color: #000;
+	font-weight: bold;
+      }
+    </style>
+  <%- end -%>
+  <%- content_for :page_js do -%>
+    <script type="text/javascript">
+      <%- if !@search_params[:start_date].present? -%>
+	window.start_date = '<%=Time.now.strftime("%Y-%m-%d")-%>';
+      <%- end -%>
+      window.end_date = '<%= !@search_params[:end_date] || @search_params[:end_date].to_date.today? ? Time.now : @search_params[:end_date] -%>';
+      </script>
+    <%- end -%>
+    <%= render :partial => 'order_listing', :locals => {:orders => @orders, :show_store => true, :more_pages => @more_pages, :search_title => @search_title, :search_params => @search_params} %>
