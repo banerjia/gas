@@ -17,6 +17,8 @@ Graeters::Application.routes.draw do
         match "stores" => "stores#search", :as => "stores"
       end      
       
+      
+      get 'audits/search' => 'audits#search'
       get "signout" => "sessions#destroy", :as => "logout"
       get "signin" => "sessions#new", :as => "login"
 

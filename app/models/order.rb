@@ -184,7 +184,8 @@ class Order < ActiveRecord::Base
       tire_order_listing.facets['states']['terms'].each_with_index do |state,index| 
         state[:state_name] = State.find(:first, :conditions => {:state_code => state['term']} )[:state_name]
         facets['states'].push(state)
-      end
+      end  
+      facets['states'].sort!{ |a,b| a[:state_name] <=> b[:state_name]}
     end
     
     # Populating Chains Facet
@@ -193,7 +194,8 @@ class Order < ActiveRecord::Base
       tire_order_listing.facets['chains']['terms'].each_with_index do |chain,index|
         chain[:company_name] = Company.find(chain['term'].to_i)[:name]
         facets['chains'].push(chain)
-      end
+      end  
+      facets['chains'].sort!{ |a,b| a[:company_name].sub(/^(the|a|an)\s+/i, '') <=> b[:company_name].sub(/^(the|a|an)\s+/i, '')}
     end
     
     # Populating Delivery Day Facets
