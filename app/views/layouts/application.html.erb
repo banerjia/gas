@@ -1,98 +1,98 @@
 <!DOCTYPE html>
 <html> 
-<head>
-  <title><%= @page_title or "Untitled" %></title>
-  <link href='http://fonts.googleapis.com/css?family=Asap:400,700' rel='stylesheet' type='text/css'/>
-  <%= javascript_include_tag :application %>
-  <%= stylesheet_link_tag "application"%>
-  <%= csrf_meta_tags %>
-  <style type="text/css" media="screen">
-	p.error{background-image: url(<%= image_path("error_24x24.png")%>);}
-	p.warning{background-image: url(<%= image_path("warning_24x24.png")%>);}
-	p.notice{background-image: url(<%= image_path("success_24x24.png")%> );}	
-	.information{background-image: url(<%= image_path("information_32x32.png")%>);}	
-	ul.nav_items li.current {background-image:url(<%= image_path("current_16x16.png")%>);}
-  </style>
-  <%= yield :head %>
-</head>
-<body>
-	<div id="wrapper">
-		<header>
-		<div id="page_header" class="page_blocks">
-			<p style="margin:0;margin-bottom:2px;font-size:9pt;font-weight:bold;text-align:right">Beta</p>
-			
-			<!-- TITLE -->
-			<h1 style="margin-top:1px"><%= @page_title || "Untitled" %></h1>
-			
-			<%- if current_user || true -%>
-			<!-- Display top nav after login -->
-			<div id="top_nav">
-				<ul>
-					<li <%= current_page?(companies_path) ? raw("class='current'"): "" -%>>
-						<%=link_to_unless_current "Chains", companies_path -%>
-					</li>
-					<li <%= current_page?(orders_search_path) ? raw("class='current'"): "" -%>>
-						<%=link_to_unless_current "Orders", orders_search_path -%>
-					</li>
-					<%- if true #current_user.is_admin  %>
-					<li <%= current_page?(products_path) ? raw("class='current'"):"" -%>>
-						<%= link_to_unless_current "Products", products_path -%>
-					</li>
-					<%- end -%>
-					<li><%= link_to "Signout", logout_path %></li>
-				</ul>
+	<head>
+		<title><%= @page_title or "Untitled" %></title>
+		<link href='http://fonts.googleapis.com/css?family=Asap:400,700' rel='stylesheet' type='text/css'/>
+		<%= javascript_include_tag :application %>
+		<%= stylesheet_link_tag "application"%>
+		<%= csrf_meta_tags %>
+		<style type="text/css" media="screen">
+			p.error{background-image: url(<%= image_path("error_24x24.png")%>);}
+			p.warning{background-image: url(<%= image_path("warning_24x24.png")%>);}
+			p.notice{background-image: url(<%= image_path("success_24x24.png")%> );}	
+			.information{background-image: url(<%= image_path("information_32x32.png")%>);}	
+			ul.nav_items li.current {background-image:url(<%= image_path("current_16x16.png")%>);}
+		</style>
+		<%= yield :head %>
+	</head>
+	<body>
+		<div id="wrapper">
+			<header>
+			<div id="page_header" class="page_blocks">
+				<p style="margin:0;margin-bottom:2px;font-size:9pt;font-weight:bold;text-align:right">Beta</p>
+
+				<!-- TITLE -->
+				<h1 style="margin-top:1px"><%= @page_title || "Untitled" %></h1>
+
+				<%- if current_user || true -%>
+					<!-- Display top nav after login -->
+					<div id="top_nav">
+						<ul>
+							<li <%= current_page?(companies_path) ? raw("class='current'"): "" -%>>
+							<%=link_to_unless_current "Chains", companies_path -%>
+							</li>
+							<li <%= current_page?(orders_search_path) ? raw("class='current'"): "" -%>>
+							<%=link_to_unless_current "Orders", orders_search_path -%>
+							</li>
+							<%- if true #current_user.is_admin  %>
+								<li <%= current_page?(products_path) ? raw("class='current'"):"" -%>>
+								<%= link_to_unless_current "Products", products_path -%>
+								</li>
+							<%- end -%>
+							<li><%= link_to "Signout", logout_path %></li>
+						</ul>
+					</div>
+					<!-- End top nav -->
+				<%- end -%>
 			</div>
-			<!-- End top nav -->
-			<%- end -%>
+			</header>
+			<div id="page_body" class="page_blocks">
+				<!-- NOTICES -->
+				<% if !flash[:notice].blank?%>
+					<p class="notice"><%= flash[:notice]%></p>
+				<% end %>
+				<% if !flash[:warning].blank? %>
+					<p class="warning"><%=flash[:warning]%></p>
+				<% end %>
+				<% if !flash[:error].blank? %>
+					<p class="error"><%=flash[:error]%></p>
+				<% end %>
+				<!-- END NOTICES -->
+
+				<%= yield :body %>
+			</div>
+			<footer>
+			<div id="page_footer" class="page_blocks">
+
+			</div>
+			</footer>
 		</div>
-		</header>
-		<div id="page_body" class="page_blocks">
-			<!-- NOTICES -->
-			<% if !flash[:notice].blank?%>
-				<p class="notice"><%= flash[:notice]%></p>
-			<% end %>
-			<% if !flash[:warning].blank? %>
-				<p class="warning"><%=flash[:warning]%></p>
-			<% end %>
-			<% if !flash[:error].blank? %>
-				<p class="error"><%=flash[:error]%></p>
-			<% end %>
-			<!-- END NOTICES -->
-			
-			<%= yield :body %>
-		</div>
-		<footer>
-		<div id="page_footer" class="page_blocks">
+		<div style="display:none">
+			<%- if RAILS_ENV == 'production' -%>
+				<script type="text/javascript">
 
-		</div>
-		</footer>
-	</div>
-	<div style="display:none">
-	<%- if RAILS_ENV == 'production' -%>
-		<script type="text/javascript">
+					var _gaq = _gaq || [];
+					_gaq.push(['_setAccount', 'UA-36868990-1']);
+					_gaq.push(['_trackPageview']);
 
-		  var _gaq = _gaq || [];
-		  _gaq.push(['_setAccount', 'UA-36868990-1']);
-		  _gaq.push(['_trackPageview']);
+					(function() {
+					 var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+					 ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+					 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+					 })();
 
-		  (function() {
-		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		  })();
+				 </script>
+			 <%- end -%>
 
-		</script>
-	<%- end -%>
-	
-		<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
-		<script type="text/javascript">	
-			$(document).ready(function(){			
-				var min_height = Math.min( $("div#right_column").height(), $("div#left_column").height());
-				$("div#right_column, div#left_column").css("min-height", min_height+"px");
-			});
-		</script>
-		
-		<%= yield :page_js %>
-	</div>
-</body>
+			 <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+			 <script type="text/javascript">	
+				 $(document).ready(function(){			
+						 var min_height = Math.max( $("div#right_column").height(), $("div#left_column").height());
+						 $("div#right_column, div#left_column").css("min-height", min_height+"px");
+						 });
+			 </script>
+
+			 <%= yield :page_js %>
+	 </div>
+ </body>
 </html>

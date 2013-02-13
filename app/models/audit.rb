@@ -25,7 +25,9 @@ class Audit < ActiveRecord::Base
 	
 	def self.search_audits( params )
 		return_value = Hash.new
-		tire_results = tire.search :load => {:include => ['store']}, :per_page => params[:per_page], :page => params[:page] do 
+		params[:score_upper] = 50 \
+						if params[:score_lower].present? && params[:score_upper].present? && params[:score_lower].to_i > params[:score_upper].to_i
+		tire_results = tire.search :load => {:include => [:store]}, :per_page => params[:per_page], :page => params[:page] do 
 			query do
       	boolean do
       		must { string params[:q] || all} 
@@ -55,10 +57,10 @@ class Audit < ActiveRecord::Base
 			facets = Hash.new
 
 			# Organizing Company Facet
-			if params[:company_id].present? || tire_results.facets['chains']['terms'].count > 0
+			if (params[:company_id].present? || tire_results.facets['chains']['terms'].count > 0)
       	facets['chains'] = []
       	tire_results.facets['chains']['terms'].each_with_index do |chain,index|
-      		chain[:company_name] = Company.find(chain['term'].to_i)[:name]
+      		chain[:company_name] = Company.find(:first, :conditions => {:id => chain['term'].to_i}, :select => :name)[:name]
       		facets['chains'].push(chain)
       	end
       	facets['chains'].sort!{ |a,b| a[:company_name].sub(/^(the|a|an)\s+/i, '') <=> b[:company_name].sub(/^(the|a|an)\s+/i, '')}

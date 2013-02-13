@@ -12,7 +12,13 @@
 		<li><%= link_to "Created Today", '#' -%></li>
 		<li><%= link_to "This Week", '#' -%></li>
 		<li><%= link_to "Last Week", '#' -%></li>
-		<li>Custom Date Range</li>
+		<li>
+			Custom Date Range<br/>
+			<form action='<%= [path_prefix, @previous_search.to_param].join("?")-%>' method='get'>
+							<input type='text' id='created_at_start' name='created_at_start' placeholder='From' class='date-pick'/><br/>
+							<input type='text' id='created_at_stop' name='created_at_stop' placeholder='To' class='date-pick'/>
+			</form>
+		</li>
 	</ul>
 	
 	<%- if @search_results[:facets]['auditors'] -%>
@@ -77,6 +83,7 @@
 
 <%- content_for :head do -%>
 	<%= stylesheet_link_tag :table -%>
+	<%= stylesheet_link_tag :datepicker -%>
 	<style type="text/css" media="screen">
 		table#audits_list{
 			width: 99.9%
@@ -84,6 +91,14 @@
 	</style>
 <%- end -%>
 
+<%- content_for :page_js do -%>
+	<%= javascript_include_tag 'jquery.datePicker.js' -%>
+	<script type="text/javascript">
+					$(document).ready( function(){
+									$('.date-pick').datePicker();
+					});
+	</script>
+<%- end -%>
 
 <h2>Results</h2>
 
