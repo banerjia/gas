@@ -1,70 +1,110 @@
 <%-
-  path_prefix = audits_search_path
-  @previous_search.delete(:q)
-  search_params_without_auditor = @previous_search.reject{ |key,value| key.to_s == 'auditor' }
-  search_params_without_chain = @previous_search.reject{ |key,value| key.to_s == 'chain' }
-  search_params_without_score = @previous_search.reject{ |key,value| key.to_s.starts_with?("score") }
+	path_prefix = audits_search_path
+	@previous_search.delete(:q)
+	search_params_without_auditor = @previous_search.reject{ |key,value| key.to_s == 'auditor' }
+	search_params_without_chain = @previous_search.reject{ |key,value| key.to_s == 'company_id' }
+	search_params_without_score = @previous_search.reject{ |key,value| key.to_s.starts_with?("score") }
 -%>
 
 <%- content_for :left_column do -%>
-  <h3>Find Audits</h3>
-  <ul class="nav_items">
-    <li><%= link_to "Created Today", '#' -%></li>
-    <li><%= link_to "This Week", '#' -%></li>
-    <li><%= link_to "Last Week", '#' -%></li>
-  </ul>
-
-  <h3>Filter by Auditor</h3>
-  <ul class="nav_items">
-    <%- @search_results[:facets]['auditors'].each do |facet| -%>
-      <li><%= link_to facet['term'].titleize, [path_prefix, search_params_without_auditor.merge({:auditor => facet['term']}).to_param].join("?")-%></li>
-    <%- end -%>
-  </ul>
-
-  <h3>Filter by Chain</h3>
-  <ul class="nav_items">
-    <%- @search_results[:facets]['chains'].each do |facet| -%>
-      <li><%= link_to facet[:company_name].titleize, '#' -%></li>
-    <%- end -%>
-  </ul>
-
-  <h3>Filter by Score</h3>
-  <ul class="nav_items">
-    <%- @search_results[:facets]['scores'].each do |facet| -%>
-      <li><%= link_to "#{facet['from'].to_i} - #{facet['to'].to_i}", [path_prefix, search_params_without_score.merge({:score_lower => facet['from'].to_i, :score_upper => facet['to'].to_i}).to_param].join("?") -%></li>
-    <%- end -%>
-  </ul>
+	<h3>Find Audits</h3>
+	<ul class="nav_items">
+		<li><%= link_to "Created Today", '#' -%></li>
+		<li><%= link_to "This Week", '#' -%></li>
+		<li><%= link_to "Last Week", '#' -%></li>
+		<li>Custom Date Range</li>
+	</ul>
+	
+	<%- if @search_results[:facets]['auditors'] -%>
+	<h3>Filter by Auditor</h3>
+	<ul class="nav_items">
+		<%- if @previous_search[:auditor].present? -%>
+		<li class="current">
+			<%= @previous_search[:auditor].titleize -%>
+			<span style="float:right">
+				<%= link_to "X", [path_prefix, search_params_without_auditor.to_param].join("?") -%>
+			</span>
+		</li>
+		<%- else -%>		  
+			<%- @search_results[:facets]['auditors'].each do |facet| -%>
+				<li><%= link_to facet['term'].titleize, [path_prefix, search_params_without_auditor.merge({:auditor => facet['term']}).to_param].join("?")-%></li>
+			<%- end -%>
+		<%- end -%>
+	</ul>
+	<%- end -%>
+	
+	<%- if @search_results[:facets]['chains'] -%>
+	<h3>Filter by Chain</h3>
+	<ul class="nav_items">
+		<%- if @previous_search[:company_id].present? -%>
+		<li class="current">
+			<%= @search_results[:facets]['chains'].first[:company_name].titleize -%>
+			<span style="float:right">
+				<%= link_to "X", [path_prefix, search_params_without_chain.to_param].join("?") -%>
+			</span>
+		</li>
+		<%- else -%>		  
+			<%- @search_results[:facets]['chains'].each do |facet| -%>
+				<li><%= link_to facet[:company_name].titleize, [path_prefix, search_params_without_chain.merge({:company_id => facet['term'].to_i}).to_param].join("?") -%></li>
+			<%- end -%>
+		<%- end -%>
+	</ul>
+	<%- end -%>
+	<h3>Filter by Score</h3>
+	<ul class="nav_items">
+		<%- if @previous_search[:score_lower].present? || @previous_search[:score_upper].present? -%>
+			<li class="current">
+				<%-
+					score_text = @previous_search[:score_lower].to_i.to_s
+					score_text += @previous_search[:score_upper].present? ? " - #{@previous_search[:score_upper].to_i.to_s}" : ' +'
+				-%>
+				<%= score_text -%>
+				<span style="float:right">
+					<%= link_to "X", [path_prefix, search_params_without_score.to_param].join("?") -%>
+				</span>
+			</li>
+			<%- else -%>
+				<%- @search_results[:facets]['scores'].select{ |entry| entry['count'].to_i > 0 }.each do |facet| -%>
+				<%-
+					score_text = facet['from'].to_i.to_s
+					score_text += facet['to'].to_i > 0 ? " - #{facet['to'].to_i.to_s}" : ' +'
+				-%>
+					<li><%= link_to score_text, [path_prefix, search_params_without_score.merge({:score_lower => facet['from'].to_i, :score_upper => facet['to'].to_i}).to_param].join("?") -%></li>
+				<%- end -%>
+			<%- end -%>
+	</ul>
 <%- end -%>
 
 <%- content_for :head do -%>
-  <%= stylesheet_link_tag :table -%>
-  <style type="text/css" media="screen">
-    table#audits_list{
-      width: 99.9%
-    }
-  </style>
+	<%= stylesheet_link_tag :table -%>
+	<style type="text/css" media="screen">
+		table#audits_list{
+			width: 99.9%
+		}
+	</style>
 <%- end -%>
+
 
 <h2>Results</h2>
 
 <%- if @search_results[:results].count > 0 -%>
-  <table id="audits_list" class="listing">
-    <thead>
-      <tr>
-	<th scope="col">Store</th>
-	<th scope="col">Audit Score</th>
-      </tr>
-    </thead>
-    <tbody>
-      <%- @search_results[:results].each do |entry| -%>
-	<tr class="<%= cycle('regular','alternate') -%>">
-	  <td><%= entry.store[:name] -%></td>
-	  <td><%= link_to entry[:score], audit_path( entry[:id] ) -%></td>
-	</tr>
-      <%- end -%>
-    </tbody>
-  </table>
+	<table id="audits_list" class="listing">
+		<thead>
+			<tr>
+				<th scope="col">Store</th>
+				<th scope="col">Audit Score</th>
+			</tr>
+		</thead>
+		<tbody>
+			<%- @search_results[:results].each do |entry| -%>
+			<tr class="<%= cycle('regular','alternate') -%>">
+				<td><%= entry.store[:name] -%></td>
+				<td><%= link_to entry[:score], audit_path( entry[:id] ) -%></td>
+			</tr>
+			<%- end -%>
+		</tbody>
+	</table>
 <%- else -%>
-  <p>No audits found.</p>
+	<p>No audits found.</p>
 <%- end -%>
 
