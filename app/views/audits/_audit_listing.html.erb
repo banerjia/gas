@@ -1,0 +1,62 @@
+<%- content_for :head do -%>
+  <style type="text/css" media="screen">
+    td.table_label { font-weight: bold }
+    table#audit_list td.table_label+td { text-align: right }
+    .first2cols{ width: 20% }
+    table#audit_list td.audit_comments { 
+      border-left: 2px solid #ccc;
+      line-height: 1.1;
+      text-align: left; 
+      vertical-align: top 
+    }
+    table#audit_list tbody tr td { border-bottom: 1px dotted #bbb; padding:0.2em ; line-height: 1 }
+    table#audit_list tr.regular td { background-color: #fff }
+    table#audit_list tr.alternate td { background-color: #eee }
+    table#audit_list tr.regular + tr.alternate td,  
+    table#audit_list tr.alternate + tr.regular td { border-top: 1px solid #bbb; padding-top: 0.6em }
+  </style>
+<%- end -%>
+
+<% content_for :page_js do -%>
+	<script type="text/javascript">	
+		window.audit_search_path = '<%= audit_search_path -%>';
+	</script>
+<%- end -%>
+
+<table id="audit_list" class="listing">
+	<thead>
+		<tr>
+			<th colspan="2" scope="col" class="first2cols">Date/Score/Auditor</th>
+			<th scope="col">Comments</th>
+		</tr>
+	</thead>
+	<tfoot>
+		<tr>
+			<td colspan="2">
+				<a href="#">More audits</a>
+			</td>
+		</tr>
+	</tfoot>
+	<tbody>
+		<%- if defined?(audits) 
+          audits.each do |audit| 
+            row_class = cycle( 'regular', 'alternate' )
+    -%>
+
+        <tr class="<%= row_class %>">
+          <td class="table_label">Auditor</td>
+					<td><%= audit[:auditor]-%></td>
+					<td rowspan="3" class="audit_comments"><%= audit.comments -%></td>
+				</tr>
+        <tr class="<%= row_class %>">
+          <td class="table_label">Score</td>
+					<td><%= audit[:score] -%></td>
+				</tr>
+        <tr class="<%= row_class %>">
+          <td class="table_label">Date</td>
+					<td><%= audit[:created_at] -%></td>
+				</tr>
+			<%- end -%>
+		<%- end -%>
+	</tbody>
+</table>

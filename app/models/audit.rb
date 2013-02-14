@@ -53,7 +53,7 @@ class Audit < ActiveRecord::Base
 		end
 
 		if tire_results.count > 0 
-			return_value[:results] = tire_results.results
+			return_value[:audits] = tire_results.results
 			facets = Hash.new
 
 			# Organizing Company Facet
