@@ -4,6 +4,7 @@
 	search_params_without_auditor = @previous_search.reject{ |key,value| key.to_s == 'auditor' }
 	search_params_without_chain = @previous_search.reject{ |key,value| key.to_s == 'company_id' }
 	search_params_without_score = @previous_search.reject{ |key,value| key.to_s.starts_with?("score") }
+	search_params_without_created_at = @previous_search.reject{ |key,value| key.to_s.starts_with?("created_at") }
 -%>
 
 <%- content_for :left_column do -%>
@@ -14,9 +15,9 @@
 		<li><%= link_to "Last Week", '#' -%></li>
 		<li>
 			Custom Date Range<br/>
-			<form action='<%= [path_prefix, @previous_search.to_param].join("?")-%>' method='get'>
-							<input type='text' id='created_at_start' name='created_at_start' placeholder='From' class='date-pick'/><br/>
-							<input type='text' id='created_at_stop' name='created_at_stop' placeholder='To' class='date-pick'/>
+			<form action='<%= [path_prefix, search_params_without_created_at.to_param].join("?")-%>' method='get'>
+							<input type="text" id='created_at_start' name='created_at_start' placeholder='From' class='date-pick'/><br/>
+							<input type='text' id='created_at_stop' name='created_at_stop' placeholder='To' class='date-pick'/><br/>
 			</form>
 		</li>
 	</ul>
@@ -92,10 +93,11 @@
 <%- end -%>
 
 <%- content_for :page_js do -%>
+	<%= javascript_include_tag :date -%>
 	<%= javascript_include_tag 'jquery.datePicker.js' -%>
 	<script type="text/javascript">
 					$(document).ready( function(){
-									$('.date-pick').datePicker();
+									$('input.date-pick').datePicker();
 					});
 	</script>
 <%- end -%>
