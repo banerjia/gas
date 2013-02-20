@@ -10,12 +10,26 @@
 		}
 		div#left_column, div#right_column { display:none }
 		table#contacts { width: 99.9%}
-		table#contacts caption{ 
+		table#contacts caption, h2#StoreHeading{ 
 			font-size: 12pt;
 			font-weight: bold;
 			line-height: 2.2;
-			text-align: center;
 			text-transform: uppercase;
+		}
+		
+		table#contacts tfoot td {
+			padding: 1em;
+			text-align: left 
+		}
+		
+		td#td_AddContacts a {
+			background-image: url( <%= image_path( "add_contact_32x32.png" ) %> );
+			background-position: left center;
+			background-repeat: no-repeat;
+			display:block;
+			min-height: 35px;
+			line-height: 2.2;
+			padding-left: 40px;
 		}
 	</style>
 <% end %>
@@ -27,6 +41,7 @@
 			<%= f.submit "Save Changes", :class => "button"%>
 			<input type="button" class="button" value="Cancel" onclick="window.location='<%= store_path(store)%>'"/>
 		</div>
+		<h2 id="StoreHeading">Store Information</h2>
 		<div class="entry_row">
 			<div class="entry_label">Name</div>
 			<div class="entry_value"><%= f.text_field :name %></div>		
@@ -80,7 +95,7 @@
 			</thead>
 			<tfoot>
 				<tr>
-					<td colspan="5" class="table_more_cell">
+					<td colspan="5" id="td_AddContacts">
 						<%= link_to_add_fields "Add Contact", f, :store_contacts -%>
 					</td>
 				</tr>

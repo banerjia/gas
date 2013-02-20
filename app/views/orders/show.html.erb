@@ -1,8 +1,8 @@
 <% content_for :body do -%>
 <div class="toolbar">
-	<a href="javascript:window.history.go(-1)">Back</a> | 
-	<%= link_to "Edit", edit_order_path(@order) -%> |
-	<%= link_to "Download as Excel file", order_path(@order, :format => :xlsx)%>
+	<input type="button" class="icon_buttons" value="Edit" onclick="window.location='<%=edit_order_path(@order)-%>'" />
+	<input type="button" class="icon_buttons" value="Download" onclick="window.location='<%=order_path(@order, :format => :xlsx)-%>'" />
+	<input type="button" class="icon_buttons" value="Cancel" onclick="window.history.go(-1)"/>
 </div>
 <div id="order_basics">
 	<div class="entry_row">
@@ -12,6 +12,14 @@
 		<div class="entry_value">
 			<%= link_to @store.name_with_locality, store_path(@store) -%><br/>
 			<%= @store.address -%>			
+		</div>
+	</div>
+	<div class="entry_row">
+		<div class="entry_label">
+			Order Created On
+		</div>
+		<div class="entry_value">
+			<%= @order[:created_at].to_date.strftime("%b %d, %Y") -%>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -64,12 +72,12 @@
 		</thead>
 		<% @order.organize_products_by_category.each do |product_category| -%>
 			<tbody>
-				<tr>
-					<td colspan="3" class="category_heading"><%= product_category[:name] -%></td>
+				<tr class="category_heading">
+					<td colspan="3" style="text-align:left"><%= product_category[:name] -%></td>
 				</tr>
 			
 				<% product_category[:products].each do |product_order| -%>
-				<tr>
+				<tr class="<%= cycle('regular','alternate')-%>">
 					<td><%= product_order.product[:name] -%></td>
 					<td><%= product_order[:quantity].to_s + ' ' + product_order.volume_unit[:name] -%></td>
 					<td><%= pluralize( product_order.sleeves, "sleeve" ) -%></td>
@@ -91,6 +99,13 @@
 			margin-left: 31%;
 			margin-right: 0;
 			width: auto;
+		}
+		tr.category_heading td{
+			background-color: #FEF1B5;
+			border-top: 1px solid #CCC;
+			border-bottom: 1px solid #CCC;
+			font-weight: bold;
+			text-align: left;
 		}
 		table#products {width:100%}
 		table#products input[type=text] { text-align: right; width: 30px }

@@ -48,7 +48,7 @@
 	<%- if defined?(orders) -%>
 		<%- if orders.size > 0 -%>
 		<%- orders.each do |order| -%>
-			<tr>
+			<tr class="<%= cycle( 'regular', 'alternate' ) %>">
 				<td><%= check_box_tag :order, order[:id] -%></td>
 				<td><%= link_to order[:created_at].to_date.strftime("%b %d, %Y") , order_path(order[:id]) -%></td>
 				<td>

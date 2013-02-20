@@ -1,0 +1,165 @@
+@import "table";
+
+@mixin leanModal-boxing {
+	border-radius: 5px;
+	box-shadow: 0px 0px 4px rgba(0,0,0,0.7);
+}
+		
+@mixin email-order-header-boxing( $corner ) {
+	$corner: right;
+	border: {
+		top: {
+			#{$corner}: {
+				radius: 5px;
+			}
+		}
+	}
+}
+
+table {
+	&#order_list {
+		margin: auto 1px;
+		width: 99.5%;
+	
+		caption {
+			border: 2px solid #CCC;
+			background-color: #EEE;
+			font: {
+				weight: bold;
+				padding: 0.7em auto;
+			}
+		}
+	
+		thead {
+			tr {
+				&:first-child {
+					th {
+						text: {
+							align: center;
+							width: 10%;
+						}
+					}
+				}
+				&.toolbar {				
+					td {
+						background-color: #505050;
+						color: #FFF;
+						font-weight: bold;
+						padding: 0.5em;
+						text-align: left;
+					}
+				}
+			}
+		}
+	
+		tbody {
+			tr {
+				td:first-child {
+					text-align: center;
+				}
+
+				td:first-child + td {
+					width: 30%;
+				}
+			}
+		}
+	}
+}
+
+div {
+	&#email_order {
+		background: #FFF;
+		@include leanModal-boxing;
+		display: none;
+		-moz: {
+			@include leanModal-boxing;
+		}
+		-webkit: {
+			@include leanModal-boxing;
+		}
+		padding-bottom: 1em;
+
+		#email_order-header {
+			background-color: #EEE;
+			border-bottom: 2px solid #CCC;
+			display: block;
+			min-height: 3em;
+			margin: 0;
+			padding: 0.1em 0.5em;
+			@include email-order-header-boxing(right);
+			-moz:{
+				@include email-order-header-boxing(right);
+			}
+			-webkit: {
+				@include email-order-header-boxing(right);
+			}
+			@include email-order-header-boxing(left);
+			-moz:{
+				@include email-order-header-boxing(left);
+			}
+			-webkit: {
+				@include email-order-header-boxing(left);
+			}
+			
+			h3 {
+				color: #444;
+				font-weight: bold;
+				line-height: 2.2;
+			}
+		}
+		
+		p {
+			color: #444;
+			margin: 0.3em 0.5em;
+		}
+		
+		.entry_row {
+			background-color: #FFF;
+			display: block;
+			margin: 0.5em;
+			width: auto;
+		
+			label {
+				color: #222;
+				font-weight: bold;
+				text-align: left;
+			}
+		
+			input {
+				color: #222;
+				width: 90%;
+			}
+				
+			.entry_label {
+				background-color: transparent;
+			}
+		}
+		.button_row {
+			margin: auto 0.5em;
+			overflow: hidden;
+			width: auto;
+		}
+	}
+
+	&#lean_overlay {
+		background: #000;
+		display: none;
+		height: 100%;
+		left: 0px;
+		position: fixed;
+		top: 0px;
+		width: 100%;
+		z-index: 100;
+	}
+}
+
+.modal_close {
+	background-image: url( <%= image_path("modal_close.png") %>);
+	display: block;
+	height: 14px;
+	position: absolute;
+	right: 12px;
+	top: 12px;
+	width: 14px;
+	z-index: 2;
+}

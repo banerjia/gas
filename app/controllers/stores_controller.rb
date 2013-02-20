@@ -42,7 +42,7 @@ class StoresController < ApplicationController
 
     selected_store = Store.find( selected_store_id )
     states = State.find(:all,:select => [:country, :state_code, :state_name], :order => [:country,:state_name])
-    companies = Company.find(:all)      
+    companies = Company.find(:all, :order => [:name]).sort! { |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )}      
 
     respond_to do |format|
       format.html do           

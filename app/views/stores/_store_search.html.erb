@@ -4,9 +4,9 @@
 			<div class="entry_label"><%= defined?(search_label) ? search_label : "Search" -%></div>
 			<div class="entry_value">
 			<% if defined?(options) && !options[:q].nil? then%>
-				<input type="text" name="q" id="q" value="<%=options[:q]%>"/>
+				<input type="text" name="q" id="q" value="<%=options[:q]%>" placeholder="Store Name, Company, City or State"/>
 			<% else %>
-				<input type="text" name="q" id="q"/>
+				<input type="text" name="q" id="q" placeholder="Store Name, Company, City or State"/>
 			<% end %>
 			<% if defined?(options) && !options.nil? then %>
 				<div style="display:none">

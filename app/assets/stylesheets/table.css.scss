@@ -1,0 +1,110 @@
+@mixin table-even-row {
+	td {
+		background-color: #efefef;
+	}
+}
+
+@mixin table-odd-row {
+	td {
+		background-color: #fff;
+	}
+}
+
+table {
+	&.listing {
+		border: {
+			bottom: 2px solid #CCC;
+			collapse: collapse;
+		}
+
+		caption {
+			@extend h2;
+			margin: 0.5em auto;
+			text-align: left;
+		}
+
+		td {
+			text-align: center;
+		}
+
+		thead {
+			tr {
+				th {
+					background-color: #5f6b61;
+					color: #fff;
+					font-weight: bold;
+					padding: 0.6em;
+					text: {
+						align: center;
+						transform: uppercase;
+					}
+					&:first-child {
+						text: {
+							align: left;
+							width: 70%;
+						}
+					}
+				}
+			}
+		}
+		tbody {
+			tr {
+				td {
+					padding: 1em;
+
+					&:first-child {
+						text-align: left;
+					}
+					
+					&:last-child {
+						text-align: center;
+					}
+
+					&.cell-right-align {
+						text-align: right;
+					}
+				}
+
+				&.alternate {
+					@include table-even-row;
+				}
+
+				&.regular {
+					@include table-odd-row;
+				}
+
+				th {
+					padding: 0.6em;
+				}
+			}
+		}
+		tfoot {
+			th{
+				background-color: #EED5D2;
+			}
+			th + td {
+				text-align: left;
+			}
+
+			td {
+				@extend th;
+				line-height: 2.2;
+				border: 1px solid #CCC;
+				
+				&.table_more_cell {
+					text-align: center;
+
+					a {
+						&.load_more {
+							color: #fff;
+							cursor: pointer;
+							font-weight: bold;
+							letter-spacing: 1.5px;
+							text-transform: capitalize;
+						}
+					}
+				}
+			}
+		}
+	}
+}
