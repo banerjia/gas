@@ -43,19 +43,16 @@
             row_class = cycle( 'regular', 'alternate' )
     -%>
 
-        <tr class="<%= row_class %>">
-          <td class="table_label">Auditor</td>
-					<td><%= audit[:auditor]-%></td>
-					<td rowspan="3" class="audit_comments"><%= audit.comments -%></td>
+				<tr class="<%= row_class %>">
+					<td><%= audit[:auditor] %></td>
+					<td><%= audit[:score] %></td>
+					<td><%= audit[:created_at] %></td>
 				</tr>
+				<%- if audit.comments -%>
         <tr class="<%= row_class %>">
-          <td class="table_label">Score</td>
-					<td><%= audit[:score] -%></td>
+					<td colspan="3" class="audit_comments"><strong>Comments:</strong> <%= audit.comments -%></td>
 				</tr>
-        <tr class="<%= row_class %>">
-          <td class="table_label">Date</td>
-					<td><%= audit[:created_at] -%></td>
-				</tr>
+				<%- end -%>
 			<%- end -%>
 		<%- end -%>
 	</tbody>

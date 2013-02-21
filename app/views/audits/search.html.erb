@@ -1,5 +1,5 @@
 <%-
-	path_prefix = audits_search_path
+	path_prefix = audit_search_path
 	@previous_search.delete(:q)
 	search_params_without_auditor = @previous_search.reject{ |key,value| key.to_s == 'auditor' }
 	search_params_without_chain = @previous_search.reject{ |key,value| key.to_s == 'company_id' }
@@ -104,7 +104,7 @@
 
 <h2>Results</h2>
 
-<%- if @search_results[:results].count > 0 -%>
+<%- if @search_results[:audits].count > 0 -%>
 	<table id="audits_list" class="listing">
 		<thead>
 			<tr>
@@ -112,8 +112,15 @@
 				<th scope="col">Audit Score</th>
 			</tr>
 		</thead>
+		<tfoot>
+			<tr>
+				<td colspan="2">
+					More
+				</td>
+			</tr>
+		</tfoot>
 		<tbody>
-			<%- @search_results[:results].each do |entry| -%>
+			<%- @search_results[:audits].each do |entry| -%>
 			<tr class="<%= cycle('regular','alternate') -%>">
 				<td><%= entry.store[:name] -%></td>
 				<td><%= link_to entry[:score], audit_path( entry[:id] ) -%></td>

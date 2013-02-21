@@ -27,7 +27,7 @@ class AuditsController < ApplicationController
 				@previous_search = params
 				@search_results = results
 			end
-			format.json { render :json => results.to_json( :include => {:store => {:only => [:name], :methods => [:address]}} ) }
+			format.json { render :json => results.to_json( :include => {:store => {:only => [:name], :methods => [:address]} }, :methods => [:comments] ) }
 		end
 	end
 end

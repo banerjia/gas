@@ -85,6 +85,10 @@ class Audit < ActiveRecord::Base
 
 	end
 	
+	def comments
+		self.audit_journal.first[:body] if self.audit_journal
+	end
+	
 	def is_pending?
 		self[:status] == 0
 	end
