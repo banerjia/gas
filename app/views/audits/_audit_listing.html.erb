@@ -46,7 +46,7 @@
 				<tr class="<%= row_class %>">
 					<td><%= audit[:auditor] %></td>
 					<td><%= audit[:score] %></td>
-					<td><%= audit[:created_at] %></td>
+					<td><%= audit[:created_at].strftime("%b %d, %Y") %></td>
 				</tr>
 				<%- if audit.comments -%>
         <tr class="<%= row_class %>">

@@ -1,0 +1,79 @@
+<%- content_for :head do -%>
+	<style type="text/css" media="screen">	
+		div.entry_row {
+			background-color:transparent
+			border: none;
+			margin: 0;
+			padding: 0
+		}
+		div.entry_label, div.entry_value{
+			display: block;
+			float: none;
+			margin: 0;
+			padding: 0.3em 0.5em;
+			width:auto
+		}
+		div.entry_label {
+			background-color: #5f6b61;
+			border: 2px solid #ccc; 
+			border-left:none; 
+			border-right: none;
+			color: #fff;
+			font-weight: bold;
+			text-transform: uppercase
+		}
+		div.entry_row { margin-bottom: 1em }
+	</style>
+<%- end -%>
+<%- content_for :left_column do -%>
+	<h2>Audit Overview</h2>
+	<div class="entry_row">
+		<div class="entry_label">
+			Audit Date
+		</div>
+		<div class="entry_value">
+			<%= @audit[:created_at].strftime("%b %d, %Y") -%>
+		</div>
+	</div>
+	<div class="entry_row">
+		<div class="entry_label">
+			Auditor
+		</div>
+		<div class="entry_value">
+			<%= @audit[:auditor_name] -%>
+		</div>
+	</div>
+	<div class="entry_row">
+		<div class="entry_label">
+			Score
+		</div>
+		<div class="entry_value">
+			<%= @audit[:score] -%>
+		</div>
+	</div>
+	<%- if @audit.comments -%>
+	<div class="entry_row">
+		<div class="entry_label">
+			Comments
+		</div>
+		<div class="entry_value">
+			<%=  @audit.comments -%>
+		</div>
+	</div>
+	<%- end -%>
+	<div class="entry_row">
+		<div class="entry_label">
+			Score Legend
+		</div>
+		<div class="entry_value">
+			<dl>
+				<dt>Score</dt>
+				<dd>Something</dd
+				<dt>23</dt>
+				<dd>Twenty three</dd>
+			</dl>
+		</div>
+	</div>
+<%- end -%>
+
+<h2>Merchandising</h2>

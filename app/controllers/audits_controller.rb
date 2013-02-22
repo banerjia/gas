@@ -9,9 +9,9 @@ class AuditsController < ApplicationController
 	end
 
 	def show
-		audit_id = params[:audit_id]
-		@page_title = "Audit for ... on ..."
-		@audit = Audit.find(audit_id)
+		audit_id = params[:id]		
+		@audit = Audit.find(:first, :conditions => { :id => audit_id }, :include => :store)
+		@page_title = "Audit for #{@audit.store[:name]}"		
 	end
 
 	def search
