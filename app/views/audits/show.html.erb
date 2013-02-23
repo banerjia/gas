@@ -1,4 +1,5 @@
 <%- content_for :head do -%>
+	<%= stylesheet_link_tag :table -%>
 	<style type="text/css" media="screen">	
 		div.entry_row {
 			background-color:transparent
@@ -23,6 +24,15 @@
 			text-transform: uppercase
 		}
 		div.entry_row { margin-bottom: 1em }
+		table.listing td { vertical-align: top}
+		table.listing tr.category_heading td[colspan] { 
+			background-color: #FEF1B5;
+			border-bottom: 2px solid #CCC;
+			border-top: 2px solid #CCC;
+			font-weight: bold; 
+			text-align: left;
+			text-transform: uppercase
+		}
 	</style>
 <%- end -%>
 <%- content_for :left_column do -%>
@@ -76,4 +86,30 @@
 	</div>
 <%- end -%>
 
-<h2>Merchandising</h2>
+<table class="listing">
+	<thead>
+		<tr>
+			<th scope="col">Description</th>
+			<th scope="col">Score</th>
+		</tr>
+	</thead>
+	<tbody>
+<ul>
+<%- 
+	last_category = nil
+	@audit_metrics.each do |audit_metric| 
+		row_class = cycle('regular','alternate')
+		if last_category != audit_metric[:category].strip
+			last_category = audit_metric[:category].strip
+-%>
+			<tr class="category_heading">
+				<td colspan="2"><%= last_category -%></td>
+			</tr>
+		<%- end -%>
+		<tr class="<%=row_class -%>">
+			<td><%= audit_metric[:title] -%><br/><%= audit_metric[:description] -%></td>
+			<td><%= audit_metric[:point_value] -%></td>
+		</tr>
+<%- end -%>
+	</tbody>
+</table>
