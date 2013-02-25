@@ -53,7 +53,7 @@
 	<div class="entry_row">
 		<div class="entry_label">Stores</div>
 		<div class="entry_value">
-			<%= link_to company.stores.size, company_stores_path(company)%>
+			<%= link_to number_with_delimiter(company.stores.size), company_stores_path(company)%>
 		</div>
 	</div>
 	<div class="entry_row">
