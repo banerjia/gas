@@ -26,34 +26,32 @@ class @AuditList
       data: send_data
       success: (data) ->
         AuditList.append_audits( data.audits )
-        jQuery("table#audit_list tfoot").hide() if !data.more_pages
+        jQuery("table#audits tfoot").hide() if !data.more_pages
         return
     return
 
   @append_audits : ( audits_to_append ) ->
-    target_table_body = jQuery( "table#audit_list tbody" )
+    target_table_body = jQuery( "table#audits tbody" )
     return if audits_to_append.length == 0
 
     row_class = "regular" 
     for audit in audits_to_append
       rows = []
-      rows.push( jQuery("<tr/>").attr("class", row_class) ) for [0..2]
+      rows.push( jQuery("<tr/>").attr("class", row_class) ) for [0..1]
       
-      auditor_label_column = jQuery("<td/>").attr("class", "table_label").text("Auditor")
-      auditor_value_column = jQuery("<td/>").text(audit.auditor_name.toTitleCase())
-      audit_comments = if audit.comments then audit.comments else 'N/A'
-      comments_column = jQuery( "<td/>").attr( "class", "audit_comments").attr("rowspan", "3").text(audit_comments)
-
-      rows[0].append( auditor_label_column ).append( auditor_value_column ).append( comments_column )
-
-      score_label_column = jQuery("<td/>").attr("class", "table_label").text("Score")
-      score_value_column = jQuery("<td/>").text( audit.score )
-      rows[1].append( score_label_column ).append( score_value_column )
-
-      date_label_column = jQuery("<td/>").attr("class", "table_label" ).text("Date")
       date_value_column = jQuery("<td/>").text( dateFormat(audit.created_at, 'mmm dd, yyyy'))
+      rows[0].append( date_value_column )
+      
+      score_value_column = jQuery("<td/>").text( audit.score )
+      rows[0].append( score_value_column )
 
-      rows[2].append( date_label_column ).append( date_value_column )
+      auditor_value_column = jQuery("<td/>").text(audit.auditor_name.toTitleCase())
+      rows[0].append( auditor_value_column )
+
+      audit_comments = if audit.comments then "<strong>Comments:</strong> " + audit.comments else 'N/A'
+      comments_column = jQuery( "<td/>").attr( "class", "audit_comments").attr("colspan", "3").html(audit_comments)
+
+      rows[1].append( comments_column )
 
       row_class = if row_class == "regular" then "alternate" else "regular"
 

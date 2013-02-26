@@ -57,7 +57,7 @@
     }
     
     function get_audits(){
-      page_to_load = ($("table#audit_list tbody tr").length > 0 ? null : 1 );
+      page_to_load = ($("table#audits tbody tr").length > 0 ? null : 1 );
       AuditList.get_more_audits({
           'page': page_to_load,
           'store': <%= store[:id] -%>
@@ -84,7 +84,7 @@
 			<li id="table_order_list" onshow="get_orders()">Orders</li>
 		<%- end -%>
 		<%- if store.audits.count > 0 -%>
-			<li id="table_audit_list" onshow="get_audits()">Audits</li>
+			<li id="table_audits" onshow="get_audits()">Audits</li>
 		<%- end -%>
 	</ul>
 <%- end -%>

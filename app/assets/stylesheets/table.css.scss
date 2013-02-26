@@ -24,9 +24,13 @@ table {
 		}
 
 		td {
-			text-align: center;
+			text-align: left;
 		}
 
+		td + td {
+			text-align: center;
+		}
+		
 		thead {
 			tr {
 				th {
@@ -51,14 +55,6 @@ table {
 			tr {
 				td {
 					padding: 1em;
-
-					&:first-child {
-						text-align: left;
-					}
-					
-					&:last-child {
-						text-align: center;
-					}
 
 					&.cell-right-align {
 						text-align: right;
