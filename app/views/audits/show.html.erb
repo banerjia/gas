@@ -33,6 +33,17 @@
 			text-align: left;
 			text-transform: uppercase
 		}
+
+		table.listing span.pass, table.listing span.fail { 
+			background-position: center center;
+			background-repeat: no-repeat;
+			display: block;
+			height: 30px;
+			width: 30px;
+		}
+		table.listing span.pass span, table.listing span.fail span { visibility: hidden }
+		span.pass { background-image: url( <%= image_path( "check_30x30.png" ) -%> ) }
+		span.fail { background-image: url( <%= image_path( "caution_30x30.png" ) -%> ) }
 	</style>
 <%- end -%>
 <%- content_for :left_column do -%>
@@ -108,7 +119,14 @@
 		<%- end -%>
 		<tr class="<%=row_class -%>">
 			<td><%= audit_metric[:title] -%><br/><%= audit_metric[:description] -%></td>
-			<td><%= audit_metric[:point_value] -%></td>
+			<td>
+				<%-
+					span_class="pass"
+					span_class="fail" if audit_metric[:point_value] < 0 && audit_metric[:quantifier] < 0 		
+
+			-%>
+			<span class="<%= span_class -%>"><span><%= audit_metric[:point_value] -%></span></span>
+			</td>
 		</tr>
 <%- end -%>
 	</tbody>
