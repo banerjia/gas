@@ -38,8 +38,10 @@ class @AuditList
     for audit in audits_to_append
       rows = []
       rows.push( jQuery("<tr/>").attr("class", row_class) ) for [0..1]
+
+      rows[0].attr("class", rows[0].attr("class") + " audit_stats")
       
-      date_value_column = jQuery("<td/>").text( dateFormat(audit.created_at, 'mmm dd, yyyy'))
+      date_value_column = jQuery("<td/>").append( $("<a/>").attr("href", "/graeters/audits/" + audit.id ).text( dateFormat(audit.created_at, 'mmm dd, yyyy')))
       rows[0].append( date_value_column )
       
       score_value_column = jQuery("<td/>").text( audit.score )

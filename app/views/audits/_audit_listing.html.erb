@@ -4,6 +4,22 @@
 	</script>
 <%- end -%>
 
+<% content_for :head do -%>
+<style type="text/css" media="screen">
+				table#audits tbody tr.regular td, table#audits tbody tr.alternate td{
+								background-color: #FAEBD7;
+								border: 1px solid #FFF;
+				}
+				table#audits tbody tr td.audit_comments {
+								background-color: #FFFAF0;
+								border-bottom: 2px solid #BBB;
+				}
+				table#audits tbody tr.audit_stats td:first-child { 
+								font-weight: bold 
+				}
+</style>
+<%- end -%>
+
 <table id="audits" class="listing">
 	<thead>
 		<tr>
@@ -25,7 +41,7 @@
             row_class = cycle( 'regular', 'alternate' )
     -%>
 
-				<tr class="<%= row_class %>">
+				<tr class="<%= row_class %> audit_stats">
 					<td><%= audit[:created_at].strftime("%b %d, %Y") %></td>
 					<td><%= audit[:score] %></td>
 					<td><%= audit[:auditor] %></td>
