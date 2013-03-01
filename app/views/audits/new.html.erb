@@ -67,9 +67,13 @@
 	</style>
 <%- end -%>	
 	
-<%= form_for @audit do |f| -%>
+<%= form_for @audit, :url => audits_path do |f| -%>
+<%= f.hidden_field :store_id, :value => @audit[:store_id] -%>
+<div class="toolbar">
+	<%= f.submit "Save" -%>
+</div>
 <div id="right_column">
-<%= f.fields_for :store_metric, :include_id => false do |sp| -%>
+
 	<table class="listing" id="store_metrics">
 		<thead>
 			<tr>
@@ -81,7 +85,7 @@
 
 		<%-
 			last_category = nil 
-			@metrics.each do |metric|
+			@metrics.each_with_index do |metric,index|
 				if last_category != metric[:category].strip
 					last_category = metric[:category].strip 
 		-%>
@@ -94,16 +98,19 @@
 					<blockquote><%= metric[:description] -%></blockquote>
 				</td>
 				<td>
+				<%= f.fields_for :store_metrics do |sp| -%>
+					<%= sp.text_field :point_value -%>
 					<div style="display:none">
 						<%= sp.hidden_field :metric_id, :value => metric[:id] -%>
-						<%= sp.hidden_field :point_value -%>
+						
 					</div>
+				<%- end -%>
 				</td>
 			</tr>
 		<%- end -%>
 		</tbody>
 	</table>
-<%- end -%>
+
 </div>
 <div id="left_column">
 	<h2>Audit Overview</h2>
@@ -121,14 +128,6 @@
 		</div>
 		<div class="entry_value">
 			<span id="audit_score">0</span>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Comments
-		</div>
-		<div class="entry_value">
-			<%= f.text_area :store_id, :cols => 30-%>
 		</div>
 	</div>
 	<div class="entry_row">

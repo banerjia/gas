@@ -9,7 +9,8 @@ class Audit < ActiveRecord::Base
 	
 	attr_accessible :store_id, :auditor_name, :score, :points_available, :status, :store_rep, :comments, :store_metrics_attributes
 	
-	accepts_nested_attributes_for :store_metrics, :allow_destroy => true
+	accepts_nested_attributes_for :store_metrics, :allow_destroy => true, \
+                                :reject_if => proc { |sm| sm[:point_value].blank? }
 	
 	tire do
 		index_name('audits')
@@ -90,7 +91,7 @@ class Audit < ActiveRecord::Base
 	end
 	
 	def comments
-		self.audit_journal.first[:body] if self.audit_journal
+		self.audit_journal.first[:body] if self.audit_journal.first
 	end
 	
 	def is_pending?

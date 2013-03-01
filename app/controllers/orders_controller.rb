@@ -7,7 +7,7 @@ class OrdersController < ApplicationController
   end
   
   def show
-    # This apprach has been taken to reduce the number of SELECT statements
+    # This approach has been taken to reduce the number of SELECT statements
     @order = Order.find( params[:id], :include => {:product_orders => [:product]})
     @store = Store.find( @order[:store_id] )
     
