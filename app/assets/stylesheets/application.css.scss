@@ -1,5 +1,5 @@
 @import "bourbon";
-@import url(http://fonts.googleapis.com/css?family=PT+Sans+Caption:400,700);
+@import url(http://fonts.googleapis.com/css?family=Voces);
 
 $errors_msg_shading: #FF8600;
 $wrapper-width: 1024px;
@@ -7,7 +7,7 @@ $left-column-width: 250px;
 
 @mixin overall-font{
 	font: {
-		family: 'PT Sans Caption', Sans-serif;
+		family: 'Voces', Sans-serif;
 	}
 }
 

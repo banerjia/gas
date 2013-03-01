@@ -3,9 +3,11 @@ class AuditsController < ApplicationController
 		redirect_to :action => :search
 	end
 	def new
-		store_id = params[:store_id] || 301
-		@audit = Audit.new({:store_id => store_id})
-		@metrics = Metric.find(:all)
+		store_id = params[:store_id] 
+		@store = Store.find( store_id )
+		@audit = @store.audits.build()
+		@metrics = Metric.find(:all, :order => [:category, :display_order])
+		@page_title = "New Audit for #{@store.name_with_locality}"
 	end
 
 	def show

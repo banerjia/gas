@@ -102,6 +102,8 @@
 		</div>
 	</div>
 <%- end -%>
+<% content_for :right_column do -%>
+	
 
 <table class="listing">
 	<thead>
@@ -142,3 +144,5 @@
 <%- end -%>
 	</tbody>
 </table>
+<% end -%>
+<%= render :template => 'layouts/two_columns' -%>

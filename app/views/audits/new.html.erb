@@ -50,19 +50,69 @@
 		table.listing span.pass span, table.listing span.fail span { visibility: hidden }
 		span.pass { background-image: url( <%= image_path( "check_30x30.png" ) -%> ) }
 		span.fail { background-image: url( <%= image_path( "caution_30x30.png" ) -%> ) }
+		div#left_column, div#right_column{
+			border: 3px solid #ddd;
+			padding: 0.4em;
+		}
+		div#left_column{
+			border: none;
+			margin-left:0;
+			width:250px;
+		}
+		div#right_column{
+			float:right;
+			margin-right: 0;
+			width: 720px;
+		}
 	</style>
-<%- end -%>
+<%- end -%>	
+	
 <%= form_for @audit do |f| -%>
-  
+<div id="right_column">
+<%= f.fields_for :store_metric, :include_id => false do |sp| -%>
+	<table class="listing" id="store_metrics">
+		<thead>
+			<tr>
+				<th scope="col">Description</th>
+				<th scope="col">Score</th>
+			</tr>
+		</thead>
+		<tbody>
+
+		<%-
+			last_category = nil 
+			@metrics.each do |metric|
+				if last_category != metric[:category].strip
+					last_category = metric[:category].strip 
+		-%>
+			<tr class="category_heading">
+				<td colspan="2"><%= metric[:category] -%></td>
+			</tr>
+			<%-end-%>
+			<tr class="<%= cycle('regular','alternate') -%>">
+				<td><%= metric[:title] -%>
+					<blockquote><%= metric[:description] -%></blockquote>
+				</td>
+				<td>
+					<div style="display:none">
+						<%= sp.hidden_field :metric_id, :value => metric[:id] -%>
+						<%= sp.hidden_field :point_value -%>
+					</div>
+				</td>
+			</tr>
+		<%- end -%>
+		</tbody>
+	</table>
 <%- end -%>
-<%- content_for :left_column do -%>
+</div>
+<div id="left_column">
 	<h2>Audit Overview</h2>
 	<div class="entry_row">
 		<div class="entry_label">
 			Auditor
 		</div>
 		<div class="entry_value">
-			<%= f.text_field :auditor_name -%>
+			<%= f.text_field :auditor_name, :autofocus => true, :tabindex => 1 -%>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -78,7 +128,7 @@
 			Comments
 		</div>
 		<div class="entry_value">
-			<%= f.text_area :store_id -%>
+			<%= f.text_area :store_id, :cols => 30-%>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -94,6 +144,8 @@
 			</dl>
 		</div>
 	</div>
-<%- end -%>
+</div>
+<div class="spacer"></div>
 
 <%- end -%>
+

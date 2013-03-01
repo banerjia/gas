@@ -58,7 +58,7 @@
 				<% end %>
 				<!-- END NOTICES -->
 
-				<%= yield :body %>
+				<%= content_for?(:body) ? yield(:body) : yield -%>
 			</div>
 			<footer>
 			<div id="page_footer" class="page_blocks">

@@ -1,0 +1,30 @@
+<% content_for :head do %>
+	<style type="text/css" media="screen">
+		div#left_column, div#right_column{
+			border: 3px solid #ddd;
+			padding: 0.4em;
+		}
+		div#left_column{
+			border: none;
+			margin-left:0;
+			width:250px;
+		}
+		div#right_column{
+			float:right;
+			margin-right: 0;
+			width: 720px;
+		}
+	</style>
+<% end %>
+
+<% content_for :body do %>
+	<div id="right_column">
+		<%= yield :right_column %>
+	</div>
+	<div id="left_column">
+		<%= yield :left_column %>
+	</div>
+	<div class="spacer"></div>
+<% end %>
+
+
