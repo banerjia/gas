@@ -64,11 +64,42 @@
 			margin-right: 0;
 			width: 720px;
 		}
+		a.toggle_button {
+			background-color: #EEE;
+			border: 2px solid #CCC;
+			cursor: pointer;
+			display: inline-block;
+			padding: 0.3em;
+			text-align: center;
+			text-transform: uppercase;
+			width: 4em;
+		}
+		a.toggle_button:hover { 
+			color: #FFF;
+			font-weight: bold;
+		}
+		a.button_yes:hover {
+			background-color: Green;
+		}
+		a.button_no:hover {
+			background-color: Red;
+		}
 	</style>
 <%- end -%>	
+
+<%- content_for :page_js do -%>
+	<script type="text/javascript">
+		function toggle_yes(){}
+
+		function toggle_no(){}
+	</script>
+<%- end -%>
 	
 <%= form_for @audit, :url => audits_path do |f| -%>
-<%= f.hidden_field :store_id, :value => @audit[:store_id] -%>
+<div style="display:none">
+	<%= f.hidden_field :store_id, :value => @audit[:store_id] -%>
+	<%= f.hidden_field :score, :value => '0' -%>
+</div>
 <div class="toolbar">
 	<%= f.submit "Save" -%>
 </div>
@@ -85,7 +116,7 @@
 
 		<%-
 			last_category = nil 
-			@metrics.each_with_index do |metric,index|
+			@metrics.each do |metric|
 				if last_category != metric[:category].strip
 					last_category = metric[:category].strip 
 		-%>
@@ -99,10 +130,16 @@
 				</td>
 				<td>
 				<%= f.fields_for :store_metrics do |sp| -%>
-					<%= sp.text_field :point_value -%>
+					<a onclick="toggle_yes(0)" style="text-decoration: none" class="toggle_button button_yes">Yes</a><br/>
+					<a onclick="toggle_no(-1)" class="toggle_button button_no" style="text-decoration:none">No</a>
+					<%= sp.text_field :resolved_at, :type => 'date' -%>
 					<div style="display:none">
+						<%- if metric[:include] == 1 -%>
+					  	<%= sp.hidden_field :point_value, :class => 'include-in-final-score' -%>
+						<%- else -%>
+					  	<%= sp.hidden_field :point_value -%>
+						<%- end -%>
 						<%= sp.hidden_field :metric_id, :value => metric[:id] -%>
-						
 					</div>
 				<%- end -%>
 				</td>

@@ -4,11 +4,11 @@ class AuditsController < ApplicationController
 	end
 	def new
 		store_id = params[:store_id] 
-		@store = Store.find( store_id )
+		store = Store.find( store_id )
 		@metrics = Metric.find(:all, :order => [:category, :display_order])
-		@audit = @store.audits.build()
+		@audit = store.audits.build()
 		@store_metrics = @audit.store_metrics.build()
-		@page_title = "New Audit for #{@store.name_with_locality}"
+		@page_title = "New Audit for #{store.name_with_locality}"
 	end
 	
 	def create
@@ -16,6 +16,7 @@ class AuditsController < ApplicationController
 		order = store.audits.new( params[:audit] )
 		if order.save
 			Audit.tire.index.refresh
+			flash[:notice] = 'New audit recorded'
 			redirect_to store_path(store)
 		else
 			render "new"
