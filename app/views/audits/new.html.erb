@@ -84,6 +84,7 @@
 		a.button_no:hover, a.selected_no {
 			background-color: Red;
 		}
+		input.resolved_at {display: none}
 	</style>
 <%- end -%>	
 
@@ -100,9 +101,12 @@
 			if( $(button_object).attr("class").indexOf('selected') < 0 ){
 				$(button_object).addClass(selected_class);
 				$( "div input.score",$(button_object).parent()).first().val( $(button_object).data('value'));
+				if( parseInt($(button_object).data('value')) < 0 )
+					$(button_object).parent().find(".resolved_at").show();
 			}else{
 				$(button_object).removeClass(selected_class);
 				$( "div input.score",$(button_object).parent()).first().val( "" );
+				$(button_object).parent().find(".resolved_at").hide();
 			}
 
 			compute_score();
@@ -118,9 +122,12 @@
 			if( $(button_object).attr("class").indexOf('selected') < 0 ){
 				$(button_object).addClass(selected_class);
 				$( "div input.score",$(button_object).parent()).first().val( $(button_object).data('value'));
+				if( parseInt($(button_object).data('value')) < 0 )
+					$(button_object).parent().find(".resolved_at").show();
 			}else{
 				$(button_object).removeClass(selected_class);
 				$( "div input.score",$(button_object).parent()).first().val( "" );
+				$(button_object).parent().find(".resolved_at").hide();
 			}
 
 			compute_score();
@@ -177,8 +184,8 @@
 				<%= f.fields_for :store_metrics do |sp| -%>
 					<a id="a<%=metric[:id]%>_yes" onclick="toggle_yes(this, 'selected_no')" data-value="<%= metric[:points] * metric[:quantifier] %>" style="text-decoration: none" class="toggle_button button_no">Yes</a><br/>
 					<a id="a<%=metric[:id]%>_no" onclick="toggle_no(this, 'selected_yes')" data-value="0" class="toggle_button button_yes" style="text-decoration:none">No</a>
-					<%= sp.text_field :resolved_at, :type => 'date' -%>
-					<div style="display:block">
+					<%= sp.text_field :resolved_at, :type => 'date', :class => 'resolved_at' -%>
+					<div style="display: none">
 						<%- if metric[:include] == 1 -%>
 					  	<%= sp.hidden_field :point_value, :class => 'include-in-final-score score' -%>
 						<%- else -%>
