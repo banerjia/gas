@@ -40,20 +40,20 @@ class @OrderList
 		 ids = jQuery.map jQuery("input#order", window.order_list_form )
 					 .filter( ":checked" ), (order) ->
 							jQuery( order ).val()
-		
 		 email = jQuery( "input#email_addresses", window.email_order_form ).val()
 		 email_body =  jQuery( "textarea#email_body", window.email_order_form ).val().trim()
 		 params_id = ids.join(",")
-		 jQuery.ajax
-			url: window.email_order_path
-			beforeSend: (xhr) ->
-				 xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))
-				 return
-			data:
-				 "id": params_id
-				 "email": email
-				 "email_body":  email_body if email_body
-			type: "POST"
+		 jQuery.ajax 
+				url: window.email_order_path
+				beforeSend: (xhr) ->
+					xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))
+					return
+				data:
+					"id": params_id
+					"email": email
+					"email_body":  email_body if email_body
+				type: "POST"
+
 		 jQuery(".modal_close" ).trigger("click")
 		 return
 
