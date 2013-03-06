@@ -93,20 +93,21 @@
 		function toggle_yes(){
 			var button_object = $( arguments[0] );
 			var selected_class = arguments[1];
+			var parent_container = $(button_object).parent();
 			
-			if( $(button_object).next().next('a').attr("class").indexOf("selected") > 0 ){
-				$(button_object).next().next("a").trigger('click');
+			if( $(parent_container).find('a[data-type="no"]').first().attr("class").indexOf("selected") > 0 ){
+				$(parent_container).find('a[data-type="no"]').first().trigger('click');
 			}
 			
 			if( $(button_object).attr("class").indexOf('selected') < 0 ){
 				$(button_object).addClass(selected_class);
-				$( "div input.score",$(button_object).parent()).first().val( $(button_object).data('value'));
+				$(parent_container).find("div input.score").first().val( $(button_object).data('value'));
 				if( parseInt($(button_object).data('value')) < 0 )
-					$(button_object).parent().find(".resolved_at").show();
+					$(parent_container).find(".resolved_at").show();
 			}else{
 				$(button_object).removeClass(selected_class);
-				$( "div input.score",$(button_object).parent()).first().val( "" );
-				$(button_object).parent().find(".resolved_at").hide();
+				$(parent_container).find("div input.score").first().val( "" );
+				$(parent_container).find(".resolved_at").hide();
 			}
 
 			compute_score();
@@ -115,19 +116,21 @@
 		function toggle_no(){
 			var button_object = $( arguments[0] );
 			var selected_class = arguments[1];
-			if( $(button_object).prev().prev('a').attr("class").indexOf("selected") > 0 ){
-				$(button_object).prev().prev("a").trigger('click');
-			}		
+			var parent_container = $(button_object).parent();
+			
+			if( $(parent_container).find('a[data-type="yes"]').first().attr("class").indexOf("selected") > 0 ){
+				$(parent_container).find('a[data-type="yes"]').first().trigger('click');	
+			}
 			
 			if( $(button_object).attr("class").indexOf('selected') < 0 ){
 				$(button_object).addClass(selected_class);
-				$( "div input.score",$(button_object).parent()).first().val( $(button_object).data('value'));
+				$(parent_container).find("div input.score").first().val( $(button_object).data('value'));
 				if( parseInt($(button_object).data('value')) < 0 )
-					$(button_object).parent().find(".resolved_at").show();
+					$(parent_container).find(".resolved_at").show();
 			}else{
 				$(button_object).removeClass(selected_class);
-				$( "div input.score",$(button_object).parent()).first().val( "" );
-				$(button_object).parent().find(".resolved_at").hide();
+				$(parent_container).find("div input.score").first().val( "" );
+				$(parent_container).find(".resolved_at").hide();
 			}
 
 			compute_score();
@@ -156,7 +159,6 @@
 	<%= f.submit "Save" -%>
 </div>
 <div id="right_column">
-
 	<table class="listing" id="store_metrics">
 		<thead>
 			<tr>
@@ -165,10 +167,25 @@
 			</tr>
 		</thead>
 		<tbody>
-
 		<%-
 			last_category = nil 
 			@metrics.each do |metric|
+				point_value_yes = metric[:points] * metric[:quantifier]
+				point_value_no = 0
+				button_yes_class = "toggle_button button_no"
+				button_no_class = "toggle_button button_yes"
+				button_yes_click = "toggle_yes(this, 'selected_no')"
+				button_no_click = "toggle_no(this, 'selected_yes')"
+				
+				
+				if metric[:reverse_options] == 1
+					point_value_no = point_value_yes
+					point_value_yes = 0
+					button_no_class = "toggle_button button_no"
+					button_yes_class = "toggle_button button_yes"
+					button_no_click = "toggle_yes(this, 'selected_no')"
+					button_yes_click = "toggle_no(this, 'selected_yes')"
+				end
 				if last_category != metric[:category].strip
 					last_category = metric[:category].strip 
 		-%>
@@ -182,8 +199,8 @@
 				</td>
 				<td>
 				<%= f.fields_for :store_metrics do |sp| -%>
-					<a id="a<%=metric[:id]%>_yes" onclick="toggle_yes(this, 'selected_no')" data-value="<%= metric[:points] * metric[:quantifier] %>" style="text-decoration: none" class="toggle_button button_no">Yes</a><br/>
-					<a id="a<%=metric[:id]%>_no" onclick="toggle_no(this, 'selected_yes')" data-value="0" class="toggle_button button_yes" style="text-decoration:none">No</a>
+					<a id="a<%=metric[:id]%>_yes" onclick="<%=button_yes_click-%>" data-type="yes" data-value="<%= point_value_yes %>" style="text-decoration: none" class="<%=button_yes_class-%>">Yes</a><br/>
+					<a id="a<%=metric[:id]%>_no" onclick="<%=button_no_click-%>" data-type="no" data-value="<%= point_value_no %>" class="<%=button_no_class-%>" style="text-decoration:none">No</a>
 					<%= sp.text_field :resolved_at, :type => 'date', :class => 'resolved_at' -%>
 					<div style="display: none">
 						<%- if metric[:include] == 1 -%>
