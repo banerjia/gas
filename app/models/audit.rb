@@ -95,7 +95,11 @@ class Audit < ActiveRecord::Base
 	end
 
 	def comments=(value)
-		self.audit_journal.create( {:title => 'Audit Notes', :tags => 'Audit,Notes', :body => value} )
+		if self.comments
+			self.audit_journal.where("tags like '%Audit%' and tags like '%Notes%'").first[:body] = value
+		else
+			self.audit_journal.create( {:title => 'Audit Notes', :tags => 'Audit,Notes', :body => value} )
+		end
 	end
 	
 	def is_pending?
