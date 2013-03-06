@@ -74,14 +74,14 @@
 			text-transform: uppercase;
 			width: 4em;
 		}
-		a.toggle_button:hover { 
+		a.toggle_button:hover, a.selected_yes, a.selected_no { 
 			color: #FFF;
 			font-weight: bold;
 		}
-		a.button_yes:hover {
+		a.button_yes:hover, a.selected_yes {
 			background-color: Green;
 		}
-		a.button_no:hover {
+		a.button_no:hover, a.selected_no {
 			background-color: Red;
 		}
 	</style>
@@ -89,9 +89,54 @@
 
 <%- content_for :page_js do -%>
 	<script type="text/javascript">
-		function toggle_yes(){}
+		function toggle_yes(){
+			var button_object = $( arguments[0] );
+			var selected_class = arguments[1];
+			
+			if( $(button_object).next().next('a').attr("class").indexOf("selected") > 0 ){
+				$(button_object).next().next("a").trigger('click');
+			}
+			
+			if( $(button_object).attr("class").indexOf('selected') < 0 ){
+				$(button_object).addClass(selected_class);
+				$( "div input.score",$(button_object).parent()).first().val( $(button_object).data('value'));
+			}else{
+				$(button_object).removeClass(selected_class);
+				$( "div input.score",$(button_object).parent()).first().val( "" );
+			}
 
-		function toggle_no(){}
+			compute_score();
+		}
+
+		function toggle_no(){
+			var button_object = $( arguments[0] );
+			var selected_class = arguments[1];
+			if( $(button_object).prev().prev('a').attr("class").indexOf("selected") > 0 ){
+				$(button_object).prev().prev("a").trigger('click');
+			}		
+			
+			if( $(button_object).attr("class").indexOf('selected') < 0 ){
+				$(button_object).addClass(selected_class);
+				$( "div input.score",$(button_object).parent()).first().val( $(button_object).data('value'));
+			}else{
+				$(button_object).removeClass(selected_class);
+				$( "div input.score",$(button_object).parent()).first().val( "" );
+			}
+
+			compute_score();
+		}
+	
+		function compute_score(){
+			var total_score = 25;
+
+			scores.each( function() {
+				if( $(this).val() != '' )
+				total_score += parseInt( $(this).val() );
+			});
+
+			$("span#audit_score").text( total_score );
+		}
+		var scores = $( "input.include-in-final-score" );
 	</script>
 <%- end -%>
 	
@@ -130,14 +175,14 @@
 				</td>
 				<td>
 				<%= f.fields_for :store_metrics do |sp| -%>
-					<a onclick="toggle_yes(0)" style="text-decoration: none" class="toggle_button button_yes">Yes</a><br/>
-					<a onclick="toggle_no(-1)" class="toggle_button button_no" style="text-decoration:none">No</a>
+					<a id="a<%=metric[:id]%>_yes" onclick="toggle_yes(this, 'selected_no')" data-value="<%= metric[:points] * metric[:quantifier] %>" style="text-decoration: none" class="toggle_button button_no">Yes</a><br/>
+					<a id="a<%=metric[:id]%>_no" onclick="toggle_no(this, 'selected_yes')" data-value="0" class="toggle_button button_yes" style="text-decoration:none">No</a>
 					<%= sp.text_field :resolved_at, :type => 'date' -%>
-					<div style="display:none">
+					<div style="display:block">
 						<%- if metric[:include] == 1 -%>
-					  	<%= sp.hidden_field :point_value, :class => 'include-in-final-score' -%>
+					  	<%= sp.hidden_field :point_value, :class => 'include-in-final-score score' -%>
 						<%- else -%>
-					  	<%= sp.hidden_field :point_value -%>
+					  	<%= sp.hidden_field :point_value, :class => 'score' -%>
 						<%- end -%>
 						<%= sp.hidden_field :metric_id, :value => metric[:id] -%>
 					</div>
@@ -161,10 +206,18 @@
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">
+			Comments	
+		</div>
+		<div class="entry_value">
+			<%= f.text_area :comments, :cols => 30 -%>	
+		</div>
+	</div>
+	<div class="entry_row">
+		<div class="entry_label">
 			Score
 		</div>
 		<div class="entry_value">
-			<span id="audit_score">0</span>
+			<span id="audit_score">25</span>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -173,10 +226,14 @@
 		</div>
 		<div class="entry_value">
 			<dl>
-				<dt>Score</dt>
-				<dd>Something</dd
-				<dt>23</dt>
-				<dd>Twenty three</dd>
+				<dt>25+</dt>
+				<dd>Store Conditions Meet/Exceed All Graeter's Standards</dd
+				<dt>23 - 24</dt>
+				<dd>Most Store Conditions Met Graeter's Standards</dd>
+				<dt>20 - 22</dt>
+				<dd>Some Graeter's Store Conditions Met - Others Require Attention</dd>
+				<dt>0 - 19</dt>
+				<dd>Many Store Conditions Found Unacceptable vs. Graeter's Standards. Immediate Attention Required</dd>
 			</dl>
 		</div>
 	</div>

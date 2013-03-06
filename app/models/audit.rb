@@ -94,7 +94,7 @@ class Audit < ActiveRecord::Base
 		self.audit_journal.where("tags like '%Audit%' and tags like '%Notes%'").first[:body] if self.audit_journal.where("tags like '%Audit%' and tags like '%Notes%'").first
 	end
 
-	def comments(=value)
+	def comments=(value)
 		self.audit_journal.create( {:title => 'Audit Notes', :tags => 'Audit,Notes', :body => value} )
 	end
 	

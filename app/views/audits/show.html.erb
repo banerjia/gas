@@ -70,14 +70,6 @@
 			<%= @audit[:auditor_name] -%>
 		</div>
 	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Score
-		</div>
-		<div class="entry_value">
-			<%= @audit[:score] -%>
-		</div>
-	</div>
 	<%- if @audit.comments -%>
 	<div class="entry_row">
 		<div class="entry_label">
@@ -90,14 +82,26 @@
 	<%- end -%>
 	<div class="entry_row">
 		<div class="entry_label">
+			Score
+		</div>
+		<div class="entry_value">
+			<%= @audit[:score] -%>
+		</div>
+	</div>
+	<div class="entry_row">
+		<div class="entry_label">
 			Score Legend
 		</div>
 		<div class="entry_value">
 			<dl>
-				<dt>Score</dt>
-				<dd>Something</dd
-				<dt>23</dt>
-				<dd>Twenty three</dd>
+				<dt>25+</dt>
+				<dd>Store Conditions Meet/Exceed All Graeter's Standards</dd
+				<dt>23 - 24</dt>
+				<dd>Most Store Conditions Met Graeter's Standards</dd>
+				<dt>20 - 22</dt>
+				<dd>Some Graeter's Store Conditions Met - Others Require Attention</dd>
+				<dt>0 - 19</dt>
+				<dd>Many Store Conditions Found Unacceptable vs. Graeter's Standards. Immediate Attention Required</dd>
 			</dl>
 		</div>
 	</div>
