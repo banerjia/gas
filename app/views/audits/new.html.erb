@@ -1,5 +1,6 @@
 <%- content_for :head do -%>
 	<%= stylesheet_link_tag :table -%>
+	<%= stylesheet_link_tag :forms -%>
 	<style type="text/css" media="screen">	
 		div.entry_row {
 			background-color:transparent
@@ -90,36 +91,16 @@
 
 <%- content_for :page_js do -%>
 	<script type="text/javascript">
-		function toggle_yes(){
+		function toggle(){
 			var button_object = $( arguments[0] );
 			var selected_class = arguments[1];
 			var parent_container = $(button_object).parent();
+			var button_data_type = $(button_object).data("type");
+			var the_other_button_data_type = (button_data_type == "yes" ? "no":"yes");
+			var the_other_button_object = $(parent_container).find('a[data-type="' + the_other_button_data_type + '"]').first();
 			
-			if( $(parent_container).find('a[data-type="no"]').first().attr("class").indexOf("selected") > 0 ){
-				$(parent_container).find('a[data-type="no"]').first().trigger('click');
-			}
-			
-			if( $(button_object).attr("class").indexOf('selected') < 0 ){
-				$(button_object).addClass(selected_class);
-				$(parent_container).find("div input.score").first().val( $(button_object).data('value'));
-				if( parseInt($(button_object).data('value')) < 0 )
-					$(parent_container).find(".resolved_at").show();
-			}else{
-				$(button_object).removeClass(selected_class);
-				$(parent_container).find("div input.score").first().val( "" );
-				$(parent_container).find(".resolved_at").hide();
-			}
-
-			compute_score();
-		}
-
-		function toggle_no(){
-			var button_object = $( arguments[0] );
-			var selected_class = arguments[1];
-			var parent_container = $(button_object).parent();
-			
-			if( $(parent_container).find('a[data-type="yes"]').first().attr("class").indexOf("selected") > 0 ){
-				$(parent_container).find('a[data-type="yes"]').first().trigger('click');	
+			if( $(the_other_button_object).attr("class").indexOf("selected") > 0 ){
+				$(the_other_button_object).trigger('click');	
 			}
 			
 			if( $(button_object).attr("class").indexOf('selected') < 0 ){
@@ -144,9 +125,12 @@
 				total_score += parseInt( $(this).val() );
 			});
 
-			$("span#audit_score").text( total_score );
+			$(span_audit_score).text( total_score );
+			$(hdf_audit_score).val( total_score );
 		}
 		var scores = $( "input.include-in-final-score" );
+		var span_audit_score = $("span#audit_score");
+		var hdf_audit_score = $("input#audit_score");
 	</script>
 <%- end -%>
 	
@@ -156,7 +140,8 @@
 	<%= f.hidden_field :score, :value => '0' -%>
 </div>
 <div class="toolbar">
-	<%= f.submit "Save" -%>
+	<%= f.submit "Save", :class => 'button' -%>
+	<input type="button" class="button" value="Cancel" onclick='window.location="<%=store_path(@audit[:store_id])%>"' />
 </div>
 <div id="right_column">
 	<table class="listing" id="store_metrics">
@@ -169,13 +154,13 @@
 		<tbody>
 		<%-
 			last_category = nil 
-			@metrics.each do |metric|
+			@metrics.each_with_index do |metric,index|
 				point_value_yes = metric[:points] * metric[:quantifier]
 				point_value_no = 0
 				button_yes_class = "toggle_button button_no"
 				button_no_class = "toggle_button button_yes"
-				button_yes_click = "toggle_yes(this, 'selected_no')"
-				button_no_click = "toggle_no(this, 'selected_yes')"
+				button_yes_click = "toggle(this, 'selected_no')"
+				button_no_click = "toggle(this, 'selected_yes')"
 				
 				
 				if metric[:reverse_options] == 1
@@ -183,8 +168,8 @@
 					point_value_yes = 0
 					button_no_class = "toggle_button button_no"
 					button_yes_class = "toggle_button button_yes"
-					button_no_click = "toggle_yes(this, 'selected_no')"
-					button_yes_click = "toggle_no(this, 'selected_yes')"
+					button_no_click = "toggle(this, 'selected_no')"
+					button_yes_click = "toggle(this, 'selected_yes')"
 				end
 				if last_category != metric[:category].strip
 					last_category = metric[:category].strip 
@@ -199,14 +184,15 @@
 				</td>
 				<td>
 				<%= f.fields_for :store_metrics do |sp| -%>
+					<%= sp.index -%>
 					<a id="a<%=metric[:id]%>_yes" onclick="<%=button_yes_click-%>" data-type="yes" data-value="<%= point_value_yes %>" style="text-decoration: none" class="<%=button_yes_class-%>">Yes</a><br/>
 					<a id="a<%=metric[:id]%>_no" onclick="<%=button_no_click-%>" data-type="no" data-value="<%= point_value_no %>" class="<%=button_no_class-%>" style="text-decoration:none">No</a>
-					<%= sp.text_field :resolved_at, :type => 'date', :class => 'resolved_at' -%>
+					<%= sp.text_field :resolved_at, :type => 'date', :class => 'resolved_at', :value => ( @store_metrics_chosen ? @store_metrics_chosen[index][:resolved_at] : nil ) -%>
 					<div style="display: none">
 						<%- if metric[:include] == 1 -%>
-					  	<%= sp.hidden_field :point_value, :class => 'include-in-final-score score' -%>
+					  	<%= sp.hidden_field :point_value, :class => 'include-in-final-score score', :value => (@store_metrics_chosen ? @store_metrics_chosen[index][:point_value] : nil ) -%>
 						<%- else -%>
-					  	<%= sp.hidden_field :point_value, :class => 'score' -%>
+					  	<%= sp.hidden_field :point_value, :class => 'score', :value => (@store_metrics_chosen ? @store_metrics_chosen[index][:point_value] : nil) -%>
 						<%- end -%>
 						<%= sp.hidden_field :metric_id, :value => metric[:id] -%>
 					</div>
@@ -219,7 +205,6 @@
 
 </div>
 <div id="left_column">
-	<h2>Audit Overview</h2>
 	<div class="entry_row">
 		<div class="entry_label">
 			Auditor
@@ -241,7 +226,7 @@
 			Score
 		</div>
 		<div class="entry_value">
-			<span id="audit_score">25</span>
+			<span id="audit_score"><%= @audit[:points_available]%></span>
 		</div>
 	</div>
 	<div class="entry_row">
@@ -251,7 +236,7 @@
 		<div class="entry_value">
 			<dl>
 				<dt>25+</dt>
-				<dd>Store Conditions Meet/Exceed All Graeter's Standards</dd
+				<dd>Store Conditions Meet/Exceed All Graeter's Standards</dd>
 				<dt>23 - 24</dt>
 				<dd>Most Store Conditions Met Graeter's Standards</dd>
 				<dt>20 - 22</dt>
@@ -263,6 +248,10 @@
 	</div>
 </div>
 <div class="spacer"></div>
+<div class="toolbar">
+	<%= f.submit "Save", :class => 'button' -%>
+	<input type="button" class="button" value="Cancel" onclick='window.location="<%=store_path(@audit[:store_id])%>"' />
+</div>
 
 <%- end -%>
 
