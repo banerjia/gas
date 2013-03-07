@@ -91,6 +91,16 @@
 
 <%- content_for :page_js do -%>
 	<script type="text/javascript">
+		jQuery(document).ready( function(){
+			var new_audit_form = jQuery("form#new_audit");
+			jQuery( new_audit_form ).on("submit", function() {
+				if( parseInt(jQuery( "input#audit_score", new_audit_form).val()) < 20){
+					alert( 'Cannot submit');
+					return false;
+				}
+			});			
+		});
+		
 		function toggle(){
 			var button_object = $( arguments[0] );
 			var selected_class = arguments[1];
@@ -184,7 +194,6 @@
 				</td>
 				<td>
 				<%= f.fields_for :store_metrics do |sp| -%>
-					<%= sp.index -%>
 					<a id="a<%=metric[:id]%>_yes" onclick="<%=button_yes_click-%>" data-type="yes" data-value="<%= point_value_yes %>" style="text-decoration: none" class="<%=button_yes_class-%>">Yes</a><br/>
 					<a id="a<%=metric[:id]%>_no" onclick="<%=button_no_click-%>" data-type="no" data-value="<%= point_value_no %>" class="<%=button_no_class-%>" style="text-decoration:none">No</a>
 					<%= sp.text_field :resolved_at, :type => 'date', :class => 'resolved_at', :value => ( @store_metrics_chosen ? @store_metrics_chosen[index][:resolved_at] : nil ) -%>

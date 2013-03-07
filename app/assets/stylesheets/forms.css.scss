@@ -68,3 +68,7 @@ input {
 		text-transform: uppercase;
 	}
 }
+
+#{$all-text-inputs-focus} {
+	border: 2px solid Green;
+}
