@@ -1,3 +1,4 @@
+require 'yaml'
 AppConfig = YAML.load_file("config/custom_config.yml")
 AppConfig.each do |key, value |
   ENV[key.to_s] = value.to_s

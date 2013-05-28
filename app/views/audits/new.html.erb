@@ -147,7 +147,7 @@
 <%= form_for @audit, :url => audits_path do |f| -%>
 <div style="display:none">
 	<%= f.hidden_field :store_id, :value => @audit[:store_id] -%>
-	<%= f.hidden_field :score, :value => '0' -%>
+	<%= f.hidden_field :score, :value => '25' -%>
 </div>
 <div class="toolbar">
 	<%= f.submit "Save", :class => 'button' -%>
@@ -196,12 +196,12 @@
 				<%= f.fields_for :store_metrics do |sp| -%>
 					<a id="a<%=metric[:id]%>_yes" onclick="<%=button_yes_click-%>" data-type="yes" data-value="<%= point_value_yes %>" style="text-decoration: none" class="<%=button_yes_class-%>">Yes</a><br/>
 					<a id="a<%=metric[:id]%>_no" onclick="<%=button_no_click-%>" data-type="no" data-value="<%= point_value_no %>" class="<%=button_no_class-%>" style="text-decoration:none">No</a>
-					<%= sp.text_field :resolved_at, :type => 'date', :class => 'resolved_at', :value => ( @store_metrics_chosen ? @store_metrics_chosen[index][:resolved_at] : nil ) -%>
+					<%= sp.text_field :resolved_at, :type => 'date', :class => 'resolved_at' -%>
 					<div style="display: none">
 						<%- if metric[:include] == 1 -%>
-					  	<%= sp.hidden_field :point_value, :class => 'include-in-final-score score', :value => (@store_metrics_chosen ? @store_metrics_chosen[index][:point_value] : nil ) -%>
+					  	<%= sp.hidden_field :point_value, :class => 'include-in-final-score score' -%>
 						<%- else -%>
-					  	<%= sp.hidden_field :point_value, :class => 'score', :value => (@store_metrics_chosen ? @store_metrics_chosen[index][:point_value] : nil) -%>
+					  	<%= sp.hidden_field :point_value, :class => 'score' -%>
 						<%- end -%>
 						<%= sp.hidden_field :metric_id, :value => metric[:id] -%>
 					</div>

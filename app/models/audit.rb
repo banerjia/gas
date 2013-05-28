@@ -12,7 +12,7 @@ class Audit < ActiveRecord::Base
 	accepts_nested_attributes_for :store_metrics, :allow_destroy => true, \
                                 :reject_if => proc { |sm| sm[:point_value].blank? }
 
-	validates_presence_of :comments #, :unless => proc{ |audit| audit[:score] > 19 }
+	#validates_presence_of :comments , :unless => proc{ |audit| audit[:score] > 19 }
 	
 	tire do
 		index_name('audits')
@@ -33,6 +33,7 @@ class Audit < ActiveRecord::Base
 	after_save do |audit|
 		if audit.comments
 			audit.audit_journal.where("tags like '%Audit%' and tags like '%Notes%'").first[:body] = @audit_comments 
+			audit.save
 		else
 			audit.audit_journal.create( {:title => 'Audit Notes', :tags => 'Audit,Notes', :body => @audit_comments} )
 		end		

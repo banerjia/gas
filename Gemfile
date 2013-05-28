@@ -1,5 +1,5 @@
 source 'http://rubygems.org'
-gem 'rails', '3.2.11'
+gem 'rails', '3.2.13'
 gem 'mysql2'
 gem 'composite_primary_keys'
 gem 'geokit-rails3'
@@ -21,7 +21,7 @@ group :test do
 end
 
 # Securing against JSON vulnerability
-gem 'json', '~> 1.7.7'
+gem 'json' #, '~> 1.7.7'
 
 # Custom Gem Additions
 gem 'tire'

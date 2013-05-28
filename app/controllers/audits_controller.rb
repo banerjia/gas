@@ -19,12 +19,8 @@ class AuditsController < ApplicationController
 			flash[:notice] = 'New audit recorded'
 			redirect_to store_path(store)
 		else
-			@audit = Audit.new(params[:audit])
-			@metrics = Metric.find(:all, :order => [:category, :display_order])
-			@store_metrics = StoreMetric.new()
-			@store_metrics_chosen = params[:audit][:store_metrics_attributes].map{ |key, value| value }
-
-			render "new"
+			flash[:warning] = 'Error processing audit'
+			redirect_to new_audit_path( {:store_id => store[:id] })
 		end
 	end
 
