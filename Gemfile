@@ -1,6 +1,8 @@
 source 'http://rubygems.org'
 gem 'rails', '3.2.13'
 gem 'mysql2'
+
+# Some other gems
 gem 'composite_primary_keys'
 gem 'geokit-rails3'
 gem 'dynamic_form'
