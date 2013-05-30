@@ -12,7 +12,10 @@ class Audit < ActiveRecord::Base
 	accepts_nested_attributes_for :store_metrics, :allow_destroy => true, \
                                 :reject_if => proc { |sm| sm[:point_value].blank? }
 
-	#validates_presence_of :comments , :unless => proc{ |audit| audit[:score] > 19 }
+	# Intentionally disabled. This validation is handled by Javascripts. 
+	# The reason for doing so is to prevent complications involved in repopulating 
+	# selected values in HTML controls in case validation fails. 
+	# validates_presence_of :comments , :unless => proc{ |audit| audit[:score] > 19 }
 	
 	tire do
 		index_name('audits')

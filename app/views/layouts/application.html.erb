@@ -2,7 +2,6 @@
 <html> 
 	<head>
 		<title><%= @page_title or "Untitled" %></title>
-		<%= javascript_include_tag :application %>
 		<%= stylesheet_link_tag "application"%>
 		<%= csrf_meta_tags %>
 		<style type="text/css" media="screen">
@@ -61,9 +60,10 @@
 				<%= content_for?(:body) ? yield(:body) : yield -%>
 			</div>
 			<footer>
-			<div id="page_footer" class="page_blocks">
-
-			</div>
+				<div id="page_footer" class="page_blocks">
+						<p>Site developed by Tagore Town LLC. for Graeters Inc.</p>
+						<p>&copy; Copyright reserved <%= Date.today.year -%>.</p>
+				</div>
 			</footer>
 		</div>
 		<div style="display:none">
@@ -82,8 +82,10 @@
 
 				 </script>
 			 <%- end -%>
-
-			 <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+			
+			<%= javascript_include_tag :application -%>
+			<%= javascript_include_tag :jquery -%>
+			 
 			 <script type="text/javascript">	
 				 $(document).ready(function(){			
 						 var min_height = Math.max( $("div#right_column").height(), $("div#left_column").height());

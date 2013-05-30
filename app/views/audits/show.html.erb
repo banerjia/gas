@@ -50,6 +50,8 @@
 		table.listing span.pass span, table.listing span.fail span { visibility: hidden }
 		span.pass { background-image: url( <%= image_path( "check_30x30.png" ) -%> ) }
 		span.fail { background-image: url( <%= image_path( "caution_30x30.png" ) -%> ) }
+		
+		dl#score_legend dd {margin-left: 0.5em}
 	</style>
 <%- end -%>
 <%- content_for :left_column do -%>
@@ -93,9 +95,9 @@
 			Score Legend
 		</div>
 		<div class="entry_value">
-			<dl>
+			<dl id="score_legend">
 				<dt>25+</dt>
-				<dd>Store Conditions Meet/Exceed All Graeter's Standards</dd
+				<dd>Store Conditions Meet/Exceed All Graeter's Standards</dd>
 				<dt>23 - 24</dt>
 				<dd>Most Store Conditions Met Graeter's Standards</dd>
 				<dt>20 - 22</dt>

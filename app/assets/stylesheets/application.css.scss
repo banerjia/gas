@@ -90,6 +90,7 @@ div {
 		}
 		border: 2px solid #ddd {
 			top: none;
+			bottom: none;
 		}
 		display: block;
 		margin: 0 auto;
@@ -116,6 +117,30 @@ div {
 		h1 {
 			@includes overall-font;
 			line-height: 1.5;
+		}
+	}
+	
+	&#page_footer{
+		background: {
+			color: #eee;
+		}
+		border: {
+			top: 2px solid #CCC;
+		}
+		color: #666;
+		font: {
+			family: Verdana, Tahoma, Arial, Sans-serif;
+			size: 0.8em;
+		}
+		margin: -3px{
+			top: 1px;
+		}
+		text: {
+			align: center;
+		}
+		
+		p{
+			margin: auto 0.1em;
 		}
 	}
 	
