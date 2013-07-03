@@ -1,5 +1,6 @@
 <tr>
 	<td><%= f.grouped_collection_select :product_id, ProductCategory.all, :products, :name, :id, :name -%></td>
-	<td><%= f.select :quantity, (4..24).step(4).to_a + (32..96).step(8).to_a -%></td>
+	<td><%= f.select :quantity, (1..5).to_a+ (8..24).step(4).to_a + (32..96).step(8).to_a -%></td>
 	<td><%= link_to_function "X", "remove_product(this)", :style => "text-decoration:none" -%></td>
 </tr>
+
