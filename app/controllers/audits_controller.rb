@@ -24,6 +24,12 @@ class AuditsController < ApplicationController
 		end
 	end
 
+	def edit
+		@audit = Audit.find( :all, :conditions => {:id => params[:id]}, :include => {:store, :store_metrics => [:metric] }, :joins => {:store_metrics => [:metric]} ).first()
+		@store = @audit.store
+		@metrics = @audit.store_metrics.group_by{ |store_metric| store_metric.metric[:category] }.sort
+	end
+
 	def show
 		audit_id = params[:id]		
 		@audit = Audit.find(:first, :conditions => { :id => audit_id }, :include => :store)
