@@ -22,7 +22,7 @@
 				<!-- TITLE -->
 				<h1 style="margin-top:1px"><%= @page_title || "Untitled" %></h1>
 
-				<%- if current_user || true -%>
+				<%- if (defined?(current_user) && current_user) || true -%>
 					<!-- Display top nav after login -->
 					<div id="top_nav">
 						<ul>
@@ -37,7 +37,9 @@
 								<%= link_to_unless_current "Products", products_path -%>
 								</li>
 							<%- end -%>
-							<li><%= link_to "Signout", logout_path %></li>
+							<%- if defined?(current_user) -%>	
+								<li><%= link_to "Signout", logout_path %></li>
+							<%- end -%>	
 						</ul>
 					</div>
 					<!-- End top nav -->

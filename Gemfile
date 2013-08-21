@@ -1,9 +1,11 @@
 source 'http://rubygems.org'
-gem 'rails', '3.2.13'
+#gem 'rails', '3.2.13'
+gem 'rails', '4.0.0'
 gem 'mysql2'
 
 gem 'composite_primary_keys'
-gem 'geokit-rails3'
+#gem 'geokit-rails3'
+gem 'geokit'
 gem 'dynamic_form'
 
 # Gems used only for assets and not required
@@ -25,6 +27,7 @@ end
 gem 'json' #, '~> 1.7.7'
 
 # Custom Gem Additions
+gem 'protected_attributes'
 gem 'tire'
 gem 'sorcery'
 gem 'bcrypt-ruby'
