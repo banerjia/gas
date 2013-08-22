@@ -2,8 +2,6 @@ class Product < ActiveRecord::Base
   has_many :product_orders
   belongs_to :product_category
   
-  attr_accessible :name, :code, :active, :available_from, :available_till, :product_category_id
-  
   #validates :name, :uniqueness => { :message => "A product with a similar name already exists" }, :presence => { :message => "Please specify a name for this product"}
   validates :code, :presence => { :message => 'Required'}, :uniqueness => {:case_sensitive => false, :message => 'Unique'}
   

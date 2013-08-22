@@ -143,4 +143,21 @@ class OrdersController < ApplicationController
       end
     end
   end
+
+private
+	def order_params
+		params[:order].permit(:invoice_number, :route_id, :delivery_dow, :created_at, :email_sent, :product_orders_attributes)
+	end
+	
+	def product_order_params
+		params[:product_order].permit(:product_id, :order_id, :quantity, :volume_unit_id)
+	end
+
+	def route_params
+		params[:route].permit(:name, :active)
+	end
+
+	def product_params
+		params[:product].permit(:name, :code, :active, :available_from, :available_till, :product_category_id)
+	end
 end

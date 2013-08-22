@@ -82,4 +82,8 @@ class CompaniesController < ApplicationController
     end
   end
 
+private
+	def company_params
+		params[:company].permit( :name, :active )
+	end
 end

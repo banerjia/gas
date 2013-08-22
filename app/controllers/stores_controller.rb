@@ -106,4 +106,18 @@ class StoresController < ApplicationController
       end
     end
   end
+
+private
+	def audit_params
+		params[:audit].permit(:store_id, :auditor_name, :score, :points_available, :status, :store_rep, :comments, :store_metrics_attributes)
+	end
+
+	def store_contact_params
+		params[:store_contact].permit(:store_id, :name, :title, :phone, :email)
+	end
+
+	def order_params
+		params[:order].permit(:invoice_number, :route_id, :delivery_dow, :created_at, :email_sent, :product_orders_attributes)
+	end
+
 end

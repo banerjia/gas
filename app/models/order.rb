@@ -10,9 +10,6 @@ class Order < ActiveRecord::Base
   
   belongs_to :store, :counter_cache => true
   
-  # Attributes
-  attr_accessible :invoice_number, :route_id, :delivery_dow, :created_at, :email_sent, :product_orders_attributes
-  
   # Validations
   accepts_nested_attributes_for :product_orders, :allow_destroy => true, \
                                 :reject_if => proc { |po| po[:quantity].blank? || (!po[:quantity].blank? && po[:quantity].to_i<=0) }

@@ -1,5 +1,4 @@
 class Company < ActiveRecord::Base
-  attr_accessible :name, :active
   has_many :stores
   has_many :states, :through => :stores, :uniq => :true
   
@@ -7,8 +6,6 @@ class Company < ActiveRecord::Base
   
   validates_presence_of :name, \
                         :message => "Company name cannot be blank. Please provide a company name."
-  
-  attr_accessible :name
   
   HUMANIZED_ATTRIBUTES = {
     :name => "Company name"

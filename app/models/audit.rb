@@ -7,7 +7,6 @@ class Audit < ActiveRecord::Base
 	has_many :store_metrics
 	has_many :audit_journal
 	
-	attr_accessible :store_id, :auditor_name, :score, :points_available, :status, :store_rep, :comments, :store_metrics_attributes
 	
 	accepts_nested_attributes_for :store_metrics, :allow_destroy => true, \
                                 :reject_if => proc { |sm| sm[:point_value].blank? }
