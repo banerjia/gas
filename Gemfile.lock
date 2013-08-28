@@ -40,6 +40,12 @@ GEM
       axlsx
       rails (>= 3.1)
     bcrypt-ruby (3.1.2)
+<<<<<<< HEAD
+=======
+    bourbon (3.1.8)
+      sass (>= 3.2.0)
+      thor
+>>>>>>> 129a98d5612071c9429595e52c6bd7da6af3c2ac
     builder (3.1.4)
     coffee-rails (4.0.0)
       coffee-script (>= 2.2.0)
@@ -136,7 +142,11 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     tzinfo (0.3.37)
+<<<<<<< HEAD
     uglifier (2.2.1)
+=======
+    uglifier (2.2.0)
+>>>>>>> 129a98d5612071c9429595e52c6bd7da6af3c2ac
       execjs (>= 0.3.0)
       multi_json (~> 1.0, >= 1.0.2)
     xml-simple (1.1.2)
@@ -148,6 +158,7 @@ DEPENDENCIES
   aws-s3
   axlsx_rails
   bcrypt-ruby
+  bourbon
   coffee-rails (~> 4.0.0)
   composite_primary_keys
   dynamic_form

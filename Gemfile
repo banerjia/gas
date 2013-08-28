@@ -20,5 +20,4 @@ gem 'sorcery'
 gem 'bcrypt-ruby'
 gem 'axlsx_rails'
 gem 'aws-s3'
-
-
+gem 'bourbon'
