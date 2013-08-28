@@ -15,6 +15,7 @@ Graeters::Application.routes.draw do
         get "states" => "companies#company_states", :as => "states", :format => :json
         get "stores/:country-:state" => "stores#search", :constraints => {:state => /[a-zA-Z]{2,}/,:country => /[a-zA-Z]{2}/}, :as => "stores_by_state"	     
         get "stores" => "stores#search", :as => "stores"
+				get "stores/new" => "stores#new", :as => "new_store"
       end      
       
       

@@ -1,6 +1,6 @@
 class Company < ActiveRecord::Base
   has_many :stores
-  has_many :states, :through => :stores, :uniq => :true
+  has_many :states, -> { uniq } , :through => :stores
   
   has_many :regions
   

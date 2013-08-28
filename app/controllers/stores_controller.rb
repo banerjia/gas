@@ -7,7 +7,7 @@ class StoresController < ApplicationController
   def show
     store_id = params[:id]
 
-    inclusions = {:last_audit => {:only => [:id,:score]}, 
+    inclusions = {
     :pending_audit => {:only => [:id, :score]},
     :company => {:only => [:id,:name]}}
     exceptions = [:company_id]
@@ -35,6 +35,22 @@ class StoresController < ApplicationController
     end
 
   end
+
+	def new
+		if params[:company_id]
+			company = Company.find( params[:company_id] )
+			@page_title = "New Store for #{company[:name]}"
+			@store = company.stores.build()
+		else
+			@page_title = "New Store"
+			@store = Store.new
+		end
+    @states = State.find(:all,:select => [:country, :state_code, :state_name], :order => [:country,:state_name])
+    @companies = Company.find(:all, :order => [:name]).sort! { |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )}      
+	end
+
+	def create
+	end
 
   def edit
     selected_store_id = params[:id]
