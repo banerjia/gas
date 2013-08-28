@@ -12,6 +12,7 @@ class Store < ActiveRecord::Base
   has_many :orders
   
   has_many :audits
+	has_one :last_audit, -> { where("status=1").order("created_at desc") }, :class_name => "Audit"
   has_one :pending_audit, -> { where "status = 0"}, :class_name => "Audit"
 
   accepts_nested_attributes_for :store_contacts, :allow_destroy => true, \
@@ -122,10 +123,6 @@ class Store < ActiveRecord::Base
   def has_pending_audit?
     !pending_audit.blank?
   end
-
-	def last_audit
-		audits.where({:status => 1}).order("created_at desc").limit(1)
-	end
 
   def completed_audits( limit = "0,25")
     audits.where({:status => 1}).order("created_at desc").limit( limit ).includes(:audit_journal)    

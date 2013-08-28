@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   helper :all
   protect_from_forgery
-  $store_inclusions = {
+  $store_inclusions = { :last_audit => {:only => [:id, :score, :created_at]},
                         :pending_audit => {:only => [:id, :score, :created_at,:auditor_name]}}
   $exclusions = [:created_at, :updated_at, :longitude, :latitude]
   

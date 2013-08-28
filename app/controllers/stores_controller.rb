@@ -12,7 +12,7 @@ class StoresController < ApplicationController
     :company => {:only => [:id,:name]}}
     exceptions = [:company_id]
 
-    store = Store.find(:first, :conditions => {:id => store_id}, :include => [:store_contacts, :last_audit,:pending_audit,:company])
+    store = Store.find(:first, :conditions => {:id => store_id}, :include => [:store_contacts, :company])
 
     @page_title = store[:name].titlecase + " Dashboard"
 
@@ -45,8 +45,8 @@ class StoresController < ApplicationController
 			@page_title = "New Store"
 			@store = Store.new
 		end
-    @states = State.find(:all,:select => [:country, :state_code, :state_name], :order => [:country,:state_name])
-    @companies = Company.find(:all, :order => [:name]).sort! { |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )}      
+    @states = State.all.select([:country, :state_code, :state_name]).order([:country,:state_name])
+    @companies = Company.all.order([:name]).sort! { |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )}      
 	end
 
 	def create
@@ -57,8 +57,8 @@ class StoresController < ApplicationController
     @page_title = "Edit Store Information"
 
     selected_store = Store.find( selected_store_id )
-    states = State.find(:all,:select => [:country, :state_code, :state_name], :order => [:country,:state_name])
-    companies = Company.find(:all, :order => [:name]).sort! { |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )}      
+    states = State.all.select([:country, :state_code, :state_name]).order([:country,:state_name])
+    companies = Company.all.order([:name]).sort! { |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )}
 
     respond_to do |format|
       format.html do           
