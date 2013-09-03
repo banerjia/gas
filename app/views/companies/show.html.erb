@@ -28,6 +28,12 @@
 			ajax_message_container = jQuery("div#ajax_message_container");
 			ajax_message = jQuery("span#ajax_message",ajax_message_container);
 			jQuery(ajax_message_container).hide();
+			
+			var max_width = 0;
+			$("input.icon_buttons").each(function(){
+				max_width = Math.max( $(this).width(), max_width);
+			})
+			$("input.icon_buttons").width( max_width );
 		})
 	</script>	
 	<%= javascript_include_tag "show_company" %>
@@ -42,6 +48,7 @@
 <div id="chain_information">
 	<div class="toolbar">
 		<input type="button" value="Edit" onclick="window.location='<%=edit_company_path(company)%>'" class="icon_buttons"/>
+		<input type="button" value="New Store" onclick="window.location='<%= company_new_store_path( company) -%>'" class="icon_buttons"/>
 	</div>
 	<div class="entry_row">
 		<div class="entry_label">Chain</div>

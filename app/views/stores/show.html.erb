@@ -71,6 +71,12 @@
 			$("ul.nav_items li").click(function(){
 				switch_sections( $(this) );
 			});
+
+				var max_width = 0;
+				$("input.icon_buttons").each(function(){
+					max_width = Math.max( $(this).width(), max_width);
+				})
+				$("input.icon_buttons").width( max_width );
 			
 		});
 	</script>
