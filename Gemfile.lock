@@ -58,8 +58,8 @@ GEM
     execjs (2.0.1)
     faraday (0.8.8)
       multipart-post (~> 1.2.0)
-    geokit (1.6.5)
-      multi_json
+    geokit (1.6.6)
+      multi_json (>= 1.3.2)
     hashr (0.0.22)
     hike (1.2.3)
     htmlentities (4.3.1)
