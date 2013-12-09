@@ -5,7 +5,7 @@ class Order < ActiveRecord::Base
   # Associations
   has_many :product_orders, :dependent => :destroy
   has_many :products, :through => :product_orders
-  has_many :product_categories, :through => :products, :group => :product_category_id
+  has_many :product_categories, -> { group :product_category_id },  :through => :products #, :group => :product_category_id
   belongs_to :route
   
   belongs_to :store, :counter_cache => true
