@@ -37,8 +37,7 @@ class @OrderList
 		 return
 
 	@send_email : () ->
-		 ids = jQuery.map jQuery("input#order", window.order_list_form )
-					 .filter( ":checked" ), (order) ->
+		 ids = jQuery.map jQuery("input#order", window.order_list_form ).filter( ":checked" ), (order) ->
 							jQuery( order ).val()
 		
 		 email = jQuery( "input#email_addresses", window.email_order_form ).val()
@@ -71,8 +70,7 @@ class @OrderList
 
 	@delete_checked_ids : () ->
 		 return if !confirm( 'Are you sure you want to delete the selected order(s)')
-		 ids = jQuery.map jQuery("input#order", window.order_list_form )
-					 .filter( ":checked" ), (order) ->
+		 ids = jQuery.map jQuery("input#order", window.order_list_form ).filter( ":checked" ), (order) ->
 							jQuery( order ).val()
 		
 		 params_id = ids.join(",")
@@ -162,4 +160,3 @@ class @OrderList
 					row.append( col ) for col in columns
 			@bind_click_event_for_checkboxes()
 			return
-
