@@ -1,7 +1,7 @@
 class Person < ActiveRecord::Base
   authenticates_with_sorcery!
 
-  attr_accessible :email, :password, :password_confirmation, :is_admin
+  #attr_accessible :email, :password, :password_confirmation, :is_admin
 
   validates_confirmation_of :password
   validates_presence_of :password, :on => :create
