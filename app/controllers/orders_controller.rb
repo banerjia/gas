@@ -30,8 +30,8 @@ class OrdersController < ApplicationController
   end
   
   def create
-    @store = Store.find(params[:store_id])
-    @order = @store.orders.new(params[:order])
+    params[:order][:store_id] = params[:store_id]
+    @order = Order.new(order_params)
     if @order.save
       Order.tire.index.refresh
       redirect_to orders_path
@@ -49,7 +49,7 @@ class OrdersController < ApplicationController
   def update
     @order = Order.find( params[:id] )
     store = Store.find( @order[:store_id] )
-    if @order.update_attributes!( params[:order] )
+    if @order.update_attributes!( order_params )
       redirect_to orders_path
     else
       @store = store
@@ -146,18 +146,6 @@ class OrdersController < ApplicationController
 
 private
 	def order_params
-		params[:order].permit(:invoice_number, :route_id, :delivery_dow, :created_at, :email_sent, :product_orders_attributes)
-	end
-	
-	def product_order_params
-		params[:product_order].permit(:product_id, :order_id, :quantity, :volume_unit_id)
-	end
-
-	def route_params
-		params[:route].permit(:name, :active)
-	end
-
-	def product_params
-		params[:product].permit(:name, :code, :active, :available_from, :available_till, :product_category_id)
+		params.require(:order).permit(:store_id, :invoice_number, :route_id, :delivery_dow, :created_at, :email_sent, :product_orders_attributes => [:product_id,:quantity])
 	end
 end

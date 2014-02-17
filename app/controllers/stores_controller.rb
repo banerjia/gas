@@ -132,8 +132,4 @@ private
 		params[:store_contact].permit(:store_id, :name, :title, :phone, :email)
 	end
 
-	def order_params
-		params[:order].permit(:invoice_number, :route_id, :delivery_dow, :created_at, :email_sent, :product_orders_attributes)
-	end
-
 end

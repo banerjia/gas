@@ -39,8 +39,7 @@ toggle_toolbar = () ->
    return
 
 send_email = () ->
-   ids = jQuery.map jQuery("input#order", window.order_list_form )
-         .filter( ":checked" ), (order) ->
+   ids = jQuery.map jQuery("input#order", window.order_list_form ).filter( ":checked" ), (order) ->
             jQuery( order ).val()
       
    email = jQuery( "input#email_addresses", window.email_order_form ).val()
@@ -70,8 +69,7 @@ select_all_toggle = () ->
 
 delete_checked_ids = () ->
    return if !confirm( 'Are you sure you want to delete the selected order(s)')
-   ids = jQuery.map jQuery("input#order", window.order_list_form )
-         .filter( ":checked" ), (order) ->
+   ids = jQuery.map jQuery("input#order", window.order_list_form ).filter( ":checked" ), (order) ->
             jQuery( order ).val()
       
    params_id = ids.join(",")
