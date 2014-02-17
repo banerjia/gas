@@ -5,8 +5,9 @@ class OrderMailer < ActionMailer::Base
     view_context = ActionView::Base.new(ActionController::Base.view_paths, {})
     order_list.each do |order|
       attachments[order.filename] = { 
-	      :content_type => "application/octet-stream",
-	      :body => view_context.render( :template => 'orders/show_order', :handlers => [:axlsx], :locals => {:order => order} )
+	      #:content_type => "application/octet-stream",
+        mime_type: Mime::XLSX,
+	      :body => view_context.render( :template => 'orders/show_order', :formats => [:xlsx], :handlers => [:axlsx], :locals => {:order => order} )
       }  
       order[:email_sent] = true
       order[:email_sent_date] = Date.today
