@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
 # Standard gems
-gem 'rails', '4.0.2'
+gem 'rails', '4.0.3'
 
 # Other gems
 gem 'mysql2'
