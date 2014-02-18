@@ -71,7 +71,7 @@ class StoresController < ApplicationController
     selected_store_id = params[:id]
     selected_store = Store.find( selected_store_id )  
 
-    if selected_store.update_attributes( params[:store])
+    if selected_store.update_attributes( store_params)
       flash[:notice] = "Store information updated."
       redirect_to :action => "show", :id => selected_store_id
     else
@@ -124,12 +124,7 @@ class StoresController < ApplicationController
   end
 
 private
-	def audit_params
-		params[:audit].permit(:store_id, :auditor_name, :score, :points_available, :status, :store_rep, :comments, :store_metrics_attributes)
-	end
-
-	def store_contact_params
-		params[:store_contact].permit(:store_id, :name, :title, :phone, :email)
-	end
-
+  def store_params
+    params.require(:store).permit(:company_id, :region_id, :name, :locality, :street_address, :city, :state_code, :zip, :country, :store_number, :phone, :store_contacts_attributes => [:name, :title, :phone, :email])
+  end
 end

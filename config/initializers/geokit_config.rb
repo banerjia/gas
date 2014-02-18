@@ -43,10 +43,17 @@ if defined? Geokit
 	# Geocoder.ca.
 	# See http://geocoder.ca
 	# and http://geocoder.ca/?register=1
-	# Geokit::Geocoders::geocoder_ca = false
+  # Geokit::Geocoders::geocoder_ca = false
 
 	# Uncomment to use a username with the Geonames geocoder
 	#Geokit::Geocoders::geonames="REPLACE_WITH_YOUR_GEONAMES_USERNAME"
+  
+  # This is your Google Maps geocoder keys (all optional).
+  # See http://www.google.com/apis/maps/signup.html
+  # and http://www.google.com/apis/maps/documentation/#Geocoding_Examples
+  Geokit::Geocoders::GoogleGeocoder.client_id = AppConfig["google_maps_api_key"]
+  #Geokit::Geocoders::GoogleGeocoder.cryptographic_key = ''
+  #Geokit::Geocoders::GoogleGeocoder.channel = ''
 
 	# This is the order in which the geocoders are called in a failover scenario
 	# If you only want to use a single geocoder, put a single symbol in the array.

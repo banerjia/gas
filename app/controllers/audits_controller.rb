@@ -13,7 +13,7 @@ class AuditsController < ApplicationController
 	
 	def create
 		store = Store.find(params[:audit][:store_id])
-		audit = store.audits.new( params[:audit] )
+		audit = store.audits.new( audit_params )
 		if audit.save
 			Audit.tire.index.refresh
 			flash[:notice] = 'New audit recorded'
@@ -56,4 +56,10 @@ class AuditsController < ApplicationController
 			format.json { render :json => results.to_json( :include => {:store => {:only => [:name], :methods => [:address]} }, :methods => [:comments] ) }
 		end
 	end
+  
+  private
+  
+  def audit_params
+    params.require(:audit).permit(:points_available, :score, :status, :auditor_name, :store_rep, :store_metrics_attributes => [:metric_id, :point_value, :include, :resolved_at])
+  end
 end
