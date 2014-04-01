@@ -40,7 +40,7 @@ class ProductsController < ApplicationController
     end
     
     @product = Product.find( params[:id] )
-    if @product.update_attributes!(params[:product])
+    if @product.update_attributes!(product_params)
       redirect_to :action => "index"
     else
       render "edit"
@@ -53,5 +53,10 @@ class ProductsController < ApplicationController
     # the record. 
     Product.update_all( "active = !active", {:id => params[:id]})
     redirect_to :action => "index"
+  end
+  
+private
+  def product_params
+    params.require(:product).permit(:name, :code, :product_category_id, :available_from, :available_till, :sort_order_for_order_sheet, :active)
   end
 end

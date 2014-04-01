@@ -65,25 +65,20 @@ wb.styles do |s|
 		sleeve_total = 0
 		index = 0
 		
-
-		order.organize_products_by_category.each do |product_category|
-
-			product_category[:products].each do |product_order|
-				row = sheet.add_row
-				row.add_cell product_order.product[:code]
-				row.add_cell product_order.product[:name]
-				row.add_cell product_order.volume_unit[:name]
-				row.add_cell product_order[:quantity]
-				row.add_cell product_order.sleeves
-				if (index%2) != 0
-					row.style = alternate_row
-				else
-					row.style = row_border
-				end
-				sleeve_total += product_order.sleeves
-				index = index + 1
+		order.product_orders.sort{|x| x.product[:sort_order_for_order_sheet]}.each do |product_order|
+			row = sheet.add_row
+			row.add_cell product_order.product[:code]
+			row.add_cell product_order.product[:name]
+			row.add_cell product_order.volume_unit[:name]
+			row.add_cell product_order[:quantity]
+			row.add_cell product_order.sleeves
+			if (index%2) != 0
+				row.style = alternate_row
+			else
+				row.style = row_border
 			end
-
+			sleeve_total += product_order.sleeves
+			index = index + 1
 		end
 
 		total_row = sheet.add_row

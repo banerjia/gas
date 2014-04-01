@@ -16,4 +16,11 @@ class Product < ActiveRecord::Base
   def availability
     self[:available_from] + " - " + self[:available_till]    
   end
+  
+  def self.update_sort_order
+    update_seq = [3,4,[25,26,28,29,30],5,6,7,8,9,10,11,12,15,17,13,23,38,14,21,40,42,43,39,18,16,44,19,20,41,24,33,27,34,31,32,33]
+    update_seq.each_with_index do |product_id, index| 
+      Product.where(:id => product_id).update_all(:sort_order_for_order_sheet => index+1)
+    end
+  end
 end
