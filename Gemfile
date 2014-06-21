@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
 # Standard gems
-gem 'rails', '4.0.4'
+gem 'rails', '4.1.1'
 
 # Other gems
 gem 'mysql2'
@@ -12,7 +12,7 @@ gem 'tire'
 gem 'sorcery'
 gem 'bcrypt-ruby'
 gem 'axlsx_rails'
-gem 'aws-s3'
+#gem 'aws-s3'
 gem 'bourbon'
 gem 'zip-zip'
 
