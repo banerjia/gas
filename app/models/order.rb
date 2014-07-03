@@ -179,7 +179,7 @@ class Order < ActiveRecord::Base
     if tire_order_listing.facets['states'] && tire_order_listing.facets['states']['terms'].count > 0
       facets['states'] = []
       tire_order_listing.facets['states']['terms'].each_with_index do |state,index| 
-        state[:state_name] = State.find(:first, :conditions => {:state_code => state['term']} )[:state_name]
+        state[:state_name] = State.where(:state_code => state['term']).first()[:state_name]
         facets['states'].push(state)
       end  
       facets['states'].sort!{ |a,b| a[:state_name] <=> b[:state_name]}
