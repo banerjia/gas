@@ -4,8 +4,8 @@ class CompaniesController < ApplicationController
     :pending_audit => {:only => [:id, :score, :created_at,:auditor_name]}}
 
   def index
-    all_companies = Company.find(:all, :conditions => {:active => true }, :order => :name)
-    all_companies.sort! { |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )}
+    all_companies = Company.where( {:active => true }).order(:name)
+    all_companies = all_companies.sort { |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )}
     @page_title = "Chains"
     return_value = Hash.new
     return_value[:number_of_companies] = all_companies.length
