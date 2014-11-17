@@ -1,6 +1,7 @@
 source 'http://rubygems.org'
 
 # Standard gems
+
 gem 'rails', '4.1.7'
 
 # Other gems
@@ -8,7 +9,8 @@ gem 'mysql2'
 gem 'composite_primary_keys'
 gem 'geokit'
 gem 'dynamic_form'
-gem 'tire'
+#gem 'tire'
+gem 'elasticsearch-model'
 gem 'sorcery'
 gem 'bcrypt-ruby'
 gem 'axlsx_rails'
