@@ -7,21 +7,30 @@ module StoreSearchable
 
 
     settings do
-      index_name    "stores-#{Rails.env}"
+      index_name    "graeters-#{Rails.env}"
     	mapping do 
-    		indexes :id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
-    		indexes :name, :type => 'string', :analyzer => 'snowball'
-    		indexes :locality, :type => 'string', :analyzer => 'snowball'
-    		indexes :name_sort, :type => 'string', :index => 'not_analyzed', :include_in_all => false, :as => 'name_with_locality'
-    		indexes :store_address, :type => 'string', :as => 'address', :analyzer => 'snowball'
-    		indexes :zip, :type => 'string', :index => 'not_analyzed', :include_in_all => false
-    		indexes :city, :type => 'string', :index => 'not_analyzed', :include_in_all => false
-    		indexes :state, :type => 'string', :index=> 'not_analyzed', :include_in_all => false, :as => 'state_code'
-    		indexes :country, :type => 'string', :index => 'not_analyzed', :include_in_all => false
-    		indexes :state_name, :type => 'string', :as => 'state.state_name', :analyzer => 'snowball'
-    		indexes :company_id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
-    		indexes :region_name, :type => 'string', :analyzer => 'snowball'
-    		indexes :region_id, :type => 'integer', :index => 'not_analyzed', :include_in_all => false
+    		indexes :id, :type => 'integer', :index => 'not_analyzed'
+        indexes :company_id, :type => 'integer', :index => 'not_analyzed'
+        indexes :region_id, :type => 'integer', :index => 'not_analyzed'
+        indexes :name, type: 'multi_field', fields: { 
+              name_with_locality: {type: 'string', index: 'analyzed'},
+              original: {type: 'string', index: :not_analyzed} 
+            }
+    		indexes :locality, :type => 'string', :analyzer => 'standard'
+    		indexes :store_address, :type => 'string', :analyzer => 'standard'
+    		indexes :zip, :type => 'string', :index => 'not_analyzed'
+    		indexes :city, :type => 'string', :index => 'not_analyzed'
+        indexes :state_code, :type => "string", :index => 'not_analyzed'
+        indexes :state do 
+          indexes :state_name, :type => 'string', :index => 'not_analyzed'
+        end  		
+        indexes :region do 
+          indexes :name, :type => 'string', :analyzer => 'standard'
+        end
+        
+        indexes :company do
+          indexes :name, :type => 'string', :analyzer => 'standard'
+        end
     	end
     end
   

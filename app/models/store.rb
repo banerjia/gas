@@ -1,5 +1,6 @@
 class Store < ActiveRecord::Base
   include StoreSearchable
+  include StoreImport
   
   belongs_to :company, :counter_cache => true
   belongs_to :state, :foreign_key => [:country, :state_code]
@@ -78,17 +79,17 @@ class Store < ActiveRecord::Base
     return_value += " (" + self[:country] + ")" unless self[:country] == "US"
     return return_value
   end
-
-  def region_name
-    return_value = nil
-    return_value = self.region[:name] if self.region
-    return return_value
-  end
   
   def name_with_locality
     return_value = self[:name]
     return_value += " (#{self[:locality]})" unless self[:locality].blank?
     return return_value    
+  end
+  
+  def name
+    return_value = self[:name]
+    return_value += " (#{self[:locality]})" unless self[:locality].blank?
+    return {:original => self[:name], :name_with_locality => return_value }
   end
   
   def self.update_geolocation
@@ -101,5 +102,16 @@ class Store < ActiveRecord::Base
       store.save
       sleep(1) if (index%10) == 0
     end
+  end
+
+  def as_indexed_json(options={})
+    self.as_json({
+      only: [:locality, :store_address, :zip, :city, :state_code, :company_id, :region_id],
+      methods: [:name],
+      include: {
+        company: { only: :name },
+        state: { only: :state_name }
+      }
+    })
   end
 end

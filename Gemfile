@@ -11,6 +11,7 @@ gem 'geokit'
 gem 'dynamic_form'
 #gem 'tire'
 gem 'elasticsearch-model'
+gem 'elasticsearch-rails'
 gem 'sorcery'
 gem 'bcrypt-ruby'
 gem 'axlsx_rails'
@@ -20,6 +21,10 @@ gem 'zip-zip'
 
 group :production do 
   gem 'asset_sync'
+end
+
+group :development do
+  gem 'meta_request'
 end
 
 group :assets do
