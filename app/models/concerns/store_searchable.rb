@@ -12,10 +12,7 @@ module StoreSearchable
     		indexes :id, :type => 'integer', :index => 'not_analyzed'
         indexes :company_id, :type => 'integer', :index => 'not_analyzed'
         indexes :region_id, :type => 'integer', :index => 'not_analyzed'
-        indexes :name, type: 'multi_field', fields: { 
-              name_with_locality: {type: 'string', index: 'analyzed'},
-              original: {type: 'string', index: :not_analyzed} 
-            }
+        indexes :name, :type => 'string', :analyzer => 'standard'
     		indexes :locality, :type => 'string', :analyzer => 'standard'
     		indexes :store_address, :type => 'string', :analyzer => 'standard'
     		indexes :zip, :type => 'string', :index => 'not_analyzed'

@@ -86,12 +86,6 @@ class Store < ActiveRecord::Base
     return return_value    
   end
   
-  def name
-    return_value = self[:name]
-    return_value += " (#{self[:locality]})" unless self[:locality].blank?
-    return {:original => self[:name], :name_with_locality => return_value }
-  end
-  
   def self.update_geolocation
     stores_to_update = find(:all, :conditions => "latitude IS NULL OR longitude IS NULL")
     stores_to_update.each_with_index do |store, index|
@@ -106,8 +100,8 @@ class Store < ActiveRecord::Base
 
   def as_indexed_json(options={})
     self.as_json({
-      only: [:locality, :store_address, :zip, :city, :state_code, :company_id, :region_id],
-      methods: [:name],
+      only: [:locality, :name, :store_address, :zip, :city, :state_code, :company_id, :region_id],
+      methods: [:name_with_locality],
       include: {
         company: { only: :name },
         state: { only: :state_name }
@@ -115,3 +109,9 @@ class Store < ActiveRecord::Base
     })
   end
 end
+
+Store.__elasticsearch__.client.indices.delete index: Store.index_name rescue nil
+Store.__elasticsearch__.client.indices.create \
+  index: Store.index_name, \
+  body: { settings: Store.settings.to_hash, mappings: Store.mappings.to_hash}
+
