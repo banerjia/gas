@@ -110,7 +110,7 @@ class StoresController < ApplicationController
         @facets = stores_found[:facets]
         @more_pages = stores_found[:more_pages]
         if @stores.size > 0	
-			      @page_title = @stores[0].company[:name] + " Stores in " + @stores[0].state[:state_name]              		  
+			      @page_title = @stores[0].company.name + " Stores in " + @stores[0].state.state_name           		  
             render "search_results", :locals => {\
               :options => params}
         else

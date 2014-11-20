@@ -104,14 +104,16 @@ class Store < ActiveRecord::Base
       methods: [:name_with_locality],
       include: {
         company: { only: :name },
-        state: { only: :state_name }
+        state: { only: :state_name },
+        last_audit: {only: [:created_at, :score]}
       }
     })
   end
+  
+  def self.index_refresh
+    Store.__elasticsearch__.client.indices.delete index: Store.index_name rescue nil
+    Store.__elasticsearch__.client.indices.create index: Store.index_name, body: { settings: Store.settings.to_hash, mappings: Store.mappings.to_hash}
+    Store.import
+  end
 end
-
-Store.__elasticsearch__.client.indices.delete index: Store.index_name rescue nil
-Store.__elasticsearch__.client.indices.create \
-  index: Store.index_name, \
-  body: { settings: Store.settings.to_hash, mappings: Store.mappings.to_hash}
 
