@@ -28,6 +28,11 @@ module StoreSearchable
         indexes :company do
           indexes :name, :type => 'string', :analyzer => 'standard'
         end
+        
+        indexes :last_audit do
+          indexes :score, :type => 'integer', :index => 'not_analyzed'
+          indexes :created_at, :type => 'date', :index => 'not_analyzed'
+        end
     	end
     end
   
@@ -36,8 +41,10 @@ module StoreSearchable
       facets = Hash.new    
       return_value = Hash.new
       page = (params[:page] || 1).to_i
+      size = (params[:per_page] || 10).to_i
+      offset = (page - 1) * size
     
-      results = tire.search :load => {:include => ['company', 'last_audit']}, :per_page => params[:per_page], :page => page do 
+      es_results = Store.__elasticsearch__.search :size => size, :from => offset do 
         query do
           boolean do
             must { string params[:q]} if params[:q].present?
@@ -56,18 +63,20 @@ module StoreSearchable
       end
 
       # Populating Regions Facet
-      if results.facets['regions']['terms'].count > 0
-        facets['regions'] = []
-        results.facets['regions']['terms'].each_with_index do |region,index| 
-          region[:region_name] = Region.find(region['term'] )[:name]
-          facets['regions'].push(region)
-        end
-      end
+      
+      #if results.facets['regions']['terms'].count > 0
+      #  facets['regions'] = []
+      #  results.facets['regions']['terms'].each_with_index do |region,index| 
+      #    region[:region_name] = Region.find(region['term'] )[:name]
+      #    facets['regions'].push(region)
+      #  end
+      #end
+      
     
-      return_value[:more_pages] = (results.total_pages > page )
-      return_value[:results] = results
-      return_value[:facets] = facets
-      return_value[:total] = results.total
+      return_value[:more_pages] = ((es_results.results.total / size) > page )
+      return_value[:results] = es_results.results
+      #return_value[:facets] = facets
+      return_value[:total] = es_results.results.total
     
       return return_value
     end
