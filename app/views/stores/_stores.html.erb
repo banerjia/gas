@@ -84,11 +84,11 @@
 	<tbody id="original_listing">
 		<% store_collection.each do |store|%>
 		<tr class="<%= cycle( 'regular', 'alternate' ) %>">
-			<td><%=link_to store[:name_with_locality], "nothing"%><br/><%=store[:city]%></td>
+			<td><%=link_to store._source[:name_with_locality], store_path({id: store[:_id]})%><br/><%=store._source[:city]%></td>
 			<td>
 				<%- if defined?(store.last_audit) -%>				
 					<%= store.last_audit[:score] -%><br/>
-					<span <%= store.last_audit[:created_at] < 2.weeks.ago ? raw('class="warning"'):'' -%>><%= store.last_audit[:created_at]-%></span>
+					<span <%= store._source.last_audit[:created_at] < 2.weeks.ago ? raw('class="warning"'):'' -%>><%= store._source.last_audit[:created_at]-%></span>
 				<%- else -%>
 				  &nbsp;
 				<%- end -%>

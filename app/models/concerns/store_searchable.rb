@@ -43,24 +43,43 @@ module StoreSearchable
       page = (params[:page] || 1).to_i
       size = (params[:per_page] || 10).to_i
       offset = (page - 1) * size
+      
+      bool_array = []
+      
+      bool_array.push( {term: {company_id: params[:company_id]}}) if params[:company_id].present?
+      bool_array.push( {term: {state_code: params[:state]}}) if params[:state].present?
     
-      es_results = Store.__elasticsearch__.search :size => size, :from => offset do 
-        query do
-          boolean do
-            must { string params[:q]} if params[:q].present?
-            must { string "state:#{params[:state]}" } if params[:state].present?
-            must { string "company_id:#{params[:company_id]}" } if params[:company_id].present?
-          end
-        end
+      es_results = Store.__elasticsearch__.search :size => size, :from => offset, :query =>
+      {
+        bool:
+        {
+          must: bool_array
+        }
+      },
+      :sort => 
+        [
+          {:state_code => {order:"asc"}},
+          {:name_with_locality => {order:"asc"}}
+        ]
       
-        filter :term, :region_id => params[:region] if params[:region].present?
+      
+#      do 
+#        query do
+#          boolean do
+            #must { string params[:q]} if params[:q].present?
+            #must { string "state:#{params[:state]}" } if params[:state].present?
+#            must :term, :company_id => params[:company_id] if params[:company_id].present?
+#          end
+#        end
+      
+#        filter :term, :region_id => params[:region] if params[:region].present?
 
-        facet 'regions' do 
-          terms :region_id, :order => 'term'
-        end     
+#        facet 'regions' do 
+#          terms :region_id, :order => 'term'
+#        end     
       
-        sort  {by :name_sort} 
-      end
+#        sort  {by :name_sort} 
+#      end
 
       # Populating Regions Facet
       
