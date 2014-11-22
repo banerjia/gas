@@ -28,6 +28,11 @@ module StoreSearchable
         indexes :company do
           indexes :name, :type => 'string', :analyzer => 'standard'
         end
+        
+        indexes :last_audit do
+          indexes :score, :type => 'integer', :index => 'not_analyzed'
+          indexes :created_at, :type => 'date', :index => 'not_analyzed'
+        end
     	end
     end
   
@@ -36,24 +41,45 @@ module StoreSearchable
       facets = Hash.new    
       return_value = Hash.new
       page = (params[:page] || 1).to_i
+      size = (params[:per_page] || 10).to_i
+      offset = (page - 1) * size
+      
+      bool_array = []
+      
+      bool_array.push( {term: {company_id: params[:company_id]}}) if params[:company_id].present?
+      bool_array.push( {term: {state_code: params[:state]}}) if params[:state].present?
     
-      results = Store.__elasticsearch__.search :load => {:include => ['company', 'last_audit']}, :per_page => params[:per_page], :page => page do 
-        query do
-          boolean do
-            must { string params[:q]} if params[:q].present?
-            must { string "state:#{params[:state]}" } if params[:state].present?
-            must { string "company_id:#{params[:company_id]}" } if params[:company_id].present?
-          end
-        end
+      es_results = Store.__elasticsearch__.search :size => size, :from => offset, :query =>
+      {
+        bool:
+        {
+          must: bool_array
+        }
+      },
+      :sort => 
+        [
+          {:state_code => {order:"asc"}},
+          {:name_with_locality => {order:"asc"}}
+        ]
       
-        filter :term, :region_id => params[:region] if params[:region].present?
+      
+#      do 
+#        query do
+#          boolean do
+            #must { string params[:q]} if params[:q].present?
+            #must { string "state:#{params[:state]}" } if params[:state].present?
+#            must :term, :company_id => params[:company_id] if params[:company_id].present?
+#          end
+#        end
+      
+#        filter :term, :region_id => params[:region] if params[:region].present?
 
-        facet 'regions' do 
-          terms :region_id, :order => 'term'
-        end     
+#        facet 'regions' do 
+#          terms :region_id, :order => 'term'
+#        end     
       
-        sort  {by :name_sort} 
-      end
+#        sort  {by :name_sort} 
+#      end
 
       # Populating Regions Facet
       
@@ -66,10 +92,12 @@ module StoreSearchable
       #end
       
     
-      return_value[:more_pages] = false #(results.total_pages > page )
-      return_value[:results] = results[:hits]
+
+      return_value[:more_pages] = ((es_results.results.total / size) > page )
+      return_value[:results] = es_results.results
       #return_value[:facets] = facets
-      return_value[:total] = results[:hits][:total]
+      return_value[:total] = es_results.results.total
+
     
       return return_value
     end

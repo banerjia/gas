@@ -3,5 +3,6 @@
 	<td><%= f.text_field :title -%></td>
 	<td><%= f.text_field :phone -%></td>
 	<td><%= f.text_field :email -%></td>
-	<td><%= link_to_function "X", "remove_contact(this)", :style => "text-decoration:none" -%></td>
+	<td>
+		<a onclick="remove_contact(this)" style="text-decoration:none;cursor:pointer">X</a></td>
 </tr>

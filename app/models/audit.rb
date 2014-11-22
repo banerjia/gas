@@ -1,6 +1,4 @@
 class Audit < ActiveRecord::Base
-	include Tire::Model::Search
-	include Tire::Model::Callbacks
 	
 	belongs_to :store, :counter_cache => true
 	
@@ -16,21 +14,21 @@ class Audit < ActiveRecord::Base
 	# selected values in HTML controls in case validation fails. 
 	# validates_presence_of :comments , :unless => proc{ |audit| audit[:score] > 19 }
 	
-	tire do
-		index_name('audits')
-		mapping do
-			indexes :id,	          :type=>'integer',     :index => 'not_analyzed'
-			indexes :store_id,      :type => 'integer',   :index => 'not_analyzed'
-			indexes :company_id,    :type => 'integer',   :index => 'not_analyzed',   :as => 'store.company_id'
-			indexes :company_name,  :type => 'string',    :index => 'not_analyzed',   :as => 'store.company[:name]'
-			indexes :store_name,    :type => 'string',    :analyzer => 'snowball',    :as => 'store.name_with_locality'
-			indexes :auditor_facet, :type => 'string',    :index => 'not_analyzed',   :as => 'auditor_name',            :include_in_all => false
-			indexes :auditor_name,  :type => 'string',    :analyzer => 'snowball'
-			indexes :score,         :type => 'integer',	  :index => 'not_analyzed'
-			indexes :pending,       :type => 'boolean',   :index => 'not_analyzed',   :as => 'is_pending?'
-			indexes :created_at,    :type => 'date',      :index => 'not_analyzed'
-		end
-	end
+	#tire do
+	#	index_name('audits')
+	#	mapping do
+	#		indexes :id,	          :type=>'integer',     :index => 'not_analyzed'
+  #		indexes :store_id,      :type => 'integer',   :index => 'not_analyzed'
+	#		indexes :company_id,    :type => 'integer',   :index => 'not_analyzed',   :as => 'store.company_id'
+	#		indexes :company_name,  :type => 'string',    :index => 'not_analyzed',   :as => 'store.company[:name]'
+	#		indexes :store_name,    :type => 'string',    :analyzer => 'snowball',    :as => 'store.name_with_locality'
+	#		indexes :auditor_facet, :type => 'string',    :index => 'not_analyzed',   :as => 'auditor_name',            :include_in_all => false
+	#		indexes :auditor_name,  :type => 'string',    :analyzer => 'snowball'
+	#		indexes :score,         :type => 'integer',	  :index => 'not_analyzed'
+	#		indexes :pending,       :type => 'boolean',   :index => 'not_analyzed',   :as => 'is_pending?'
+	#		indexes :created_at,    :type => 'date',      :index => 'not_analyzed'
+	#	end
+	#end
 
 	after_save do |audit|
 		if audit.comments

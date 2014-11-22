@@ -1,6 +1,4 @@
 class Order < ActiveRecord::Base
-  include Tire::Model::Search
-  include Tire::Model::Callbacks
   
   # Associations
   has_many :product_orders, :dependent => :destroy
@@ -15,24 +13,24 @@ class Order < ActiveRecord::Base
                                 :reject_if => proc { |po| po[:quantity].blank? || (!po[:quantity].blank? && po[:quantity].to_i<=0) }
   
   # ElasticSearch Index
-  tire do 
-    index_name('orders')
-    mapping do
-      indexes :id,              :type => "integer",   :index => 'not_analyzed', :include_in_all => false
-      indexes :invoice_number,  :type => "string",    :index => 'not_analyzed'
-      indexes :email_sent,     	:type => "boolean",   :index => 'not_analyzed'
-      indexes :store_name,      :type => "string",    :analyzer => 'snowball',  :as => 'store.name_with_locality'
-      indexes :store_id,        :type => 'integer',   :index => 'not_analyzed', :as => 'store[:id]'
-      indexes :company_id,      :type => 'integer',   :index => 'not_analyzed', :as => 'store.company[:id]'
-      indexes :company_name,    :type => 'string',    :analyzer => 'snowball',  :as => 'store.company[:name]'
-      indexes :ship_to_state,   :type => 'string',    :index => 'not_analyzed', :as => 'store.state.state_name'
-      indexes :ship_to_state_code, :type => 'string', :index => 'not_analyzed', :as => 'store[:state_code]'
-      indexes :deliver_by_day,  :type => 'string',    :index => 'not_analyzed', :as => 'delivery_day_of_the_week'
-      indexes :created_at,      :type => 'date',      :index => 'not_analyzed'
-      indexes :route_id,        :type => 'integer',   :index => 'not_analyzed'
-      indexes :route_name,      :type => 'string',    :index => 'not_analyzed', :as => 'route[:name]'
-    end
-  end
+#  tire do 
+#    index_name('orders')
+#    mapping do
+#      indexes :id,              :type => "integer",   :index => 'not_analyzed', :include_in_all => false
+#      indexes :invoice_number,  :type => "string",    :index => 'not_analyzed'
+#      indexes :email_sent,     	:type => "boolean",   :index => 'not_analyzed'
+#      indexes :store_name,      :type => "string",    :analyzer => 'snowball',  :as => 'store.name_with_locality'
+#      indexes :store_id,        :type => 'integer',   :index => 'not_analyzed', :as => 'store[:id]'
+#      indexes :company_id,      :type => 'integer',   :index => 'not_analyzed', :as => 'store.company[:id]'
+#      indexes :company_name,    :type => 'string',    :analyzer => 'snowball',  :as => 'store.company[:name]'
+#      indexes :ship_to_state,   :type => 'string',    :index => 'not_analyzed', :as => 'store.state.state_name'
+#      indexes :ship_to_state_code, :type => 'string', :index => 'not_analyzed', :as => 'store[:state_code]'
+#      indexes :deliver_by_day,  :type => 'string',    :index => 'not_analyzed', :as => 'delivery_day_of_the_week'
+#      indexes :created_at,      :type => 'date',      :index => 'not_analyzed'
+#      indexes :route_id,        :type => 'integer',   :index => 'not_analyzed'
+#      indexes :route_name,      :type => 'string',    :index => 'not_analyzed', :as => 'route[:name]'
+#    end
+#  end
   # Callbacks  
   before_save do |order|
     # Setting the order sent date
