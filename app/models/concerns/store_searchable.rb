@@ -37,7 +37,7 @@ module StoreSearchable
       return_value = Hash.new
       page = (params[:page] || 1).to_i
     
-      results = tire.search :load => {:include => ['company', 'last_audit']}, :per_page => params[:per_page], :page => page do 
+      results = Store.__elasticsearch__.search :load => {:include => ['company', 'last_audit']}, :per_page => params[:per_page], :page => page do 
         query do
           boolean do
             must { string params[:q]} if params[:q].present?
@@ -56,18 +56,20 @@ module StoreSearchable
       end
 
       # Populating Regions Facet
-      if results.facets['regions']['terms'].count > 0
-        facets['regions'] = []
-        results.facets['regions']['terms'].each_with_index do |region,index| 
-          region[:region_name] = Region.find(region['term'] )[:name]
-          facets['regions'].push(region)
-        end
-      end
+      
+      #if results.facets['regions']['terms'].count > 0
+      #  facets['regions'] = []
+      #  results.facets['regions']['terms'].each_with_index do |region,index| 
+      #    region[:region_name] = Region.find(region['term'] )[:name]
+      #    facets['regions'].push(region)
+      #  end
+      #end
+      
     
-      return_value[:more_pages] = (results.total_pages > page )
-      return_value[:results] = results
-      return_value[:facets] = facets
-      return_value[:total] = results.total
+      return_value[:more_pages] = false #(results.total_pages > page )
+      return_value[:results] = results[:hits]
+      #return_value[:facets] = facets
+      return_value[:total] = results[:hits][:total]
     
       return return_value
     end
