@@ -29,6 +29,10 @@ module StoreSearchable
           indexes :name, :type => 'string', :analyzer => 'standard'
         end
         
+        indexes :region do
+          indexes :name, :type => 'string', :analyzer => 'standard'
+        end
+        
         indexes :last_audit do
           indexes :score, :type => 'integer', :index => 'not_analyzed'
           indexes :created_at, :type => 'date', :index => 'not_analyzed'

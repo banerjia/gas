@@ -105,7 +105,8 @@ class Store < ActiveRecord::Base
       include: {
         company: { only: :name },
         state: { only: :state_name },
-        last_audit: {only: [:created_at, :score]}
+        last_audit: {only: [:created_at, :score]},
+        region: {only: :name}
       }
     })
   end
