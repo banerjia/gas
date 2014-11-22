@@ -22,11 +22,10 @@ gem 'zip-zip'
 group :production do 
   gem 'asset_sync'
 end
-
 group :development do
-  gem 'meta_request'
-end
-
+  gem 'better_errors'
+  gem 'binding_of_caller'
+end 
 group :assets do
   gem 'sass-rails', '~> 4.0.0'
   gem 'uglifier', '>= 1.3.0'

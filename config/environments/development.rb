@@ -47,4 +47,7 @@ Graeters::Application.configure do
 
   # Raise an error error on page load if there are pending migrations
   config.active_record.migration_error = :page_load
+  
+
+  BetterErrors::Middleware.allow_ip! '10.0.2.2'
 end
