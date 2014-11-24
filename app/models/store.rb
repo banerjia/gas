@@ -71,12 +71,16 @@ class Store < ActiveRecord::Base
   end
   
   def address
-    return_value = self[:street_address].strip.titlecase
-    return_value += ", " + self[:suite].strip unless self[:suite].blank?
-    return_value += ", " + self[:city].strip.titlecase
-    return_value += ", " + self[:state_code]
-    return_value += " - " + self[:zip].strip unless self[:zip].blank?
-    return_value += " (" + self[:country] + ")" unless self[:country] == "US"
+    Store.address( self )
+  end
+  
+  def self.address(storeObject)
+    return_value = storeObject[:street_address].strip.titlecase
+    return_value += ", " + storeObject[:suite].strip unless storeObject[:suite].blank?
+    return_value += ", " + storeObject[:city].strip.titlecase
+    return_value += ", " + storeObject[:state_code]
+    return_value += " - " + storeObject[:zip].strip unless storeObject[:zip].blank?
+    return_value += " (" + storeObject[:country] + ")" unless storeObject[:country] == "US"
     return return_value
   end
   
@@ -100,7 +104,7 @@ class Store < ActiveRecord::Base
 
   def as_indexed_json(options={})
     self.as_json({
-      only: [:locality, :name, :store_address, :zip, :city, :state_code, :company_id, :region_id],
+      only: [:locality, :name, :street_address, :zip, :city, :state_code, :company_id, :region_id, :country],
       methods: [:name_with_locality],
       include: {
         company: { only: :name },

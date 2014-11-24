@@ -14,10 +14,11 @@ module StoreSearchable
         indexes :region_id, :type => 'integer', :index => 'not_analyzed'
         indexes :name, :type => 'string', :analyzer => 'standard'
     		indexes :locality, :type => 'string', :analyzer => 'standard'
-    		indexes :store_address, :type => 'string', :analyzer => 'standard'
+    		indexes :street_address, :type => 'string', :analyzer => 'standard'
     		indexes :zip, :type => 'string', :index => 'not_analyzed'
     		indexes :city, :type => 'string', :index => 'not_analyzed'
         indexes :state_code, :type => "string", :index => 'not_analyzed'
+        indexes :country, :type => "string", :index => 'not_analyzed'
         indexes :state do 
           indexes :state_name, :type => 'string', :index => 'not_analyzed'
         end  		
@@ -48,16 +49,16 @@ module StoreSearchable
       size = (params[:per_page] || 10).to_i
       offset = (page - 1) * size
       
-      bool_array = []
+      bool_array_must = []
       
-      bool_array.push( {term: {company_id: params[:company_id]}}) if params[:company_id].present?
-      bool_array.push( {term: {state_code: params[:state]}}) if params[:state].present?
+      bool_array_must.push( {term: {company_id: params[:company_id]}}) if params[:company_id].present?
+      bool_array_must.push( {term: {state_code: params[:state]}}) if params[:state].present?
     
       es_results = Store.__elasticsearch__.search :size => size, :from => offset, :query =>
       {
         bool:
         {
-          must: bool_array
+          must: bool_array_must
         }
       },
       :sort => 
@@ -97,8 +98,8 @@ module StoreSearchable
       
     
 
-      return_value[:more_pages] = ((es_results.results.total / size) > page )
-      return_value[:results] = es_results.results
+      return_value[:more_pages] = ((es_results.results.total.to_f / size.to_f) > page.to_f )
+      return_value[:results] = es_results.results.map { |item| item._source.merge({ :id => item[:_id].to_i}) }
       #return_value[:facets] = facets
       return_value[:total] = es_results.results.total
 
