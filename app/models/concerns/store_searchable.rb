@@ -56,9 +56,13 @@ module StoreSearchable
     
       es_results = Store.__elasticsearch__.search :size => size, :from => offset, :query =>
       {
-        bool:
-        {
-          must: bool_array_must
+        constant_score: {
+          filter: {
+            bool:
+            {
+              must: bool_array_must
+            }          
+          }
         }
       },
       :sort => 

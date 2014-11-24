@@ -16,12 +16,11 @@ class Company < ActiveRecord::Base
   end
   
   def states_with_stores
-    Store.find(:all,
-               :conditions => {:company_id => self[:id]},
-               :select => "stores.country, stores.state_code, state_name, count(id) as `stores_count`",
-               :order => "stores.country, stores.state_code",
-               :group => "stores.country, stores.state_code",
-               :joins => :state)
+    Store.where({:company_id => self[:id]})
+    .select("stores.country, stores.state_code, states.state_name, count(id) as `stores_count`")
+    .order("stores.country, stores.state_code")
+    .group("stores.country, stores.state_code")
+    .joins(:state)
   end
   
 end
