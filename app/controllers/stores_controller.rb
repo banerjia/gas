@@ -67,7 +67,7 @@ class StoresController < ApplicationController
     end
   end
 
-  def update  
+  def update
     selected_store_id = params[:id]
     selected_store = Store.find( selected_store_id )  
 
