@@ -7,38 +7,45 @@ module StoreSearchable
 
 
     settings do
-      index_name    "graeters-#{Rails.env}"
-    	mapping do 
-    		indexes :id, :type => 'integer', :index => 'not_analyzed'
-        indexes :company_id, :type => 'integer', :index => 'not_analyzed'
-        indexes :region_id, :type => 'integer', :index => 'not_analyzed'
-        indexes :name, :type => 'string', :analyzer => 'standard'
-    		indexes :locality, :type => 'string', :analyzer => 'standard'
-    		indexes :street_address, :type => 'string', :analyzer => 'standard'
-    		indexes :zip, :type => 'string', :index => 'not_analyzed'
-    		indexes :city, :type => 'string', :index => 'not_analyzed'
-        indexes :state_code, :type => "string", :index => 'not_analyzed'
-        indexes :country, :type => "string", :index => 'not_analyzed'
-        indexes :state do 
-          indexes :state_name, :type => 'string', :index => 'not_analyzed'
-        end  		
-        indexes :region do 
-          indexes :name, :type => 'string', :analyzer => 'standard'
-        end
-        
-        indexes :company do
-          indexes :name, :type => 'string', :analyzer => 'standard'
-        end
-        
-        indexes :region do
-          indexes :name, :type => 'string', :analyzer => 'standard'
-        end
-        
-        indexes :last_audit do
-          indexes :score, :type => 'integer', :index => 'not_analyzed'
-          indexes :created_at, :type => 'date', :index => 'not_analyzed'
-        end
-    	end
+		index_name    "graeters-#{Rails.env}"
+			mapping do 
+				indexes :id, :type => 'integer', :index => 'not_analyzed'
+			indexes :company_id, :type => 'integer', :index => 'not_analyzed'
+			indexes :region_id, :type => 'integer', :index => 'not_analyzed'
+			indexes :name, type: 'multi_field'	do 
+				indexes :name
+				indexes :raw, :index => 'not_analyzed'
+			end
+			#, :type => 'string', :analyzer => 'standard'
+			indexes :locality, :type => 'string', :analyzer => 'standard'
+			indexes :street_address, :type => 'string', :analyzer => 'standard'
+			indexes :zip, :type => 'string', :index => 'not_analyzed'
+			indexes :city, :type => 'string', :index => 'not_analyzed'
+			indexes :state_code, :type => "string", :index => 'not_analyzed'
+			indexes :country, :type => "string", :index => 'not_analyzed'
+			indexes :state do 
+			  indexes :state_name, :type => 'string', :index => 'not_analyzed'
+			end  		
+			indexes :region do 
+			  indexes :name, :type => 'string', :analyzer => 'standard'
+			end
+			
+			indexes :company do
+			  indexes :name, :type => 'string', :analyzer => 'standard'
+			end
+			
+			indexes :region do
+				indexes :name, :type => 'multi_field' do
+					indexes :name
+					indexes :raw, :index => 'not_analyzed'
+				end
+			end
+			
+			indexes :last_audit do
+			  indexes :score, :type => 'integer', :index => 'not_analyzed'
+			  indexes :created_at, :type => 'date', :index => 'not_analyzed'
+			end
+		end
     end
   
 
@@ -65,6 +72,20 @@ module StoreSearchable
           }
         }
       },
+	  :aggs => {
+		:regions => {
+			:terms => {
+				field: "region_id"
+			},
+			:aggs => {
+				:region_names => {
+					:terms => {
+						field: "region.name"
+					}
+				}
+			}
+		}
+	  },
       :sort => 
         [
           {:state_code => {order:"asc"}},
@@ -104,7 +125,7 @@ module StoreSearchable
 
       return_value[:more_pages] = ((es_results.results.total.to_f / size.to_f) > page.to_f )
       return_value[:results] = es_results.results.map { |item| item._source.merge({ :id => item[:_id].to_i}) }
-      #return_value[:facets] = facets
+      return_value[:aggs] = es_results.response['aggs'] if es_results.response['aggs'].present?
       return_value[:total] = es_results.results.total
 
     
