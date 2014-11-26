@@ -60,8 +60,10 @@ module StoreSearchable
       
       bool_array_must.push( {term: {company_id: params[:company_id]}}) if params[:company_id].present?
       bool_array_must.push( {term: {state_code: params[:state]}}) if params[:state].present?
+      bool_array_must.push( {term: {country: params[:country]}}) if params[:country].present?
+      bool_array_must.push( {query: {query_string: {query: params[:q]}}}) if params[:q].present?
     
-      es_results = Store.__elasticsearch__.search :size => size, :from => offset, :query =>
+      es_results = __elasticsearch__.search :size => size, :from => offset, :query =>
       {
         constant_score: {
           filter: {
@@ -127,6 +129,7 @@ module StoreSearchable
       return_value[:results] = es_results.results.map { |item| item._source.merge({ :id => item[:_id].to_i}) }
       return_value[:aggs] = es_results.response['aggs'] if es_results.response['aggs'].present?
       return_value[:total] = es_results.results.total
+      return_value[:search_string] = es_results.search.definition[:body]
 
     
       return return_value

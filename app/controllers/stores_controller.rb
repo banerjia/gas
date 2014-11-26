@@ -99,7 +99,7 @@ class StoresController < ApplicationController
         return_value[:stores] = stores_found[:results]
         return_value[:more_pages] = stores_found[:more_pages]
         return_value[:stores_found] = stores_found[:total]
-        return_value[:facets] = stores_found[:facets]
+        return_value[:aggs] = stores_found[:aggs]
         render :json => return_value.to_json(
         :include => $store_inclusions,
         :except => $exclusions + [:phone])
@@ -107,7 +107,7 @@ class StoresController < ApplicationController
       format.html do
         [:action, :controller, :format].each { |key| params.delete(key) }
         @stores = stores_found[:results]
-        @facets = stores_found[:facets]
+        @facets = stores_found[:aggs]
         @more_pages = stores_found[:more_pages]
         if @stores.size > 0	
 			      @page_title = @stores[0].company.name + " Stores in " + @stores[0].state.state_name           		  
