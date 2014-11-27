@@ -57,81 +57,53 @@ module StoreSearchable
       offset = (page - 1) * size
       
       bool_array_must = []
+      query_string = {match_all:{}}
       
       bool_array_must.push( {term: {company_id: params[:company_id]}}) if params[:company_id].present?
       bool_array_must.push( {term: {state_code: params[:state]}}) if params[:state].present?
       bool_array_must.push( {term: {country: params[:country]}}) if params[:country].present?
-      bool_array_must.push( {query: {query_string: {query: params[:q]}}}) if params[:q].present?
+      bool_array_must.push({term: {region_id: params[:region]}}) if params[:region].present?
+      query_string = {query_string: {query: params[:q]}} if params[:q].present?
     
-      es_results = __elasticsearch__.search :size => size, :from => offset, :query =>
-      {
-        constant_score: {
-          filter: {
-            bool:
-            {
-              must: bool_array_must
-            }          
-          }
+      es_results = __elasticsearch__.search :size => size, :from => offset, 
+      :query => query_string,
+      :filter => {
+        :bool => {
+          must: bool_array_must
         }
       },
-	  :aggs => {
-		:regions => {
-			:terms => {
-				field: "region_id"
-			},
-			:aggs => {
-				:region_names => {
-					:terms => {
-						field: "region.name"
-					}
-				}
-			}
-		}
-	  },
-      :sort => 
-        [
-          {:state_code => {order:"asc"}},
-          {:name_with_locality => {order:"asc"}}
-        ]
-      
-      
-#      do 
-#        query do
-#          boolean do
-            #must { string params[:q]} if params[:q].present?
-            #must { string "state:#{params[:state]}" } if params[:state].present?
-#            must :term, :company_id => params[:company_id] if params[:company_id].present?
-#          end
-#        end
-      
-#        filter :term, :region_id => params[:region] if params[:region].present?
-
-#        facet 'regions' do 
-#          terms :region_id, :order => 'term'
-#        end     
-      
-#        sort  {by :name_sort} 
-#      end
-
-      # Populating Regions Facet
-      
-      #if results.facets['regions']['terms'].count > 0
-      #  facets['regions'] = []
-      #  results.facets['regions']['terms'].each_with_index do |region,index| 
-      #    region[:region_name] = Region.find(region['term'] )[:name]
-      #    facets['regions'].push(region)
-      #  end
-      #end
+  	  :aggs => {
+    		:regions => {
+    			:terms => {
+    				field: "region_id"
+    			},
+    			:aggs => {
+    				:region_names => {
+    					:terms => {
+    						field: "region.name.raw"
+    					}
+    				}
+    			}
+    		}
+  	  },
+      :sort => [
+        {:_score => {order: "desc"}},
+        {:state_code => {order:"asc"}},
+        {:name_with_locality => {order:"asc"}}
+      ]
       
     
 
       return_value[:more_pages] = ((es_results.results.total.to_f / size.to_f) > page.to_f )
       return_value[:results] = es_results.results.map { |item| item._source.merge({ :id => item[:_id].to_i}) }
-      return_value[:aggs] = es_results.response['aggs'] if es_results.response['aggs'].present?
+      if es_results.response['aggregations'].present?
+        return_value[:aggs] = {}
+        return_value[:aggs][:regions] = es_results.response['aggregations']['regions']['buckets'].map{ |item| {region_id: item['key'], name: item['region_names']['buckets'].first['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  if es_results.response['aggregations']['regions']['buckets'].size > 0
+      end
       return_value[:total] = es_results.results.total
-      return_value[:search_string] = es_results.search.definition[:body]
-
-    
+      
+      return_value[:search_string] = es_results.search.definition[:body] if !Rails.env.production?
+      
       return return_value
     end
   end

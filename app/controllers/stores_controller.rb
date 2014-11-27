@@ -107,7 +107,7 @@ class StoresController < ApplicationController
       format.html do
         [:action, :controller, :format].each { |key| params.delete(key) }
         @stores = stores_found[:results]
-        @facets = stores_found[:aggs]
+        @aggs = stores_found[:aggs]
         @more_pages = stores_found[:more_pages]
         if @stores.size > 0	
 			      @page_title = @stores[0].company.name + " Stores in " + @stores[0].state.state_name           		  

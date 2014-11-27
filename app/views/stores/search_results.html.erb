@@ -26,7 +26,7 @@
 <% content_for :left_column do %>
 <h2>Filtering Options</h2>
 <%- 
-	if false && @facets['regions'] 
+	if @aggs[:regions].present?
 		params_without_region = options.reject{ |key,value| key.to_s == 'region' }
 		path_prefix = stores_search_path
 		path_prefix += "?" + params_without_region.to_param if params_without_region
@@ -34,10 +34,10 @@
 	<h3 style="text-align:left">Regions</h3>
 	<ul class="nav_items">
 		<%- 
-			@facets['regions'].each do |region| 
-				url = path_prefix + "&" + {:region => region['term']}.to_param
+			@aggs[:regions].each do |item| 
+				url = path_prefix + "&" + {:region => item[:region_id]}.to_param
 		-%>
-			<li <%= options[:region].to_i ==  region['term'].to_i ? raw("class='current'"): "" -%>><%= link_to_if options[:region].to_i !=  region['term'].to_i,  region[:region_name], url -%></li>
+			<li <%= options[:region].to_i ==  item[:region_id].to_i ? raw("class='current'"): "" -%>><%= link_to_if options[:region].to_i !=  item[:region_id].to_i,  item[:name], url -%></li>
 		<%- end -%>
 		
 		<%- if options[:region] -%>
