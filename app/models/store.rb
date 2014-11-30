@@ -104,8 +104,8 @@ class Store < ActiveRecord::Base
 
   def as_indexed_json(options={})
     self.as_json({
-      only: [:locality, :name, :street_address, :zip, :city, :state_code, :company_id, :region_id, :country],
-      methods: [:name_with_locality],
+      only: [:locality, :name, :company_id, :region_id, :country, :state_code],
+      methods: [:address, :name_with_locality],
       include: {
         company: { only: :name },
         state: { only: :state_name },
