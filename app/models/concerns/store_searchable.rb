@@ -84,7 +84,7 @@ module StoreSearchable
     					}
     				}
     			}
-    		}
+        } 
   	  },
       :sort => [
         {:_score => {order: "desc"}},

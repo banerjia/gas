@@ -28,10 +28,7 @@
 						jQuery(store_link).text(stores[i].name + " (" + stores[i].locality + ")");
 					else
 						jQuery(store_link).text(stores[i].name);
-					var store_address = stores[i].street_address.toTitleCase()+', ' + 
-										stores[i].city.toTitleCase() + ', ' + 
-										stores[i].state_code + " - " +
-										stores[i].zip;
+					var store_address = stores[i].address;
 					jQuery(store_information).append(store_link).append("<br/>").append(store_address);
 					
 					jQuery(row).append(store_information);
@@ -86,7 +83,7 @@
 		<tr class="<%= cycle( 'regular', 'alternate' ) %>">
 			<td><%=link_to store[:name_with_locality], store_path(store[:id]) %><br/>
 				
-				<%=Store.address( store )%></td>
+				<%=store[:address]%></td>
 			<td>
 				<%- if defined?(store.last_audit) -%>				
 					<%= store.last_audit[:score] -%><br/>

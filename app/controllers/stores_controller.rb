@@ -107,7 +107,21 @@ class StoresController < ApplicationController
       format.html do
         [:action, :controller, :format].each { |key| params.delete(key) }
         @stores = stores_found[:results]
-        @aggs = stores_found[:aggs]
+        @aggs = stores_found[:aggs] 
+        
+        # HACK NOTE:
+        # The following line has been conditional because putting the COMPANY_ID in 
+        # the filter causes aggregations to list regions that are not relevant to 
+        # search results. For example, most regions are currently defined for Krogers
+        # but when a search is performed for Byerly stores the regions associated with 
+        # Krogers still show up. So this is a hack for the time being till the 
+        # ES query is fine tuned to avoid this problem.
+        if @aggs[:regions].present? && params[:company_id].present? && !Store.where(["company_id = ? AND region_id IS NOT NULL", params[:company_id].to_i]).any?
+          @aggs[:regions] = nil
+        end
+        # END HACK NOTE
+        
+        
         @more_pages = stores_found[:more_pages]
         if @stores.size > 0	
 			      @page_title = @stores[0].company.name + " Stores in " + @stores[0].state.state_name           		  
