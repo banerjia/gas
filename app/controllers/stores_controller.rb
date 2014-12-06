@@ -46,10 +46,22 @@ class StoresController < ApplicationController
 			@store = Store.new
 		end
     @states = State.all.select([:country, :state_code, :state_name]).order([:country,:state_name])
-    @companies = Company.all.order([:name]).sort { |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )}      
+    
+    # Sort companies by name compensating for articles 'the', 'a' and 'an'
+    @companies = Company.where(:active => true ).order([:name]).sort { |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )} unless params[:company_id]
 	end
 
 	def create
+    @store = store_params
+    new_store = Store.create(@store)
+    if new_store.valid?
+      flash[:message] = "New store for #{new_store.company[:name]} successfully created"
+      redirect_to :action => "show", :id => new_store.id
+    else
+      flash[:warning] = "Could not add store. Please review your entry"
+      @store = Store.new(store_params)
+      render :action => "new"
+    end
 	end
 
   def edit
@@ -88,8 +100,9 @@ class StoresController < ApplicationController
 
   def search
     
-    page = (params[:page] || 1).to_i
-    params[:per_page] = (params[:per_page] || $per_page).to_i
+    page = (params[:page] || 1).to_i.abs
+    params[:per_page] = (params[:per_page] || $per_page).to_i.abs
+    params[:per_page] = $per_page if params[:per_page] == 0
 
     stores_found = Store.search params                  
     
@@ -139,6 +152,6 @@ class StoresController < ApplicationController
 
 private
   def store_params
-    params.require(:store).permit(:company_id, :region_id, :name, :locality, :street_address, :city, :state_code, :zip, :country, :store_number, :phone, :store_contacts_attributes => [:name, :title, :phone, :email])
+    params.require(:store).permit(:company_id, :region_id, :name, :locality, :street_address, :city, :county, :state_code, :zip, :country, :store_number, :phone, :store_contacts_attributes => [:name, :title, :phone, :email])
   end
 end

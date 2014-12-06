@@ -36,10 +36,13 @@
 
 <% content_for :body do %>
 	<%= form_for @store do |f| %>
+	
+	<%= f.hidden_field :company_id unless f.object[:company_id].nil? -%>
 	<fieldset class="form_sections">
 		<div class="buttons">
 			<%= f.submit "Save Changes", :class => "button"%>
 		</div>
+		
 		<h2 id="StoreHeading">Store Information</h2>
 		<div class="entry_row">
 			<div class="entry_label">Name</div>
@@ -50,16 +53,26 @@
 			<div class="entry_value"><%= f.text_field :locality %></div>		
 		</div>
 		<div class="entry_row">
+			<div class="entry_label">Region</div>
+			<div class="entry_value"><%= f.select :region_id, options_from_collection_for_select(  Region.all.select([:id, :name]).order(:name), "id", "name"), :prompt => "-- Select --"%></div>
+		</div>
+		<div class="entry_row">
 			<div class="entry_label">Store#</div>
 			<div class="entry_value"><%= f.text_field :store_number %></div>		
 		</div>
+		<%- if defined?@companies -%>
 		<div class="entry_row">
 			<div class="entry_label">Company</div>
 			<div class="entry_value"><%= f.select :company_id, options_from_collection_for_select(@companies, 'id', 'name', @store[:company_id])%></div>		
 		</div>
+		<%- end -%>
 		<div class="entry_row">
 			<div class="entry_label">Street Address</div>
 			<div class="entry_value"><%= f.text_field :street_address %></div>
+		</div>
+		<div class="entry_row">
+			<div class="entry_label">County</div>
+			<div class="entry_value"><%= f.text_field :county %></div>
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">City</div>
@@ -75,7 +88,7 @@
 		</div>
 			<div class="entry_row">
 				<div class="entry_label">Country</div>
-				<div class="entry_value"><%= f.text_field :country %></div>
+				<div class="entry_value"><%= f.select :country, options_for_select([["United States of America", "US"],["Canada", "CA"], "Mexico", "MX"]) %></div>
 			</div>
 		<div class="entry_row">
 			<div class="entry_label">Phone</div>
@@ -113,6 +126,7 @@
 <% end %>
 
 <% content_for :page_js do -%>
+<%= javascript_include_tag 'jquery.validate.min' -%>
 <script type="text/javascript">
 function remove_contact( handle ){	
 	if($("table#contacts tbody tr").length == 1)

@@ -2,6 +2,11 @@ class Store < ActiveRecord::Base
   include StoreSearchable
   include StoreImport
   
+  # Validations
+  
+  validates_presence_of [:name, :street_address, :city, :state]
+  
+  # Associations
   belongs_to :company, :counter_cache => true
   belongs_to :state, :foreign_key => [:country, :state_code]
   
@@ -19,6 +24,7 @@ class Store < ActiveRecord::Base
                                 :reject_if => proc { |sc| sc[:name].blank? }
   
 
+  # Callbacks
   before_save do |store|
     # Updating StoreContacts
     StoreContact.delete_all({:store_id => store[:id]})
@@ -49,16 +55,11 @@ class Store < ActiveRecord::Base
       else
         geoloc = Geokit::Geocoders::GoogleGeocoder.geocode(store[:zip] + ', ' + store[:country])
       end
-      
-      # Once geolocation information has been retrieved
-      # determine the lat and long values in radians.
-      lat_lng = ZipCode.location_in_radians( \
-                  geoloc.ll.split(",").map{|item| item.to_f} \
-                  )     
+          
       
       # Populate the fields with this value              
-      store[:latitude] = lat_lng[0]
-      store[:longitude] = lat_lng[1]   
+      store[:latitude] = geoloc.lat
+      store[:longitude] = geoloc.lng  
     end
   end
 
