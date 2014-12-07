@@ -35,7 +35,7 @@
 <% end %>
 
 <% content_for :body do %>
-	<%= form_for @store do |f| %>
+	<%= form_for store do |f| %>
 	
 	<%= f.hidden_field :company_id unless f.object[:company_id].nil? -%>
 	<fieldset class="form_sections">
@@ -60,10 +60,10 @@
 			<div class="entry_label">Store#</div>
 			<div class="entry_value"><%= f.text_field :store_number %></div>		
 		</div>
-		<%- if defined?@companies -%>
+		<%- if f.object[:company_id].nil? -%>
 		<div class="entry_row">
 			<div class="entry_label">Company</div>
-			<div class="entry_value"><%= f.select :company_id, options_from_collection_for_select(@companies, 'id', 'name', @store[:company_id])%></div>		
+			<div class="entry_value"><%= f.select :company_id, options_from_collection_for_select(Company.list_for_dropdown, :id, :name, f.object[:company_id])%></div>		
 		</div>
 		<%- end -%>
 		<div class="entry_row">
@@ -80,7 +80,7 @@
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">State</div>
-			<div class="entry_value"><%= f.select :state_code, options_from_collection_for_select(@states, 'state_code', 'state_name', @store[:state_code])%></div>
+			<div class="entry_value"><%= f.select :state_code, options_from_collection_for_select(State.list_for_dropdown, :state_code, :state_name, f.object[:state_code])%></div>
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">Zipcode</div>

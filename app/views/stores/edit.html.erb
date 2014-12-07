@@ -56,7 +56,7 @@
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">Company</div>
-			<div class="entry_value"><%= f.select :company_id, options_from_collection_for_select(companies, 'id', 'name', store[:company_id])%></div>		
+			<div class="entry_value"><%= f.select :company_id, options_from_collection_for_select(Company.list_for_dropdown, 'id', 'name', store[:company_id])%></div>		
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">Street Address</div>
@@ -68,7 +68,7 @@
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">State</div>
-			<div class="entry_value"><%= f.select :state_code, options_from_collection_for_select(states, 'state_code', 'state_name', store[:state_code])%></div>
+			<div class="entry_value"><%= f.select :state_code, options_from_collection_for_select(State.list_for_dropdown, :state_code, :state_name, f.object[:state_code])%></div>
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">Zipcode</div>
@@ -76,7 +76,7 @@
 		</div>
 			<div class="entry_row">
 				<div class="entry_label">Country</div>
-				<div class="entry_value"><%= f.text_field :country %></div>
+				<div class="entry_value"><%= f.select :country, options_for_select([["United States of America", "US"],["Canada", "CA"], "Mexico", "MX"], f.object[:country]) %></div>
 			</div>
 		<div class="entry_row">
 			<div class="entry_label">Phone</div>

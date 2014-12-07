@@ -23,4 +23,8 @@ class Company < ActiveRecord::Base
     .joins(:state)
   end
   
+  def self.list_for_dropdown
+    self.where(:active => true).order(:name).select([:id, :name]).sort{ |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )}
+  end
+  
 end

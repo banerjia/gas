@@ -92,13 +92,13 @@ class Store < ActiveRecord::Base
   end
   
   def self.update_geolocation
-    stores_to_update = find(:all, :conditions => "latitude IS NULL OR longitude IS NULL")
+    stores_to_update = Store.where("latitude IS NULL OR longitude IS NULL")
     stores_to_update.each_with_index do |store, index|
       lat_lng = Location.get_geolocation( store.address )
       lat_lng = Location.get_geolocation( store[:zip] ) if lat_lng==[nil,nil]
       store[:latitude] = lat_lng[0]
       store[:longitude] = lat_lng[1]
-      store.save
+      store.update_columns({:latitude => lat_lng[0], :longitude => lat_lng[1]})
       sleep(1) if (index%10) == 0
     end
   end

@@ -37,18 +37,16 @@ class StoresController < ApplicationController
   end
 
 	def new
+    new_store = nil
 		if params[:company_id]
 			company = Company.find( params[:company_id] )
 			@page_title = "New Store for #{company[:name]}"
-			@store = company.stores.build()
+			new_store = company.stores.build()
 		else
 			@page_title = "New Store"
-			@store = Store.new
+			new_store = Store.new
 		end
-    @states = State.all.select([:country, :state_code, :state_name]).order([:country,:state_name])
-    
-    # Sort companies by name compensating for articles 'the', 'a' and 'an'
-    @companies = Company.where(:active => true ).order([:name]).sort { |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )} unless params[:company_id]
+    render :new, :locals => {:store => new_store}
 	end
 
 	def create
