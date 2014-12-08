@@ -42,11 +42,20 @@
 		<div class="buttons">
 			<%= f.submit "Save Changes", :class => "button"%>
 		</div>
-		
+		<%- if store.errors.any? -%>
+        <div id="error_explanation">
+            <h2><%= pluralize(store.errors.count, "error") %> prohibited this store from being saved:</h2>
+            <ul>
+              <% store.errors.full_messages.each do |msg| %>
+                  <li><%= msg %></li>
+              <% end %>
+            </ul>
+        </div>
+		<%- end -%>
 		<h2 id="StoreHeading">Store Information</h2>
 		<div class="entry_row">
 			<div class="entry_label">Name</div>
-			<div class="entry_value"><%= f.text_field :name %></div>		
+			<div class="entry_value"><%= f.text_field :name, :required => true %></div>		
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">Locality</div>
@@ -68,7 +77,7 @@
 		<%- end -%>
 		<div class="entry_row">
 			<div class="entry_label">Street Address</div>
-			<div class="entry_value"><%= f.text_field :street_address %></div>
+			<div class="entry_value"><%= f.text_field :street_address, :required => true %></div>
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">County</div>
@@ -76,7 +85,7 @@
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">City</div>
-			<div class="entry_value"><%= f.text_field :city %></div>
+			<div class="entry_value"><%= f.text_field :city, :required => true %></div>
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">State</div>

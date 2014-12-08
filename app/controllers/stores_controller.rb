@@ -38,27 +38,28 @@ class StoresController < ApplicationController
 
 	def new
     new_store = nil
+		@page_title = "New Store"
+    
 		if params[:company_id]
 			company = Company.find( params[:company_id] )
-			@page_title = "New Store for #{company[:name]}"
+			@page_title = " for #{company[:name]}"
 			new_store = company.stores.build()
 		else
-			@page_title = "New Store"
 			new_store = Store.new
 		end
-    render :new, :locals => {:store => new_store}
+    render :locals => {:store => new_store}
 	end
 
 	def create
-    @store = store_params
-    new_store = Store.create(@store)
+    new_store = Store.create(store_params)
     if new_store.valid?
       flash[:message] = "New store for #{new_store.company[:name]} successfully created"
       redirect_to :action => "show", :id => new_store.id
     else
+      @page_title = "New Store"
+      @page_title +=" for #{Company.find(new_store[:company_id])[:name]}" unless new_store[:company_id].nil?
       flash[:warning] = "Could not add store. Please review your entry"
-      @store = Store.new(store_params)
-      render :action => "new"
+      render :action => "new", :locals => {:store => new_store}
     end
 	end
 
