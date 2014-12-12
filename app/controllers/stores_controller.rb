@@ -42,7 +42,7 @@ class StoresController < ApplicationController
     
 		if params[:company_id]
 			company = Company.find( params[:company_id] )
-			@page_title = " for #{company[:name]}"
+			@page_title += " for #{company[:name]}"
 			new_store = company.stores.build()
 		else
 			new_store = Store.new

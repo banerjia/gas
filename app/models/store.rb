@@ -4,7 +4,7 @@ class Store < ActiveRecord::Base
   
   # Validations
   
-  validates_presence_of [:name, :street_address, :city, :state]
+  validates_presence_of [:name, :street_address, :city, :state_code]
   
   # Associations
   belongs_to :company, :counter_cache => true
@@ -85,8 +85,9 @@ class Store < ActiveRecord::Base
     return return_value
   end
   
-  def name_with_locality
+  def full_name
     return_value = self[:name]
+    return_value += " Store# #{self[:store_number]}" unless self[:store_number].blank?
     return_value += " (#{self[:locality]})" unless self[:locality].blank?
     return return_value    
   end
@@ -105,13 +106,13 @@ class Store < ActiveRecord::Base
 
   def as_indexed_json(options={})
     self.as_json({
-      only: [:locality, :name, :company_id, :region_id, :country, :state_code],
-      methods: [:address, :name_with_locality],
+      only: [:id, :country, :state_code],
+      methods: [:address, :full_name],
       include: {
-        company: { only: :name },
+        company: { only: [:id, :name] },
         state: { only: :state_name },
-        last_audit: {only: [:created_at, :score]},
-        region: {only: :name}
+        last_audit: {only: [:id, :created_at, :score]},
+        region: {only: [:id, :name]}
       }
     })
   end

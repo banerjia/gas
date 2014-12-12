@@ -52,7 +52,7 @@ wb.styles do |s|
 
 		store_row = sheet.add_row
 		store_row.add_cell "Ship to", :style => label
-		store_row.add_cell order.store.name_with_locality
+		store_row.add_cell order.store.full_name
 		store_row = sheet.add_row
 		store_row.add_cell
 		store_row.add_cell order.store.address

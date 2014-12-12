@@ -23,11 +23,10 @@
 					var row = jQuery("<tr/>");
 					var store_information = jQuery("<td/>");
 					var store_link = jQuery("<a/>");
+					var stores_name = stores[i].full_name;
 					jQuery(store_link).attr("href", "<%= stores_path %>/" + stores[i].id);
-					if(stores[i].locality)
-						jQuery(store_link).text(stores[i].name + " (" + stores[i].locality + ")");
-					else
-						jQuery(store_link).text(stores[i].name);
+					
+					jQuery(store_link).text(store_name);
 					var store_address = stores[i].address;
 					jQuery(store_information).append(store_link).append("<br/>").append(store_address);
 					
@@ -81,7 +80,7 @@
 	<tbody id="original_listing">
 		<% store_collection.each do |store|%>
 		<tr class="<%= cycle( 'regular', 'alternate' ) %>">
-			<td><%=link_to store[:name_with_locality], store_path(store[:id]) %><br/>
+			<td><%=link_to store.full_name, store_path(store[:id]) %><br/>
 				
 				<%=store[:address]%></td>
 			<td>

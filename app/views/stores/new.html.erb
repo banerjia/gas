@@ -35,9 +35,21 @@
 <% end %>
 
 <% content_for :body do %>
+
 	<%= form_for store do |f| %>
 	
 	<%= f.hidden_field :company_id unless f.object[:company_id].nil? -%>
+	<%= f.hidden_field :street_address -%>
+	<%= f.hidden_field :county -%>
+	<%= f.hidden_field :city -%>
+	<%= f.hidden_field :zip %>
+	<%= f.hidden_field :state_code -%>
+	<%= f.hidden_field :country -%>
+	
+	<%-	
+	available_regions = Region.where(:company_id => f.object[:company_id]).select([:name, :id]) if !f.object[:company_id].nil?	
+	-%>
+	
 	<fieldset class="form_sections">
 		<div class="buttons">
 			<%= f.submit "Save Changes", :class => "button"%>
@@ -55,16 +67,23 @@
 		<h2 id="StoreHeading">Store Information</h2>
 		<div class="entry_row">
 			<div class="entry_label">Name</div>
-			<div class="entry_value"><%= f.text_field :name, :required => true %></div>		
+			<div class="entry_value"><%= f.text_field :name -%></div>		
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">Locality</div>
-			<div class="entry_value"><%= f.text_field :locality %></div>		
+			<div class="entry_value"><%= f.text_field :locality -%></div>		
 		</div>
+		<%- if defined?(available_regions) && available_regions.size > 0 -%>
 		<div class="entry_row">
 			<div class="entry_label">Region</div>
-			<div class="entry_value"><%= f.select :region_id, options_from_collection_for_select(  Region.all.select([:id, :name]).order(:name), "id", "name"), :prompt => "-- Select --"%></div>
+			<div class="entry_value">
+				<input type="text" id="" list="store_region_id" />
+				<datalist id="store_region_id" name="store[region_id">
+					<%= options_from_collection_for_select(  available_regions, "id", "name") -%>
+				</datalist>
+			</div>		
 		</div>
+		<%- end -%>
 		<div class="entry_row">
 			<div class="entry_label">Store#</div>
 			<div class="entry_value"><%= f.text_field :store_number %></div>		
@@ -76,29 +95,9 @@
 		</div>
 		<%- end -%>
 		<div class="entry_row">
-			<div class="entry_label">Street Address</div>
-			<div class="entry_value"><%= f.text_field :street_address, :required => true %></div>
+			<div class="entry_label">Address</div>
+			<div class="entry_value"><input type="text" id="addressSearch" size="100"/></div>
 		</div>
-		<div class="entry_row">
-			<div class="entry_label">County</div>
-			<div class="entry_value"><%= f.text_field :county %></div>
-		</div>
-		<div class="entry_row">
-			<div class="entry_label">City</div>
-			<div class="entry_value"><%= f.text_field :city, :required => true %></div>
-		</div>
-		<div class="entry_row">
-			<div class="entry_label">State</div>
-			<div class="entry_value"><%= f.select :state_code, options_from_collection_for_select(State.list_for_dropdown, :state_code, :state_name, f.object[:state_code])%></div>
-		</div>
-		<div class="entry_row">
-			<div class="entry_label">Zipcode</div>
-			<div class="entry_value"><%= f.text_field :zip %></div>
-		</div>
-			<div class="entry_row">
-				<div class="entry_label">Country</div>
-				<div class="entry_value"><%= f.select :country, options_for_select([["United States of America", "US"],["Canada", "CA"], "Mexico", "MX"]) %></div>
-			</div>
 		<div class="entry_row">
 			<div class="entry_label">Phone</div>
 			<div class="entry_value"><%= f.telephone_field :phone %></div>
@@ -136,7 +135,12 @@
 
 <% content_for :page_js do -%>
 <%= javascript_include_tag 'jquery.validate.min' -%>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=<%= ENV["google_maps_api_key"] -%>"></script>
+<%= javascript_include_tag :google_maps -%>
+
 <script type="text/javascript">
+GoogleMapsAutoComplete();
+
 function remove_contact( handle ){	
 	if($("table#contacts tbody tr").length == 1)
 		$("table#contacts tbody tr input").val("");

@@ -10,27 +10,19 @@ module StoreSearchable
 		  index_name    "graeters-#{Rails.env}"
 			mapping do 
 				indexes :id, :type => 'integer', :index => 'not_analyzed'
-  			indexes :company_id, :type => 'integer', :index => 'not_analyzed'
-  			indexes :region_id, :type => 'integer', :index => 'not_analyzed'
-  			indexes :name, type: 'multi_field'	do 
-  				indexes :name
+  			indexes :full_name, type: 'multi_field'	do 
+  				indexes :full_name
   				indexes :raw, :index => 'not_analyzed'
   			end
         indexes :address, :type => 'string', :analyzer => 'standard'
-  			indexes :locality, :type => 'string', :analyzer => 'standard'
-  			#indexes :street_address, :type => 'string', :analyzer => 'standard'
-  			#indexes :zip, :type => 'string', :index => 'not_analyzed'
-  			#indexes :city, :type => 'string', :index => 'not_analyzed'
   			indexes :state_code, :type => "string", :index => 'not_analyzed'
   			indexes :country, :type => "string", :index => 'not_analyzed'
   			indexes :state do 
   			  indexes :state_name, :type => 'string', :index => 'not_analyzed'
-  			end  		
-  			indexes :region do 
-  			  indexes :name, :type => 'string', :analyzer => 'standard'
   			end
 			
   			indexes :company do
+          indexes :id, :type=>'integer', :index => 'not_analyzed'
   			  indexes :name, :type => 'string', :analyzer => 'standard'
   			end
 			
@@ -42,6 +34,7 @@ module StoreSearchable
   			end
 			
   			indexes :last_audit do
+          indexes :id, :type=>'integer', :index => 'not_analyzed'
   			  indexes :score, :type => 'integer', :index => 'not_analyzed'
   			  indexes :created_at, :type => 'date', :index => 'not_analyzed'
   			end
@@ -59,10 +52,10 @@ module StoreSearchable
       bool_array_must = []
       query_string = {match_all:{}}
       
-      bool_array_must.push( {term: {company_id: params[:company_id]}}) if params[:company_id].present?
+      bool_array_must.push( {term: {"company.id" => params[:company_id]}}) if params[:company_id].present?
       bool_array_must.push( {term: {state_code: params[:state]}}) if params[:state].present?
       bool_array_must.push( {term: {country: params[:country]}}) if params[:country].present?
-      bool_array_must.push({term: {region_id: params[:region]}}) if params[:region].present?
+      bool_array_must.push({term: {"region.id" => params[:region]}}) if params[:region].present?
       query_string = {query_string: {query: params[:q]}} if params[:q].present?
     
       es_results = __elasticsearch__.search :size => size, :from => offset, 
@@ -75,7 +68,7 @@ module StoreSearchable
   	  :aggs => {
     		:regions => {
     			:terms => {
-    				field: "region_id"
+    				field: "region.id"
     			},
     			:aggs => {
     				:region_names => {
@@ -89,7 +82,7 @@ module StoreSearchable
       :sort => [
         {:_score => {order: "desc"}},
         {:state_code => {order:"asc"}},
-        {:name_with_locality => {order:"asc"}}
+        {:full_name => {order:"asc"}}
       ]
       
     
