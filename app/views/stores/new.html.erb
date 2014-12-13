@@ -35,7 +35,7 @@
 <% end %>
 
 <% content_for :body do %>
-
+	<%- #store.build_region unless store.region -%>
 	<%= form_for store do |f| %>
 	<div style="display:none">
 		<%= f.hidden_field :company_id unless f.object[:company_id].nil? -%>
@@ -75,7 +75,11 @@
 		<div class="entry_row">
 			<div class="entry_label">Region</div>
 			<div class="entry_value">
-				<%= f.select :region_id, options_from_collection_for_select(  available_regions, "id", "name"), {:prompt => "-- Select --"}, {:disabled => !available_regions.any?} -%>
+				<%= f.select :region_id, options_from_collection_for_select(  available_regions, "id", "name"), {:prompt => "-- Select --"}, {:disabled => !available_regions.any?} -%>				
+				<%= f.fields_for :region do |rf| -%>
+				<br/> 
+				<%= rf.label :name, 'or create a new region:' -%> <%= rf.text_field :name -%>
+				<%- end -%>
 			</div>		
 		</div>
 		<div class="entry_row">

@@ -3,8 +3,9 @@ class Store < ActiveRecord::Base
   include StoreSearchable
   include StoreImport
   
-  # Validations
   
+  
+  # Validations  
   validates_presence_of [:name, :street_address, :city, :state_code]
   
   # Associations
@@ -21,8 +22,9 @@ class Store < ActiveRecord::Base
 	has_one :last_audit, -> { where("status=1").order("created_at desc") }, :class_name => "Audit"
   has_one :pending_audit, -> { where "status = 0"}, :class_name => "Audit"
 
-  accepts_nested_attributes_for :store_contacts, :allow_destroy => true, \
-                                :reject_if => proc { |sc| sc[:name].blank? }
+  accepts_nested_attributes_for   :store_contacts, :allow_destroy => true, :reject_if => proc { |sc| sc[:name].blank? }
+  accepts_nested_attributes_for   :region, :reject_if => proc {|r| r[:name].blank? }
+                              
   
 
 

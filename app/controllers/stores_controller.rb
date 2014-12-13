@@ -47,11 +47,16 @@ class StoresController < ApplicationController
 		else
 			new_store = Store.new
 		end
+    
+    new_store.build_region
+    
     render :locals => {:store => new_store}
 	end
 
 	def create
-    new_store = Store.create(store_params)
+    store = store_params
+    store[:region_attributes][:company_id] = store[:company_id]
+    new_store = Store.create(store)
     if new_store.valid?
       flash[:message] = "New store for #{new_store.company[:name]} successfully created"
       redirect_to :action => "show", :id => new_store.id
@@ -151,6 +156,6 @@ class StoresController < ApplicationController
 
 private
   def store_params
-    params.require(:store).permit(:company_id, :region_id, :name, :locality, :street_address, :city, :county, :state_code, :zip, :country, :store_number, :phone, :store_contacts_attributes => [:name, :title, :phone, :email])
+    params.require(:store).permit(:company_id, :region_id, :name, :locality, :street_address, :city, :county, :state_code, :zip, :country, :store_number, :phone, :store_contacts_attributes => [:name, :title, :phone, :email], :region_attributes => [:name])
   end
 end
