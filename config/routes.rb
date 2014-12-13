@@ -2,6 +2,11 @@ Graeters::Application.routes.draw do
   defaults( :format => :html ) do 
 
     root :to => 'companies#index', :format => :html	  
+    namespace :api, constraints: { format: :json } do
+      namespace :v1 do
+        resources :regions, :only => [:index]
+      end
+    end
     constraints( :id => /\d+/) do
 
       get "stores/search" => 'stores#search', :as => "stores_search"
@@ -15,7 +20,7 @@ Graeters::Application.routes.draw do
         get "states" => "companies#company_states", :as => "states", :format => :json
         get "stores/:country-:state" => "stores#search", :constraints => {:state => /[a-zA-Z]{2,}/,:country => /[a-zA-Z]{2}/}, :as => "stores_by_state"	     
         get "stores" => "stores#search", :as => "stores"
-				get "stores/new" => "stores#new", :as => "new_store"
+				get "stores/new" => "stores#new", :as => "new_store"          
       end      
       
       

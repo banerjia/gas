@@ -7,7 +7,7 @@ gem 'rails', '4.1.7'
 # Other gems
 gem 'mysql2'
 gem 'composite_primary_keys'
-gem 'geokit'
+gem 'geocoder'
 gem 'dynamic_form'
 #gem 'tire'
 gem 'elasticsearch-model'

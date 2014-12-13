@@ -1,4 +1,5 @@
 class Store < ActiveRecord::Base
+  extend ::Geocoder::Model::ActiveRecord   
   include StoreSearchable
   include StoreImport
   
@@ -24,44 +25,10 @@ class Store < ActiveRecord::Base
                                 :reject_if => proc { |sc| sc[:name].blank? }
   
 
-  # Callbacks
-  before_save do |store|
-    # Updating StoreContacts
-    StoreContact.delete_all({:store_id => store[:id]})
-    
-    # Region Changes    
-    if region_id_changed?
-      Region.decrement_counter( :stores_count, store.region_id_was) if store.region_id_was
-      Region.increment_counter( :stores_count, store[:region_id]) if store[:region_id]
-    end
-    
-    # Address Changes
-    #store[:name] = store[:name].strip
-    store[:street_address] = store[:street_address].strip
-    store[:suite] = store[:suite].strip if store[:suite]
-    store[:city] = store[:city].strip
-    
-    # Only populate the longitude and latitude information if 
-    # the zipcode has changed
-    if zip_changed?
-      
-      # If zip code has been left blank, attempt to fetch it
-      # using Geokit.
-      # If not fetch the location information based on
-      # zip code and country
-      if store[:zip].blank?
-        geoloc = Geokit::Geocoders::GoogleGeocoder.geocode(store.address)
-        store[:zip] = geoloc.zip unless geoloc.zip.blank?
-      else
-        geoloc = Geokit::Geocoders::GoogleGeocoder.geocode(store[:zip] + ', ' + store[:country])
-      end
-          
-      
-      # Populate the fields with this value              
-      store[:latitude] = geoloc.lat
-      store[:longitude] = geoloc.lng  
-    end
-  end
+
+  geocoded_by :address
+  
+  after_validation :geocode
 
   def has_pending_audit?
     !pending_audit.blank?

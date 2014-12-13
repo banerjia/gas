@@ -20,7 +20,10 @@ class @GoogleMapsAutoComplete
 
 	initialize = () ->				
 		autocomplete = new google.maps.places.Autocomplete document.getElementById(addressSearchElementId), {types: ['establishment'], componentRestrictions: {country: 'us'}}	
-		
+		google.maps.event.addDomListener document.getElementById(addressSearchElementId), 'keydown', (e) ->  
+			e.preventDefault() if (e.keyCode == 13)
+			return
+			
 		google.maps.event.addListener autocomplete, 'place_changed', () ->
 			fillInAddress()
 			return
