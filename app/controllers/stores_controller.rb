@@ -48,8 +48,6 @@ class StoresController < ApplicationController
 			new_store = Store.new
 		end
     
-    new_store.build_region
-    
     render :locals => {:store => new_store}
 	end
 
@@ -64,6 +62,7 @@ class StoresController < ApplicationController
       @page_title = "New Store"
       @page_title +=" for #{Company.find(new_store[:company_id])[:name]}" unless new_store[:company_id].nil?
       flash[:warning] = "Could not add store. Please review your entry"
+      
       render :action => "new", :locals => {:store => new_store}
     end
 	end

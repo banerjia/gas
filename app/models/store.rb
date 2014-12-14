@@ -5,9 +5,6 @@ class Store < ActiveRecord::Base
   
   
   
-  # Validations  
-  validates_presence_of [:name, :street_address, :city, :state_code]
-  
   # Associations
   belongs_to :company, :counter_cache => true
   belongs_to :state, :foreign_key => [:country, :state_code]
@@ -24,10 +21,14 @@ class Store < ActiveRecord::Base
 
   accepts_nested_attributes_for   :store_contacts, :allow_destroy => true, :reject_if => proc { |sc| sc[:name].blank? }
   accepts_nested_attributes_for   :region, :reject_if => proc {|r| r[:name].blank? }
+  
+  # Validations  
+  validates_presence_of [:company_id, :name, :street_address, :city, :state_code]
+  validates_associated :region
                               
   
 
-
+  # Callbacks
   geocoded_by :address
   
   after_validation :geocode
@@ -45,6 +46,7 @@ class Store < ActiveRecord::Base
   end
   
   def self.address(storeObject)
+    return if storeObject[:street_address].blank?
     return_value = storeObject[:street_address].strip.titlecase
     return_value += ", " + storeObject[:suite].strip unless storeObject[:suite].blank?
     return_value += ", " + storeObject[:city].strip.titlecase

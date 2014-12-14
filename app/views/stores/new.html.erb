@@ -35,7 +35,7 @@
 <% end %>
 
 <% content_for :body do %>
-	<%- #store.build_region unless store.region -%>
+	<%- store.build_region unless store.region -%>
 	<%= form_for store do |f| %>
 	<div style="display:none">
 		<%= f.hidden_field :company_id unless f.object[:company_id].nil? -%>
@@ -75,10 +75,10 @@
 		<div class="entry_row">
 			<div class="entry_label">Region</div>
 			<div class="entry_value">
-				<%= f.select :region_id, options_from_collection_for_select(  available_regions, "id", "name"), {:prompt => "-- Select --"}, {:disabled => !available_regions.any?} -%>				
+				<%= f.select :region_id, options_from_collection_for_select(  available_regions, "id", "name"), {:prompt => "-- Select --"}, {:disabled => !available_regions.any?, :onchange => 'resetNewRegion()', :class => 'region-select'} -%>				
 				<%= f.fields_for :region do |rf| -%>
 				<br/> 
-				<%= rf.label :name, 'or create a new region:' -%> <%= rf.text_field :name -%>
+				<%= rf.label :name, 'or create a new region:' -%> <%= rf.text_field :name, :onchange => 'matchAgainstDropDown()', :class => 'region-name' -%>
 				<%- end -%>
 			</div>		
 		</div>
@@ -92,7 +92,7 @@
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">Address</div>
-			<div class="entry_value"><input type="text" id="addressSearch" size="100"/></div>
+			<div class="entry_value"><input type="text" id="addressSearch" size="100" value="<%= f.object.address unless f.object[:street_address].nil? -%>"/></div>
 		</div>
 		<div class="entry_row">
 			<div class="entry_label">Locality</div>
@@ -159,6 +159,10 @@ function add_fields(link, association, content) {
 	var new_id = new Date().getTime();
 	var regexp = new RegExp("new_" + association, "g")
 	$("table#contacts tbody").append(content.replace(regexp, new_id));
+}
+
+function resetNewRegionName(){
+	$("input.region-name").val("");
 }
 </script>
 <% end -%>
