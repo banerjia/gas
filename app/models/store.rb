@@ -32,7 +32,12 @@ class Store < ActiveRecord::Base
   geocoded_by :address
   
   after_validation :geocode
+  
+  before_save  do |store|
+    StoreContact.where(:store_id => store[:id]).destroy_all
+  end
 
+  # Model Methods
   def has_pending_audit?
     !pending_audit.blank?
   end

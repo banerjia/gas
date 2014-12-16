@@ -354,7 +354,11 @@ dd {
 }
 
 .error_field {
-	@extend input:text;
+	@extend input:text !optional;
 	@extend select;
 	border: 2px solid red;
+}
+
+.text-danger{
+	@extend .error_field;
 }

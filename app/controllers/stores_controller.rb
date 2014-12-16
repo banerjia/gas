@@ -84,13 +84,13 @@ class StoresController < ApplicationController
 
   def update
     selected_store_id = params[:id]
-    selected_store = Store.find( selected_store_id )  
-
-    if selected_store.update_attributes( store_params)
+    store_to_update = Store.find( selected_store_id )  
+    store_to_update.update_attributes( store_params )
+    if store_to_update.valid?
       flash[:notice] = "Store information updated."
       redirect_to :action => "show", :id => selected_store_id
-    else
-      flash[:warning] = "Could not update store information."        
+    else      
+      render :action => "edit", :locals => {:store => store_to_update}     
     end    
   end
 
