@@ -19,18 +19,18 @@ class @GoogleMapsAutoComplete
 		return
 
 	initialize: ->				
-		@autocomplete = new google.maps.places.Autocomplete document.getElementById(addressSearchElementId), {types: ['address'], componentRestrictions: {country: 'us'}}	
+		autocomplete = new google.maps.places.Autocomplete document.getElementById(addressSearchElementId), {types: ['address'], componentRestrictions: {country: 'us'}}	
 		google.maps.event.addDomListener document.getElementById(addressSearchElementId), 'keydown', (e) ->  
 			e.preventDefault() if (e.keyCode == 13)
 			return
 			
-		google.maps.event.addListener @autocomplete, 'place_changed', () ->
+		google.maps.event.addListener autocomplete, 'place_changed', () ->
 			@fillInAddress()
 			return
 		return
 	
 	fillInAddress: ->
-		place = @autocomplete.getPlace()
+		place = autocomplete.getPlace()
 		for component in Object.keys(componentForm)
 			do (component) ->
 				elementID = componentForm[component].element
