@@ -15,6 +15,7 @@ module StoreSearchable
   				indexes :raw, :index => 'not_analyzed'
   			end
         indexes :address, :type => 'string', :analyzer => 'standard'
+        indexes :location, :type => 'geo_point' 
   			indexes :state_code, :type => "string", :index => 'not_analyzed'
   			indexes :country, :type => "string", :index => 'not_analyzed'
   			indexes :state do 

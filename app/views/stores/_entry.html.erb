@@ -1,5 +1,12 @@
-<%- store.build_region unless store.region -%>
+<%- 
+	store.build_region unless store.region 
+	available_regions = []
+	available_regions = Region.where(:company_id => store[:company_id]).select([:name, :id])  unless store[:company_id].nil? 
+-%>
+
 <%= form_for store do |f| %>
+
+<!-- Hidden Fields -->
 <div style="display:none">
 	<%= f.hidden_field :company_id unless f.object[:company_id].nil? -%>
 	<%= f.hidden_field :street_address, :class => 'address-entries' -%>
@@ -9,22 +16,38 @@
 	<%= f.hidden_field :state_code, :class => 'address-entries' -%>
 	<%= f.hidden_field :country -%>
 </div>	
-<%-	
-available_regions = []
-available_regions = Region.where(:company_id => f.object[:company_id]).select([:name, :id])  unless f.object[:company_id].nil? 
--%>
 
+<!-- Errors -->
+<%- if store.errors.any? -%>
+<div class="well well-sm well-warning">
+	<p>Unfortunately the store information could not be saved. Please review the highlighted <%= pluralize(store.errors.count, "entry") %> below and 
+			try again. </p>
+	
+<%- if !store.possible_duplicates.nil?-%>
+	<p>It is possible that this store is already in the system. Do any of the following look familiar?</p>
+	<ul>
+		<%- store.possible_duplicates.each do |item| -%>
+		<li>
+			<%= item[:full_name] -%><br/>
+			<address><%= item[:address] -%></address>å
+			<%= link_to "Edit", edit_store_path(item[:id])-%>
+		</li>
+		<%- end -%>
+	</ul>
+
+	<%= f.radio_button :not_a_duplicate, "Yes" -%>
+	<%= f.label :not_a_duplicate, "Yes", :value => "Yes" -%>
+	<%= f.radio_button :not_a_duplicate, nil -%>
+	<%= f.label :not_a_duplicate, "No" -%>
+<%- end -%>
+</div>
+<%- end -%>
+
+<!-- Begin Content -->
 <fieldset class="form_sections">
 	<div class="buttons">
 		<%= f.submit "Save Changes", :class => "button"%>
 	</div>
-	
-	<%- if store.errors.any? -%>
-	<div class="well well-sm well-warning">
-		Unfortunately the store information could not be saved. Please review the highlighted <%= pluralize(store.errors.count, "entry") %> below and 
-		try again. 
-	</div>
-	<%- end -%>
 	
 	<h2 id="StoreHeading">Store Information</h2>
 	<div class="entry_row">
@@ -57,7 +80,7 @@ available_regions = Region.where(:company_id => f.object[:company_id]).select([:
 	<div class="entry_row">
 		<div class="entry_label">Address</div>
 		<div class="entry_value">
-			<input type="text" id="addressSearch" size="100" value="<%= f.object.address unless f.object[:street_address].nil? -%>" onblur="store.checkForEmpty(this)"/>
+			<input type="text" id="addressSearch" size="100" value="<%= f.object.address unless f.object[:street_address].nil? -%>" onblur="store.checkForEmpty(this); gmaps.fillInAddress()"/>
 			<%= "<span class='text-danger'>There was a problem with this address.</span>".html_safe if store.errors.any? && !(store.errors[:street_address].blank? && store.errors[:city].blank? && store.errors[:zip].blank?)%>
 		</div>
 	</div>
@@ -97,37 +120,40 @@ available_regions = Region.where(:company_id => f.object[:company_id]).select([:
 		<%= f.submit "Save Changes", :class => "button"%>
 	</div>
 </fieldset>
+<!-- End Content -->
+
 <% end %>
 
 <% content_for :page_js do -%>
-<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=<%= ENV["google_maps_api_key"] -%>"></script>
-<%= javascript_include_tag :google_maps, :store_new_edit -%>
 
-<script type="text/javascript">
-GoogleMapsAutoComplete();
-var api_path = '<%= api_v1_regions_path(format: :json) -%>';
+	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=<%= ENV["google_maps_api_key"] -%>"></script>
+	<%= javascript_include_tag :google_maps, :store_new_edit -%>
 
-var store = null;
+	<script type="text/javascript">
+	var gmaps = new GoogleMapsAutoComplete();
+	var api_path = '<%= api_v1_regions_path(format: :json) -%>';
 
-$(document).ready(function(){
-	store = new Store({url: api_path});
-});
+	var store = null;
 
-function remove_contact( handle ){	
-	if($("table#contacts tbody tr").length == 1)
-		$("table#contacts tbody tr input").val("");
-	else
-		$(handle).closest("tr").remove();
-}
+	$(document).ready(function(){
+		store = new Store({url: api_path});
+	});
 
-function add_fields(link, association, content) {
-	var new_id = new Date().getTime();
-	var regexp = new RegExp("new_" + association, "g")
-	$("table#contacts tbody").append(content.replace(regexp, new_id));
-}
+	function remove_contact( handle ){	
+		if($("table#contacts tbody tr").length == 1)
+			$("table#contacts tbody tr input").val("");
+		else
+			$(handle).closest("tr").remove();
+	}
 
-function resetNewRegionName(){
-	$("input.region-name").val("");
-}
-</script>
+	function add_fields(link, association, content) {
+		var new_id = new Date().getTime();
+		var regexp = new RegExp("new_" + association, "g")
+		$("table#contacts tbody").append(content.replace(regexp, new_id));
+	}
+
+	function resetNewRegionName(){
+		$("input.region-name").val("");
+	}
+	</script>
 <% end -%>

@@ -3,7 +3,7 @@ class Store < ActiveRecord::Base
   include StoreSearchable
   include StoreImport
   
-  
+  attr_accessor :possible_duplicates, :not_a_duplicate
   
   # Associations
   belongs_to :company, :counter_cache => true
@@ -25,7 +25,53 @@ class Store < ActiveRecord::Base
   # Validations  
   validates_presence_of [:company_id, :name, :street_address, :city, :state_code]
   validates_associated :region
-                              
+  validate  :nearby_stores , :on => :create
+  
+  def nearby_stores
+    return if !self.not_a_duplicate.nil? || self[:company_id].nil? || self.address.nil? || self.address.blank?
+    lat_lon = Geocoder.coordinates(self.address)
+    
+    # When a store is being created the :id for the store is going to be nil
+    # which may cause the ES query to fail because of a nil value in the must_not
+    # clause. However, the must_not clause is required to ignore the current record 
+    # when this validation is being performed during an :update operation.     
+    store_id = self[:id] || 0     
+    
+    # A filter is used instead of a query as it comes with less overhead as
+    # compared to a match_all query or something similar.
+    possible_dups = Store.__elasticsearch__.search \
+    :filter => {
+      :bool => {
+        :must => [
+          {
+            :geo_distance => {
+              :distance => "0.5mi",
+              "location" => {
+                :lat => lat_lon[0],
+                :lon => lat_lon[1]
+              }            
+            }
+          },
+          {
+            :term => {
+              "company.id" => self[:company_id]
+            }
+          }
+        ],
+        :must_not => {
+          :term => {
+            :id => store_id
+          }
+        }          
+      }
+    }
+    
+    if possible_dups.results.size 
+      self.possible_duplicates = possible_dups.results.map{ |item| item[:_source]} 
+      errors[:base] << "Possible duplicate entry"
+    end
+    
+  end
   
 
   # Callbacks
@@ -68,6 +114,10 @@ class Store < ActiveRecord::Base
     return return_value    
   end
   
+  def location
+    {:lat => self[:latitude], :lon => self[:longitude] }
+  end
+  
   def self.update_geolocation
     stores_to_update = Store.where("latitude IS NULL OR longitude IS NULL")
     stores_to_update.each_with_index do |store, index|
@@ -83,7 +133,7 @@ class Store < ActiveRecord::Base
   def as_indexed_json(options={})
     self.as_json({
       only: [:id, :country, :state_code],
-      methods: [:address, :full_name],
+      methods: [:address, :full_name, :location],
       include: {
         company: { only: [:id, :name] },
         state: { only: :state_name },
