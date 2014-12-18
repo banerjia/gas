@@ -19,21 +19,4 @@ module AuditImport
     })
   end  
   
-  def as_indexed_json(options={})
-    self.as_json({
-      only: [:id, :created_at, :has_unresolved_issues],
-      methods: [:score, :total_score],
-      include: {
-        company: { only: [:id, :name] },
-        store: { only: [:id], methods: [:full_name]},
-        people: { only: [:id, :name]}
-      }
-    })
-  end
-  
-  def self.index_refresh
-    __elasticsearch__.client.indices.delete index: index_name rescue nil
-    __elasticsearch__.client.indices.create index: index_name, body: { settings: settings.to_hash, mappings: mappings.to_hash}
-    import
-  end
 end

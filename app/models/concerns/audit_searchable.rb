@@ -40,7 +40,7 @@ module AuditSearchable
           indexes :total, type: 'integer', index: 'not_analyzed'
         end
         indexes :created_at, type: 'date', index: 'not_analyzed'
-        indexes :has_unresolved_issues, type: 'boolean', analyzer: 'not_analyzed'
+        indexes :has_unresolved_issues, type: 'boolean', index: 'not_analyzed'
       end
     end
     
@@ -63,8 +63,8 @@ module AuditSearchable
     
       query_string = { query_string: {query: params[:q]}} if params[:q].present?
       
-      query_bool_must_array.push( {term: { "company.id": params[:company_id]}}) if params[:company_id].present?
-      query_bool_must_array.push( {term: { "store.id": params[:store_id]}}) if params[:company_id].present?
+      query_bool_must_array.push( {term: { "company.id" => params[:company_id]}}) if params[:company_id].present?
+      query_bool_must_array.push( {term: { "store.id" =>  params[:store_id]}}) if params[:company_id].present?
       query_bool_must_array.push( query_string )
     
       es_results = __elasticsearch__.search size: size, from: offset, 
@@ -74,8 +74,8 @@ module AuditSearchable
         }
       },
       filter: {
-        range:{
-          "score.total": {
+        range: {
+          "score.total" => {
             gte: params[:score_lower],
             lte: params[:score_upper]
           }
@@ -86,7 +86,7 @@ module AuditSearchable
         {
           score_ranges:{
             range:{
-              field: "score.total"
+              field: "score.total",
               ranges:[
                 {to: 50},
                 {from: 10, to: 19},

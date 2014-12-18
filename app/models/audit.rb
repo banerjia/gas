@@ -1,4 +1,6 @@
 class Audit < ActiveRecord::Base
+  include AuditSearchable
+  include AuditImport
 	
 	belongs_to :store, :counter_cache => true
 	
@@ -104,5 +106,23 @@ class Audit < ActiveRecord::Base
   
   def score
     { base: self[:base], loss: self[:loss], bonus: self[:bonus], total: self.total_score}
+  end
+  
+  def as_indexed_json(options={})
+    self.as_json({
+      only: [:id, :created_at, :has_unresolved_issues],
+      methods: [:score, :total_score],
+      include: {
+        company: { only: [:id, :name] },
+        store: { only: [:id], methods: [:full_name]},
+        people: { only: [:id, :name]}
+      }
+    })
+  end
+  
+  def self.index_refresh
+    Audit.__elasticsearch__.client.indices.delete index: Audit.index_name rescue nil
+    Audit.__elasticsearch__.client.indices.create index: Audit.index_name, body: { settings: Audit.settings.to_hash, mappings: Audit.mappings.to_hash}
+    Audit.import
   end
 end
