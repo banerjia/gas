@@ -2,33 +2,18 @@ class Audit < ActiveRecord::Base
 	
 	belongs_to :store, :counter_cache => true
 	
-	has_many :store_metrics
+	has_many :audit_metrics
 	has_many :audit_journal
+  has_one :people
 	
 	
-	accepts_nested_attributes_for :store_metrics, :allow_destroy => true, \
-                                :reject_if => proc { |sm| sm[:point_value].blank? }
+	#accepts_nested_attributes_for :audit_metrics, :allow_destroy => true, \
+  #                              :reject_if => proc { |sm| sm[:point_value].blank? }
+                                
+                                
+  accepts_nested_attributes_for :store, :allow_destroy => false
 
-	# Intentionally disabled. This validation is handled by Javascripts. 
-	# The reason for doing so is to prevent complications involved in repopulating 
-	# selected values in HTML controls in case validation fails. 
-	# validates_presence_of :comments , :unless => proc{ |audit| audit[:score] > 19 }
-	
-	#tire do
-	#	index_name('audits')
-	#	mapping do
-	#		indexes :id,	          :type=>'integer',     :index => 'not_analyzed'
-  #		indexes :store_id,      :type => 'integer',   :index => 'not_analyzed'
-	#		indexes :company_id,    :type => 'integer',   :index => 'not_analyzed',   :as => 'store.company_id'
-	#		indexes :company_name,  :type => 'string',    :index => 'not_analyzed',   :as => 'store.company[:name]'
-	#		indexes :store_name,    :type => 'string',    :analyzer => 'snowball',    :as => 'store.name_with_locality'
-	#		indexes :auditor_facet, :type => 'string',    :index => 'not_analyzed',   :as => 'auditor_name',            :include_in_all => false
-	#		indexes :auditor_name,  :type => 'string',    :analyzer => 'snowball'
-	#		indexes :score,         :type => 'integer',	  :index => 'not_analyzed'
-	#		indexes :pending,       :type => 'boolean',   :index => 'not_analyzed',   :as => 'is_pending?'
-	#		indexes :created_at,    :type => 'date',      :index => 'not_analyzed'
-	#	end
-	#end
+	validates_presence_of :comments , :unless => proc{ |audit| audit[:score] > 9 }
 
 	after_save do |audit|
 		if audit.comments
@@ -43,6 +28,8 @@ class Audit < ActiveRecord::Base
 		return_value = Hash.new
 		params[:score_upper] = 50 \
 						if params[:score_lower].present? && params[:score_upper].present? && params[:score_lower].to_i > params[:score_upper].to_i
+              
+    
 		tire_results = tire.search :load => {:include => [:store]}, :per_page => params[:per_page], :page => params[:page] do 
 			query do
       	boolean do
@@ -108,8 +95,14 @@ class Audit < ActiveRecord::Base
 	def comments=(value)	
 		@audit_comments = value
 	end
-	
-	def is_pending?
-		self[:status] == 0
-	end
+  
+  # Post Rails 4 Upgrade Methods
+  
+  def total_score
+    self[:base] - self[:loss] + self[:bonus]
+  end
+  
+  def score
+    { base: self[:base], loss: self[:loss], bonus: self[:bonus], total: self.total_score}
+  end
 end
