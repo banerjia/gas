@@ -6,7 +6,7 @@ module AuditSearchable
     include Elasticsearch::Model::Callbacks
 
     settings do
-		  index_name    "graeters-#{Rails.env}"
+		  index_name    "graeters-#{Rails.env}-audits"
 			mapping do 
 				indexes :id, type: 'integer', index: 'not_analyzed'
         
@@ -16,24 +16,24 @@ module AuditSearchable
             indexes :full_name
             indexes :raw, index: 'not_analyzed'
           end
+        
+          indexes :company do 
+            indexes :id, type: 'integer', index: 'not_analyzed'
+            indexes :name, type: 'multi_field' do
+              indexes :name
+              indexes :raw, index: 'not_analyzed'
+            end
+          end
         end
         
-        indexes :company do 
+        indexes :person do
           indexes :id, type: 'integer', index: 'not_analyzed'
           indexes :name, type: 'multi_field' do
             indexes :name
             indexes :raw, index: 'not_analyzed'
           end
         end
-        
-        indexes :people do
-          indexes :id, type: 'integer', index: 'not_analyzed'
-          indexes :name, type: 'multi_field' do
-            indexes :name
-            indexes :raw, index: 'not_analyzed'
-          end
-        end
-        indexes :score, type: 'multi_field' do 
+        indexes :score do 
           indexes :base, type: 'integer', index: 'not_analyzed'
           indexes :loss, type: 'integer', index: 'not_analyzed'
           indexes :bonus, type: 'integer', index: 'not_analyzed'
@@ -63,7 +63,7 @@ module AuditSearchable
     
       query_string = { query_string: {query: params[:q]}} if params[:q].present?
       
-      query_bool_must_array.push( {term: { "company.id" => params[:company_id]}}) if params[:company_id].present?
+      query_bool_must_array.push( {term: { "store.company.id" => params[:company_id]}}) if params[:company_id].present?
       query_bool_must_array.push( {term: { "store.id" =>  params[:store_id]}}) if params[:company_id].present?
       query_bool_must_array.push( query_string )
     
@@ -98,12 +98,12 @@ module AuditSearchable
         {
           companies: {
             terms: {
-              field: "company.id"
+              field: "store.company.id"
             },
             aggs: {
               company_names: {
                 terms: {
-                  field: "company.name.raw"
+                  field: "store.company.name.raw"
                 }
               }
             }

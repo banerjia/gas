@@ -7,7 +7,7 @@ module StoreSearchable
 
 
     settings do
-		  index_name    "graeters-#{Rails.env}"
+		  index_name    "graeters-#{Rails.env}-stores"
 			mapping do 
 				indexes :id, :type => 'integer', :index => 'not_analyzed'
   			indexes :full_name, type: 'multi_field'	do 
@@ -36,7 +36,12 @@ module StoreSearchable
 			
   			indexes :last_audit do
           indexes :id, :type=>'integer', :index => 'not_analyzed'
-  			  indexes :score, :type => 'integer', :index => 'not_analyzed'
+          indexes :score do 
+            indexes :base, type: 'integer', index: 'not_analyzed'
+            indexes :loss, type: 'integer', index: 'not_analyzed'
+            indexes :bonus, type: 'integer', index: 'not_analyzed'
+            indexes :total, type: 'integer', index: 'not_analyzed'
+          end
   			  indexes :created_at, :type => 'date', :index => 'not_analyzed'
   			end
   		end

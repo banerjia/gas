@@ -12,7 +12,7 @@ module AuditImport
   end
 
   def self.bulk_index(audits)
-    __elasticsearch__.client.bulk({
+    Audit.__elasticsearch__.client.bulk({
       index: __elasticsearch__.index_name,
       type: __elasticsearch__.document_type,
       body: prepare_records(audits)

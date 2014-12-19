@@ -26,6 +26,16 @@ class Store < ActiveRecord::Base
   validates_associated :region
   validate  :nearby_stores , :on => :create
   
+
+  # Callbacks
+  geocoded_by :address if :address_changed?
+  
+  after_validation :geocode
+  
+  before_save  do |store|
+    StoreContact.where(:store_id => store[:id]).destroy_all
+  end
+  
   def nearby_stores
     return if !self.not_a_duplicate.nil? || self[:company_id].nil? || self.address.nil? || self.address.blank?
     lat_lon = Geocoder.coordinates(self.address)
@@ -70,16 +80,6 @@ class Store < ActiveRecord::Base
       errors[:base] << "Possible duplicate entry"
     end
     
-  end
-  
-
-  # Callbacks
-  geocoded_by :address
-  
-  after_validation :geocode
-  
-  before_save  do |store|
-    StoreContact.where(:store_id => store[:id]).destroy_all
   end
 
   # Model Methods
@@ -133,7 +133,7 @@ class Store < ActiveRecord::Base
       include: {
         company: { only: [:id, :name] },
         state: { only: :state_name },
-        last_audit: {only: [:id, :created_at, :score]},
+        last_audit: {only: [:id, :created_at], methods: [:score]},
         region: {only: [:id, :name]}
       }
     })
