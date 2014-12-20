@@ -40,12 +40,13 @@ class StoresController < ApplicationController
     new_store = nil
 		@page_title = "New Store"
     
+    new_store = Store.new({not_a_duplicate: false})
+    
 		if params[:company_id]
-			company = Company.find( params[:company_id] )
-			@page_title += " for #{company[:name]}"
-			new_store = company.stores.build()
-		else
-			new_store = Store.new
+			company_values = Company.where( {id: params[:company_id]} ).pluck(:id, :name).first
+      company_id, company_name = company_values
+			@page_title += " for #{company_name}"
+      new_store[:company_id] = company_id
 		end
     
     render :locals => {:store => new_store}
@@ -54,6 +55,7 @@ class StoresController < ApplicationController
 	def create
     store = store_params
     store[:region_attributes][:company_id] = store[:company_id]
+    
     new_store = Store.create(store)
     if new_store.valid?
       flash[:message] = "New store for #{new_store.company[:name]} successfully created"
@@ -61,7 +63,6 @@ class StoresController < ApplicationController
     else
       @page_title = "New Store"
       @page_title +=" for #{Company.find(new_store[:company_id])[:name]}" unless new_store[:company_id].nil?
-      flash[:warning] = "Could not add store. Please review your entry"
       
       render :action => "new", :locals => {:store => new_store}
     end

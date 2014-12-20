@@ -28,17 +28,19 @@
 	<ul>
 		<%- store.possible_duplicates.each do |item| -%>
 		<li>
-			<%= item[:full_name] -%><br/>
-			<address><%= item[:address] -%></address>å
-			<%= link_to "Edit", edit_store_path(item[:id])-%>
+			<div>
+				<span class="store_name"><%= item[:full_name] -%></span>
+				<address><%= item[:address] -%></address>
+			</div>
+			<div><%= link_to "Edit", edit_store_path(item[:id])-%></div>
 		</li>
 		<%- end -%>
 	</ul>
 
-	<%= f.radio_button :not_a_duplicate, "Yes" -%>
-	<%= f.label :not_a_duplicate, "Yes", :value => "Yes" -%>
-	<%= f.radio_button :not_a_duplicate, nil -%>
-	<%= f.label :not_a_duplicate, "No" -%>
+	<p>
+		<%= f.check_box :not_a_duplicate -%> 
+		<%= f.label :not_a_duplicate, "This store is a separate establishment from the other stores listed above." -%>
+	</p>
 <%- end -%>
 </div>
 <%- end -%>
@@ -80,7 +82,7 @@
 	<div class="entry_row">
 		<div class="entry_label">Address</div>
 		<div class="entry_value">
-			<input type="text" id="addressSearch" size="100" value="<%= f.object.address unless f.object[:street_address].nil? -%>" onblur="store.checkForEmpty(this); gmaps.fillInAddress()"/>
+			<input type="text" id="addressSearch" size="100" value="<%= f.object.address unless f.object[:street_address].nil? -%>" onblur="store.checkForEmpty(this)"/>
 			<%= "<span class='text-danger'>There was a problem with this address.</span>".html_safe if store.errors.any? && !(store.errors[:street_address].blank? && store.errors[:city].blank? && store.errors[:zip].blank?)%>
 		</div>
 	</div>

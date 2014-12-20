@@ -36,7 +36,7 @@ module StoreSearchable
 			
   			indexes :last_audit do
           indexes :id, :type=>'integer', :index => 'not_analyzed'
-  			  indexes :score, :type => 'integer', :index => 'not_analyzed'
+#  			  indexes :score, :type => 'integer', :index => 'not_analyzed'
   			  indexes :created_at, :type => 'date', :index => 'not_analyzed'
   			end
   		end
