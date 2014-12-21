@@ -5,10 +5,8 @@ class AuditsController < ApplicationController
 	def new
 		store_id = params[:store_id] 
 		store = Store.find(store_id)
-		metrics_to_use = Metric.active_metrics.order([:display_order]).pluck(:id, :title, :description)
+		metrics_to_use = Metric.active_metrics.order([:display_order]).pluck(:id, :title, :description, :points_awarded, :include, :response_type)
 		new_audit = store.audits.build
-    
-    (0..metrics_to_use.size-1).each { new_audit.audit_metrics.build}
     
     respond_to do |format|
       format.html do
@@ -19,8 +17,7 @@ class AuditsController < ApplicationController
       
 	end
 	
-	def create
-    
+	def create    
 		store = Store.find(params[:audit][:store_id])
 		audit = store.audits.new( audit_params )
 		if audit.save
@@ -69,6 +66,6 @@ class AuditsController < ApplicationController
   private
   
   def audit_params
-    params.require(:audit).permit(:base, :loss, :bonus, :person, audit_metrics_attributes: [:metric_id, :point_value, :include, :resolved_at], store_attributes: [:id, :store_number])
+    params.require(:audit).permit(:base, :loss, :bonus, :person_id, audit_metrics_attributes: [:metric_id, :point_value, :include, :resolved_at], store_attributes: [:id, :store_number])
   end
 end

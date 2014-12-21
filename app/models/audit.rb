@@ -2,22 +2,25 @@ class Audit < ActiveRecord::Base
   include AuditSearchable
   include AuditImport
 	
-	belongs_to :store, :counter_cache => true
+	belongs_to :store, counter_cache: true
 	
 	has_many :audit_metrics
 	has_many :audit_journal
+  has_many :images, as: :imageable
   
   belongs_to :person
 	
 	
-	accepts_nested_attributes_for :audit_metrics, :allow_destroy => true, \
-                                :reject_if => proc { |sm| sm[:point_value].blank? }
+	accepts_nested_attributes_for :audit_metrics, allow_destroy: true, \
+                                reject_if: Proc.new { |sm| sm[:point_value].blank? }
+  accepts_nested_attributes_for :audit_journal, allow_destroy: true, \
+                                reject_if: Proc.new { |entry| entry[:text].blank? }
                                 
                                 
-  accepts_nested_attributes_for :store, :allow_destroy => false
+  accepts_nested_attributes_for :store, allow_destroy: false
 
   # Commented while testing
-	#validates_presence_of :comments , :unless => proc{ |audit| audit.total_score > 9 }
+	#validates_presence_of :comments , unless: proc{ |audit| audit.total_score > 9 }
   
   # Callbacks
   after_commit do

@@ -10,20 +10,27 @@
 		<%- end -%>
 		</div>
 		<div class="col-md-9 col-sm-12 col-xs-12">
-			<div class="container">
-				<%- metrics.each_with_index do |m, i| -%>
-					<%= f.fields_for :audit_metrics, f.object.audit_metrics do |am| -%>				
-						<div class="row">
-							<div style="display:none"><%= am.hidden_field :metric_id, {value: m[0]} -%></div>
-							<div class="col-md-9 col-sm-12 col-xs-12">
-								<p>
+				<%- metrics.each do |m| -%>
+					<%= f.fields_for :audit_metrics, f.object.audit_metrics.build do |am| -%>				
+						<div class="row" data-ng-controller="AuditMetricEntry">
+							<div style="display:none">
+								<%= am.hidden_field :metric_id, {value: m[0]} -%>
+							</div>
+							<div class="col-md-6 col-sm-12 col-xs-12">
+								<p data-ng-mode>
 									<%= m[1] -%>
 									<blockquote>
 										<%= m[2] -%>
 									</blockquote>
 								</p>
 							</div>
-							<div class="col-md-3 col-sm-12 col-xs-12"></div>
+							<div class="col-md-3 col-sm-12 col-xs-12">
+								<input type="radio" name="yes_no" data-ng-click="points = 1" />Yes <br/>
+								<input type="radio" name="yes_no" data-ng-click="points = 0" />No
+							</div>
+							<div class="col-md-3 col-sm-12 col-xs-12">
+								<span>{{points}}</span>
+							</div>
 						</div>
 					<%- end -%>
 				<%- end -%>
@@ -31,4 +38,15 @@
 		</div>
 	</div>
 </div>
+<%- end -%>
+
+<%- content_for :page_js do -%>
+
+<%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js", :cache => true -%>
+
+<script type="text/javascript">
+	angular.module('GAS', [])
+	.controller('AuditMetricEntry',function($scope) {});
+</script>
+	
 <%- end -%>
