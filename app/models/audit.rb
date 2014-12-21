@@ -10,8 +10,8 @@ class Audit < ActiveRecord::Base
   belongs_to :person
 	
 	
-	#accepts_nested_attributes_for :audit_metrics, :allow_destroy => true, \
-  #                              :reject_if => proc { |sm| sm[:point_value].blank? }
+	accepts_nested_attributes_for :audit_metrics, :allow_destroy => true, \
+                                :reject_if => proc { |sm| sm[:point_value].blank? }
                                 
                                 
   accepts_nested_attributes_for :store, :allow_destroy => false

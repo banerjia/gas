@@ -1,293 +1,34 @@
-<%- content_for :head do -%>
-	<%= stylesheet_link_tag :table -%>
-	<%= stylesheet_link_tag :forms -%>
-	<style type="text/css" media="screen">	
-		div.entry_row {
-			background-color:transparent
-			border: none;
-			margin: 0;
-			padding: 0
-		}
-		div.entry_label, div.entry_value{
-			display: block;
-			float: none;
-			margin: 0;
-			padding: 0.3em 0.5em;
-			width:auto
-		}
-		div.entry_label {
-			background-color: #5f6b61;
-			border: 2px solid #ccc; 
-			border-left:none; 
-			border-right: none;
-			color: #fff;
-			font-weight: bold;
-			text-transform: uppercase
-		}
-		div.entry_row { margin-bottom: 1em }
-		table.listing td { vertical-align: top}
-		table.listing td + td { 
-			border-left: 2px solid #AAA;
-			text-align: center;
-			width: 20% 
-		}
-		table.listing tr.category_heading td[colspan] { 
-			background-color: #FAEBD7;
-			border-bottom: 2px solid #CCC;
-			border-top: 2px solid #CCC;
-			font-weight: bold;
-			letter-spacing: 1.5px; 
-			text-align: left;
-			text-transform: uppercase
-		}
-
-		table.listing span.pass, table.listing span.fail { 
-			background-position: center center;
-			background-repeat: no-repeat;
-			display: block;
-			min-height: 30px;
-			min-width: 30px;
-		}
-		table.listing span.pass span, table.listing span.fail span { visibility: hidden }
-		span.pass { background-image: url( <%= image_path( "check_30x30.png" ) -%> ) }
-		span.fail { background-image: url( <%= image_path( "caution_30x30.png" ) -%> ) }
-		div#left_column, div#right_column{
-			border: 3px solid #ddd;
-			padding: 0.4em;
-		}
-		div#left_column{
-			border: none;
-			margin-left:0;
-			width:250px;
-		}
-		div#right_column{
-			float:right;
-			margin-right: 0;
-			width: 720px;
-		}
-		a.toggle_button {
-			background-color: #EEE;
-			border: 2px solid #CCC;
-			cursor: pointer;
-			display: inline-block;
-			padding: 0.3em;
-			text-align: center;
-			text-transform: uppercase;
-			width: 4em;
-		}
-		a.toggle_button:hover, a.selected_yes, a.selected_no { 
-			color: #FFF;
-			font-weight: bold;
-		}
-		a.button_yes:hover, a.selected_yes {
-			background-color: Green;
-		}
-		a.button_no:hover, a.selected_no {
-			background-color: Red;
-		}
-		input.resolved_at {display: none}
-	</style>
-<%- end -%>	
-
-<%- content_for :page_js do -%>
-	<script type="text/javascript">
-		jQuery(document).ready( function(){
-			var new_audit_form = jQuery("form#new_audit");
-			jQuery( new_audit_form ).on("submit", function() {
-				if( parseInt(jQuery( "input#audit_score", new_audit_form).val()) < 20){
-					alert( 'Cannot submit');
-					return false;
-				}
-			});			
-		});
-		
-		function toggle(){
-			var button_object = $( arguments[0] );
-			var selected_class = arguments[1];
-			var parent_container = $(button_object).parent();
-			var button_data_type = $(button_object).data("type");
-			var the_other_button_data_type = (button_data_type == "yes" ? "no":"yes");
-			var the_other_button_object = $(parent_container).find('a[data-type="' + the_other_button_data_type + '"]').first();
-			
-			if( $(the_other_button_object).attr("class").indexOf("selected") > 0 ){
-				$(the_other_button_object).trigger('click');	
-			}
-			
-			if( $(button_object).attr("class").indexOf('selected') < 0 ){
-				$(button_object).addClass(selected_class);
-				$(parent_container).find("div input.score").first().val( $(button_object).data('value'));
-				if( parseInt($(button_object).data('value')) < 0 )
-					$(parent_container).find(".resolved_at").show();
-			}else{
-				$(button_object).removeClass(selected_class);
-				$(parent_container).find("div input.score").first().val( "" );
-				$(parent_container).find(".resolved_at").hide();
-			}
-
-			compute_score();
-		}
-	
-		function compute_score(){
-			var total_score = 25;
-
-			scores.each( function() {
-				if( $(this).val() != '' )
-				total_score += parseInt( $(this).val() );
-			});
-
-			$(span_audit_score).text( total_score );
-			$(hdf_audit_score).val( total_score );
-		}
-		var scores = $( "input.include-in-final-score" );
-		var span_audit_score = $("span#audit_score");
-		var hdf_audit_score = $("input#audit_score");
-	</script>
-<%- end -%>
-	
-<%= form_for @audit, :url => audits_path do |f| -%>
-<div style="display:none">
-	<%= f.hidden_field :store_id, :value => @audit[:store_id] -%>
-	<%= f.hidden_field :score, :value => '25' -%>
-</div>
-<div class="toolbar">
-	<%= f.submit "Save", :class => 'button' -%>
-	<input type="button" class="button" value="Cancel" onclick='window.location="<%=store_path(@audit[:store_id])%>"' />
-</div>
-<div id="right_column">
-	<table class="listing" id="store_metrics">
-		<thead>
-			<tr>
-				<th scope="col">Description</th>
-				<th scope="col">Score</th>
-			</tr>
-		</thead>
-		<tbody>
-				<tr class="category_heading">
-					<td colspan="2">Selling</td>
-				</tr>
-				<tr>
-						<td>Is the shelf set to specified POG?</td>
-						<td></td>
-				</tr>
-				<tr>
-						<td>Are products rotated to FIFO?</td>
-						<td></td>
-				</tr>
-				<tr>
-						<td>Do all shelves have at least 1 price tag?</td>
-						<td></td>
-				</tr>
-		</tbody>
-		<tbody>
-				<tr class="category_heading">
-					<th colspan="2">Merchandising</th>
-				</tr>
-		</tbody>
-		<tbody>
-				<tr class="category_heading">
-					<th colspan="2">Distribution</th>
-				</tr>
-		</tbody>
-		<tbody>
-		<%-
-			last_category = nil 
-			@metrics.each_with_index do |metric,index|
-				point_value_yes = metric[:points] * metric[:quantifier]
-				point_value_no = 0
-				button_yes_class = "toggle_button button_no"
-				button_no_class = "toggle_button button_yes"
-				button_yes_click = "toggle(this, 'selected_no')"
-				button_no_click = "toggle(this, 'selected_yes')"
-				
-				
-				if metric[:reverse_options] == 1
-					point_value_no = point_value_yes
-					point_value_yes = 0
-					button_no_class = "toggle_button button_no"
-					button_yes_class = "toggle_button button_yes"
-					button_no_click = "toggle(this, 'selected_no')"
-					button_yes_click = "toggle(this, 'selected_yes')"
-				end
-				if last_category != metric[:category].strip
-					last_category = metric[:category].strip 
-		-%>
-			<tr class="category_heading">
-				<td colspan="2"><%= metric[:category] -%></td>
-			</tr>
-			<%-end-%>
-			<tr class="<%= cycle('regular','alternate') -%>">
-				<td><%= metric[:title] -%>
-					<blockquote><%= metric[:description] -%></blockquote>
-				</td>
-				<td>
-				<%= f.fields_for :store_metrics do |sp| -%>
-					<a id="a<%=metric[:id]%>_yes" onclick="<%=button_yes_click-%>" data-type="yes" data-value="<%= point_value_yes %>" style="text-decoration: none" class="<%=button_yes_class-%>">Yes</a><br/>
-					<a id="a<%=metric[:id]%>_no" onclick="<%=button_no_click-%>" data-type="no" data-value="<%= point_value_no %>" class="<%=button_no_class-%>" style="text-decoration:none">No</a>
-					<%= sp.text_field :resolved_at, :type => 'date', :class => 'resolved_at' -%>
-					<div style="display: none">
-						<%- if metric[:include] == 1 -%>
-					  	<%= sp.hidden_field :point_value, :class => 'include-in-final-score score' -%>
-						<%- else -%>
-					  	<%= sp.hidden_field :point_value, :class => 'score' -%>
-						<%- end -%>
-						<%= sp.hidden_field :metric_id, :value => metric[:id] -%>
-					</div>
-				<%- end -%>
-				</td>
-			</tr>
+<%= form_for audit do |f| -%>
+<div class="container">
+	<div class="row">	
+		<div class="col-md-3 col-sm-12 col-xs-12">
+		<%= f.fields_for :store do |sf| -%>
+			<%= sf.object.full_name -%>
+			<address><%= sf.object.address -%></address>
+			<%= sf.label :store_number -%>
+			<%= sf.text_field :store_number -%>
 		<%- end -%>
-		</tbody>
-	</table>
-
-</div>
-<div id="left_column">
-	<div class="entry_row">
-		<div class="entry_label">
-			Auditor
 		</div>
-		<div class="entry_value">
-			<%= f.text_field :auditor_name, :autofocus => true, :tabindex => 1 -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Comments	
-		</div>
-		<div class="entry_value">
-			<%= f.text_area :comments, :cols => 30 -%>	
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Score
-		</div>
-		<div class="entry_value">
-			<span id="audit_score"><%= @audit[:points_available]%></span>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Score Legend
-		</div>
-		<div class="entry_value">
-			<dl>
-				<dt>25+</dt>
-				<dd>Store Conditions Meet/Exceed All Graeter's Standards</dd>
-				<dt>23 - 24</dt>
-				<dd>Most Store Conditions Met Graeter's Standards</dd>
-				<dt>20 - 22</dt>
-				<dd>Some Graeter's Store Conditions Met - Others Require Attention</dd>
-				<dt>0 - 19</dt>
-				<dd>Many Store Conditions Found Unacceptable vs. Graeter's Standards. Immediate Attention Required</dd>
-			</dl>
+		<div class="col-md-9 col-sm-12 col-xs-12">
+			<div class="container">
+				<%- metrics.each_with_index do |m, i| -%>
+					<%= f.fields_for :audit_metrics, f.object.audit_metrics do |am| -%>				
+						<div class="row">
+							<div style="display:none"><%= am.hidden_field :metric_id, {value: m[0]} -%></div>
+							<div class="col-md-9 col-sm-12 col-xs-12">
+								<p>
+									<%= m[1] -%>
+									<blockquote>
+										<%= m[2] -%>
+									</blockquote>
+								</p>
+							</div>
+							<div class="col-md-3 col-sm-12 col-xs-12"></div>
+						</div>
+					<%- end -%>
+				<%- end -%>
+			</div>
 		</div>
 	</div>
 </div>
-<div class="spacer"></div>
-<div class="toolbar">
-	<%= f.submit "Save", :class => 'button' -%>
-	<input type="button" class="button" value="Cancel" onclick='window.location="<%=store_path(@audit[:store_id])%>"' />
-</div>
-
 <%- end -%>
-
