@@ -6,7 +6,7 @@
 			<%= sf.object.full_name -%>
 			<address><%= sf.object.address -%></address>
 			<%= sf.label :store_number -%>
-			<%= sf.text_field :store_number -%>
+			<%= sf.text_field :store_number, class: "input-sm" -%>
 		<%- end -%>
 		</div>
 		<div class="col-md-9 col-sm-12 col-xs-12">
@@ -28,13 +28,13 @@
 								<%- if m[:template].present? -%>
 									<%= render m[:template], locals: {f: am, metric: m} -%>
 								<%- else -%>
-									<span>
-										<input type="radio" name="response_for_<%= i -%>" id="response_<%= i -%>_yes" data-ng-click = "points = <%= m[:points] -%> "/>
-										<label for="response_<%= i -%>_yes">Yes</label>
+									<span class="col-md-6 col-sm-6 col-xs-12">
+										<label class="radio-inline">
+											<%= am.radio_button :points, m[:points], data: { "ng-click" => "points = #{m[:points]}"} -%>Yes</label>
 									</span>
-									<span>
-										<input type="radio" name="response_for_<%= i -%>" id="response_<%= i -%>_no" data-ng-click = "points = " />
-										<label for="response_<%= i -%>_no">No</label>
+									<span class="col-md-6 col-sm-6 col-xs-12">
+										<label class="radio-inline">
+											<%= am.radio_button :points, "0", data: { "ng-click" => "points = 0"} -%>No</label>
 									</span>
 								<%- end -%>
 							</div>
@@ -50,13 +50,20 @@
 </div>
 <%- end -%>
 
+<%- content_for :head do -%>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+<%- end -%>
+
 <%- content_for :page_js do -%>
 
-<%= javascript_include_tag "angular.min.js", :cache => true -%>
+<%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.8/angular.min.js", :cache => true -%>
+<%= javascript_include_tag "ui-bootstrap-0.12.0.min.js", :cache => true -%>
 
 <script type="text/javascript">
-	angular.module('GAS', [])
-	.controller('AuditMetricEntry',function($scope) {});
+	angular.module('GAS', ['ui.bootstrap'])
+	.controller('AuditMetricEntry',function($scope) {
+		$scope.points = 0;
+	});
 </script>
 	
 <%- end -%>
