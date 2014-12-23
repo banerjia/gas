@@ -12,12 +12,12 @@
 		<div class="col-md-9 col-sm-12 col-xs-12">
 				<%- metrics.each_with_index do |m,i| -%>
 					<%= f.fields_for :audit_metrics, f.object.audit_metrics.build do |am| -%>				
-						<div class="row" data-ng-controller="AuditMetricEntry">
+						<div class="row" data-ng-model="metric">
 							<div style="display:none">
 								<%= am.hidden_field :metric_id, {value: m[:id]} -%>
 							</div>
 							<div class="col-md-6 col-sm-12 col-xs-12">
-								<p data-ng-mode>
+								<p>
 									<%= m[:title] -%>
 									<blockquote>
 										<%= m[:description] -%>
@@ -26,7 +26,7 @@
 							</div>
 							<div class="col-md-3 col-sm-12 col-xs-12">
 								<%- if m[:template].present? -%>
-									<%= render m[:template], locals: {f: am, metric: m} -%>
+									&nbsp;
 								<%- else -%>
 									<span class="col-md-6 col-sm-6 col-xs-12">
 										<label class="radio-inline">
