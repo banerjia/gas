@@ -1,5 +1,5 @@
 <%= form_for audit do |f| -%>
-<div class="container">
+<div class="container" data-ng-app="GAS">
 	<div class="row">	
 		<div class="col-md-3 col-sm-12 col-xs-12">
 		<%= f.fields_for :store do |sf| -%>
@@ -19,9 +19,11 @@
 							<div class="col-md-6 col-sm-12 col-xs-12">
 								<p>
 									<%= m[:title] -%>
+									<%- if ! m[:description].blank? -%>
 									<blockquote>
 										<%= m[:description] -%>
 									</blockquote>
+									<%- end -%>
 								</p>
 							</div>
 							<div class="col-md-3 col-sm-12 col-xs-12">
