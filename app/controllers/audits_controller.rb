@@ -5,7 +5,7 @@ class AuditsController < ApplicationController
 	def new
 		store_id = params[:store_id] 
 		store = Store.find(store_id)
-		metrics_to_use = Metric.active_metrics.order([:display_order])
+		metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 		new_audit = store.audits.build
     
     respond_to do |format|

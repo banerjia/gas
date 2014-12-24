@@ -26,23 +26,46 @@
 									<%- end -%>
 								</p>
 							</div>
-							<div class="col-md-3 col-sm-12 col-xs-12">
-								<%- if m[:template].present? -%>
-									&nbsp;
-								<%- else -%>
-									<span class="col-md-6 col-sm-6 col-xs-12">
-										<label class="radio-inline">
-											<%= am.radio_button :points, m[:points], data: { "ng-click" => "points = #{m[:points]}"} -%>Yes</label>
-									</span>
-									<span class="col-md-6 col-sm-6 col-xs-12">
-										<label class="radio-inline">
-											<%= am.radio_button :points, "0", data: { "ng-click" => "points = 0"} -%>No</label>
-									</span>
+							<%- if m[:free_form_response] -%>
+								<div class="col-md-6 col-sm-12 col-xs-12">
+									<%= am.text_area :comment -%>
+								</div>
+							<%- else -%>
+								<div class="col-md-3 col-sm-12 col-xs-12">
+									<div class="container">
+										<div class="row">									
+											<%- case m[:response_type] -%>
+											<%-	when 'radio' -%>
+												<%= am.fields_for :audit_metric_response, am.object.audit_metric_responses.build do |amr| -%>
+													<%- m.metric_options.sort{|i| i[:display_order]}.each do |mo| -%>
+														<label>
+															<%= amr.radio_button :selected, mo[:base_score_value] + mo[:loss_score_value] + mo[:bonus_score_value] -%>
+															<%= mo[:label] -%>
+														</label>
+													<%- end -%>
+												<%- end -%>	
+											<%- when 'text' -%>
+												<%= am.fields_for :audit_metric_response, am.object.audit_metric_responses.build do |amr| -%>
+													<%- m.metric_options.sort{|i| i[:display_order]}.each do |mo| -%>
+														<label>
+															<%= amr.text_field :entry_value -%>
+															<%= mo[:label] -%>
+														</label>
+													<%- end -%>
+												<%- end -%>
+											<%- end -%>
+										</div>
+									</div>
+								</div>
+								<%- if m[:include] && m[:group_score_with].nil? -%>
+								<div class="col-md-3 col-sm-12 col-xs-12">
+									<span data-ng-model="score"></span>
+									<%= am.hidden_field :bonus -%>
+									<%= am.hidden_field :loss -%>
+									<%= am.hidden_field :base -%>
+								</div>
 								<%- end -%>
-							</div>
-							<div class="col-md-3 col-sm-12 col-xs-12">
-								<span>{{points}}</span>
-							</div>
+							<%- end -%>
 						</div>
 					<%- end -%>
 				<%- end -%>

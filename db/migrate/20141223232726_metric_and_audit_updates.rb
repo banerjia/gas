@@ -13,9 +13,7 @@ class MetricAndAuditUpdates < ActiveRecord::Migration
      
     execute <<-SQL
       ALTER TABLE `metrics`
-      MODIFY COLUMN `group_score_with` mediumint unsigned,
-      MODIFY COLUMN `apply_points_per_item` tinyint unsigned not null default 0,
-      MODIFY COLUMN `free_form_response` tinyint unsigned not null default 0
+      MODIFY COLUMN `group_score_with` mediumint unsigned
     SQL
     
     ## METRIC OPTIONS
@@ -56,8 +54,7 @@ class MetricAndAuditUpdates < ActiveRecord::Migration
         MODIFY COLUMN `person_id` mediumint unsigned not null,
         MODIFY COLUMN `base` smallint unsigned not null default 0,
         MODIFY COLUMN `loss` smallint unsigned not null default 0,
-        MODIFY COLUMN `bonus` smallint unsigned not null default 0,
-        MODIFY COLUMN `has_unresolved_issues` tinyint unsigned not null default 0
+        MODIFY COLUMN `bonus` smallint unsigned not null default 0
     SQL
     
     add_index :audits, [:store_id, :has_unresolved_issues]
@@ -77,8 +74,8 @@ class MetricAndAuditUpdates < ActiveRecord::Migration
      MODIFY COLUMN `audit_id` bigint unsigned not null, 
      MODIFY COLUMN `metric_id` mediumint unsigned not null, 
      MODIFY COLUMN `bonus` smallint unsigned not null default 0,
-     MODIFY COLUMN `base` smallint not null default 0,
-     MODIFY COLUMN `loss` smallint not null default 0
+     MODIFY COLUMN `base` smallint unsigned not null default 0,
+     MODIFY COLUMN `loss` smallint unsigned not null default 0
     SQL
     
     ## AUDIT METRIC RESPONSES
@@ -86,15 +83,13 @@ class MetricAndAuditUpdates < ActiveRecord::Migration
       t.references :audit_metric
       t.references :metric_option
       t.boolean :selected, nil: false, default: true
-      t.string :entry_value, size: 255
+      t.string :entry_value
     end
     
     execute <<-SQL
       ALTER TABLE `audit_metric_responses`
         MODIFY COLUMN `audit_metric_id` bigint unsigned not null,
-        MODIFY COLUMN `metric_option_id` mediumint unsigned not null,
-        MODIFY COLUMN `selected` tinyint unsigned not null default 1,
-        MODIFY COLUMN `entry_value` smallint unsigned not null default 0
+        MODIFY COLUMN `metric_option_id` mediumint unsigned not null
     SQL
     
     ## IMAGES
