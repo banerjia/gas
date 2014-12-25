@@ -5,10 +5,11 @@ class Audit < ActiveRecord::Base
 	belongs_to :store, counter_cache: true
 	
 	has_many :audit_metrics
+  has_many :audit_metric_responses
 	has_many :audit_journal
   has_many :images, as: :imageable
   
-  has_and_belongs_to_many :metrics, :join_table => :audit_metrics, :foreign_key => :metric_id
+  has_and_belongs_to_many :metrics, :join_table => :audit_metrics
   
   belongs_to :person
 	
