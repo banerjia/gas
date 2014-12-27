@@ -1,6 +1,8 @@
 class Audit < ActiveRecord::Base
   include AuditSearchable
   include AuditImport
+  
+  attr_accessor :comments
 	
 	belongs_to :store, counter_cache: true
 	

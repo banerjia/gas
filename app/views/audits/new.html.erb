@@ -1,5 +1,6 @@
 <%= form_for audit do |f| -%>
-<div class="container" data-ng-app="GAS">
+<%= f.submit "Submit", :disable_with => 'Submiting...', class: "btn btn-primary" -%>
+<div class="container" data-ng-app="audit">
 	<div class="row">	
 		<div class="col-md-3 col-sm-12 col-xs-12">
 		<%= f.fields_for :store do |sf| -%>
@@ -9,81 +10,76 @@
 			<%= sf.text_field :store_number, class: "input-sm" -%>
 		<%- end -%>
 		</div>
-		<div class="col-md-9 col-sm-12 col-xs-12">
-				<%- metrics.each do |m| -%>
-					<%= f.fields_for :audit_metrics, f.object.audit_metrics.build({metric_id: m[:id]}) do |am| -%>				
-						<div class="row" data-ng-model="metric">
-							<div style="display:none">
-								<%= am.hidden_field :metric_id, {value: m[:id]} -%>
-							</div>
-							<div class="col-md-6 col-sm-12 col-xs-12">
-								<p>
-									<%= m[:title] -%>
-									<%- if ! m[:description].blank? -%>
-									<blockquote>
-										<%= m[:description] -%>
-									</blockquote>
+		<div class="col-md-7 col-sm-12 col-xs-12">
+	<%- metrics.each do |m| -%>
+		<%= f.fields_for :audit_metrics, f.object.audit_metrics.build({metric_id: m[:id]}) do |am| -%>				
+			<div class="row" data-ng-model="metric">
+				<div style="display:none">
+					<%= am.hidden_field :metric_id, {value: m[:id]} -%>
+				</div>
+				<div class="col-md-6 col-sm-12 col-xs-12">
+					<p>
+						<%= m[:title] -%>
+						<%- if ! m[:description].blank? -%>
+						<blockquote>
+							<%= m[:description] -%>
+						</blockquote>
+						<%- end -%>
+					</p>
+				</div>
+				<%- if m[:free_form_response] -%>
+					<div class="col-md-6 col-sm-12 col-xs-12">
+						<%= am.text_area :comment -%>
+					</div>
+				<%- else -%>
+					<div class="col-md-3 col-sm-12 col-xs-12">
+						<div class="container">
+							<div class="row">	
+							<%- m.metric_options.sort{|a,b| a[:display_order]<=>b[:display_order]}.each do |mo| -%>								
+								<%= am.fields_for :audit_metric_responses, am.object.audit_metric_responses.build do |amr| -%>
+									<%- case m[:response_type] -%>
+									<%-	when 'radio' -%>
+												<label>
+													<%= amr.radio_button :selected, mo[:base_score_value] + mo[:loss_score_value] + mo[:bonus_score_value] -%>
+													<%= mo[:label] -%>
+												</label>
+									<%- when 'text' -%>
+												<label style="clear: both">
+													<%= mo[:label] -%>
+													<%= amr.text_field :entry_value, class: "form-control input-sm" -%>
+												</label>
+									<%- when 'checkbox' -%>
+											<div>
+													<label>
+														<%= check_box "", mo[:base_score_value] -%>
+														<%= mo[:label] -%>
+													</label>
+													<div style="display:none">
+														<%= amr.hidden_field :selected, data: { "ng-model" =>  "selected"  } -%>
+														<%= amr.hidden_field :entry_value, data:{ "ng-model" =>  "entry_value"  }  -%>
+													</div>
+												</div>
 									<%- end -%>
-								</p>
-							</div>
-							<%- if m[:free_form_response] -%>
-								<div class="col-md-6 col-sm-12 col-xs-12">
-									<%= am.text_area :comment -%>
-								</div>
-							<%- else -%>
-								<div class="col-md-3 col-sm-12 col-xs-12">
-									<div class="container">
-										<div class="row">									
-											<%- case m[:response_type] -%>
-											<%-	when 'radio' -%>
-												<%= am.fields_for :audit_metric_responses, am.object.audit_metric_responses.build do |amr| -%>
-													<%- m.metric_options.sort{|i| i[:display_order]}.each do |mo| -%>
-														<label>
-															<%= amr.radio_button :selected, mo[:base_score_value] + mo[:loss_score_value] + mo[:bonus_score_value] -%>
-															<%= mo[:label] -%>
-														</label>
-													<%- end -%>
-												<%- end -%>	
-											<%- when 'text' -%>
-												<%= am.fields_for :audit_metric_responses, am.object.audit_metric_responses.build do |amr| -%>
-													<%- m.metric_options.sort{|i| i[:display_order]}.each do |mo| -%>
-														<label>
-															<%= amr.text_field :entry_value, class: "input-sm" -%>
-															<%= mo[:label] -%>
-														</label>
-													<%- end -%>
-												<%- end -%>
-											<%- when 'checkbox' -%>
-												<%- m.metric_options.sort{|i| i[:display_order]}.each_with_index do |mo| -%>
-													<%= am.fields_for :audit_metric_responses, am.object.audit_metric_responses.build({metric_option_id: m[:id]}) do |amr| -%>
-													<div>
-															<label>
-																<%= check_box "", mo[:base_score_value] -%>
-																<%= mo[:label] -%>
-															</label>
-															<div style="display:none">
-																<%= amr.hidden_field :selected, data: { "ng-model" =>  "selected"  } -%>
-																<%= amr.hidden_field :entry_value, data:{ "ng-model" =>  "entry_value"  }  -%>
-															</div>
-														</div>
-													<%- end -%>
-												<%- end -%>
-											<%- end -%>
-										</div>
-									</div>
-								</div>
-								<%- if m[:include] && m[:group_score_with].nil? -%>
-								<div class="col-md-3 col-sm-12 col-xs-12">
-									<span data-ng-model="score"></span>
-									<%= am.hidden_field :bonus, data: {"ng-model" =>  "bonus"} -%>
-									<%= am.hidden_field :loss, data: {"ng-model" =>  "loss"} -%>
-									<%= am.hidden_field :base, data: {"ng-model" =>  "base"} -%>
-								</div>
 								<%- end -%>
-							<%- end -%>
+							<%- end -%>	
+							</div>
 						</div>
+					</div>
+					<%- if m[:include] && m[:group_score_with].nil? -%>
+					<div class="col-md-3 col-sm-12 col-xs-12">
+						<span data-ng-model="score"></span>
+						<%= am.hidden_field :bonus, data: {"ng-model" =>  "bonus"} -%>
+						<%= am.hidden_field :loss, data: {"ng-model" =>  "loss"} -%>
+						<%= am.hidden_field :base, data: {"ng-model" =>  "base"} -%>
+					</div>
 					<%- end -%>
 				<%- end -%>
+			</div>
+		<%- end -%>
+	<%- end -%>
+			<div class="row">
+				<%= f.text_area :comments -%>
+			</div>
 			</div>
 		</div>
 	</div>
@@ -100,7 +96,7 @@
 <%= javascript_include_tag "ui-bootstrap-0.12.0.min.js" -%>
 
 <script type="text/javascript">
-	angular.module('GAS', ['ui.bootstrap'])
+	angular.module('audit',[])
 	.controller('AuditMetricEntry',function($scope) {
 		$scope.points = 0;
 	});
