@@ -1,5 +1,5 @@
 class AuditMetric < ActiveRecord::Base
-  attr_accessor :comment
+  attr_accessor :comment, :score
 
 	belongs_to :audit
   belongs_to :metric

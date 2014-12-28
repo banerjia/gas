@@ -10,77 +10,69 @@
 			<%= sf.text_field :store_number, class: "input-sm" -%>
 		<%- end -%>
 		</div>
-		<div class="col-md-7 col-sm-12 col-xs-12">
-	<%- metrics.each do |m| -%>
-		<%= f.fields_for :audit_metrics, f.object.audit_metrics.build({metric_id: m[:id]}) do |am| -%>				
-			<div class="row" data-ng-model="metric">
-				<div style="display:none">
-					<%= am.hidden_field :metric_id, {value: m[:id]} -%>
-				</div>
-				<div class="col-md-6 col-sm-12 col-xs-12">
-					<p>
-						<%= m[:title] -%>
-						<%- if ! m[:description].blank? -%>
-						<blockquote>
-							<%= m[:description] -%>
-						</blockquote>
-						<%- end -%>
-					</p>
-				</div>
-				<%- if m[:free_form_response] -%>
-					<div class="col-md-6 col-sm-12 col-xs-12">
-						<%= am.text_area :comment -%>
-					</div>
-				<%- else -%>
-					<div class="col-md-3 col-sm-12 col-xs-12">
-						<div class="container">
-							<div class="row">	
-							<%- m.metric_options.sort{|a,b| a[:display_order]<=>b[:display_order]}.each do |mo| -%>								
-								<%= am.fields_for :audit_metric_responses, am.object.audit_metric_responses.build do |amr| -%>
-									<%- case m[:response_type] -%>
-									<%-	when 'radio' -%>
-												<label>
-													<%= amr.radio_button :selected, mo[:base_score_value] + mo[:loss_score_value] + mo[:bonus_score_value] -%>
-													<%= mo[:label] -%>
-												</label>
-									<%- when 'text' -%>
-												<label style="clear: both">
-													<%= mo[:label] -%>
-													<%= amr.text_field :entry_value, class: "form-control input-sm" -%>
-												</label>
-									<%- when 'checkbox' -%>
-											<div>
-													<label>
-														<%= check_box "", mo[:base_score_value] -%>
-														<%= mo[:label] -%>
-													</label>
-													<div style="display:none">
-														<%= amr.hidden_field :selected, data: { "ng-model" =>  "selected"  } -%>
-														<%= amr.hidden_field :entry_value, data:{ "ng-model" =>  "entry_value"  }  -%>
-													</div>
-												</div>
-									<%- end -%>
-								<%- end -%>
-							<%- end -%>	
-							</div>
-						</div>
-					</div>
-					<%- if m[:include] && m[:group_score_with].nil? -%>
-					<div class="col-md-3 col-sm-12 col-xs-12">
-						<span data-ng-model="score"></span>
-						<%= am.hidden_field :bonus, data: {"ng-model" =>  "bonus"} -%>
-						<%= am.hidden_field :loss, data: {"ng-model" =>  "loss"} -%>
-						<%= am.hidden_field :base, data: {"ng-model" =>  "base"} -%>
-					</div>
-					<%- end -%>
-				<%- end -%>
-			</div>
-		<%- end -%>
-	<%- end -%>
+		<div class="col-md-9 col-sm-12 col-xs-12 container" data-ng-controller="AuditController">
 			<div class="row">
-				<%= f.text_area :comments -%>
+				<div class="col-md-12 col-sm-12 col-xs-12">{{finalScore()}}</div>
 			</div>
+		<%- metrics.each_with_index do |m,metric_index| -%>
+			<%= f.fields_for :audit_metrics, f.object.audit_metrics.build({metric_id: m[:id]}) do |a_m| -%>
+			<div class="row" data-ng-controller="AuditMetricController" data-ng-init="init('<%= m[:response_type] -%>', 'base', <%= metric_index -%>)">
+				<div class="col-md-5 col-sm-12 col-xs-12">
+					<p class="lead"><%= m[:title].html_safe -%></p>
+					<%- if !m[:description].blank? -%>
+					<p><%= m[:description].html_safe -%></p>
+					<%- end -%>
+				</div>
+				<div class="col-md-4 col-sm-12 col-xs-12">
+				<%= a_m.hidden_field :metric_id -%>
+				<%- case m[:response_type] -%>
+					<%- when 'radio' -%>
+						<%- m.metric_options.sort{ |a,b| a[:display_order] <=> b[:display_order]}.each do |m_o| -%>
+							<%= a_m.fields_for :audit_metric_responses, a_m.object.audit_metric_responses.build({metric_option_id: m_o[:id]}) do |a_m_r| -%>
+								<%= a_m.radio_button :score, m_o[:base_score_value], data: {"weight" => m_o[:weight], "ng-model" => "score", "ng-change" => "calculateScore()"} -%>
+							 	<%= a_m.label :score,  m_o[:label], value: m_o[:base_score_value] -%>
+							<%- end -%>
+						<%- end -%>
+					<%- when 'text_compare' -%>
+						<%= a_m.hidden_field :score, value: 0 -%>
+						<%- m.metric_options.sort{ |a,b| a[:display_order] <=> b[:display_order]}.each_with_index do |m_o, metric_option_index| -%>
+							<%= a_m.fields_for :audit_metric_responses, a_m.object.audit_metric_responses.build({metric_option_id: m_o[:id]}) do |a_m_r| -%>
+						  		<%= a_m_r.label :entry_value, m_o[:label] -%>
+								<%= a_m_r.text_field :entry_value, type: 'number', class: "form-controls input-sm", data: { "ng-model" => "entry_values[#{metric_option_index}]", "ng-change" => "calculateScore()", "ng-init" => "entry_value_weights[#{metric_option_index}] = #{m_o[:weight]}; entry_value_scores[#{metric_option_index}] = #{m_o[:base_score_value]}"} -%>
+								<%= a_m_r.hidden_field :metric_option_id -%>									
+							<%- end -%>
+						<%- end -%>
+					<%- when 'textarea' -%>
+						<%= a_m.text_area :comment -%>
+					<%- when 'text' -%>
+						<%= a_m.fields_for :audit_metric_responses, a_m.object.audit_metric_responses.build({metric_option_id: m.metric_options.first[:id]}) do |a_m_r| -%>
+							<%= a_m_r.text_field :entry_value, class: "form-controls input-sm" -%>
+							<%= a_m_r.hidden_field :metric_option_id -%>
+							<%= hidden_field "", data: {"ng" => {"model" => "multiplier"}}, value: m.metric_options.first[:loss_score_value] -%>
+						  
+						<%- end -%>	
+					<%- when 'custom_shelves' -%>
+						<%- m.metric_options.sort{ |a,b| a[:display_order] <=> b[:display_order]}.each do |m_o| -%>
+							<%= a_m.fields_for :audit_metric_responses, a_m.object.audit_metric_responses.build({metric_option_id: m_o[:id]}) do |a_m_r| -%>
+								<div style="display:block">
+									<%= a_m_r.check_box :selected, data:{ "weight" => m_o[:weight]}, checked: false -%>
+									<%= a_m_r.label :selected, m_o[:label] -%>
+									<%= a_m_r.hidden_field :metric_option_id -%>
+								</div>							
+							<%- end -%>
+						<%- end -%>						
+						
+						
+				<%- end -%> <!-- CASE END -->
+				</div>
+				<div class="col-md-3 col-sm-12 col-xs-12">
+					{{computedScore}}
+				</div>
 			</div>
+			
+			  
+			<%- end -%>
+		<%- end -%>
 		</div>
 	</div>
 </div>
@@ -97,9 +89,70 @@
 
 <script type="text/javascript">
 	angular.module('audit',[])
-	.controller('AuditMetricEntry',function($scope) {
-		$scope.points = 0;
-	});
+	.factory("AuditScore", function(){
+		return {
+			score: {
+				base: 0,
+				bonus: 0,
+				loss: 0
+			},
+			
+			update: function(){
+			
+			}
+		}
+	})
+	.controller('AuditController', ['$scope', function($scope){
+		$scope.base = 0;
+		$scope.bonus = 0;
+		$scope.loss = 0;
+		
+		$scope.finalScore = function(){
+			return $scope.base + $scope.bonus - $scope.loss;
+		}
+	}])
+	.controller('AuditMetricController',['$scope', function($scope) {
+		$scope.comparisonType = null;
+		$scope.scoreType = null;
+		$scope.computedScore = 0;
+		$scope.entry_values = [];
+		$scope.entry_value_weights = [];
+		$scope.entry_value_scores = [];
+		$scope.index = 0;
+		
+		
+		$scope.init = function( comparisonType, scoreType, index ){
+			$scope.comparisonType = comparisonType;
+			$scope.scoreType = scoreType;
+			$scope.index = index;
+		}
+		
+		$scope.calculateScore = function(){
+			var retVal = 0;
+			switch($scope.comparisonType)
+			{
+				case 'radio':
+					retVal = parseInt($scope.score);
+					break;
+				case 'text_compare':
+					if($scope.entry_values.length < 2) return 0;
+					var maxWeightIndex = $scope.entry_value_weights.indexOf(Math.max.apply(Math, $scope.entry_value_weights));
+					var maxValueIndex = $scope.entry_values.indexOf(Math.max.apply(Math, $scope.entry_values));
+					var compareValue = parseInt($scope.entry_values[maxWeightIndex]);
+					var targetValue = parseInt($scope.entry_values[maxValueIndex]);
+					if(maxValueIndex == maxWeightIndex || compareValue == targetValue)
+						retVal = $scope.entry_value_scores[maxWeightIndex];
+					else
+						retVal = 0;
+					break;
+				default: 
+					retVal = 0;
+			}
+			$scope.computedScore = retVal;
+			return;
+		}
+				
+	}]);
 </script>
 	
 <%- end -%>
