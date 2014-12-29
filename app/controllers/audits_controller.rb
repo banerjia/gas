@@ -66,6 +66,6 @@ class AuditsController < ApplicationController
   private
   
   def audit_params
-    params.require(:audit).permit(:base, :loss, :bonus, :person_id, audit_metrics_attributes: [:metric_id, :point_value, :include, :resolved_at, audit_metric_responses_attributes: [:selected, :entry_value]], store_attributes: [:id, :store_number])
+    params.require(:audit).permit(:base, :loss, :bonus, :person_id, audit_metrics_attributes: [:metric_id, :score_type, :score, audit_metric_responses_attributes: [:metric_option_id,:selected, :entry_value]], store_attributes: [:store_number])
   end
 end
