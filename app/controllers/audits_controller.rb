@@ -7,14 +7,14 @@ class AuditsController < ApplicationController
 		store = Store.find(store_id)
 		metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 		new_audit = store.audits.build
-    
-    respond_to do |format|
-      format.html do
-		    @page_title = "New Audit"
-        render locals: { audit: new_audit, metrics: metrics_to_use }
-      end
-    end
-      
+		
+		respond_to do |format|
+			format.html do
+				@page_title = "New Audit"
+				render locals: { audit: new_audit, metrics: metrics_to_use }
+			end
+		end
+		
 	end
 	
 	def create    
@@ -40,9 +40,9 @@ class AuditsController < ApplicationController
 		audit_id = params[:id]		
 		@audit = Audit.find(:first, conditions: { id: audit_id }, include: :store)
 		@audit_metrics = StoreMetric.find( :all,  \
-											joins: 'RIGHT JOIN `metrics` ON `metrics`.`id` = `store_metrics`.`metric_id` AND `store_metrics`.`audit_id` = ' + audit_id, \
-											select: '`store_metrics`.`metric_id`, `store_metrics`.`point_value`, `store_metrics`.`include`, `store_metrics`.`resolved_at`, `metrics`.`title`, `metrics`.`description`, `metrics`.`category`, `metrics`.`quantifier`, `metrics`.`include`, `metrics`.`reverse_options`', \
-											order: '`metrics`.`category`, `metrics`.`display_order`')
+			joins: 'RIGHT JOIN `metrics` ON `metrics`.`id` = `store_metrics`.`metric_id` AND `store_metrics`.`audit_id` = ' + audit_id, \
+			select: '`store_metrics`.`metric_id`, `store_metrics`.`point_value`, `store_metrics`.`include`, `store_metrics`.`resolved_at`, `metrics`.`title`, `metrics`.`description`, `metrics`.`category`, `metrics`.`quantifier`, `metrics`.`include`, `metrics`.`reverse_options`', \
+			order: '`metrics`.`category`, `metrics`.`display_order`')
 		@page_title = "Audit for #{@audit.store[:name]}"		
 	end
 
@@ -62,10 +62,10 @@ class AuditsController < ApplicationController
 			format.json { render json: results.to_json( include: {store: {only: [:name], methods: [:address]} }, methods: [:comments] ) }
 		end
 	end
-  
-  private
-  
-  def audit_params
-    params.require(:audit).permit(:base, :loss, :bonus, :person_id, audit_metrics_attributes: [:metric_id, :score_type, :score, audit_metric_responses_attributes: [:metric_option_id,:selected, :entry_value]], store_attributes: [:store_number])
-  end
+	
+	private
+	
+	def audit_params
+		params.require(:audit).permit(:base, :loss, :bonus, :person_id, audit_metrics_attributes: [:metric_id, :score_type, :score, audit_metric_responses_attributes: [:metric_option_id,:selected, :entry_value]], store_attributes: [:store_number])
+	end
 end
