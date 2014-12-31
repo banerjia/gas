@@ -10,9 +10,32 @@
 			<%= sf.text_field :store_number, class: "input-sm" -%>
 		<%- end -%>
 		</div>
-		<div class="col-md-9 col-sm-12 col-xs-12 container">
+		<div class="col-md-9 col-sm-12 col-xs-12 container" data-ng-controller="AuditController">
 			<div class="row">
-				<div class="col-md-12 col-sm-12 col-xs-12">{{finalScore}}</div>
+				<div class="col-md-4 col-sm-12 col-xs-12">
+					<div class="row">
+						<div class="col-md-12 col-sm-12 col-xs-12">Base</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12 col-sm-12 col-xs-12">{{baseScore}}</div>
+					</div>
+				</div>
+				<div class="col-md-4 col-sm-12 col-xs-12">
+					<div class="row">
+						<div class="col-md-12 col-sm-12 col-xs-12">Loss</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12 col-sm-12 col-xs-12">{{Math.abs(lossScore)}}</div>
+					</div>
+				</div>
+				<div class="col-md-4 col-sm-12 col-xs-12">
+					<div class="row">
+						<div class="col-md-12 col-sm-12 col-xs-12">Bonus</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12 col-sm-12 col-xs-12">{{bonusScore}}</div>
+					</div>
+				</div>
 			</div>
 		<%- metrics.each_with_index do |m,metric_index| -%>
 			<%= f.fields_for :audit_metrics, f.object.audit_metrics.build({metric_id: m[:id]}) do |a_m| -%>
@@ -31,14 +54,14 @@
 						<%- m.metric_options.sort{ |a,b| a[:display_order] <=> b[:display_order]}.each do |m_o| -%>
 							<%= a_m.fields_for :audit_metric_responses, a_m.object.audit_metric_responses.build({metric_option_id: m_o[:id]}) do |a_m_r| -%>
 								<%= a_m.radio_button :score, m_o[:points], data: {"ng-model" => "score", "ng-change" => "calculateScore()"} -%>
-							 	<%= a_m.label :score,  m_o[:label], value: m_o[:points] -%>
+								<%= a_m.label :score,  m_o[:label], value: m_o[:points] -%>
 							<%- end -%>
 						<%- end -%>
 					<%- when 'text_compare' -%>
 						<%= a_m.hidden_field :score, data: {"ng-value" => "computedScore"} -%>
 						<%- m.metric_options.sort{ |a,b| a[:display_order] <=> b[:display_order]}.each_with_index do |m_o, metric_option_index| -%>
 							<%= a_m.fields_for :audit_metric_responses, a_m.object.audit_metric_responses.build({metric_option_id: m_o[:id]}) do |a_m_r| -%>
-						  		<%= a_m_r.label :entry_value, m_o[:label] -%>
+								<%= a_m_r.label :entry_value, m_o[:label] -%>
 								<%= a_m_r.text_field :entry_value, type: 'number', min: 0,class: "form-controls input-sm", data: { "ng-model" => "entry_values[#{metric_option_index}]", "ng-change" => "calculateScore()", "ng-init" => "entry_value_weights[#{metric_option_index}] = #{m_o[:weight]}; entry_value_scores[#{metric_option_index}] = #{m_o[:points]}"} -%>
 								<%= a_m_r.hidden_field :metric_option_id -%>									
 							<%- end -%>
@@ -81,23 +104,83 @@
 			  
 			<%- end -%>
 		<%- end -%>
+
+			<div class="row">
+				<div class="col-md-12 col-sm-12 col-xs-12">
+					<%= f.label :comments, "Comments" %>
+					<%= f.text_area :comments %>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
 <%- end -%>
 
-<%- content_for :head do -%>
-	<%= stylesheet_link_tag "bootstrap.min.css" %>
-<%- end -%>
-
 <%- content_for :page_js do -%>
-
-<%= javascript_include_tag "angular.min.js" -%>
-<%= javascript_include_tag "ui-bootstrap-0.12.0.min.js" -%>
-
+<%= javascript_include_tag "angular.min.js" %>
 <script type="text/javascript">
 	angular.module('audit',[])
-	.controller('AuditMetricController',['$scope', '$rootScope', function($scope, $rootScope) {
+	.factory( "totalScore", ['$rootScope', function($rootScope){
+		var metrics = [];		
+		var finalScore = {
+			base: 0,
+			loss: 0,
+			bonus: 0		
+		}
+
+		var retVal = {};
+
+		retVal.addMetric = function(){
+			metrics.push({
+				base: 0,
+				loss: 0,
+				bonus: 0,
+			});
+		}
+
+		retVal.addScore = function( index, baseScore, lossScore, bonusScore){
+			metrics[index] = {
+				base: baseScore,
+				loss: lossScore,
+				bonus: bonusScore
+			};
+
+			$rootScope.$broadcast("totalScoreChanged");
+		}
+
+		retVal.calculateScore = function(){
+			finalScore = {
+				base: 0,
+				loss: 0,
+				bonus: 0
+			};
+
+			for(i = 0; i < metrics.length; i++){
+				finalScore.base += metrics[i].base;
+				finalScore.loss += metrics[i].loss;
+				finalScore.bonus += metrics[i].bonus;
+			}
+
+			return finalScore;
+		}
+
+		return retVal;
+	}])
+	.controller('AuditController',['$scope', 'totalScore', function($scope, totalScore){
+		$scope.baseScore = 0;
+		$scope.lossScore = 0;
+		$scope.bonusScore = 0;
+		$scope.Math = window.Math;
+
+
+		$scope.$on('totalScoreChanged', function(){
+			var auditScore = totalScore.calculateScore();
+			$scope.baseScore = auditScore.base;
+			$scope.lossScore = auditScore.loss;
+			$scope.bonusScore = auditScore.bonus;
+		})
+	}])
+	.controller('AuditMetricController', ['$scope', 'totalScore', function($scope, totalScore) {
 		$scope.comparisonType = null;
 		$scope.metricScoreType = null;
 		$scope.computedBaseScore = 0;
@@ -107,11 +190,14 @@
 		$scope.entry_value_weights = [];
 		$scope.entry_value_scores = [];
 		$scope.entry_value_scoreTypes = [];
+		$scope.metricIndex = 0;
 		
 		
 		$scope.init = function( comparisonType, scoreType, index ){
 			$scope.comparisonType = comparisonType;
 			$scope.metricScoreType = scoreType;
+			$scope.metricIndex = index;
+			totalScore.addMetric();
 		}
 		
 		$scope.calculateScore = function(){
@@ -174,7 +260,7 @@
 						
 						// Depending on the score type assign the computed value 
 						// to the correct variable.
-						var score = $scope.entry_values[i] * $scope.entry_value_weights[i];
+						var score = $scope.entry_value_scores[i] * $scope.entry_value_weights[i];
 						switch($scope.entry_value_scoreTypes[i]){
 							case 'base':
 								baseScore += score;
@@ -204,7 +290,7 @@
 			$scope.computedLossScore = Math.round(lossScore);
 			$scope.computedBonusScore = Math.round(bonusScore);
 			
-			$rootScope.finalScore = $scope.computedBaseScore +  $scope.computedLossScore + $scope.computedBonusScore;
+			totalScore.addScore( $scope.metricIndex, $scope.computedBaseScore, $scope.computedLossScore, $scope.computedBonusScore);
 			
 			return;
 		}
