@@ -10,12 +10,12 @@
 <div class="container" data-ng-app="audit">
 	<div class="row">	
 		<div class="col-md-3 col-sm-12 col-xs-12">
-		<%= f.fields_for :store, include_id: false do |sf| -%>
+			<%= f.fields_for :store, include_id: false do |sf| -%>
 			<%= sf.object.full_name -%>
 			<address><%= sf.object.address -%></address>
 			<%= sf.label :store_number -%>
 			<%= sf.text_field :store_number, class: "input-sm" -%>
-		<%- end -%>
+			<%- end -%>
 		</div>
 		<div class="col-md-9 col-sm-12 col-xs-12 container" data-ng-controller="AuditController">
 			<div class="row">
@@ -46,7 +46,7 @@
 			</div>
 			<%- metric_index = 0 -%>
 			<%= f.fields_for :audit_metrics do |a_m| -%>
-			<div class="row" data-ng-controller="AuditMetricController" data-ng-init="init('<%= metrics[metric_index][:response_type] -%>', '<%= metrics[metric_index][:score_type] -%>', <%= a_m.object_name.gsub(/[^0-9]+/,'') -%>);calculateScore()">
+			<div class="row" data-ng-controller="AuditMetricController" data-ng-init="init('<%= metrics[metric_index][:response_type] -%>', '<%= metrics[metric_index][:score_type] -%>', <%= a_m.object_name.gsub(/[^0-9]+/,'') -%>)">
 				<div class="col-md-5 col-sm-12 col-xs-12">
 					<p><%= metrics[metric_index][:title].html_safe -%></p>
 					<%- if !metrics[metric_index][:description].blank? -%>
@@ -54,52 +54,52 @@
 					<%- end -%>
 				</div>
 				<div class="col-md-4 col-sm-12 col-xs-12">
-				<%= a_m.hidden_field :metric_id -%>
-				<%= a_m.hidden_field :score_type, value: metrics[metric_index][:score_type] -%>
-				<%- case metrics[metric_index][:response_type] -%>
+					<%= a_m.hidden_field :metric_id -%>
+					<%= a_m.hidden_field :score_type, value: metrics[metric_index][:score_type] -%>
+					<%- case metrics[metric_index][:response_type] -%>
 					<%- when 'radio' -%>
-						<%- metric_option_index = 0 -%>
-						<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
-							<%= a_m.radio_button :score, metrics[metric_index].metric_options[metric_option_index][:points], data: {"ng-model" => "score", "ng-init" => "score = #{a_m.object[:score]}", "ng-change" => "calculateScore()"} -%>
-							<%= a_m.label :score,  metrics[metric_index].metric_options[metric_option_index][:label], value: metrics[metric_index].metric_options[metric_option_index][:points] -%>
-							<%-  metric_option_index = metric_option_index + 1 -%>
-						<%- end -%>
+					<%- metric_option_index = 0 -%>
+					<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
+					<%= a_m.radio_button :score, metrics[metric_index].metric_options[metric_option_index][:points], data: {"ng-model" => "score", "ng-init" => "score = #{a_m.object[:score]}", "ng-change" => "calculateScore()"} -%>
+					<%= a_m.label :score,  metrics[metric_index].metric_options[metric_option_index][:label], value: metrics[metric_index].metric_options[metric_option_index][:points] -%>
+					<%-  metric_option_index = metric_option_index + 1 -%>
+					<%- end -%>
 					<%- when 'text_compare' -%>
-						<%= a_m.hidden_field :score, data: {"ng-value" => "computedScore"} -%>
-						<%- metric_option_index = 0 -%>
-						<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
-							<%= a_m_r.label :entry_value, metrics[metric_index].metric_options[metric_option_index][:label] -%>
-							<%= a_m_r.text_field :entry_value, type: 'number', min: 0,class: "form-controls input-sm", data: { "ng-model" => "entry_values[#{metric_option_index}]", "ng-change" => "calculateScore()", "ng-init" => "entry_values[#{metric_option_index}] = #{a_m_r.object[:entry_value] || 0}; entry_value_weights[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:weight]}; entry_value_scores[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:points]}"} -%>
-							<%= a_m_r.hidden_field :metric_option_id -%>	
-							<%- metric_option_index = metric_option_index + 1 -%>								
-						<%- end -%>
+					<%= a_m.hidden_field :score, data: {"ng-value" => "computedScore"} -%>
+					<%- metric_option_index = 0 -%>
+					<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
+					<%= a_m_r.label :entry_value, metrics[metric_index].metric_options[metric_option_index][:label] -%>
+					<%= a_m_r.text_field :entry_value, type: 'number', min: 0,class: "form-controls input-sm", data: { "ng-model" => "entry_values[#{metric_option_index}]", "ng-change" => "calculateScore()", "ng-init" => "entry_values[#{metric_option_index}] = #{a_m_r.object[:entry_value] || 0}; entry_value_weights[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:weight]}; entry_value_scores[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:points]}"} -%>
+					<%= a_m_r.hidden_field :metric_option_id -%>	
+					<%- metric_option_index = metric_option_index + 1 -%>								
+					<%- end -%>
 					<%- when 'textarea' -%>
-						<%= a_m.text_area :comment -%>
+					<%= a_m.text_area :comment -%>
 					<%- when 'custom_shelves' -%>
-						<%- metric_option_index = 0 -%>
-						<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
-							<div style="display:block">
-								<%= a_m_r.check_box :selected, data:{ 
-									"ng-model" => "entry_values[#{metric_option_index}]", 
-									"ng-change" => "calculateScore()",
-									"ng-init" =>  
-										"entry_values[#{metric_option_index}] = #{a_m_r.object[:selected] || false};
-										entry_value_scoreTypes[#{metric_option_index}] = '#{ metrics[metric_index].metric_options[metric_option_index][:isBonus] ? 'bonus': ( metrics[metric_index].metric_options[metric_option_index][:points] < 0 ? 'loss' : 'base' ) }';
-										entry_value_scores[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:points]}; 
-										entry_value_weights[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:weight]}"										
-								}, checked: false -%>
-								<%= a_m_r.hidden_field :metric_option_id -%>
-								<%= a_m_r.label :selected, metrics[metric_index].metric_options[metric_option_index][:label] -%>
-							</div>
-							<%- metric_option_index = metric_option_index + 1 -%>	
-						<%- end -%>						
+					<%- metric_option_index = 0 -%>
+					<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
+					<div style="display:block">
+						<%= a_m_r.check_box :selected, data:{ 
+							"ng-model" => "entry_values[#{metric_option_index}]", 
+							"ng-change" => "calculateScore()",
+							"ng-init" =>  
+							"entry_values[#{metric_option_index}] = #{a_m_r.object[:selected] || false};
+							entry_value_scoreTypes[#{metric_option_index}] = '#{ metrics[metric_index].metric_options[metric_option_index][:isBonus] ? 'bonus': ( metrics[metric_index].metric_options[metric_option_index][:points] < 0 ? 'loss' : 'base' ) }';
+							entry_value_scores[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:points]}; 
+							entry_value_weights[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:weight]}"										
+						}, checked: false -%>
+						<%= a_m_r.hidden_field :metric_option_id -%>
+						<%= a_m_r.label :selected, metrics[metric_index].metric_options[metric_option_index][:label] -%>
+					</div>
+					<%- metric_option_index = metric_option_index + 1 -%>	
+					<%- end -%>						
 					<%- when 'computed' -%>
-						<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
-							<%= a_m_r.hidden_field :metric_option_id -%>
-							<%= a_m_r.text_field :entry_value, type: 'number', min: 0, class: "form-controls input-sm", data: {"ng-model" => "entry_value", "ng-init" => "entry_value = #{a_m_r.object[:entry_value] || 0}", "ng-change" => "calculateScore()", "ng-init" => "quantifier = #{metrics[metric_index].metric_options.first[:points]}"} -%>
-						<% end -%>
-						
-				<%- end -%> <!-- CASE END -->
+					<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
+					<%= a_m_r.hidden_field :metric_option_id -%>
+					<%= a_m_r.text_field :entry_value, type: 'number', min: 0, class: "form-controls input-sm", data: {"ng-model" => "entry_value", "ng-init" => "entry_value = #{a_m_r.object[:entry_value] || 0}", "ng-change" => "calculateScore()", "ng-init" => "quantifier = #{metrics[metric_index].metric_options.first[:points]}"} -%>
+					<% end -%>
+					
+					<%- end -%> <!-- CASE END -->
 				</div>
 				<div class="col-md-3 col-sm-12 col-xs-12">
 					Base: {{computedBaseScore}} <br/>
@@ -218,27 +218,27 @@
 			switch($scope.comparisonType)
 			{
 				case 'radio':
-					switch($scope.metricScoreType)
-					{
-						case 'base':
-							baseScore = parseInt($scope.score);
-							break;
-						case 'loss':
-							lossScore = parseInt($scope.score);
-							break;
-						case 'bonus':
-							bonusScore = parseInt($scope.score);
-							break;
-					}
-
+				switch($scope.metricScoreType)
+				{
+					case 'base':
+					baseScore = parseInt($scope.score);
 					break;
+					case 'loss':
+					lossScore = parseInt($scope.score);
+					break;
+					case 'bonus':
+					bonusScore = parseInt($scope.score);
+					break;
+				}
+
+				break;
 				case 'text_compare':
-					if($scope.entry_values.length < 2) return 0;
-					var maxWeightIndex = $scope.entry_value_weights.indexOf(Math.max.apply(Math, $scope.entry_value_weights));
-					var maxValueIndex = $scope.entry_values.indexOf(Math.max.apply(Math, $scope.entry_values));
-					var compareValue = parseInt($scope.entry_values[maxWeightIndex]);
-					var targetValue = parseInt($scope.entry_values[maxValueIndex]);
-					
+				if($scope.entry_values.length < 2) return 0;
+				var maxWeightIndex = $scope.entry_value_weights.indexOf(Math.max.apply(Math, $scope.entry_value_weights));
+				var maxValueIndex = $scope.entry_values.indexOf(Math.max.apply(Math, $scope.entry_values));
+				var compareValue = parseInt($scope.entry_values[maxWeightIndex]);
+				var targetValue = parseInt($scope.entry_values[maxValueIndex]);
+				
 					// The indexes between the three arrays are synchronised at initialisation
 					// So if the index of the max value in the entry_values array matches the
 					// index of the max weight then entry_value_weights array then the correct
@@ -250,7 +250,7 @@
 						baseScore = $scope.entry_value_scores[maxWeightIndex];
 					
 					break;
-				case 'custom_shelves':
+					case 'custom_shelves':
 					// If full door is selected then no need to do any computation
 					if( $scope.entry_values.length == 7 && $scope.entry_values[6] == 1 )
 					{
@@ -259,7 +259,7 @@
 						lossScore = 0;
 						// Clear all other shelves if full door is selected
 						for( i = 0; i < 6 ; i++) $scope.entry_values[i] = null;
-						break;
+							break;
 					}
 					
 					// If full door is not selected then compute necessary values
@@ -274,18 +274,18 @@
 						var score = $scope.entry_value_scores[i] * $scope.entry_value_weights[i];
 						switch($scope.entry_value_scoreTypes[i]){
 							case 'base':
-								baseScore += score;
-								break;
+							baseScore += score;
+							break;
 							case 'loss':
-								lossScore += score;
-								break;		
+							lossScore += score;
+							break;		
 							case 'bonus':
-								bonusScore += score;
-								break;		
+							bonusScore += score;
+							break;		
 						}
 					}
 					break;
-				case 'computed':
+					case 'computed':
 					if( typeof $scope.quantifier === 'undefined') break;
 					var score = $scope.entry_value * parseFloat($scope.quantifier);
 
@@ -295,19 +295,19 @@
 						baseScore = score;
 
 					break;
+				}
+				
+				$scope.computedBaseScore = Math.round(baseScore);
+				$scope.computedLossScore = Math.round(lossScore);
+				$scope.computedBonusScore = Math.round(bonusScore);
+				
+				totalScore.addScore( $scope.metricIndex, $scope.computedBaseScore, $scope.computedLossScore, $scope.computedBonusScore);
+				
+				return;
 			}
 			
-			$scope.computedBaseScore = Math.round(baseScore);
-			$scope.computedLossScore = Math.round(lossScore);
-			$scope.computedBonusScore = Math.round(bonusScore);
-			
-			totalScore.addScore( $scope.metricIndex, $scope.computedBaseScore, $scope.computedLossScore, $scope.computedBonusScore);
-			
-			return;
-		}
-				
-	}]);
+		}]);
 
 </script>
-	
+
 <%- end -%>
