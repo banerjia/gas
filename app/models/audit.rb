@@ -1,35 +1,41 @@
 class Audit < ActiveRecord::Base
   include AuditSearchable
   include AuditImport
-  
-  attr_accessor :comments
 	
 	belongs_to :store, counter_cache: true
 	
 	has_many :audit_metrics
   has_many :audit_metric_responses
-	has_many :audit_journal
   has_many :images, as: :imageable
+  has_many :comments, as: :commentable
   
   has_and_belongs_to_many :metrics, :join_table => :audit_metrics
   
-  belongs_to :person
-	
+  belongs_to :person	
 	
 	accepts_nested_attributes_for :audit_metrics, allow_destroy: true, \
                                 reject_if: Proc.new { |sm| sm[:point_value].blank? }
-  accepts_nested_attributes_for :audit_journal, allow_destroy: true, \
-                                reject_if: Proc.new { |entry| entry[:text].blank? }
+  accepts_nested_attributes_for :comments, allow_destroy: true, \
+                                reject_if: Proc.new { |entry| entry[:content].blank? }
                                 
                                 
   accepts_nested_attributes_for :store, allow_destroy: false
 
   # Commented while testing
-	#validates_presence_of :comments , unless: proc{ |audit| audit.total_score > 9 }
+	validates_presence_of :audit_comment , unless: proc{ |audit| audit.total_score > 9 }
   
   # Callbacks
   after_commit do
     store.__elasticsearch__.index_document
+  end
+
+  # Getter and Setter methods
+  def audit_comment
+    comments.order({created_at: :desc}).first || comments.first || ''
+  end
+
+  def audit_comment=(value)
+    comments.build({content: value})
   end
   
   # Post Rails 4 Upgrade Methods
@@ -37,7 +43,9 @@ class Audit < ActiveRecord::Base
   def total_score
     self[:base] - self[:loss] + self[:bonus]
   end
+
   
+  # ElasticSearch Indexing Support Functions
   def score
     { base: self[:base], loss: self[:loss], bonus: self[:bonus], total: self.total_score}
   end
