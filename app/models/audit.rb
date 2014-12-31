@@ -22,7 +22,7 @@ class Audit < ActiveRecord::Base
   accepts_nested_attributes_for :store, allow_destroy: false
 
   # Commented while testing
-	validates_presence_of :audit_comment , unless: proc{ |audit| audit.total_score > 9 }
+	# validates_presence_of :audit_comment #, unless: proc{ |audit| audit.total_score > 9 }
   
   # Callbacks
   after_commit do
@@ -35,7 +35,7 @@ class Audit < ActiveRecord::Base
   end
 
   def audit_comment=(value)
-    comments.build({content: value})
+    comments.build({content: value}) unless value.nil? || value.empty? 
   end
   
   # Post Rails 4 Upgrade Methods

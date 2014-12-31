@@ -32,10 +32,10 @@ class AuditsController < ApplicationController
 	end
 	
 	def create    
-		audit = Audit.new( audit_params )
-		if audit.save
+		audit = Audit.create( audit_params )
+		if audit.valid?
 			flash[:notice] = 'New audit recorded'
-			redirect_to store_path(store)
+			redirect_to store_path(audit[:store_id])
 		else
 			flash[:warning] = 'Error processing audit'
 			metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
@@ -59,7 +59,7 @@ class AuditsController < ApplicationController
 			end
 			new_audit.store[:store_number] = audit_params[:store_attributes][:store_number]
 			
-			render :new, locals: { audit: new_audit, metrics: metrics_to_use}
+			render :new, locals: { audit: new_audit, metrics: metrics_to_use, audit_errors: audit}
 		end
 	end
 
@@ -99,6 +99,6 @@ class AuditsController < ApplicationController
 	private
 	
 	def audit_params
-		params.require(:audit).permit(:base, :loss, :bonus, :person_id, :store_id, :audit_comment, audit_metrics_attributes: [:metric_id, :score_type, :score, :needs_resolution, audit_metric_responses_attributes: [:metric_option_id,:selected, :entry_value]], store_attributes: [:store_number])
+		params.require(:audit).permit(:base, :loss, :bonus, :person_id, :store_id, :audit_comment, audit_metrics_attributes: [:metric_id, :score_type, :score, :needs_resolution, audit_metric_responses_attributes: [:metric_option_id,:selected, :entry_value]], store_attributes: [:id, :store_number])
 	end
 end

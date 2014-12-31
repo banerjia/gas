@@ -1,3 +1,14 @@
+<%- if defined?audit_errors -%>
+<div id="error_explanation">
+	<h2><%= pluralize(audit_errors.errors.count, "error") %> prohibited this store from being saved:</h2>
+	<ul>
+		<% audit_errors.errors.full_messages.each do |msg| %>
+		<li><%= msg %></li>
+		<% end %>
+	</ul>
+</div>
+<% end -%>
+
 <%= form_for audit do |f| -%>
 <div class="hidden">
 	<%= f.hidden_field :base -%>
@@ -10,7 +21,7 @@
 <div class="container" data-ng-app="audit">
 	<div class="row">	
 		<div class="col-md-3 col-sm-12 col-xs-12">
-			<%= f.fields_for :store, include_id: false do |sf| -%>
+			<%= f.fields_for :store do |sf| -%>
 			<%= sf.object.full_name -%>
 			<address><%= sf.object.address -%></address>
 			<%= sf.label :store_number -%>
