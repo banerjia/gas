@@ -30,112 +30,169 @@
 		</div>
 		<div class="col-md-9 col-sm-12 col-xs-12 container" data-ng-controller="AuditController">
 			<div class="row">
-				<div class="col-md-4 col-sm-12 col-xs-12">
-					<div class="row">
-						<div class="col-md-12 col-sm-12 col-xs-12">Base</div>
-					</div>
-					<div class="row">
-						<div class="col-md-12 col-sm-12 col-xs-12">{{baseScore}}</div>
-					</div>
+				<div class="col-md-3 col-sm-3 col-xs-3 panel panel-default" style="padding:0">
+					<div class="panel-heading">Base</div>
+					<div class="panel-body">{{baseScore}}</div>
 				</div>
-				<div class="col-md-4 col-sm-12 col-xs-12">
-					<div class="row">
-						<div class="col-md-12 col-sm-12 col-xs-12">Loss</div>
-					</div>
-					<div class="row">
-						<div class="col-md-12 col-sm-12 col-xs-12">{{Math.abs(lossScore)}}</div>
-					</div>
+				<div class="col-md-3 col-sm-3 col-xs-3 panel panel-default" style="padding:0">
+					<div class="panel-heading">Loss</div>
+					<div class="panel-body">{{lossScore}}</div>
 				</div>
-				<div class="col-md-4 col-sm-12 col-xs-12">
-					<div class="row">
-						<div class="col-md-12 col-sm-12 col-xs-12">Bonus</div>
-					</div>
-					<div class="row">
-						<div class="col-md-12 col-sm-12 col-xs-12">{{bonusScore}}</div>
-					</div>
+				<div class="col-md-3 col-sm-3 col-xs-3 panel panel-default" style="padding:0">
+					<div class="panel-heading">Bonus</div>
+					<div class="panel-body">{{bonusScore}}</div>
+				</div>
+				<div class="col-md-3 col-sm-3 col-xs-3 panel panel-primary" style="padding:0">
+					<div class="panel-heading"><strong>Total</strong></div>
+					<div class="panel-body">{{baseScore + lossScore + bonusScore}}</div>
 				</div>
 			</div>
 			<%- metric_index = 0 -%>
 			<%= f.fields_for :audit_metrics do |a_m| -%>
-			<div class="row" data-ng-controller="AuditMetricController" data-ng-init="init('<%= metrics[metric_index][:response_type] -%>', '<%= metrics[metric_index][:score_type] -%>', <%= a_m.object_name.gsub(/[^0-9]+/,'') -%>)">
-				<div class="col-md-5 col-sm-12 col-xs-12">
-					<p><%= metrics[metric_index][:title].html_safe -%></p>
-					<%- if !metrics[metric_index][:description].blank? -%>
-					<p><%= metrics[metric_index][:description].html_safe -%></p>
-					<%- end -%>
-				</div>
-				<div class="col-md-4 col-sm-12 col-xs-12">
-					<%= a_m.hidden_field :metric_id -%>
-					<%= a_m.hidden_field :score_type, value: metrics[metric_index][:score_type] -%>
-					<%- case metrics[metric_index][:response_type] -%>
-					<%- when 'radio' -%>
-					<%- metric_option_index = 0 -%>
-					<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
-					<%= a_m.radio_button :score, metrics[metric_index].metric_options[metric_option_index][:points], data: {"ng-model" => "score", "ng-init" => "score = #{a_m.object[:score]}", "ng-change" => "calculateScore()"} -%>
-					<%= a_m.label :score,  metrics[metric_index].metric_options[metric_option_index][:label], value: metrics[metric_index].metric_options[metric_option_index][:points] -%>
-					<%-  metric_option_index = metric_option_index + 1 -%>
-					<%- end -%>
-					<%- when 'text_compare' -%>
-					<%= a_m.hidden_field :score, data: {"ng-value" => "computedScore"} -%>
-					<%- metric_option_index = 0 -%>
-					<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
-					<%= a_m_r.label :entry_value, metrics[metric_index].metric_options[metric_option_index][:label] -%>
-					<%= a_m_r.text_field :entry_value, type: 'number', min: 0,class: "form-controls input-sm", data: { "ng-model" => "entry_values[#{metric_option_index}]", "ng-change" => "calculateScore()", "ng-init" => "entry_values[#{metric_option_index}] = #{a_m_r.object[:entry_value] || 0}; entry_value_weights[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:weight]}; entry_value_scores[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:points]}"} -%>
-					<%= a_m_r.hidden_field :metric_option_id -%>	
-					<%- metric_option_index = metric_option_index + 1 -%>								
-					<%- end -%>
-					<%- when 'textarea' -%>
-					<%= a_m.text_area :comment -%>
-					<%- when 'custom_shelves' -%>
-					<%- metric_option_index = 0 -%>
-					<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
-					<div style="display:block">
-						<%= a_m_r.check_box :selected, data:{ 
-							"ng-model" => "entry_values[#{metric_option_index}]", 
-							"ng-change" => "calculateScore()",
-							"ng-init" =>  
-							"entry_values[#{metric_option_index}] = #{a_m_r.object[:selected] || false};
-							entry_value_scoreTypes[#{metric_option_index}] = '#{ metrics[metric_index].metric_options[metric_option_index][:isBonus] ? 'bonus': ( metrics[metric_index].metric_options[metric_option_index][:points] < 0 ? 'loss' : 'base' ) }';
-							entry_value_scores[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:points]}; 
-							entry_value_weights[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:weight]}"										
-						}, checked: false -%>
-						<%= a_m_r.hidden_field :metric_option_id -%>
-						<%= a_m_r.label :selected, metrics[metric_index].metric_options[metric_option_index][:label] -%>
+			<div class="row" data-ng-controller="AuditMetricController" data-ng-init="init('<%= metrics[metric_index][:response_type] -%>', '<%= metrics[metric_index][:score_type] -%>', <%= metric_index -%>)">
+				<div class="panel panel-default">
+					<div class="panel-heading"><strong><%= metrics[metric_index][:title].html_safe -%></strong></div>
+					<div class="panel-body">
+				<%- if metrics[metric_index][:response_type] == 'textarea' -%>
+					<div class="col-md-12 col-sm-12 col-xs-12">
+						<%- if !metrics[metric_index][:description].blank? -%>
+							<p><%= metrics[metric_index][:description].html_safe -%></p>
+						<%- end -%>						
 					</div>
-					<%- metric_option_index = metric_option_index + 1 -%>	
-					<%- end -%>						
-					<%- when 'computed' -%>
-					<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
-					<%= a_m_r.hidden_field :metric_option_id -%>
-					<%= a_m_r.text_field :entry_value, type: 'number', min: 0, class: "form-controls input-sm", data: {"ng-model" => "entry_value", "ng-init" => "entry_value = #{a_m_r.object[:entry_value] || 0}", "ng-change" => "calculateScore()", "ng-init" => "quantifier = #{metrics[metric_index].metric_options.first[:points]}"} -%>
-					<% end -%>
-					
-					<%- end -%> <!-- CASE END -->
-				</div>
-				<div class="col-md-3 col-sm-12 col-xs-12">
-					Base: {{computedBaseScore}} <br/>
-					Bonus: {{computedBonusScore}} <br/>
-					Loss: {{computedLossScore}}<br/>
-					<span data-ng-show="computedLossScore < 0" class="ng-hide">
-						<%= a_m.check_box :needs_resolution -%>
-						<%= a_m.label :needs_resolution, "This issue has been resolved" -%>
-					</span>
+					<div class="col-md-10 col-sm-12 col-xs-12">
+						<%=	a_m.fields_for :audit_metric_responses do |a_m_r| -%>
+							<%= a_m_r.hidden_field :selected, value: 1 -%>
+							<%= a_m_r.text_area :entry_value, data: {"ng-model" => "entry_value", "ng-init" => "entry_value='#{a_m_r.object[:entry_value]}'"}, cols: 80, rows: 5, class: "form-control" -%>
+						<% end -%>
+					</div>
+				<%- else -%>
+					<div class="col-md-9 col-sm-12 col-xs-12">
+						<div class="row">
+							<%- if !metrics[metric_index][:description].blank? -%>
+								<p><%= metrics[metric_index][:description].html_safe -%></p>
+							<%- end -%>	
+							<div style="display:none">
+								<%= a_m.hidden_field :metric_id -%>
+								<%= a_m.hidden_field :score_type, value: metrics[metric_index][:score_type] -%>
+							</div>
+						</div>
+						<div class="row">
+							<%- case metrics[metric_index][:response_type] -%>
+								<%- when 'radio' -%>
+									<%- metric_option_index = 0 -%>																		
+									<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
+										<div class="col-md-4 col-sm-12 col-xs-12">
+											<div class="input-group">
+												<span class="input-group-addon">
+													<%= a_m.radio_button :score, metrics[metric_index].metric_options[metric_option_index][:points], data: {"ng-model" => "score", "ng-init" => "score = #{a_m.object[:score]}", "ng-change" => "calculateScore()"} -%>
+												</span>
+												<%= a_m.label :score, metrics[metric_index].metric_options[metric_option_index][:label], value: metrics[metric_index].metric_options[metric_option_index][:points], class: "form-control" -%>
+											</div>
+											<%-  metric_option_index = metric_option_index + 1 -%>
+										</div>
+									<%- end -%>
+								<%- when 'text_compare' -%>
+									<%= a_m.hidden_field :score, data: {"ng-value" => "computedScore"} -%>
+									<%- metric_option_index = 0 -%>
+									<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
+										<div class="col-md-4 col-sm-12 col-xs-12">
+											<%= a_m_r.label :entry_value, metrics[metric_index].metric_options[metric_option_index][:label] -%>
+											<%= a_m_r.text_field :entry_value, type: 'number', min: 0,class: "form-control input-sm", data: { "ng-model" => "entry_values[#{metric_option_index}]", "ng-change" => "calculateScore()", "ng-init" => "entry_values[#{metric_option_index}] = #{a_m_r.object[:entry_value] || 0}; entry_value_weights[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:weight]}; entry_value_scores[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:points]}"} -%>
+											<%= a_m_r.hidden_field :metric_option_id -%>	
+										</div>
+										<%- metric_option_index = metric_option_index + 1 -%>								
+									<%- end -%>
+								<%- when 'custom_shelves' -%>
+									<%- metric_option_index = 0 -%>
+									<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
+									<div class="col-md-4 col-sm-8 col-xs-8">
+										<div class="input-group">
+											<span class="input-group-addon">
+												<%= a_m_r.check_box :selected, data:{ 
+													"ng-model" => "entry_values[#{metric_option_index}]", 
+													"ng-change" => "calculateScore()",
+													"ng-init" =>  
+													"entry_values[#{metric_option_index}] = #{a_m_r.object[:selected] || false};
+													entry_value_scoreTypes[#{metric_option_index}] = '#{ metrics[metric_index].metric_options[metric_option_index][:isBonus] ? 'bonus': ( metrics[metric_index].metric_options[metric_option_index][:points] < 0 ? 'loss' : 'base' ) }';
+													entry_value_scores[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:points]}; 
+													entry_value_weights[#{metric_option_index}] = #{metrics[metric_index].metric_options[metric_option_index][:weight]}"										
+												}-%>
+											</span>
+											<%= a_m_r.label :selected, metrics[metric_index].metric_options[metric_option_index][:label], class: "form-control input-sm" -%>
+										</div>
+									</div>
+									<div style="display:block">
+										<%= a_m_r.hidden_field :metric_option_id -%>
+									</div>
+									<%- metric_option_index = metric_option_index + 1 -%>	
+									<%- end -%>	
+								<%- when 'computed' -%>
+									<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
+										<%= a_m_r.hidden_field :metric_option_id -%>
+										<%= a_m_r.text_field :entry_value, type: 'number', min: 0, class: "form-control input-sm", data: {"ng-model" => "entry_value", "ng-init" => "entry_value = #{a_m_r.object[:entry_value] || 0}", "ng-change" => "calculateScore()", "ng-init" => "quantifier = #{metrics[metric_index].metric_options.first[:points]}"} -%>
+									<% end -%>
+
+
+							<%- end -%> <!-- CASE END -->
+						</div> 
+						<div class="row">
+							<span data-ng-show="computedLossScore < 0" class="ng-hide">
+								<%= a_m.check_box :needs_resolution -%>
+								<%= a_m.label :needs_resolution, "This issue has been resolved" -%>
+							</span>
+						</div>
+					</div>
+					<div class="col-md-3 col-sm-12 col-xs-12">
+						<ul class="list-group">
+							<li class="list-group-item">
+								<div class="row">
+								<div class="col-md-4 col-sm-4 col-xs-4">Base</div>
+								<div class="col-md-8 col-sm-8 col-xs-8">{{computedBaseScore}}</div>
+								</div>
+							</li>
+							<li class="list-group-item">
+								<div class="row">
+								<div class="col-md-4 col-sm-4 col-xs-4">Loss</div>
+								<div class="col-md-8 col-sm-8 col-xs-8">{{computedLossScore}}</div>
+								</div>
+							</li>
+							<li class="list-group-item">
+								<div class="row">
+								<div class="col-md-4 col-sm-4 col-xs-4">Bonus</div>
+								<div class="col-md-8 col-sm-8 col-xs-8">{{computedBonusScore}} </div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				<% end -%>
+					</div>
 				</div>
 			</div>
 			
 			<%- metric_index = metric_index + 1 -%>
 			<%- end -%>
-
 			<div class="row">
-				<div class="col-md-12 col-sm-12 col-xs-12">
-					<%= f.label :audit_comment, "Comments" -%>
-					<%= f.text_area :audit_comment -%>
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<%= f.label :audit_comment, "Comments" -%>
+					</div>
+					<div class="panel-body">
+						<%= f.text_area :audit_comment, class: "form-control", cols: 80, rows: 5 -%>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
 <%- end -%>
+
+<%- content_for :head do -%>
+	<style type="text/css">
+	div.panel {
+	  border-radius(0) !important;
+	}
+	</style>
+<% end -%>
 
 <%- content_for :page_js do -%>
 <%= javascript_include_tag "angular.min.js" %>

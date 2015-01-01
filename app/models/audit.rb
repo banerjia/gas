@@ -13,16 +13,14 @@ class Audit < ActiveRecord::Base
   
   belongs_to :person	
 	
-	accepts_nested_attributes_for :audit_metrics, allow_destroy: true, \
-                                reject_if: Proc.new { |sm| sm[:point_value].blank? }
-  accepts_nested_attributes_for :comments, allow_destroy: true, \
-                                reject_if: Proc.new { |entry| entry[:content].blank? }
+	accepts_nested_attributes_for :audit_metrics, allow_destroy: true, reject_if: Proc.new { |sm| sm[:score].blank? }
+  accepts_nested_attributes_for :comments, allow_destroy: true
                                 
                                 
   accepts_nested_attributes_for :store, allow_destroy: false
 
   # Commented while testing
-	# validates_presence_of :audit_comment #, unless: proc{ |audit| audit.total_score > 9 }
+	validates_presence_of :audit_comment, unless: proc{ |audit| audit.total_score > 9 }
   
   # Callbacks
   after_commit do
@@ -62,7 +60,7 @@ class Audit < ActiveRecord::Base
   end
   
   def self.index_refresh
-    Audit.__elasticsearch__.client.indices.delete index: Audit.index_name rescue nil
+    # Audit.__elasticsearch__.client.indices.delete index: Audit.index_name rescue nil
     Audit.__elasticsearch__.client.indices.create index: Audit.index_name, body: { settings: Audit.settings.to_hash, mappings: Audit.mappings.to_hash}
     Audit.import
   end

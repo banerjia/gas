@@ -5,6 +5,8 @@ class MetricFinalRefinements < ActiveRecord::Migration
   	reversible do |dir|
   		dir.up do 
   			change_column :audit_metric_responses, :selected, :boolean, null: true, default: nil
+        change_column :audit_metric_responses, :entry_value, :string, limit: 1024, null: false, default: nil
+
   			execute <<-SQL 
   				ALTER TABLE `metrics`
   					MODIFY COLUMN `metric_options_count` tinyint unsigned not null default 0,
@@ -19,6 +21,8 @@ class MetricFinalRefinements < ActiveRecord::Migration
 
   		dir.down do
   			change_column :audit_metric_responses, :selected, :boolean, null: false, default: true
+        change_column :audit_metric_responses, :entry_value, :string, limit: 255, null: false, default: nil
+        
   			execute <<-SQL 
   				ALTER TABLE `metrics`
   					MODIFY COLUMN `display_order` smallint unsigned not null default 1
