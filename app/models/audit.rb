@@ -1,7 +1,12 @@
 class Audit < ActiveRecord::Base
   include AuditSearchable
   include AuditImport
+
+  # Model Virtual Attributes
+
+  attr_accessor :image_upload
 	
+  # Associations
 	belongs_to :store, counter_cache: true
 	
 	has_many :audit_metrics
@@ -19,7 +24,7 @@ class Audit < ActiveRecord::Base
                                 
   accepts_nested_attributes_for :store, allow_destroy: false
 
-  # Commented while testing
+  # Validations
 	validates_presence_of :audit_comment, unless: proc{ |audit| audit.total_score > 9 }
   
   # Callbacks
@@ -42,11 +47,11 @@ class Audit < ActiveRecord::Base
     self[:base] - self[:loss] + self[:bonus]
   end
 
-  
-  # ElasticSearch Indexing Support Functions
   def score
     { base: self[:base], loss: self[:loss], bonus: self[:bonus], total: self.total_score}
   end
+
+  # ElasticSearch Indexing Support Functions
 
   def as_indexed_json(options={})
     self.as_json({

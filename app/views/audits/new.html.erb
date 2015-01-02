@@ -18,22 +18,14 @@
 	<%= f.hidden_field :store_id -%>
 </div>
 <%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary" -%>
-<div class="container" data-ng-app="audit">
-	<div class="row well">	
+<div class="container" id="auditEntryForm" data-ng-app="audit">
+	<div class="row well well-sm">	
 		<%= f.fields_for :store do |sf| -%>
 		<span style="text-transform:uppercase"><%= sf.object.full_name -%></span>
 		<address><%= sf.object.address -%></address>
 		<%= sf.label :store_number -%>
-		<%= sf.text_field :store_number, class: "input-sm" -%>
+		<%= sf.text_field :store_number, class: "form-control" -%>
 		<%- end -%>
-	</div>
-	<div class="row" style="margin-bottom: 0.3em; margin-top: 0.3em" data-ng-controller="AuditController">
-		<div class="col-md-2 col-sm-4 col-xs-4" style="background-color: #CCC; border: 1px solid #BBB">Base</div>
-		<div class="col-md-2 col-sm-8 col-xs-8" style="border: 1px solid #BBB;border-left: none">{{baseScore}}</div>
-		<div class="col-md-2 col-sm-4 col-xs-4" style="background-color: #CCC; border-right: 1px solid #BBB">Loss</div>
-		<div class="col-md-2 col-sm-8 col-xs-8" style="border: 1px solid #BBB;border-left: none">{{lossScore}}</div>
-		<div class="col-md-2 col-sm-4 col-xs-4" style="background-color: #CCC; border-right: 1px solid #BBB">Bonus</div>
-		<div class="col-md-2 col-sm-8 col-xs-8" style="border: 1px solid #BBB;border-left: none">{{bonusScore}}</div>
 	</div>
 	<%- metric_index = 0 -%>
 	<%= f.fields_for :audit_metrics do |a_m| -%>
@@ -42,10 +34,10 @@
 			<div class="panel-heading">
 				<div class="row">
 					<div class="col-md-10 col-sm-10 col-xs-10"><strong><%= metrics[metric_index][:title].html_safe -%></strong></div>
-					<div class="col-md-2 col-sm-2 col-xs-2 text-right">
-						<span class="label label-primary" data-ng-show="computedBaseScore > 0">{{computedBaseScore}}</span>
-						<span class="label label-danger" data-ng-show="computedLossScore < 0">{{computedLossScore}}</span>
-						<span class="label label-success" data-ng-show="computedBonusScore > 0">{{computedBonusScore}}</span>
+					<div class="col-md-2 col-sm-2 col-xs-2 text-right ng-cloak">
+						<span class="label label-success" data-ng-show="computedBaseScore > 0">{{computedBaseScore}}</span>
+						<span class="label label-danger" data-ng-show="computedLossScore < 0">{{computedLossScore * -1}}</span>
+						<span class="label label-primary" data-ng-show="computedBonusScore > 0">{{computedBonusScore}}</span>
 					</div>
 				</div>
 			</div>
@@ -102,7 +94,7 @@
 								<%- when 'custom_shelves' -%>
 								<%- metric_option_index = 0 -%>
 								<%= a_m.fields_for :audit_metric_responses do |a_m_r| -%>
-								<div class="col-md-4 col-sm-6 col-xs-6 text-nowrap">
+								<div class="col-md-4 col-sm-12 col-xs-12 text-nowrap">
 									<div class="input-group">
 										<span class="input-group-addon">
 											<%= a_m_r.check_box :selected, data:{ 
@@ -118,7 +110,7 @@
 										<%= a_m_r.label :selected, metrics[metric_index].metric_options[metric_option_index][:label], class: "form-control input-sm" -%>
 									</div>
 								</div>
-								<div style="display:block">
+								<div style="display:none">
 									<%= a_m_r.hidden_field :metric_option_id -%>
 								</div>
 								<%- metric_option_index = metric_option_index + 1 -%>	
@@ -132,13 +124,13 @@
 
 								<%- end -%> <!-- CASE END -->
 							</div>
+							<div class="row">
+								<p data-ng-show="computedLossScore < 0" class="ng-hide checkbox-inline ng-cloak">
+									<%= a_m.check_box :needs_resolution -%>
+									<%= a_m.label :needs_resolution, "This issue has been resolved" -%>
+								</p>
+							</div>
 						</div> 
-						<div class="row">
-							<span data-ng-show="computedLossScore < 0" class="ng-hide">
-								<%= a_m.check_box :needs_resolution -%>
-								<%= a_m.label :needs_resolution, "This issue has been resolved" -%>
-							</span>
-						</div>
 					</div>
 					<%- end -%>
 				</div>
@@ -148,13 +140,48 @@
 
 	<%- metric_index = metric_index + 1 -%>
 	<%- end -%>
-	<div class="row">
-		<div class="panel panel-primary">
-			<div class="panel-heading">
-				<%= f.label :audit_comment, "Comments" -%>
+
+	<div class="row" style="padding:0" data-ng-controller="AuditController">
+		<div class="col-md-3 col-md-push-9 col-sm-12 col-xs-12" style="padding:0">
+			<div class="panel panel-primary">
+				<div class="panel-heading">Score</div>
+				<div class="panel-body">
+					<ul class="list-group ng-cloak">
+						<li class="list-group-item primary"><span>Base</span><span class="pull-right">{{baseScore}}</span></li>
+						<li class="list-group-item danger"><spa>Loss</span><span class="pull-right">{{lossScore}}</span></li>
+						<li class="list-group-item success"><span>Bonus</span><span class="pull-right">{{bonusScore}}</span></li>
+						<li class="list-group-item"><strong><span>Total</span><span class="pull-right">{{baseScore + lossScore + bonusScore}}</span></strong></li>
+					</ul>					
+				</div>
 			</div>
-			<div class="panel-body">
-				<%= f.text_area :audit_comment, class: "form-control", cols: 80, rows: 5 -%>
+		</div>
+		<div class="col-md-8 col-md-pull-3 col-sm-12 col-xs-12" style="padding: 0">
+			<div class="panel panel-default">
+				<div class="panel-heading"><%= f.label :audit_comment, "Comments" -%></div>
+				<div class="panel-body">
+					<p>[Some description of how scoring is related to comments]</p>
+					<%= f.text_area :audit_comment, class: "form-control", cols: 80, rows: 5 -%>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row ng-cloak">
+		<div class="panel panel-default">
+			<div class="panel-heading">Add Images</div>
+			<div class="panel-body" data-ng-controller="AuditImageController">
+				<div class="form-group">
+				  <label>Auto upload</label>
+				  <div s3-upload bucket="'graetersuploads'" ng-model="files.first" s3-upload-options="{getOptionsUri: '<%= api_v1_s3_access_token_path('graetersuploads') -%>'}"></div>
+				</div>
+
+				<div class="form-group">
+				  <label>Upload on demand</label>
+				  <div s3-upload bucket="'graetersuploads'" ng-model="files.first" s3-upload-options="{submitOnChange: false, getOptionsUri: '<%= api_v1_s3_access_token_path('graetersuploads') -%>'}" do-upload="performUpload"></div>
+
+				  <br/>
+				  <button class="btn btn-default" ng-click="performUpload = true">Upload now</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -169,23 +196,26 @@
 		border-radius: 2px !important;
 	}
 
-	div#finalScore * {
-		-webkit-border-radius: 0 !important;
-		-moz-border-radius: 0 !important;
-		border-radius: 0 !important;		
-	}
-
 	input.form-control{
 		width: 7em;
+	}
+	input[type=checkbox] + label {font-weight: normal;}
+	.ng-cloak {
+		display: none !important;
 	}
 </style>
 <% end -%>
 
 <%- content_for :page_js do -%>
-<%= javascript_include_tag "angular.min.js" %>
+<%= javascript_include_tag "angular.min.js" -%>
+<%= javascript_include_tag "angular-sanitize.min.js" -%>
+<%= javascript_include_tag "ng-s3upload.js" -%>
 <script type="text/javascript">
 
-	angular.module('audit',[])
+	angular.module('audit',["ngSanitize", "ngS3upload"])
+	.config(function(ngS3Config) {
+		ngS3Config.theme = 'bootstrap3';
+	})
 	.factory( "totalScore", ['$rootScope', function($rootScope){
 		var metrics = [];		
 		var finalScore = {
@@ -245,6 +275,12 @@
 			$scope.lossScore = auditScore.loss;
 			$scope.bonusScore = auditScore.bonus;
 		})
+	}])
+	.controller('AuditImageController', ['$scope', function($scope){
+		$scope.files = {
+		};
+
+		$scope.performUpload = false;
 	}])
 	.controller('AuditMetricController', ['$scope', 'totalScore', function($scope, totalScore) {
 		$scope.comparisonType = null;

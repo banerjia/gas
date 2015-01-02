@@ -32,9 +32,12 @@ class AuditsController < ApplicationController
 	end
 	
 	def create    
-		audit = Audit.create( audit_params )
-		if audit.valid?
-			flash[:notice] = 'New audit recorded'
+		audit = Audit.new( audit_params )
+
+		audit.save! #unless audit.total_score == 0
+
+		if audit.total_score == 0 || audit.valid?
+			flash[:notice] = audit.total_score == 0 ? 'Empty audits was not saved' : 'New audit recorded'
 			redirect_to store_path(audit[:store_id])
 		else
 			flash[:warning] = 'Error processing audit'
@@ -99,6 +102,6 @@ class AuditsController < ApplicationController
 	private
 	
 	def audit_params
-		params.require(:audit).permit(:base, :loss, :bonus, :person_id, :store_id, :audit_comment, audit_metrics_attributes: [:metric_id, :score_type, :score, :needs_resolution, audit_metric_responses_attributes: [:metric_option_id,:selected, :entry_value]], store_attributes: [:id, :store_number])
+		params.require(:audit).permit(:base, :loss, :bonus, :person_id, :store_id, :audit_comment, :image_upload, audit_metrics_attributes: [:metric_id, :score_type, :score, :needs_resolution, audit_metric_responses_attributes: [:metric_option_id,:selected, :entry_value]], store_attributes: [:id, :store_number])
 	end
 end
