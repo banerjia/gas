@@ -24,8 +24,7 @@ module Api
 			          [ "starts-with", "$key", "" ],
 			          { "acl" => "public-read" },
 			          [ "starts-with", "$Content-Type", "image" ],
-			          [ "content-length-range", 0, 10 * 1024 * 1024 ],
-			          { "x-amz-storage-class" => "REDUCED_REDUNDANCY"}
+			          [ "content-length-range", 0, 10 * 1024 * 1024 ]
 			        ]
 			      }.to_json).gsub(/\n/,'')
 			  end
