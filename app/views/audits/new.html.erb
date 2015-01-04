@@ -166,21 +166,19 @@
 		</div>
 	</div>
 
-	<div class="row ng-cloak">
+	<div class="row ng-cloak" data-ng-show="s3_image_upload_available == true" data-ng-controller="AuditImageController">
 		<div class="panel panel-default">
-			<div class="panel-heading">Add Images</div>
-			<div class="panel-body" data-ng-controller="AuditImageController">
-				<div class="form-group">
-				  <label>Auto upload</label>
-				  <div s3-upload bucket="'graetersuploads'" ng-model="files.first" s3-upload-options="{getOptionsUri: '<%= api_v1_s3_access_token_path('graetersuploads') -%>'}"></div>
-				</div>
-
-				<div class="form-group">
-				  <label>Upload on demand</label>
-				  <div s3-upload bucket="'graetersuploads'" ng-model="files.first" s3-upload-options="{submitOnChange: false, getOptionsUri: '<%= api_v1_s3_access_token_path('graetersuploads') -%>'}" do-upload="performUpload"></div>
-
-				  <br/>
-				  <button class="btn btn-default" ng-click="performUpload = true">Upload now</button>
+			<div class="panel-heading">Attach Picture</div>
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-md-6 col-sm-12 col-xs-12">
+						<div file-upload="uploadFile(files)"></div>
+						<div id="fileUploadProgress"></div>
+					</div>
+					<div class="col-md-6 col-sm-12 col-xs-12 text-right">
+						<img data-ng-src="{{image_url}}" alt="" style="max-width: 150px; max-height: 150px"/>
+						<span>{{image_url}}</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -209,12 +207,31 @@
 <%- content_for :page_js do -%>
 <%= javascript_include_tag "angular.min.js" -%>
 <%= javascript_include_tag "angular-sanitize.min.js" -%>
-<%= javascript_include_tag "ng-s3upload.js" -%>
+<%= javascript_include_tag "s3upload.js" -%>
 <script type="text/javascript">
 
-	angular.module('audit',["ngSanitize", "ngS3upload"])
-	.config(function(ngS3Config) {
-		ngS3Config.theme = 'bootstrap3';
+	angular.module('audit',[])
+	.service( 's3', ['$http', function($http){
+		return{
+			bucket: "<%= ENV['aws_s3_bucket_upload'] -%>",
+			getSigningCredentials: function(){
+				return $http.get("<%= api_v1_s3_access_token_path( ENV['aws_s3_bucket_upload'] ) -%>");
+			}
+		}
+	}])
+	.directive('fileUpload', function() {
+	  return {
+	    restrict: 'A',
+	    scope: { fileUpload: '&' },
+	    template: '<input type="file" id="file" capture="camera" accept="image/*" /> ',
+	    replace: true,
+	    link: function(scope, ele, attrs) {
+	      ele.bind('change', function() {
+	        var file = ele[0].files;
+	        if (file) scope.fileUpload({files: file});
+	      })
+	    }
+	  }
 	})
 	.factory( "totalScore", ['$rootScope', function($rootScope){
 		var metrics = [];		
@@ -276,11 +293,41 @@
 			$scope.bonusScore = auditScore.bonus;
 		})
 	}])
-	.controller('AuditImageController', ['$scope', function($scope){
-		$scope.files = {
-		};
+	.controller('AuditImageController', ['$scope', 's3', function($scope, s3){
+		var progressElem = $("div#fileUploadProgress");
 
-		$scope.performUpload = false;
+		$scope.aws_s3_credentials = {};
+		$scope.s3_image_upload_available = true;	
+		$scope.image_url = 'http://placehold.it/150x150';
+
+		s3.getSigningCredentials().then( function( data ) {
+			$scope.aws_s3_credentials = data.data;
+		},
+		function( error ){
+			$scope.s3_image_upload_available = false;
+		});
+
+		var S3Tools = new S3ToolsClass("<%= ENV['aws_s3_bucket_upload'] -%>");
+		
+		$scope.uploadFile = function(files) {
+		  var file = files[0];
+		  S3Tools.uploadFile(file, $scope.aws_s3_credentials, handleProgress, handleSuccess, handleError);
+		}
+		
+		function handleProgress(percentComplete) {
+		  document.getElementById('fileUploadProgress').innerHTML = percentComplete.toString() + '%';
+		}
+		
+		function handleSuccess(fileName) {
+		  document.getElementById('fileUploadProgress').innerHTML = 'Done!';
+		  $scope.image_url = 'http://placehold.it/75x75';
+		  //document.getElementById('resultImage').setAttribute('src', 'https://' + bucketName + '.s3.amazonaws.com/avatar/' + fileName);
+		}
+		
+		function handleError(message) {
+		  document.getElementById('fileUploadProgress').innerHTML = 'Error: ' + message;
+		}
+
 	}])
 	.controller('AuditMetricController', ['$scope', 'totalScore', function($scope, totalScore) {
 		$scope.comparisonType = null;

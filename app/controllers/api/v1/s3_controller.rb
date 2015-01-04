@@ -20,17 +20,18 @@ module Api
 			      {
 			        "expiration" => 1.hour.from_now.utc.xmlschema,
 			        "conditions" => [ 
-			          { "bucket" =>  bucket || ENV['aws_s3_bucket'] },
+			          { "bucket" =>  bucket || ENV['aws_s3_bucket_upload'] },
 			          [ "starts-with", "$key", "" ],
 			          { "acl" => "public-read" },
 			          [ "starts-with", "$Content-Type", "image" ],
-			          [ "content-length-range", 0, 10 * 1024 * 1024 ]
+			          [ "content-length-range", 0, 10 * 1024 * 1024 ],
+			          { "x-amz-storage-class" => "REDUCED_REDUNDANCY"}
 			        ]
 			      }.to_json).gsub(/\n/,'')
 			  end
 
 			  def s3_upload_signature(bucket = nil)
-			    Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), ENV['aws_secret_access_key'], s3_upload_policy(bucket))).gsub("\n","")
+			    Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), ENV['aws_secret_access_key'], s3_upload_policy(bucket))).gsub("\n","")
 			  end
 		end
 	end
