@@ -1,10 +1,6 @@
 class Audit < ActiveRecord::Base
   include AuditSearchable
   include AuditImport
-
-  # Model Virtual Attributes
-
-  attr_accessor :image_upload
 	
   # Associations
 	belongs_to :store, counter_cache: true
@@ -39,6 +35,14 @@ class Audit < ActiveRecord::Base
 
   def audit_comment=(value)
     comments.build({content: value}) unless value.nil? || value.empty? 
+  end
+
+  def image_upload
+    images.first[:content_url] if images.present?
+  end
+
+  def image_upload=(value)
+    images.build({content_url: value}) unless value.nil? || value.empty?
   end
   
   # Post Rails 4 Upgrade Methods

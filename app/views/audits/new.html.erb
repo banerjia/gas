@@ -142,6 +142,11 @@
 	<%- end -%>
 
 	<div class="row" style="padding:0" data-ng-controller="AuditController">
+		<div style="display:none">
+			<%= f.hidden_field :base, data: { "ng-value" => "baseScore"} -%>
+			<%= f.hidden_field :loss, data: { "ng-value" => "lossScore"} -%>
+			<%= f.hidden_field :bonus, data: { "ng-value" => "bonusScore"} -%>
+		</div>
 		<div class="col-md-3 col-md-push-9 col-sm-12 col-xs-12" style="padding:0">
 			<div class="panel panel-primary">
 				<div class="panel-heading">Score</div>

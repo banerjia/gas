@@ -33,7 +33,7 @@ class AuditsController < ApplicationController
 	
 	def create    
 		audit = Audit.new( audit_params )
-
+		audit[:loss] = audit[:loss].abs
 		audit.save! #unless audit.total_score == 0
 
 		if audit.total_score == 0 || audit.valid?
@@ -102,6 +102,31 @@ class AuditsController < ApplicationController
 	private
 	
 	def audit_params
-		params.require(:audit).permit(:base, :loss, :bonus, :person_id, :store_id, :audit_comment, :image_upload, audit_metrics_attributes: [:metric_id, :score_type, :score, :needs_resolution, audit_metric_responses_attributes: [:metric_option_id,:selected, :entry_value]], store_attributes: [:id, :store_number])
+		params
+			.require(:audit)
+			.permit(
+				:base, 
+				:loss, 
+				:bonus, 
+				:person_id, 
+				:store_id, 
+				:audit_comment, 
+				:image_upload, 
+				audit_metrics_attributes: [
+					:metric_id, 
+					:score_type, 
+					:score, 
+					:needs_resolution, 
+					audit_metric_responses_attributes: [
+						:metric_option_id,
+						:selected, 
+						:entry_value
+					]
+				], 
+				store_attributes: [
+					:id, 
+					:store_number
+				]
+			)
 	end
 end
