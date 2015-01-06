@@ -28,7 +28,7 @@ class Store < ActiveRecord::Base
   
 
   # Callbacks
-  geocoded_by :address if :address_changed?
+  geocoded_by :address if :street_address_changed?
   
   after_validation :geocode
   
