@@ -5,16 +5,14 @@ class Audit < ActiveRecord::Base
   # Associations
 	belongs_to :store, counter_cache: true
 	
-	has_many :audit_metrics
-  has_many :audit_metric_responses
-  has_many :images, as: :imageable
-  has_many :comments, as: :commentable
+	has_many :audit_metrics, dependent: :delete_all
+  has_many :images, as: :imageable, dependent: :nullify
+  has_many :comments, as: :commentable, dependent: :delete_all
   
-  has_and_belongs_to_many :metrics, :join_table => :audit_metrics
   
   belongs_to :person	
 	
-	accepts_nested_attributes_for :audit_metrics, allow_destroy: true, reject_if: Proc.new { |sm| sm[:score].blank? }
+	accepts_nested_attributes_for :audit_metrics, allow_destroy: true #, reject_if: Proc.new { |sm| sm[:score].blank? }
   accepts_nested_attributes_for :comments, allow_destroy: true
                                 
                                 
@@ -26,6 +24,10 @@ class Audit < ActiveRecord::Base
   # Callbacks
   after_commit do
     store.__elasticsearch__.index_document
+  end
+
+  before_destroy do |a|
+    AuditMetricResponse.delete_all({audit_id: a[:id]})
   end
 
   # Getter and Setter methods

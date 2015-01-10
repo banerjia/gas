@@ -1,7 +1,7 @@
 class AuditMetricResponse < ActiveRecord::Base
-  
-  belongs_to :audit_metric
-  belongs_to :metric_option
-  belongs_to :audit_metrics, foreign_key: [:audit_id, :metric_id], primary_key: [:audit_id, :metric_id, :metric_option_id]
-  
+	self.primary_keys = [:audit_id, :metric_id, :metric_option_id]
+	
+	belongs_to :audit_metric, foreign_key: [:audit_id, :metric_id]
+	belongs_to :metric_option
+	
 end
