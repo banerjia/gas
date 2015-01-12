@@ -19,7 +19,6 @@ class Store < ActiveRecord::Base
 	has_one :last_audit, -> { where("status=1").order("created_at desc") }, :class_name => "Audit"
   has_one :pending_audit, -> { where "status = 0"}, :class_name => "Audit"
 
-  accepts_nested_attributes_for   :store_contacts, :allow_destroy => true, :reject_if => proc { |sc| sc[:name].blank? }
   accepts_nested_attributes_for   :region, :reject_if => proc {|r| r[:name].blank? }
   
   # Validations  
@@ -29,13 +28,9 @@ class Store < ActiveRecord::Base
   
 
   # Callbacks
-  geocoded_by :address
+  geocoded_by :address, if: :street_address_changed?
   
   after_validation :geocode
-  
-  before_save  do |store|
-    StoreContact.where(:store_id => store[:id]).destroy_all
-  end
 
   # Model Methods
   def has_pending_audit?

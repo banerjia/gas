@@ -1,5 +1,5 @@
 @import "bourbon";
-@import url(http://fonts.googleapis.com/css?family=Voces);
+@import url(http://fonts.googleapis.com/css?family=Asap:400,700);
 
 $errors_msg_shading: #FF8600;
 $wrapper-width: 1024px;
@@ -7,7 +7,8 @@ $left-column-width: 250px;
 
 @mixin overall-font{
 	font: {
-		family: 'Voces', Sans-serif;
+		family: 'Asap', sans-serif;
+		size: 13pt;
 	}
 }
 
@@ -376,7 +377,6 @@ dd {
 .error_field {
 	@extend input:text !optional;
 	@extend select;
-	border: 2px solid red;
 }
 
 .text-danger{

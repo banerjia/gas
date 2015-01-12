@@ -38,7 +38,7 @@ class StoresController < ApplicationController
 
 	def new
     new_store = nil
-		@page_title = "New Store"
+		@page_title = "Add a Store"
     
 		if params[:company_id]
 			company = Company.find( params[:company_id] )
@@ -59,9 +59,8 @@ class StoresController < ApplicationController
       flash[:message] = "New store for #{new_store.company[:name]} successfully created"
       redirect_to :action => "show", :id => new_store.id
     else
-      @page_title = "New Store"
+      @page_title = "Add a Store"
       @page_title +=" for #{Company.find(new_store[:company_id])[:name]}" unless new_store[:company_id].nil?
-      flash[:warning] = "Could not add store. Please review your entry"
       
       render :action => "new", :locals => {:store => new_store}
     end
@@ -69,7 +68,7 @@ class StoresController < ApplicationController
 
   def edit
     selected_store_id = params[:id]
-    @page_title = "Edit Store Information"
+    @page_title = "Update a Store"
 
     selected_store = Store.find( selected_store_id )
     states = State.all.select([:country, :state_code, :state_name]).order([:country,:state_name])
@@ -155,6 +154,6 @@ class StoresController < ApplicationController
 
 private
   def store_params
-    params.require(:store).permit(:company_id, :region_id, :name, :locality, :street_address, :city, :county, :state_code, :zip, :country, :store_number, :phone, :store_contacts_attributes => [:name, :title, :phone, :email], :region_attributes => [:name])
+    params.require(:store).permit(:company_id, :region_id, :name, :locality, :street_address, :city, :county, :state_code, :zip, :country, :store_number, :phone, :region_attributes => [:name])
   end
 end
