@@ -3,10 +3,15 @@ class AuditsController < ApplicationController
 		redirect_to action: :search
 	end
 	def new
-		store_id = params[:store_id] 
-		store = Store.find(store_id)
+		new_audit = Audit.new
+
+		if(params[:store_id].present?)
+			store_id = params[:store_id] 
+			store = Store.find(store_id)
+			new_audit = store.audits.build
+		end
+
 		metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
-		new_audit = store.audits.build
 		
 		# Building the entire audit_metric and audit_metric_response structure here
 		# will eliminate the need to call .build for each of the field_for associations in the 
@@ -34,10 +39,10 @@ class AuditsController < ApplicationController
 	def create    
 		audit = Audit.new( audit_params )
 		audit[:loss] = audit[:loss].abs
-		audit.save! #unless audit.total_score == 0
+		audit.save!
 
 		if audit.total_score == 0 || audit.valid?
-			flash[:notice] = audit.total_score == 0 ? 'Empty audits was not saved' : 'New audit recorded'
+			flash[:notice] = 'New audit saved'
 			redirect_to store_path(audit[:store_id])
 		else
 			flash[:warning] = 'Error processing audit'
@@ -105,6 +110,8 @@ class AuditsController < ApplicationController
 		params
 			.require(:audit)
 			.permit(
+				:id,
+				:draft,
 				:base, 
 				:loss, 
 				:bonus, 

@@ -7,6 +7,8 @@ Graeters::Application.routes.draw do
         resources :regions, only: [:index]
 
         get 's3/access_token/:bucket' => 's3#access_token', as: "s3_access_token"
+
+        get 'stores/search' => 'stores#search', as: "stores_search"
       end
     end
     constraints( id: /\d+/) do

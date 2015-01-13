@@ -9,25 +9,51 @@
 </div>
 <% end -%>
 
-<%= form_for audit do |f| -%>
-<div class="hidden">
-	<%= f.hidden_field :base -%>
-	<%= f.hidden_field :loss -%>
-	<%= f.hidden_field :bonus -%>
-	<%= f.hidden_field :person_id, value: 1 -%>
-	<%= f.hidden_field :store_id -%>
+<%= form_for audit, data: {"ng-app" => "audit"} do |f| -%>
+<div class="row" style="margin-bottom: 0.5em">
+	<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary" -%>
+	<button type="button" class="btn btn-primary">Save Draft</button>
+	<button class="btn btn-default" type="button">Cancel</button>
 </div>
-<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary" -%>
-<div class="container" id="auditEntryForm" data-ng-app="audit">
-	<div class="row well well-sm">	
-		<%= f.fields_for :store do |sf| -%>
-		<span style="text-transform:uppercase"><%= sf.object.full_name -%></span>
-		<address><%= sf.object.address -%></address>
-		<%= sf.label :store_number -%>
-		<%= sf.text_field :store_number, class: "form-control" -%>
-		<%- end -%>
+<div class="row container" id="auditEntryForm">
+	<div class="hidden">
+		<%= f.hidden_field :person_id, value: 1 -%>
+		<%= f.hidden_field :store_id -%>
+		<%= f.hidden_field :draft -%>
 	</div>
-	<%- metric_index = 0 -%>
+	<div class="row panel panel-default">	
+		<div class="panel-heading">Store Information</div>
+		<div class="panel-body">
+			<%- if f.object.store.present? -%>
+			<%= f.fields_for :store do |sf| -%>
+			<span style="text-transform:uppercase"><%= sf.object.full_name -%></span>
+			<address><%= sf.object.address -%></address>
+			<%= sf.label :store_number -%>
+			<%= sf.text_field :store_number, class: "form-control" -%>
+			<%= sf.hidden_field :id -%>
+			<%- end -%>
+			<%- else -%>
+			<div data-ng-controller="StoreSearchController" class="ng-cloak">
+				<p data-ng-show="position">{{position.coords.latitude}}, {{position.coords.longitude}}</p>
+				<table class="table" style="background-color: #fff">
+					<caption>Stores within <%= select_tag :store_range, options_for_select([0, 1, 5, 10]), data: {"ng-model" => "dist", "ng-change" => "getStores()"} -%> mile(s)</caption> 
+					<tbody>
+						<tr data-ng-repeat="store in stores">
+							<td style="width: 75%">
+								{{store.full_name}}
+								<address>{{store.address}}</address>
+							</td>
+							<td>
+								<a href="#" class="btn btn-default">Select</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<%- end -%>
+		</div>
+	</div>
+	<%-	metric_index = 0 -%>
 	<%= f.fields_for :audit_metrics do |a_m| -%>
 
 	<div style="display:none">
@@ -200,6 +226,11 @@
 		</div>
 	</div>
 </div>
+<div class="row">
+	<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary" -%>
+	<button type="button" class="btn btn-primary">Save Draft</button>
+	<button class="btn btn-default" type="button">Cancel</button>
+</div>
 <%- end -%>
 
 <%- content_for :head do -%>
@@ -227,6 +258,24 @@
 <script type="text/javascript">
 
 	angular.module('audit',["ngSanitize", "ngS3upload"])
+	.service( "StoreSearch", ['$http', function($http){
+		var storeSearchUrl = '<%= api_v1_stores_search_path -%>';
+		return {
+			findStores: function( dist, lat, lon){
+				console.log(dist);
+				return $http({
+					method: 'GET',
+					url: storeSearchUrl,
+					params: {
+						d: dist,
+						lat: lat,
+						lon: lon
+					}
+				});
+			}
+
+		}
+	}])
 	.factory( "totalScore", ['$rootScope', function($rootScope){
 		var metrics = [];		
 		var finalScore = {
@@ -272,6 +321,29 @@
 		}
 
 		return retVal;
+	}])
+	.controller('StoreSearchController', ['$scope', 'StoreSearch', function($scope, StoreSearch){
+		$scope.stores = [];
+
+		$scope.position = null;
+
+		if (navigator.geolocation) {
+		  navigator.geolocation.getCurrentPosition(function(position){
+		    $scope.$apply(function(){
+		      $scope.position = position;
+		    });
+		  });
+		}
+
+		$scope.getStores = function(){
+			var prm = StoreSearch.findStores( $scope.dist + 'mi', $scope.position.coords.latitude, $scope.position.coords.longitude);
+			prm.then(
+					function(payload){
+						$scope.stores = payload.data;
+					},
+					function(errorPayLoad){}
+			);
+		}
 	}])
 	.controller('AuditController',['$scope', 'totalScore', function($scope, totalScore){
 		$scope.baseScore = 0;

@@ -62,6 +62,17 @@ module StoreSearchable
       bool_array_must.push( {term: {state_code: params[:state]}}) if params[:state].present?
       bool_array_must.push( {term: {country: params[:country]}}) if params[:country].present?
       bool_array_must.push({term: {"region.id" => params[:region]}}) if params[:region].present?
+      if params[:distance].present?
+        bool_array_must.push({
+          geo_distance: {
+            distance: params[:distance],
+            location: {
+              lat: params[:lat],
+              lon: params[:lon]
+            }
+          }
+        })
+      end
       query_string = {query_string: {query: params[:q]}} if params[:q].present?
     
       es_results = __elasticsearch__.search :size => size, :from => offset, 
