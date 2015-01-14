@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150112162023) do
+ActiveRecord::Schema.define(version: 20150104165300) do
 
   create_table "audit_journals", primary_key: "audit_id", force: true do |t|
     t.string    "title",      limit: 50
@@ -45,14 +45,12 @@ ActiveRecord::Schema.define(version: 20150112162023) do
     t.integer   "base",                  limit: 2, default: 0,     null: false
     t.integer   "loss",                  limit: 2, default: 0,     null: false
     t.integer   "bonus",                 limit: 2, default: 0,     null: false
-    t.boolean   "draft",                           default: false, null: false
     t.boolean   "has_unresolved_issues",           default: false
     t.timestamp "created_at",                                      null: false
     t.timestamp "updated_at",                                      null: false
   end
 
   add_index "audits", ["store_id", "created_at", "id"], name: "Store_Audit_History", using: :btree
-  add_index "audits", ["store_id", "draft"], name: "index_audits_on_store_id_and_draft", using: :btree
   add_index "audits", ["store_id", "has_unresolved_issues"], name: "index_audits_on_store_id_and_has_unresolved_issues", using: :btree
   add_index "audits", ["store_id", "person_id"], name: "index_audits_on_store_id_and_person_id", using: :btree
 

@@ -12,45 +12,41 @@
 <%= form_for audit, data: {"ng-app" => "audit"} do |f| -%>
 <div class="row" style="margin-bottom: 0.5em">
 	<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary" -%>
-	<button type="button" class="btn btn-primary">Save Draft</button>
+	
 	<button class="btn btn-default" type="button">Cancel</button>
 </div>
 <div class="row container" id="auditEntryForm">
-	<div class="hidden">
-		<%= f.hidden_field :person_id, value: 1 -%>
-		<%= f.hidden_field :store_id -%>
-		<%= f.hidden_field :draft -%>
-	</div>
 	<div class="row panel panel-default">	
 		<div class="panel-heading">Store Information</div>
 		<div class="panel-body">
-			<%- if f.object.store.present? -%>
 			<%= f.fields_for :store do |sf| -%>
-			<span style="text-transform:uppercase"><%= sf.object.full_name -%></span>
-			<address><%= sf.object.address -%></address>
-			<%= sf.label :store_number -%>
-			<%= sf.text_field :store_number, class: "form-control" -%>
-			<%= sf.hidden_field :id -%>
-			<%- end -%>
-			<%- else -%>
+			<div class="ng-cloak" data-ng-controller="StoreController" data-ng-init="init(<%= sf.object.id || 0 -%>,'<%= sf.object.full_name -%>', '<%= sf.object.address -%>')">
+				<span style="text-transform:uppercase">{{full_name}}</span>
+				<address>{{address}}</address>
+				<%= sf.label :store_number, "Store Number" -%>
+				<%= sf.text_field :store_number, class: "form-control", data: {"ng-model" => "store_number"} -%>							
+			</div>
+			<% end -%>	
+			<div class="ng-cloak">
+				
+			</div>
 			<div data-ng-controller="StoreSearchController" class="ng-cloak">
 				<p data-ng-show="position">{{position.coords.latitude}}, {{position.coords.longitude}}</p>
 				<table class="table" style="background-color: #fff">
-					<caption>Stores within <%= select_tag :store_range, options_for_select([0, 1, 5, 10]), data: {"ng-model" => "dist", "ng-change" => "getStores()"} -%> mile(s)</caption> 
+					<caption>Stores within <%= select_tag :store_range, options_for_select([1, 5, 10]), data: {"ng-model" => "dist", "ng-change" => "getStores()"} -%> mile(s)</caption> 
 					<tbody>
 						<tr data-ng-repeat="store in stores">
 							<td style="width: 75%">
 								{{store.full_name}}
 								<address>{{store.address}}</address>
 							</td>
-							<td>
-								<a href="#" class="btn btn-default">Select</a>
+							<td class="text-right">
+								<button type="button" data-ng-click="selectStore(store)" class="btn btn-default">Select</button>
 							</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
-			<%- end -%>
 		</div>
 	</div>
 	<%-	metric_index = 0 -%>
@@ -61,7 +57,7 @@
 		<%= a_m.hidden_field :score_type, value: metrics[metric_index][:score_type] -%>
 	</div>
 
-	<div class="row" data-ng-controller="AuditMetricController" data-ng-init="init('<%= metrics[metric_index][:response_type] -%>', '<%= metrics[metric_index][:score_type] -%>', <%= metric_index -%>)">
+	<div class="row ng-cloak" data-ng-show="StoreExchange.store_id != 0" data-ng-controller="AuditMetricController" data-ng-init="init('<%= metrics[metric_index][:response_type] -%>', '<%= metrics[metric_index][:score_type] -%>', <%= metric_index -%>)">
 		<div class="panel panel-sm panel-default">
 			<div class="panel-heading">
 				<div class="row">
@@ -179,11 +175,13 @@
 	<%- metric_index = metric_index + 1 -%>
 	<%- end -%>
 
-	<div class="row" style="padding:0" data-ng-controller="AuditController">
+	<div class="row ng-cloak" style="padding:0" data-ng-controller="AuditController">
 		<div style="display:none">
 			<%= f.hidden_field :base, data: { "ng-value" => "baseScore"} -%>
 			<%= f.hidden_field :loss, data: { "ng-value" => "lossScore"} -%>
-			<%= f.hidden_field :bonus, data: { "ng-value" => "bonusScore"} -%>
+			<%= f.hidden_field :bonus, data: { "ng-value" => "bonusScore"} -%>			
+			<%= f.hidden_field :person_id, value: 1 -%>
+			<%= f.text_field :store_id, data: {"ng-model" => "store_id"} -%>
 		</div>
 		<div class="col-md-3 col-md-push-9 col-sm-12 col-xs-12" style="padding:0">
 			<div class="panel panel-primary">
@@ -228,7 +226,7 @@
 </div>
 <div class="row">
 	<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary" -%>
-	<button type="button" class="btn btn-primary">Save Draft</button>
+	
 	<button class="btn btn-default" type="button">Cancel</button>
 </div>
 <%- end -%>
@@ -262,7 +260,6 @@
 		var storeSearchUrl = '<%= api_v1_stores_search_path -%>';
 		return {
 			findStores: function( dist, lat, lon){
-				console.log(dist);
 				return $http({
 					method: 'GET',
 					url: storeSearchUrl,
@@ -275,6 +272,34 @@
 			}
 
 		}
+	}])
+	.factory( "StoreExchange", ['$rootScope',function($rootScope){
+
+		var store_id = 0;
+		var store_full_name = null;
+		var store_address = null;
+		var store_store_number = null;
+		return {
+
+			setSelectedStore: function(storeObject){
+
+				store_id = parseInt(storeObject.id);
+				store_full_name = storeObject.full_name;
+				store_address = storeObject.address;
+				store_store_number = storeObject.store_number;
+
+				$rootScope.$broadcast("storeChanged");
+			},
+
+			getSelectedStore: function(){
+				return {
+					id: store_id,
+					full_name: store_full_name,
+					address: store_address,
+					store_number: store_store_number
+				}
+			}
+		};
 	}])
 	.factory( "totalScore", ['$rootScope', function($rootScope){
 		var metrics = [];		
@@ -322,7 +347,25 @@
 
 		return retVal;
 	}])
-	.controller('StoreSearchController', ['$scope', 'StoreSearch', function($scope, StoreSearch){
+	.controller('StoreController', ['$scope', "StoreExchange", function( $scope, StoreExchange){
+		$scope.full_name = '';
+		$scope.address = '';
+		$scope.store_number = '';
+
+		$scope.init = function( store_id, storeFullName, storeAddress){
+			if(store_id > 0)
+				StoreExchange.setSelectedStore( {id: store_id, full_name: storeFullName, address: storeAddress, store_number: ($scope.store_number || null)});
+		}
+
+		$scope.$on('storeChanged', function(){
+			var storeObject = StoreExchange.getSelectedStore();
+
+			$scope.full_name = storeObject.full_name;
+			$scope.address = storeObject.address;
+			$scope.store_number = storeObject.store_number;
+		})
+	}])
+	.controller('StoreSearchController', ['$scope', 'StoreExchange' ,'StoreSearch', function($scope, StoreExchange, StoreSearch){
 		$scope.stores = [];
 
 		$scope.position = null;
@@ -344,8 +387,12 @@
 					function(errorPayLoad){}
 			);
 		}
+
+		$scope.selectStore = function(obj){
+			StoreExchange.setSelectedStore( obj );
+		}
 	}])
-	.controller('AuditController',['$scope', 'totalScore', function($scope, totalScore){
+	.controller('AuditController',['$scope', 'totalScore', 'StoreExchange',function($scope, totalScore, StoreExchange){
 		$scope.baseScore = 0;
 		$scope.lossScore = 0;
 		$scope.bonusScore = 0;
@@ -358,12 +405,16 @@
 			$scope.lossScore = auditScore.loss;
 			$scope.bonusScore = auditScore.bonus;
 		})
+
+		$scope.$on('storeChanged', function(){
+			$scope.store_id = StoreExchange.getSelectedStore().id;
+		})
 	}])
 	.controller('AuditImageController', ['$scope', function($scope){
 		$scope.files = {};
 
 	}])
-	.controller('AuditMetricController', ['$scope', 'totalScore', function($scope, totalScore) {
+	.controller('AuditMetricController', ['$scope', 'totalScore', 'StoreExchange', function($scope, totalScore, StoreExchange) {
 		$scope.comparisonType = null;
 		$scope.metricScoreType = null;
 		$scope.computedBaseScore = 0;

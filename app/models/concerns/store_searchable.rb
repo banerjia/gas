@@ -9,40 +9,41 @@ module StoreSearchable
     settings do
 		  index_name    "graeters-#{Rails.env}-stores"
 			mapping do 
-				indexes :id, :type => 'integer', :index => 'not_analyzed'
+				indexes :id, type: 'integer', index: 'not_analyzed'
   			indexes :full_name, type: 'multi_field'	do 
   				indexes :full_name
-  				indexes :raw, :index => 'not_analyzed'
+  				indexes :raw, index: 'not_analyzed'
   			end
-        indexes :address, :type => 'string', :analyzer => 'standard'
-        indexes :location, :type => 'geo_point' 
-  			indexes :state_code, :type => "string", :index => 'not_analyzed'
-  			indexes :country, :type => "string", :index => 'not_analyzed'
+        indexes :address, type: 'string', analyzer: 'standard'
+        indexes :store_number, type: 'string', index: 'not_analyzed'
+        indexes :location, type: 'geo_point' 
+  			indexes :state_code, type: "string", index: 'not_analyzed'
+  			indexes :country, type: "string", index: 'not_analyzed'
   			indexes :state do 
-  			  indexes :state_name, :type => 'string', :index => 'not_analyzed'
+  			  indexes :state_name, type: 'string', index: 'not_analyzed'
   			end
 			
   			indexes :company do
-          indexes :id, :type=>'integer', :index => 'not_analyzed'
-  			  indexes :name, :type => 'string', :analyzer => 'standard'
+          indexes :id, type:'integer', index: 'not_analyzed'
+  			  indexes :name, type: 'string', analyzer: 'standard'
   			end
 			
   			indexes :region do
-  				indexes :name, :type => 'multi_field' do
+  				indexes :name, type: 'multi_field' do
   					indexes :name
-  					indexes :raw, :index => 'not_analyzed'
+  					indexes :raw, index: 'not_analyzed'
   				end
   			end
 			
   			indexes :last_audit do
-          indexes :id, :type=>'integer', :index => 'not_analyzed'
+          indexes :id, type:'integer', index: 'not_analyzed'
           indexes :score do 
             indexes :base, type: 'integer', index: 'not_analyzed'
             indexes :loss, type: 'integer', index: 'not_analyzed'
             indexes :bonus, type: 'integer', index: 'not_analyzed'
             indexes :total, type: 'integer', index: 'not_analyzed'
           end
-  			  indexes :created_at, :type => 'date', :index => 'not_analyzed'
+  			  indexes :created_at, type: 'date', index: 'not_analyzed'
   			end
   		end
     end
@@ -57,6 +58,12 @@ module StoreSearchable
       
       bool_array_must = []
       query_string = {match_all:{}}
+
+      sort_array = [
+        {_score: {order: "desc"}},
+        {state_code: {order:"asc"}},
+        {full_name: {order:"asc"}}
+      ]
       
       bool_array_must.push( {term: {"company.id" => params[:company_id]}}) if params[:company_id].present?
       bool_array_must.push( {term: {state_code: params[:state]}}) if params[:state].present?
@@ -72,40 +79,49 @@ module StoreSearchable
             }
           }
         })
+
+        sort_array.unshift({
+            _geo_distance: {
+              location: {
+                lat: params[:lat],
+                lon: params[:lon]
+              },
+              order: "asc",
+              unit: "mi"
+            }
+          })
       end
       query_string = {query_string: {query: params[:q]}} if params[:q].present?
     
-      es_results = __elasticsearch__.search :size => size, :from => offset, 
-      :query => query_string,
-      :filter => {
-        :bool => {
+      es_results = __elasticsearch__.search size: size, from: offset, 
+      query: query_string,
+      filter: {
+        bool: {
           must: bool_array_must
         }
       },
-  	  :aggs => {
-    		:regions => {
-    			:terms => {
+  	  aggs: {
+    		regions: {
+    			terms: {
     				field: "region.id"
     			},
-    			:aggs => {
-    				:region_names => {
-    					:terms => {
+    			aggs: {
+    				region_names: {
+    					terms: {
     						field: "region.name.raw"
     					}
     				}
     			}
         } 
   	  },
-      :sort => [
-        {:_score => {order: "desc"}},
-        {:state_code => {order:"asc"}},
-        {:full_name => {order:"asc"}}
-      ]
+      sort: sort_array
       
     
 
       return_value[:more_pages] = ((es_results.results.total.to_f / size.to_f) > page.to_f )
-      return_value[:results] = es_results.results.map { |item| item._source.merge({ :id => item[:_id].to_i}) }
+      return_value[:results] = es_results.results.map do |item|
+        item._source.merge({ id: item[:_id].to_i}).merge((params[:distance].present? ? {distance: item[:sort].first} : {}))
+      end
       if es_results.response['aggregations'].present?
         return_value[:aggs] = {}
         return_value[:aggs][:regions] = es_results.response['aggregations']['regions']['buckets'].map{ |item| {region_id: item['key'], name: item['region_names']['buckets'].first['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  if es_results.response['aggregations']['regions']['buckets'].size > 0
@@ -113,6 +129,7 @@ module StoreSearchable
       return_value[:total] = es_results.results.total
       
       return_value[:search_string] = es_results.search.definition[:body] if !Rails.env.production?
+      return_value[:raw] = es_results if !Rails.env.production?
       
       return return_value
     end

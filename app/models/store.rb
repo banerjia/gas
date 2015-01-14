@@ -128,7 +128,7 @@ class Store < ActiveRecord::Base
 
   def as_indexed_json(options={})
     self.as_json({
-      only: [:id, :country, :state_code],
+      only: [:id, :country, :state_code, :store_number],
       methods: [:address, :full_name, :location],
       include: {
         company: { only: [:id, :name] },
@@ -140,7 +140,7 @@ class Store < ActiveRecord::Base
   end
   
   def self.index_refresh
-    # Store.__elasticsearch__.client.indices.delete index: Store.index_name rescue nil
+    Store.__elasticsearch__.client.indices.delete index: Store.index_name rescue nil
     Store.__elasticsearch__.client.indices.create index: Store.index_name, body: { settings: Store.settings.to_hash, mappings: Store.mappings.to_hash}
     Store.import
   end

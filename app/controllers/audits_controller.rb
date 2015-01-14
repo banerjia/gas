@@ -9,6 +9,8 @@ class AuditsController < ApplicationController
 			store_id = params[:store_id] 
 			store = Store.find(store_id)
 			new_audit = store.audits.build
+		else
+			new_audit.build_store()
 		end
 
 		metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
@@ -111,7 +113,6 @@ class AuditsController < ApplicationController
 			.require(:audit)
 			.permit(
 				:id,
-				:draft,
 				:base, 
 				:loss, 
 				:bonus, 
@@ -131,7 +132,6 @@ class AuditsController < ApplicationController
 					]
 				], 
 				store_attributes: [
-					:id, 
 					:store_number
 				]
 			)
