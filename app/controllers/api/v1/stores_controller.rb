@@ -2,14 +2,22 @@ module Api
   module V1
     class StoresController < ApiController
       
-      def search    
-      	distance = params[:d]
-      	longitude = params[:lon]
-      	latitude = params[:lat]
+      def search
+        # List keys to be sent in the result set for API calls 
+        # to reduce the amount transferred
+        safe_keys = [:results, :per_page, :page, :more_pages, :total]
 
-      	stores_found = Store.search( { distance: distance, lon: longitude, lat: latitude})
+        # Default value of result set size is 5 for API calls
+        params[:per_page] = params[:per_page] || 5
 
-        render json: stores_found[:results]
+      	stores_found = Store.search( params )
+        
+        # Clearing the keys that are not required in the result set
+        stores_found.each do |k,v|
+          stores_found.delete(k) unless safe_keys.include? k
+        end
+
+        render json: stores_found
       end
     end
   end

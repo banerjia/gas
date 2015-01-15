@@ -55,9 +55,13 @@ module StoreSearchable
       page = (params[:page] || 1).to_i
       size = (params[:per_page] || 10).to_i
       offset = (page - 1) * size
+      include_distance_in_result = (params[:lat].present? && params[:lon].present?)
       
       bool_array_must = []
       query_string = {match_all:{}}
+
+      # TO DO: Implement functionality to have only certain fields returned in the query set. 
+      fields = {}
 
       sort_array = [
         {_score: {order: "desc"}},
@@ -79,7 +83,8 @@ module StoreSearchable
             }
           }
         })
-
+      end
+      if include_distance_in_result
         sort_array.unshift({
             _geo_distance: {
               location: {
@@ -91,7 +96,7 @@ module StoreSearchable
             }
           })
       end
-      query_string = {query_string: {query: params[:q]}} if params[:q].present?
+      query_string = {query_string: {query: params[:q]}} if params[:q].present? && !params[:q].blank?
     
       es_results = __elasticsearch__.search size: size, from: offset, 
       query: query_string,
@@ -114,13 +119,20 @@ module StoreSearchable
     			}
         } 
   	  },
-      sort: sort_array
-      
+      sort: sort_array      
     
 
       return_value[:more_pages] = ((es_results.results.total.to_f / size.to_f) > page.to_f )
+      return_value[:page] = page
+      return_value[:per_page] = size
       return_value[:results] = es_results.results.map do |item|
-        item._source.merge({ id: item[:_id].to_i}).merge((params[:distance].present? ? {distance: item[:sort].first} : {}))
+        retval = nil
+        if !fields.empty?
+          retval = item.fields
+        else
+          retval = item._source
+        end
+        retval.merge({ id: item[:_id].to_i}).merge((include_distance_in_result ? {distance: item[:sort].first} : {}))
       end
       if es_results.response['aggregations'].present?
         return_value[:aggs] = {}
@@ -128,8 +140,10 @@ module StoreSearchable
       end
       return_value[:total] = es_results.results.total
       
-      return_value[:search_string] = es_results.search.definition[:body] if !Rails.env.production?
-      return_value[:raw] = es_results if !Rails.env.production?
+      if !Rails.env.production?
+        return_value[:search_string] = es_results.search.definition[:body] 
+        return_value[:raw] = es_results 
+      end
       
       return return_value
     end

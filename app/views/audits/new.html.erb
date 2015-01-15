@@ -19,33 +19,55 @@
 	<div class="row panel panel-default">	
 		<div class="panel-heading">Store Information</div>
 		<div class="panel-body">
-			<%= f.fields_for :store do |sf| -%>
-			<div class="ng-cloak" data-ng-controller="StoreController" data-ng-init="init(<%= sf.object.id || 0 -%>,'<%= sf.object.full_name -%>', '<%= sf.object.address -%>')">
-				<span style="text-transform:uppercase">{{full_name}}</span>
-				<address>{{address}}</address>
-				<%= sf.label :store_number, "Store Number" -%>
-				<%= sf.text_field :store_number, class: "form-control", data: {"ng-model" => "store_number"} -%>							
-			</div>
-			<% end -%>	
-			<div class="ng-cloak">
+			<div class="container">
+			<div class="row">
+				<%= f.fields_for :store do |sf| -%>
+				<div class="ng-cloak col-md-4 col-sm-12 col-xs-12" data-ng-controller="StoreController" data-ng-init="init(<%= sf.object.id || 0 -%>,'<%= sf.object.full_name -%>', '<%= sf.object.address -%>')">
 				
+					<span style="text-transform:uppercase">{{full_name}}</span>
+					<address>{{address}}</address>
+					<%= sf.label :store_number, "Store Number" -%>
+					<%= sf.text_field :store_number, class: "form-control", data: {"ng-model" => "store_number"} -%>							
+									
+				</div>
+				<% end -%>
+				<div class="col-md-8 col-sm-12 col-xs-12" style="border: 1px solid Red" data-ng-controller="StoreSearchController">
+					<div class="container1">
+						<div class="row1">
+							<div rel="col-md-8 col-sm-12 col-xs-12" style="border: 1px solid Blue">
+							 
+								<input type="text" data-ng-model="query_string" class="form-control input-sm" placeholder="Store search"/>
+								
+								Stores within <%= select_tag :store_range, options_for_select([["Distance", ""], ['1 mile', '1mi'], ['5 miles', '5mi'], ['10 miles', '10mi']]), data: {"ng-model" => "dist"}, class: "form-control input-sm", style: "width: 10em; display: inline-block" -%>
+
+								<button type="button" class="btn btn-primary" data-ng-click="getStores()">Search</button>
+							</div>
+							<div rel="col-md-4 col-sm-12 col-xs-12">	
+								<div class="btn-toolbar1 pull-right1" role="toolbar">
+									<div class="btn-group1" role="group">			
+										<a data-ng-click="previousPage()" data-ng-disabled="current_page <= 1" class="ng-cloak btn btn-default"> &lt; Back</a> 					
+										<a data-ng-click="nextPage()" class="ng-cloak btn btn-default" data-ng-disabled="!more_pages">Next &gt;</a> 
+									</div>
+								</div>
+							</div>							
+						</div>
+					</div>					
+					<table class="ng-cloak table table-striped table-bordered" data-ng-show="stores.length > 0">
+						<tbody>
+							<tr data-ng-repeat="store in stores">
+								<td >
+									{{store.full_name}}							
+								</td>
+								<td><address>{{store.address}}</address> 
+								<em data-ng-show="store.distance">({{store.distance.toFixed(1)}} miles)</em></td>
+								<td class="text-center" style="width: 25%">
+									<button type="button" data-ng-click="selectStore(store)" class="btn btn-success">Select</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</div>
-			<div data-ng-controller="StoreSearchController" class="ng-cloak">
-				<p data-ng-show="position">{{position.coords.latitude}}, {{position.coords.longitude}}</p>
-				<table class="table" style="background-color: #fff">
-					<caption>Stores within <%= select_tag :store_range, options_for_select([1, 5, 10]), data: {"ng-model" => "dist", "ng-change" => "getStores()"} -%> mile(s)</caption> 
-					<tbody>
-						<tr data-ng-repeat="store in stores">
-							<td style="width: 75%">
-								{{store.full_name}}
-								<address>{{store.address}}</address>
-							</td>
-							<td class="text-right">
-								<button type="button" data-ng-click="selectStore(store)" class="btn btn-default">Select</button>
-							</td>
-						</tr>
-					</tbody>
-				</table>
 			</div>
 		</div>
 	</div>
@@ -57,7 +79,7 @@
 		<%= a_m.hidden_field :score_type, value: metrics[metric_index][:score_type] -%>
 	</div>
 
-	<div class="row ng-cloak" data-ng-show="StoreExchange.store_id != 0" data-ng-controller="AuditMetricController" data-ng-init="init('<%= metrics[metric_index][:response_type] -%>', '<%= metrics[metric_index][:score_type] -%>', <%= metric_index -%>)">
+	<div class="row ng-cloak" data-ng-show="!StoreExchange.disable_audit_form" data-ng-controller="AuditMetricController" data-ng-init="init('<%= metrics[metric_index][:response_type] -%>', '<%= metrics[metric_index][:score_type] -%>', <%= metric_index -%>)">
 		<div class="panel panel-sm panel-default">
 			<div class="panel-heading">
 				<div class="row">
@@ -256,19 +278,49 @@
 <script type="text/javascript">
 
 	angular.module('audit',["ngSanitize", "ngS3upload"])
-	.service( "StoreSearch", ['$http', function($http){
-		var storeSearchUrl = '<%= api_v1_stores_search_path -%>';
+	.service( "StoreSearch", ['$http', '$q', '$window', function($http, $q, $window){
+		var storeSearchUrl = '<%= api_v1_stores_search_path -%>1111';
+		var save_location = null;
 		return {
-			findStores: function( dist, lat, lon){
-				return $http({
-					method: 'GET',
-					url: storeSearchUrl,
-					params: {
-						d: dist,
-						lat: lat,
-						lon: lon
+			setlocation: function(position){
+				save_position = position;
+			},
+
+			findStores: function( query, dist, page){
+				var deferred_geo = $q.defer();
+				var query_distance = (parseFloat(dist) > 0 ? dist : null );
+				
+				var http_params = { q: query, distance: query_distance, page: page};
+
+				if(query_distance != null && save_location == null){
+					if ($window.navigator.geolocation) {
+						$window.navigator.geolocation.getCurrentPosition(function(position){
+							save_location = position;
+							deferred_geo.resolve(position);
+						},
+						function(errObj){
+							save_location = null;
+							deferred_geo.reject(errObj);
+						});
 					}
-				});
+				}
+				else
+					deferred_geo.resolve(save_location);
+
+
+				return deferred_geo.promise.then(function(position) {
+						if(position != null){
+							http_params.lat = position.coords.latitude;
+							http_params.lon = position.coords.longitude;
+						}
+						return $http({
+								method: 'GET',
+								url: storeSearchUrl,
+								params: http_params
+						});
+					} 
+				); 
+				
 			}
 
 		}
@@ -279,8 +331,8 @@
 		var store_full_name = null;
 		var store_address = null;
 		var store_store_number = null;
-		return {
 
+		return {
 			setSelectedStore: function(storeObject){
 
 				store_id = parseInt(storeObject.id);
@@ -367,25 +419,60 @@
 	}])
 	.controller('StoreSearchController', ['$scope', 'StoreExchange' ,'StoreSearch', function($scope, StoreExchange, StoreSearch){
 		$scope.stores = [];
+		$scope.more_pages = false;
+		$scope.current_page = 1;
+		$scope.query_string = null;
 
-		$scope.position = null;
+		var saved_result_pages = [];
+		var total_stores_returned = 0;
 
-		if (navigator.geolocation) {
-		  navigator.geolocation.getCurrentPosition(function(position){
-		    $scope.$apply(function(){
-		      $scope.position = position;
-		    });
-		  });
+		$scope.getStores = function(page){
+			$scope.stores = [];			
+
+			var store_search_promise = StoreSearch.findStores( $scope.query_string, $scope.dist, page);
+			store_search_promise
+				.then(
+					function(payload){
+						$scope.current_page = payload.data.page;
+						
+						if($scope.current_page == 1) {
+							saved_result_pages = [];
+							total_stores_returned = payload.data.total;
+						}
+						
+						$scope.stores = payload.data.results;
+						$scope.more_pages = payload.data.more_pages;
+						saved_result_pages.push(payload.data.results);
+					},
+					function(errorPayLoad){	
+						$scope.more_pages = false;
+						console.log( errorPayLoad);
+					}
+				);
 		}
 
-		$scope.getStores = function(){
-			var prm = StoreSearch.findStores( $scope.dist + 'mi', $scope.position.coords.latitude, $scope.position.coords.longitude);
-			prm.then(
-					function(payload){
-						$scope.stores = payload.data;
-					},
-					function(errorPayLoad){}
-			);
+		$scope.previousPage = function(){
+			$scope.current_page--;
+			$scope.stores = saved_result_pages[$scope.current_page - 1];
+
+			// As this function is called from clicking the Back
+			// button on a section, we are assured that there are more
+			// pages. 
+			$scope.more_pages = true;
+		}
+
+		$scope.nextPage = function(){
+			// Because of various flags put into place
+			// this function cannot be reached unless there are more pages
+			// So it is safe to increment the page counter at this time.
+			$scope.current_page++;
+			if(saved_result_pages.length >= $scope.current_page){
+				$scope.stores = saved_result_pages[$scope.current_page - 1];
+				$scope.more_pages  = ((saved_result_pages.length > $scope.current_page) || (($scope.current_page * 5) < total_stores_returned));
+			}
+			else
+				$scope.getStores( $scope.current_page);
+			
 		}
 
 		$scope.selectStore = function(obj){
