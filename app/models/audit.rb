@@ -13,15 +13,19 @@ class Audit < ActiveRecord::Base
   belongs_to :person	
 	
 	accepts_nested_attributes_for :audit_metrics, allow_destroy: true #, reject_if: Proc.new { |sm| sm[:score].blank? }
-  accepts_nested_attributes_for :comments, allow_destroy: true
+  accepts_nested_attributes_for :comments, allow_destroy: true, reject_if: Proc.new { |c| c[:content].blank? }
                                 
                                 
-  accepts_nested_attributes_for :store, allow_destroy: false
+  accepts_nested_attributes_for :store, allow_destroy: false, reject_if: Proc.new { |s| s[:id].empty?}
 
   # Validations
-	validates_presence_of :audit_comment, unless: proc{ |audit| audit.total_score > 9 }
+  validates :store, presence: true
+  validates :comments, presence: true, unless: Proc.new { |audit| audit.total_score > 9 }
+	# validates_presence_of :audit_comment, unless: proc{ |audit| audit.total_score > 9 }
   
   # Callbacks
+  after_validation :clear_previous_audit, on: :update
+
   after_commit do
     store.__elasticsearch__.index_document
   end
@@ -30,9 +34,16 @@ class Audit < ActiveRecord::Base
     AuditMetricResponse.delete_all({audit_id: a[:id]})
   end
 
+
+  # Methods referenced from callbacks
+  def clear_previous_audit
+    AuditMetric.where(audit_id: self[:id]).destroy_all
+    Comment.delete_all({commentable_id: self[:id], commentable_type: 'Audit'})
+  end
+
   # Getter and Setter methods
   def audit_comment
-    comments.order({created_at: :desc}).first || comments.first || ''
+    (comments.order({created_at: :desc}).first || comments.build() )[:content] 
   end
 
   def audit_comment=(value)
@@ -50,7 +61,7 @@ class Audit < ActiveRecord::Base
   # Post Rails 4 Upgrade Methods
   
   def total_score
-    self[:base] - self[:loss] + self[:bonus]
+    self[:base] + self[:loss] + self[:bonus]
   end
 
   def score

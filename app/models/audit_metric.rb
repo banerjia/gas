@@ -4,7 +4,7 @@ class AuditMetric < ActiveRecord::Base
 	belongs_to :audit
 	belongs_to :metric
 	
-	has_many :audit_metric_responses, foreign_key: [:audit_id, :metric_id]
+	has_many :audit_metric_responses, foreign_key: [:audit_id, :metric_id], dependent: :delete_all
 
 	has_many :metric_options, through: :audit_metric_responses
 	

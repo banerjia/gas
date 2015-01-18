@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150104165300) do
+ActiveRecord::Schema.define(version: 20150118044757) do
 
   create_table "audit_journals", primary_key: "audit_id", force: true do |t|
     t.string    "title",      limit: 50
@@ -33,7 +33,9 @@ ActiveRecord::Schema.define(version: 20150104165300) do
     t.integer "audit_id",         limit: 8,                   null: false
     t.integer "metric_id",        limit: 3,                   null: false
     t.string  "score_type",       limit: 15, default: "base", null: false
-    t.integer "score",            limit: 2,  default: 0,      null: false
+    t.integer "loss",             limit: 2,  default: 0,      null: false
+    t.integer "bonus",            limit: 2,  default: 0,      null: false
+    t.integer "base",             limit: 2,  default: 0,      null: false
     t.boolean "needs_resolution",            default: false,  null: false
   end
 
