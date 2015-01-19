@@ -3,7 +3,7 @@ class AuditsController < ApplicationController
 		redirect_to action: :search
 	end
 	def new
-		new_audit = Audit.new
+		new_audit = Audit.new({created_at: Date.today})
 
 		if(params[:store_id].present?)
 			store_id = params[:store_id] 
@@ -37,7 +37,6 @@ class AuditsController < ApplicationController
 				render locals: { audit: new_audit, metrics: metrics_to_use }
 			end
 		end
-		
 	end
 	
 	def create    
@@ -51,6 +50,7 @@ class AuditsController < ApplicationController
 			metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 			audit.comments.build() unless audit.comments.count > 0
 			#byebug
+			@page_title = "New Audit"
 			render :new, locals: { audit: audit, metrics: metrics_to_use}
 		end
 	end
@@ -60,11 +60,16 @@ class AuditsController < ApplicationController
 		id = params[:id]
 
 		audit = Audit.includes([:store, audit_metrics: [:metric, audit_metric_responses: [:metric_option]]]).find(id)
+		audit.audit_metrics.each_with_index do |audit_metric, index|
+			audit.audit_metrics[index].audit_metric_responses = audit_metric.audit_metric_responses.sort{ |a, b| a.metric_option[:display_order] <=> b.metric_option[:display_order]}
+		end
 		audit.audit_metrics = audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]}
 		#metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 
 		audit.comments.build() unless audit.comments.count > 0
 	
+		@page_title = "Edit Audit"
+
 		render :edit, locals: {audit: audit}
 	end
 
@@ -76,6 +81,7 @@ class AuditsController < ApplicationController
 			flash[:notice] = 'Audit Updated'
 			redirect_to audit_path(audit)
 		else			
+			@page_title = "Edit Store"
 			render :edit, locals: { audit: audit}
 		end
 				
@@ -86,7 +92,11 @@ class AuditsController < ApplicationController
 		id = params[:id]
 
 		audit = Audit.includes([:store, audit_metrics: [:metric, audit_metric_responses: [:metric_option]]]).find(id)
-		audit.audit_metrics = audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]}		
+		audit.audit_metrics = audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]}	
+
+		@page_title = "Audit for #{audit.store.full_name}"
+
+		render :show, locals: {audit: audit}	
 	end
 
 	def search
@@ -119,7 +129,6 @@ class AuditsController < ApplicationController
 				:person_id, 
 				:store_id, 
 				:image_upload, 
-				:created_at,
 				audit_metrics_attributes: [
 					:metric_id, 
 					:score_type, 

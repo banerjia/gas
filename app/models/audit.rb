@@ -6,7 +6,7 @@ class Audit < ActiveRecord::Base
 	belongs_to :store, counter_cache: true
 	
 	has_many :audit_metrics, dependent: :delete_all
-  has_many :images, as: :imageable, dependent: :nullify
+  has_many :images, as: :imageable, dependent: :delete_all
   has_many :comments, as: :commentable, dependent: :delete_all
   
   

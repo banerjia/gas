@@ -15,6 +15,12 @@
 	
 	<button class="btn btn-default" type="button">Cancel</button>
 </div>
+<div class="row">
+	<div class="input-group" id="datePicker">
+	    <%= f.text_field :created_at, class: 'date_picker' -%>
+	    <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+	</div>
+</div>
 <div class="row container" id="auditEntryForm">
 	<div class="row panel panel-default">	
 		<div class="panel-heading">Store Information</div>

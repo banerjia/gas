@@ -1,156 +1,95 @@
-<%- content_for :head do -%>
-	<%= stylesheet_link_tag :table -%>
-	<style type="text/css" media="screen">	
-		div.entry_row {
-			background-color:transparent
-			border: none;
-			margin: 0;
-			padding: 0
-		}
-		div.entry_label, div.entry_value{
-			display: block;
-			float: none;
-			margin: 0;
-			padding: 0.3em 0.5em;
-			width:auto
-		}
-		div.entry_label {
-			background-color: #5f6b61;
-			border: 2px solid #ccc; 
-			border-left:none; 
-			border-right: none;
-			color: #fff;
-			font-weight: bold;
-			text-transform: uppercase
-		}
-		div.entry_row { margin-bottom: 1em }
-		table.listing td { vertical-align: top}
-		table.listing td + td { 
-			border-left: 2px solid #AAA;
-			text-align: center;
-			width: 20% 
-		}
-		table.listing tr.category_heading td[colspan] { 
-			background-color: #FAEBD7;
-			border-bottom: 2px solid #CCC;
-			border-top: 2px solid #CCC;
-			font-weight: bold;
-			letter-spacing: 1.5px; 
-			text-align: left;
-			text-transform: uppercase
-		}
-
-		table.listing span.pass, table.listing span.fail { 
-			background-position: center center;
-			background-repeat: no-repeat;
-			display: block;
-			min-height: 30px;
-			min-width: 30px;
-		}
-		table.listing span.pass span, table.listing span.fail span { visibility: hidden }
-		span.pass { background-image: url( <%= image_path( "check_30x30.png" ) -%> ) }
-		span.fail { background-image: url( <%= image_path( "caution_30x30.png" ) -%> ) }
-		
-		dl#score_legend dd {margin-left: 0.5em}
-	</style>
-<%- end -%>
-<%- content_for :left_column do -%>
-	<h2>Audit Overview</h2>
-	<div class="entry_row">
-		<div class="entry_label">
-			Audit Date
+<div class="row well well-sm">
+	<div class="col-md-6 col-sm-12 col-xs-12 container">
+		<div class="row" style="margin-bottom: 0.7em">
+			<div class="col-md-2 col-sm-12 col-xs-12"><label>Date</label></div>
+			<div class="col-md-10 col-sm-12 col-xs-12"><%= audit[:created_at].strftime('%m/%d/%Y') -%></div>
 		</div>
-		<div class="entry_value">
-			<%= @audit[:created_at].strftime("%b %d, %Y") -%>
+		<div class="row" style="margin-bottom: 0.7em">
+			<div class="col-md-2 col-sm-12 col-xs-12"><label>Auditor</label></div>
+			<div class="col-md-10 col-sm-12 col-xs-12"><%= audit[:person_id] -%></div>
 		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Auditor
+		<div class="row" style="margin-bottom: 0.7em">
+			<div class="col-md-2 col-sm-12 col-xs-12"><label>Store</label></div>
+			<div class="col-md-10 col-sm-12 col-xs-12">
+				<%= link_to audit.store.full_name, store_path(audit.store) -%>, 
+				<%= audit.store.address -%>
+			</div>
 		</div>
-		<div class="entry_value">
-			<%= @audit[:auditor_name] -%>
+		<div class="row" style="margin-bottom: 0.7em">
+			<div class="col-md-2 col-sm-12 col-xs-12"><label>Issues</label></div>
+			<div class="col-md-10 col-sm-12 col-xs-12">
+				<%= (audit[:has_unresolved_issues] ? "There are unresolved issues" : "No unresolved issues") -%>
+			</div>
 		</div>
-	</div>
-	<%- if @audit.comments -%>
-	<div class="entry_row">
-		<div class="entry_label">
-			Comments
+		<%- if !audit.store[:store_number].blank? -%>
+		<div class="row" style="margin-bottom: 0.7em">
+			<div class="col-md-2 col-sm-12 col-xs-12"><label>Store Number</label></div>
+			<div class="col-md-10 col-sm-12 col-xs-12"><%= audit.store[:store_number] -%></div>		
 		</div>
-		<div class="entry_value">
-			<%=  @audit.comments -%>
+		<%- end -%>	
+		<%- if audit.comments.present? -%>
+		<div class="row" style="margin-bottom: 0.7em">
+			<div class="col-m-12 col-sm-12 col-xs-12"><label>Comments</label></div>
+			<div class="col-m-12 col-sm-12 col-xs-12">
+				<%= audit.comments.first[:content] -%>
+			</div>
 		</div>
-	</div>
-	<%- end -%>
-	<div class="entry_row">
-		<div class="entry_label">
-			Score
-		</div>
-		<div class="entry_value">
-			<%= @audit[:score] -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Score Legend
-		</div>
-		<div class="entry_value">
-			<dl id="score_legend">
-				<dt>25+</dt>
-				<dd>Store Conditions Meet/Exceed All Graeter's Standards</dd>
-				<dt>23 - 24</dt>
-				<dd>Most Store Conditions Met Graeter's Standards</dd>
-				<dt>20 - 22</dt>
-				<dd>Some Graeter's Store Conditions Met - Others Require Attention</dd>
-				<dt>0 - 19</dt>
-				<dd>Many Store Conditions Found Unacceptable vs. Graeter's Standards. Immediate Attention Required</dd>
-			</dl>
-		</div>
-	</div>
-<%- end -%>
-<% content_for :right_column do -%>
-	
-<table class="listing">
-	<thead>
-		<tr>
-			<th scope="col">Description</th>
-			<th scope="col">Score</th>
-		</tr>
-	</thead>
-	<tbody>
-<ul>
-<%- 
-	last_category = nil
-	@audit_metrics.each do |audit_metric| 
-		row_class = cycle('regular','alternate')
-		if last_category != audit_metric[:category].strip
-			last_category = audit_metric[:category].strip
--%>
-			<tr class="category_heading">
-				<td colspan="2"><%= last_category -%></td>
-			</tr>
 		<%- end -%>
-		<tr class="<%=row_class -%>">
-			<td><%= audit_metric[:title] -%>
-				<blockquote><%= audit_metric[:description] -%></blockquote>
-			</td>
-			<td>
-			<%- if audit_metric[:point_value] -%>
-				<%-
-					span_class="pass"
-					span_class="fail" if audit_metric[:point_value] < 0 && audit_metric[:quantifier] < 0 		
-				-%>
-			<span class="<%= span_class -%>"><span><%= audit_metric[:point_value] -%></span></span>
-			<%- if audit_metric[:resolved_at] -%>
-			<br/>
-			<%= audit_metric[:resolved_at].strftime("%b %d, %Y") -%>
-			<%- end -%>
-			<%- end -%>
-			</td>
-		</tr>
-<%- end -%>
-	</tbody>
-</table>
+	</div>
+	<div class="col-md-3 col-md-offset-3 col-sm-12 col-xs-12" style="padding: 0">
+		<div class="panel panel-primary">
+			<div class="panel-heading">Score</div>
+			<div class="panel-body">
+				<ul class="list-group">
+					<li class="list-group-item alert-success"><label>Base</label><span class="pull-right"><%= audit[:base] -%></span></li>
+					<li class="list-group-item alert-danger"><label>Loss</label><span class="pull-right"><%= audit[:loss].abs -%></span></li>
+					<li class="list-group-item alert-info"><label>Bonus</label><span class="pull-right"><%= audit[:bonus] -%></span></li>
+					<li class="list-group-item"><strong><label>Total</label><span class="pull-right"><%= audit.total_score -%></span></strong></li>
+				</ul>					
+			</div>
+		</div>		
+	</div>
+</div>
+<%- audit.audit_metrics.each do |audit_metric| -%>
+
+	<div class="row">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div class="row">
+					<div class="col-md-10 col-sm-10 col-xs-10">
+						<strong><%= audit_metric.metric[:title].html_safe -%></strong>
+					</div>
+					<div class="col-md-2 col-sm-2 col-xs-2 text-right">
+						<%= "<span class='label label-success'>#{audit_metric[:base]}</span>".html_safe unless audit_metric[:base].zero? -%> 
+						<%= "<span class='label label-danger'>#{audit_metric[:loss].abs}</span>".html_safe unless audit_metric[:loss].zero? -%>
+						<%= "<span class='label label-primary'>#{audit_metric[:bonus]}</span>".html_safe unless audit_metric[:bonus].zero? -%>
+					</div>
+				</div>
+			</div>
+			<div class="panel-body">
+				<ul style="list-style: none">
+				<%- audit_metric.audit_metric_responses.where({selected: true}).sort{ |a, b| a.metric_option[:display_order] <=> a.metric_option[:display_order]}.each do |response| -%>
+					<li>
+					<%-
+						case audit_metric.metric[:response_type]
+							when "text_compare"
+					-%>
+								<label style="display:inline-block;width: 6.5em"><%= response.metric_option[:label] -%></label>: 
+								<%= response[:entry_value] -%>
+					<%-		when /^(computed|textarea)$/ -%>
+								<%= response[:entry_value] -%>
+					<%- 	else -%>
+								<%= response.metric_option[:label] -%>
+					<% end -%>
+					</li>
+				<%- end -%>
+
+				</ul>
+				<%- if !audit_metric[:loss].zero? -%>
+					<%= (!audit_metric[:needs_resolution] ? "<p style='margin: 0' class='alert alert-danger text-center'>Issue has not been resolved</p style='margin: 0'>" : "This issues has been resolved").html_safe -%>
+				<% end -%>
+			</div>
+		</div>
+	</div>
 
 <% end -%>
-<%= render :template => 'layouts/two_columns' -%>
