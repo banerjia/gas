@@ -15,94 +15,37 @@
 	
 	<button class="btn btn-default" type="button">Cancel</button>
 </div>
-<div class="row">
-	<div class="input-group" id="datePicker">
-	    <%= f.text_field :created_at, class: 'date_picker' -%>
-	    <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
-	</div>
-</div>
 <div class="row container" id="auditEntryForm">
-	<div class="row panel panel-default">	
-		<div class="panel-heading">Store Information</div>
-		<div class="panel-body">
-			<div class="container">
-				<div class="row">
-					<%= f.fields_for :store do |sf| -%>
-					<div class="ng-cloak col-md-12 col-sm-12 col-xs-12" data-ng-show="store_id != null" data-ng-controller="StoreController" data-ng-init="init(<%= sf.object.id || 0 -%>,'<%= sf.object.full_name -%>', '<%= sf.object.address -%>')">
-					
-						<span style="text-transform:uppercase">{{full_name}}</span>
-						<address>{{address}}</address>
-
-						<%= sf.label :store_number, "Store Number" -%>
-						<%= sf.text_field :store_number, class: "form-control", data: {"ng-model" => "store_number"} -%>							
-						
-						<%= sf.hidden_field :id, data: {"ng-value" => "store_id"} %>				
-					</div>
-					<% end -%>
-				</div>
-				<div class="row">
-					<div class="container" data-ng-controller="StoreSearchController">
-						<div class="row">
-							<div rel="col-md-8 col-sm-12 col-xs-12">							 
-								<input type="text" data-ng-model="query_string" class="form-control input-sm" placeholder="Store search"/>
-								
-								Stores within <%= select_tag :store_range, 
-													options_for_select([['1 mile', '1mi'], ['5 miles', '5mi'], ['10 miles', '10mi']]), 
-													prompt: "any distance", 
-													data: {"ng-model" => "dist"}, 
-													class: "form-control input-sm", 
-													style: "width: 10em; display: inline-block" -%>
-								<span data-ng-show="store_range!= null || store_range != ''">
-									from 
-										<%= select_tag :from_address, options_for_select([["Specific address", 1]]),
-											prompt: "my current location",
-											data: {"ng-model" => "locationPoint"}, 
-											class: "form-control input-sm", 
-											style: "width: 10em; display: inline-block" -%>
-
-										<span data-ng-show="locationPoint == 1">
-											<%= text_field_tag :ref_address, 
-													nil, 
-													data: {"ng-model" => "ref_address"}, 
-													class: "form-control input-sm", style: "width: 10em; display: inline-block", 
-													placeholder: "City, State OR Zip" -%>
-										</span>
-								</span>
-								<button type="button" class="btn btn-primary" data-ng-click="getStores()">Search</button>
-							</div>
-							<div rel="col-md-4 col-sm-12 col-xs-12">	
-								<div class="btn-toolbar1 pull-right1" role="toolbar">
-									<div class="btn-group1" role="group">			
-										<a data-ng-click="previousPage()" data-ng-disabled="current_page <= 1" class="ng-cloak btn btn-default"> &lt; Back</a> 					
-										<a data-ng-click="nextPage()" class="ng-cloak btn btn-default" data-ng-disabled="!more_pages">Next &gt;</a> 
-									</div>
+	<div class="row">	
+		<div class="panel panel-default">
+			<div class="panel-heading"><strong>Basic Audit Information</strong></div>
+			<div class="panel-body container">
+					<div class="row">
+						<%= f.fields_for :store do |sf| -%>
+							<div 
+							class="ng-cloak col-md-12 col-sm-12 col-xs-12" 
+							data-ng-controller="StoreController" 
+							data-ng-init="init(<%= sf.object.id || 0 -%>,'<%= sf.object.full_name -%>', '<%= sf.object.address -%>')">
+								<div class="form-group">
+									<%= f.label :created_at, "Audit Date" -%>
+									<%= f.text_field :created_at, class: 'date_picker form-control' -%>
 								</div>
-							</div>							
-						</div>
-						<div class="row">
-							<table class="ng-cloak table table-sm table-bordered" style="font-weight: 90%; width:99%" data-ng-show="stores.length > 0">
-								<thead>
-									<tr>
-										<th>Name</th>
-										<th>Address</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr data-ng-repeat="store in stores">
-										<td >
-											{{store.full_name}}							
-										</td>
-										<td>
-											<address style="margin:0;padding:0.1em">{{store.address}}</address> 
-											<em data-ng-show="store.distance">({{store.distance.toFixed(1)}} miles)</em>
-											<button type="button" data-ng-click="selectStore(store)" class="btn btn-success pull-right">Select</button>
-										</td>
-									</tr>
-								</tbody>
-							</table>	
-						</div>
-					</div>	
-				</div>
+								<div class="form-group">
+									<%= f.label :person_id, "Auditor" -%>
+									<%= f.text_field :person_id, class: 'form-control' -%>
+								</div>
+								<div class="form-group">
+									<span style="text-transform:uppercase">{{full_name}}</span>
+									<address>{{address}}</address>
+
+									<%= sf.label :store_number, "Store Number" -%>
+									<%= sf.text_field :store_number, class: "form-control", style: "width: 25em", data: {"ng-model" => "store_number"} -%>							
+									
+									<%= sf.hidden_field :id, data: {"ng-value" => "store_id"} %>
+								</div>													
+							</div>
+						<%- end -%>
+					</div>
 			</div>
 		</div>
 	</div>
@@ -510,14 +453,30 @@
 			$scope.store_number = storeObject.store_number;
 		})
 	}])
-	.controller('StoreSearchController', ['$scope', 'StoreExchange' ,'StoreSearch', 'GMaps', function($scope, StoreExchange, StoreSearch, GMaps){
+	.controller('StoreSearchController', ['$scope', 'StoreExchange' ,'StoreSearch', 'GMaps', '$window', function($scope, StoreExchange, StoreSearch, GMaps, $window){
 		$scope.stores = [];
 		$scope.more_pages = false;
 		$scope.current_page = 1;
 		$scope.query_string = null;
+		$scope.loading = false;
+		$scope.loading_message = null;
 
 		var saved_result_pages = [];
 		var total_stores_returned = 0;
+
+		var preloadStores = function(){
+			StoreSearch.findStores( 
+							$scope.query_string, 
+							$scope.dist, 
+							$scope.current_page + 1, 
+							($scope.locationPoint == 1 ? GMaps.getPosition($scope.ref_address).then(function(data) {return data;}, function(){return null;}) : null)
+			).then(function(payload){
+				saved_result_pages.push(payload.data.results);
+			}, function(){
+				// Need to handle error when page cannot
+				// be preloaded
+			});
+		}
 
 		$scope.getStores = function(page){
 			$scope.stores = [];	
@@ -531,6 +490,10 @@
 			store_search_promise
 				.then(
 					function(payload){
+
+						$scope.loading = false;
+						$scope.loading_message = null;
+
 						$scope.current_page = payload.data.page;
 						
 						if($scope.current_page == 1) {
@@ -541,8 +504,17 @@
 						$scope.stores = payload.data.results;
 						$scope.more_pages = payload.data.more_pages;
 						saved_result_pages.push(payload.data.results);
+
+						if(payload.data.more_pages){
+							// Preload another page to avoid page-flicker
+							preloadStores();
+						}
 					},
 					function(errorPayLoad){	
+
+						$scope.loading = false;
+						$scope.loading_message = null;
+						
 						$scope.more_pages = false;
 						console.log( errorPayLoad);
 					}
@@ -564,12 +536,11 @@
 			// this function cannot be reached unless there are more pages
 			// So it is safe to increment the page counter at this time.
 			$scope.current_page++;
-			if(saved_result_pages.length >= $scope.current_page){
-				$scope.stores = saved_result_pages[$scope.current_page - 1];
-				$scope.more_pages  = ((saved_result_pages.length > $scope.current_page) || (($scope.current_page * 5) < total_stores_returned));
-			}
-			else
-				$scope.getStores( $scope.current_page);
+			var total_pages = $window.Math.round(total_stores_returned/5);
+			$scope.stores = saved_result_pages[$scope.current_page - 1];
+			$scope.more_pages  = ($scope.current_page < total_pages);
+			if($scope.more_pages && saved_result_pages.length == $scope.current_page)
+				preloadStores();
 			
 		}
 
