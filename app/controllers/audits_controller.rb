@@ -25,9 +25,9 @@ class AuditsController < ApplicationController
 		# the controller. However, there is a possibility that this action may require
 		# more memory.
 		metrics_to_use.each do |m|
-			am = new_audit.audit_metrics.build({metric_id: m[:id]})
+			am = new_audit.audit_metrics.build({metric: m})
 			m.metric_options.sort{ |a,b| a[:display_order]<=>b[:display_order]}.each do |mo|
-				am.audit_metric_responses.build({metric_option_id: mo[:id], selected: false})
+				amr = am.audit_metric_responses.build({metric_option: mo, selected: false})
 			end
 		end
 
@@ -126,7 +126,7 @@ class AuditsController < ApplicationController
 				:base, 
 				:loss, 
 				:bonus, 
-				:person_id, 
+				:auditor_name, 
 				:store_id, 
 				:image_upload, 
 				audit_metrics_attributes: [
