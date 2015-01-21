@@ -14,6 +14,7 @@ class AuditsController < ApplicationController
 		end
 
 		new_audit.comments.build()
+		new_audit.images.build()
 
 		metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 		
@@ -49,7 +50,7 @@ class AuditsController < ApplicationController
 			flash[:warning] = 'Error processing audit'
 			metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 			audit.comments.build() unless audit.comments.count > 0
-			#byebug
+			
 			@page_title = "New Audit"
 			render :new, locals: { audit: audit, metrics: metrics_to_use}
 		end
@@ -67,6 +68,7 @@ class AuditsController < ApplicationController
 		#metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 
 		audit.comments.build() unless audit.comments.count > 0
+		audit.images.build() unless audit.images.count > 0
 	
 		@page_title = "Edit Audit"
 
@@ -135,7 +137,7 @@ class AuditsController < ApplicationController
 					:base, 
 					:bonus,
 					:loss,
-					:needs_resolution, 
+					:resolved, 
 					audit_metric_responses_attributes: [
 						:metric_option_id,
 						:selected, 
@@ -148,6 +150,9 @@ class AuditsController < ApplicationController
 				],
 				comments_attributes: [
 					:content
+				],
+				images_attributes:[
+					:content_url
 				]
 			)
 	end

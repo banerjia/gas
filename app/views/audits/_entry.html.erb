@@ -223,9 +223,9 @@
 						
 					-%>
 						<div style="display:none">								
-							<%= a_m.hidden_field :bonus, data: {"ng-model" => "computedBonusScore"} -%>
-							<%= a_m.hidden_field :loss, data: {"ng-model" => "computedLossScore"} -%>
-							<%= a_m.hidden_field :base, data: {"ng-model" => "computedBaseScore"} -%>
+							<%= a_m.hidden_field :bonus, data: {"ng-value" => "computedBonusScore"} -%>
+							<%= a_m.hidden_field :loss, data: {"ng-value" => "computedLossScore"} -%>
+							<%= a_m.hidden_field :base, data: {"ng-value" => "computedBaseScore"} -%>
 						</div>
 						<%= a_m.fields_for :audit_metric_responses, include_id: false do |a_m_r| -%>
 						<div class="col-md-4 col-sm-12 col-xs-12 text-nowrap">
@@ -286,27 +286,54 @@
 	<%- end -%>
 	<!-- END: Audit Metric -->
 	<div class="row ng-cloak" style="padding:0"
-		data-ng-hide="show_store_search"  
-		data-ng-controller="AuditController" 
-		data-ng-init="init({base: <%= f.object[:base] -%>,loss: <%= f.object[:loss] -%>,bonus: <%= f.object[:bonus] -%>})">
-		<div style="display:none">
-			<%= f.hidden_field :base, data: { "ng-value" => "baseScore"} -%>
-			<%= f.hidden_field :loss, data: { "ng-value" => "lossScore"} -%>
-			<%= f.hidden_field :bonus, data: { "ng-value" => "bonusScore"} -%>		
-			<%= f.hidden_field :store_id, data: {"ng-value" => "audit_store_id"} -%>
-		</div>
+		data-ng-hide="show_store_search">
+
 		<div class="col-md-3 col-md-push-9 col-sm-12 col-xs-12" style="padding:0">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					Score
 				</div>
 				<div class="panel-body">
-					<ul class="list-group ng-cloak">
+					<ul 
+					data-ng-controller="AuditController"
+					data-ng-init="init({base: <%= f.object[:base] -%>,loss: <%= f.object[:loss] -%>,bonus: <%= f.object[:bonus] -%>})"
+					class="list-group ng-cloak">
 						<li class="list-group-item primary"><span>Base</span><span class="pull-right">{{baseScore}}</span></li>
 						<li class="list-group-item danger"><span>Loss</span><span class="pull-right">{{lossScore}}</span></li>
 						<li class="list-group-item success"><span>Bonus</span><span class="pull-right">{{bonusScore}}</span></li>
-						<li class="list-group-item"><strong><span>Total</span><span class="pull-right">{{baseScore + lossScore + bonusScore}}</span></strong></li>
+						<li class="list-group-item"><strong><span>Total</span>
+							<span class="pull-right">{{baseScore + lossScore + bonusScore}}</span></strong>
+							<div style="display:none">
+								<%= f.hidden_field :base, data: { "ng-value" => "baseScore"} -%>
+								<%= f.hidden_field :loss, data: { "ng-value" => "lossScore"} -%>
+								<%= f.hidden_field :bonus, data: { "ng-value" => "bonusScore"} -%>		
+								<%= f.hidden_field :store_id, data: {"ng-value" => "audit_store_id"} -%>
+							</div>
+						</li>
 					</ul>
+					<div 
+						class="col-md-12 col-sm-12 col-xs-12 ng-cloak" 
+						data-ng-controller="AuditImageController" 
+						<%- if !f.object.images.first[:content_url].blank? -%>
+						data-ng-init="files.first = '<%= f.object.images.first[:content_url] -%>'"
+						<%- end -%>
+						data-ng-hide="show_store_search">
+						<div class="panel panel-default">
+							<div class="panel-heading">Attach Picture</div>
+							<div class="panel-body">
+								<%= f.fields_for :images, include_id: false do |img| -%>
+								<div style="display:none">
+									<%= img.hidden_field :content_url, data: {"ng-value" => "files.first"} -%>
+								</div>
+								<% end -%>
+								<div 
+									s3-upload 
+									bucket="'<%= ENV['aws_s3_bucket_upload'] -%>'" 
+									ng-model="files.first"
+									s3-upload-options="{getOptionsUri: '<%= api_v1_s3_access_token_path( ENV['aws_s3_bucket_upload'] ) -%>', folder: 'graeters/direct_uploads/'}"></div>			
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -321,22 +348,6 @@
 					<%= c.text_area :content, class: "form-control", cols: 80, rows: 5 -%>
 					<%- end -%>
 				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="row ng-cloak" data-ng-controller="AuditImageController" data-ng-hide="show_store_search">
-		<div class="panel panel-default">
-			<div class="panel-heading">Attach Picture</div>
-			<div class="panel-body">
-				<div 
-					s3-upload 
-					bucket="'<%= ENV['aws_s3_bucket_upload'] -%>'" 
-					ng-model="files.first"
-					s3-upload-options="{getOptionsUri: '<%= api_v1_s3_access_token_path( ENV['aws_s3_bucket_upload'] ) -%>', folder: 'graeters/direct_uploads/'}"></div>
-				<div style="display:none">
-					<%= f.hidden_field :image_upload, data: {"ng-value" => "files.first"} -%>
-				</div>				
 			</div>
 		</div>
 	</div>

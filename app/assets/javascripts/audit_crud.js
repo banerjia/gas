@@ -328,6 +328,7 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 				$scope.computedLossScore = initial_values.loss;
 				$scope.computedBonusScore = initial_values.bonus;
 				totalScore.addScore( $scope.metricIndex, $scope.computedBaseScore, $scope.computedLossScore, $scope.computedBonusScore);
+
 			}
 		}
 		

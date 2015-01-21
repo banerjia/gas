@@ -8,23 +8,27 @@ class Audit < ActiveRecord::Base
 	has_many :audit_metrics, dependent: :delete_all
   has_many :images, as: :imageable, dependent: :delete_all
   has_many :comments, as: :commentable, dependent: :delete_all
-  
-  
-  belongs_to :person	
+
 	
 	accepts_nested_attributes_for :audit_metrics, allow_destroy: true #, reject_if: Proc.new { |sm| sm[:score].blank? }
   accepts_nested_attributes_for :comments, allow_destroy: true, reject_if: Proc.new { |c| c[:content].blank? }
+  accepts_nested_attributes_for :images, allow_destroy: true, reject_if: Proc.new { |i| i[:content_url].blank? }
                                 
                                 
   accepts_nested_attributes_for :store, allow_destroy: false, reject_if: Proc.new { |s| s[:id].empty?}
 
   # Validations
-  validates :store, presence: true
-  validates :comments, presence: true, unless: Proc.new { |audit| audit.total_score > 9 }
-	# validates_presence_of :audit_comment, unless: proc{ |audit| audit.total_score > 9 }
+  validates_presence_of :auditor_name #, message: "Please provide a valid auditor name"
+  validates_presence_of :created_at #, message: "Please provide a valid audit date"
+  validates :store, presence: true #, message: "Please select a store"
+  validates :comments, presence: true, unless: Proc.new { |audit| audit.total_score > 9 } #, message: "Audits with scores below 10 require comments to be provided"
   
   # Callbacks
   after_validation :clear_previous_audit, on: :update
+
+  before_save do 
+    self[:has_unresolved_issues] = (self.audit_metrics.select{ |i| i[:loss] != 0 && !i[:resolved]}.size > 0)
+  end
 
   after_commit do
     store.__elasticsearch__.index_document
@@ -39,23 +43,7 @@ class Audit < ActiveRecord::Base
   def clear_previous_audit
     AuditMetric.where(audit_id: self[:id]).destroy_all
     Comment.delete_all({commentable_id: self[:id], commentable_type: 'Audit'})
-  end
-
-  # Getter and Setter methods
-  def audit_comment
-    (comments.order({created_at: :desc}).first || comments.build() )[:content] 
-  end
-
-  def audit_comment=(value)
-    comments.build({content: value}) unless value.nil? || value.empty? 
-  end
-
-  def image_upload
-    images.first[:content_url] if images.present?
-  end
-
-  def image_upload=(value)
-    images.build({content_url: value}) unless value.nil? || value.empty?
+    Image.delete_all({imageable_id: self[:id], imageable_type: 'Audit'})
   end
   
   # Post Rails 4 Upgrade Methods
@@ -72,17 +60,19 @@ class Audit < ActiveRecord::Base
 
   def as_indexed_json(options={})
     self.as_json({
-      only: [:id, :created_at, :has_unresolved_issues],
+      only: [:id, :auditor_name, :created_at, :has_unresolved_issues],
       methods: [:score],
-      include: {        
-        store: { only: [:id], methods: [:full_name], include: {company: { only: [:id, :name] }}},
-        person: { only: [:id, :name]}
+      include: {
+        store: { 
+          only: [:id],
+          methods: [:full_name, :address]
+        }
       }
     })
   end
   
   def self.index_refresh
-    # Audit.__elasticsearch__.client.indices.delete index: Audit.index_name rescue nil
+    Audit.__elasticsearch__.client.indices.delete index: Audit.index_name rescue nil
     Audit.__elasticsearch__.client.indices.create index: Audit.index_name, body: { settings: Audit.settings.to_hash, mappings: Audit.mappings.to_hash}
     Audit.import
   end

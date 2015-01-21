@@ -9,30 +9,18 @@ module AuditSearchable
 		  index_name    "graeters-#{Rails.env}-audits"
 			mapping do 
 				indexes :id, type: 'integer', index: 'not_analyzed'
-        
-        indexes :store do
+        indexes :store_id, type: 'integer', index: 'not_analyzed'
+
+        indexes :store do 
           indexes :id, type: 'integer', index: 'not_analyzed'
+          indexes :address, type: 'string', index: 'not_analyzed'
           indexes :full_name, type: 'multi_field' do
             indexes :full_name
             indexes :raw, index: 'not_analyzed'
           end
-        
-          indexes :company do 
-            indexes :id, type: 'integer', index: 'not_analyzed'
-            indexes :name, type: 'multi_field' do
-              indexes :name
-              indexes :raw, index: 'not_analyzed'
-            end
-          end
         end
         
-        indexes :person do
-          indexes :id, type: 'integer', index: 'not_analyzed'
-          indexes :name, type: 'multi_field' do
-            indexes :name
-            indexes :raw, index: 'not_analyzed'
-          end
-        end
+        indexes :auditor_name, type: 'string', analyzer: 'standard'
         indexes :score do 
           indexes :base, type: 'integer', index: 'not_analyzed'
           indexes :loss, type: 'integer', index: 'not_analyzed'
@@ -58,27 +46,21 @@ module AuditSearchable
       size = params[:per_page]
       offset = (page - 1) * size
       
-      query_bool_must_array = []
+      filter_bool_must_array = []
       query_string = {match_all:{}}
     
       query_string = { query_string: {query: params[:q]}} if params[:q].present?
       
-      query_bool_must_array.push( {term: { "store.company.id" => params[:company_id]}}) if params[:company_id].present?
-      query_bool_must_array.push( {term: { "store.id" =>  params[:store_id]}}) if params[:company_id].present?
-      query_bool_must_array.push( query_string )
+      filter_bool_must_array.push( {term: { "store.company.id" => params[:company_id]}}) if params[:company_id].present?
+      filter_bool_must_array.push( {term: { "store.id" =>  params[:store_id]}}) if params[:store_id].present?
+      filter_bool_must_array.push( {range: {"score.total" => {gte: params[:score_lower], lte: params[:score_upper]}}}) if params[:score_lower].present?
+
     
       es_results = __elasticsearch__.search size: size, from: offset, 
-      query: {
-        bool: {
-          must:query_bool_must_array
-        }
-      },
+      query: query_string,
       filter: {
-        range: {
-          "score.total" => {
-            gte: params[:score_lower],
-            lte: params[:score_upper]
-          }
+        bool:{
+          must: filter_bool_must_array
         }
       },
       sort: sort,
@@ -94,26 +76,14 @@ module AuditSearchable
               ]
             }
           }  
-        },
-        {
-          companies: {
-            terms: {
-              field: "store.company.id"
-            },
-            aggs: {
-              company_names: {
-                terms: {
-                  field: "store.company.name.raw"
-                }
-              }
-            }
-          }
         }
-        ]    
+      ]    
       
       
       return_value[:more_pages] = ((es_results.results.total.to_f / size.to_f) > page.to_f )
       return_value[:results] = es_results.results.map { |item| item._source }
+
+      return_value[:aggs][:score_ranges] = es_results.response['aggregations']['score_ranges']
       
 #      if es_results.response['aggregations'].present?
 #        return_value[:aggs] = {}
