@@ -14,14 +14,7 @@
 					class="ng-cloak col-md-12 col-sm-12 col-xs-12" 
 					data-ng-controller="StoreController" 
 					data-ng-init="init(<%= sf.object.id || 0 -%>,'<%= sf.object.full_name -%>', '<%= sf.object.address -%>')">
-						<div class="form-group">
-							<%= f.label :created_at, "Audit Date" -%>
-							<%= f.text_field :created_at, class: 'date_picker form-control' -%>
-						</div>
-						<div class="form-group">
-							<%= f.label :auditor_name, "Auditor" -%>
-							<%= f.text_field :auditor_name, class: 'form-control' -%>
-						</div>
+
 						<div class="form-group">
 							<label>Store</label> 
 							(<a href="#" data-ng-click="changeStore()">Change Store</a>)<br/>
@@ -32,7 +25,15 @@
 							<%= sf.text_field :store_number, class: "form-control", style: "width: 25em", data: {"ng-model" => "store_number"} -%>							
 							
 							<%= sf.hidden_field :id, data: {"ng-value" => "audit_store_id"} %>
-						</div>													
+						</div>	
+						<div class="form-group">
+							<%= f.label :created_at, "Audit Date" -%>
+							<%= f.text_field :created_at, class: 'date_picker form-control' -%>
+						</div>
+						<div class="form-group">
+							<%= f.label :auditor_name, "Auditor" -%>
+							<%= f.text_field :auditor_name, class: 'form-control' -%>
+						</div>												
 					</div>
 				<%- end -%>
 			</div>
@@ -103,7 +104,7 @@
 	</div>
 	<!-- END: Store Search -->
 
-	<%= f.fields_for :audit_metrics do |a_m| -%>
+	<%= f.fields_for :audit_metrics, include_id: false do |a_m| -%>
 	<%- 
 			assigned_score_field = nil
 			case a_m.object.metric[:score_type] 
@@ -272,8 +273,8 @@
 				</div>
 				<!-- END: Response Set Choice -->
 
-				<div style="display: block"></div>
-				<p data-ng-show="computedLossScore < 0" class="alert alert-warning alert-sm ng-cloak">
+				
+				<p data-ng-show="computedLossScore < 0" style="margin-top: 1em" class="col-md-12 col-sm-12 col-xs-12 alert alert-warning alert-sm ng-cloak">
 					<%= a_m.check_box :resolved, data: {"ng-checked" => "computedLossScore >= 0"} -%>
 					<%= a_m.label :resolved, "This issue has been resolved" -%>
 				</p>

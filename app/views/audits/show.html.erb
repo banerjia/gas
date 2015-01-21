@@ -1,3 +1,8 @@
+
+<div class="row form-group">
+	<%= link_to "Edit Audit", edit_audit_path(audit), class: "btn btn-primary" -%>
+	<%= link_to "Delete Audit", "#", class: "btn btn-danger" -%>
+</div>
 <div class="row well well-sm">
 	<div class="col-md-6 col-sm-12 col-xs-12 container">
 		<div class="row" style="margin-bottom: 0.7em">
@@ -42,7 +47,7 @@
 			<div class="panel-body">
 				<ul class="list-group">
 					<li class="list-group-item alert-success"><label>Base</label><span class="pull-right"><%= audit[:base] -%></span></li>
-					<li class="list-group-item alert-danger"><label>Loss</label><span class="pull-right"><%= audit[:loss].abs -%></span></li>
+					<li class="list-group-item alert-danger"><label>Loss</label><span class="pull-right"><%= audit[:loss] -%></span></li>
 					<li class="list-group-item alert-info"><label>Bonus</label><span class="pull-right"><%= audit[:bonus] -%></span></li>
 					<li class="list-group-item"><strong><label>Total</label><span class="pull-right"><%= audit.total_score -%></span></strong></li>
 				</ul>					
@@ -68,7 +73,7 @@
 			</div>
 			<div class="panel-body">
 				<ul style="list-style: none">
-				<%- audit_metric.audit_metric_responses.where({selected: true}).sort{ |a, b| a.metric_option[:display_order] <=> a.metric_option[:display_order]}.each do |response| -%>
+				<%- audit_metric.audit_metric_responses.select{|i| i[:selected]}.sort{ |a, b| a.metric_option[:display_order] <=> a.metric_option[:display_order]}.each do |response| -%>
 					<li>
 					<%-
 						case audit_metric.metric[:response_type]

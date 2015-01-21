@@ -29,8 +29,8 @@ angular.module('ngS3upload',
 angular.module('ngS3upload.config', []).
   constant('ngS3Config', {
     theme: 'bootstrap3'
-  });angular.module('ngS3upload.services', []).
-  service('S3Uploader', ['$http', '$q', '$window', function ($http, $q, $window) {
+  });angular.module('ngS3upload.services', [])
+  .service('S3Uploader', ['$http', '$q', '$window', function ($http, $q, $window) {
     this.uploads = 0;
     var self = this;
 
@@ -146,7 +146,7 @@ angular.module('ngS3upload.config', []).
 angular.module('ngS3upload.directives', []).
   directive('s3Upload', ['$parse', 'S3Uploader', 'ngS3Config', function ($parse, S3Uploader, ngS3Config) {
     return {
-      restrict: 'AC',
+      restrict: 'A',
       require: '?ngModel',
       replace: true,
       transclude: false,
@@ -184,8 +184,8 @@ angular.module('ngS3upload.directives', []).
             var bucket = scope.$eval(attrs.bucket);
 
             // Bind the button click event
-            var button = angular.element(element.children()[0]),
-              file = angular.element(element.find("input")[0]);
+            var button = angular.element(element.find("#ngs3_btn_Upload")[0]),
+              file = angular.element(element.find("input:file")[0]);
             button.bind('click', function (e) {
               file[0].click();
             });
@@ -261,7 +261,8 @@ angular.module('ngS3upload.directives', []).
       }
     };
   }]);
-angular.module('ngS3upload').run(['$templateCache', function($templateCache) {
+angular.module('ngS3upload')
+  .run(['$templateCache', function($templateCache) {
   'use strict';
 
   $templateCache.put('theme/bootstrap2.html',
@@ -278,20 +279,20 @@ angular.module('ngS3upload').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('theme/bootstrap3.html',
     "\n" +
-    "<div class=\"upload-wrap\">\n" +
-    "   <div class=\"row text-center\" ng-show=\"filename!=null && filename.length > 0 \">\n"+
+    "<div class=\"\">\n" +
+    "   <div class=\"text-center\" ng-show=\"filename!=null && filename.length > 0 \">\n"+
     "       <img data-ng-src=\"{{ filename }}\" style=\"max-width: 150px; max-height: 150px\"/>\n" +
     "   </div>\n" +
-    "   <div class=\"row\">\n" +
+    "   <div class=\"\">\n" +
     "       <div class=\"col-md-6 col-sm-6 col-xs-6\">\n" +
-    "           <button class=\"btn btn-primary\" type=\"button\"><span ng-if=\"!filename\">Upload a picture</span><span ng-if=\"filename\">Replace</span></button>\n" +
+    "           <button class=\"btn btn-primary\" type=\"button\" id=\"ngs3_btn_Upload\"><span ng-if=\"!filename\">Upload a picture</span><span ng-if=\"filename\">Replace</span></button>\n" +
     "           <input type=\"file\" style=\"display: none\"/>\n" +
     "       </div>\n" +
     "       <div class=\"col-md-6 col-sm-6 col-xs-6\">\n" +
     "           <button class=\"col-md-12 col-sm-12 col-xs-12 btn btn-danger\" type=\"button\" ng-click=\"filename=null; files.first=null\" ng-show=\"filename!=null && filename.length > 0\">Remove</button>\n" +
     "       </div>\n" +
     "   </div>\n" +
-    "   <div class=\"row\">\n" +
+    "   <div class=\"\">\n" +
     "       <div class=\"progress\" ng-show=\"uploading\" >\n" +
     "           <div class=\"progress-bar progress-bar-success progress-bar-striped\" ng-class=\"{active: uploading}\" role=\"progressbar\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: {{ progress }}%;\" ng-class=\"barClass()\">\n" +
     "               <span class=\"sr-only\">{{progress}}% Complete</span>\n" +

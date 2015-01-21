@@ -28,6 +28,7 @@ class Audit < ActiveRecord::Base
 
   before_save do 
     self[:has_unresolved_issues] = (self.audit_metrics.select{ |i| i[:loss] != 0 && !i[:resolved]}.size > 0)
+    # byebug
   end
 
   after_commit do

@@ -48,11 +48,12 @@ class AuditsController < ApplicationController
 			redirect_to store_path(audit[:store_id])
 		else
 			flash[:warning] = 'Error processing audit'
-			metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
-			audit.comments.build() unless audit.comments.count > 0
-			
+			#metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
+			audit.comments.build() unless audit.comments.size > 0
+			audit.images.build() unless audit.images.size > 0
+			byebug
 			@page_title = "New Audit"
-			render :new, locals: { audit: audit, metrics: metrics_to_use}
+			render :new, locals: { audit: audit}
 		end
 	end
 
@@ -60,15 +61,15 @@ class AuditsController < ApplicationController
 
 		id = params[:id]
 
-		audit = Audit.includes([:store, audit_metrics: [:metric, audit_metric_responses: [:metric_option]]]).find(id)
+		audit = Audit.includes([:store, :comments, :images, audit_metrics: [:metric, audit_metric_responses: [:metric_option]]]).find(id)
 		audit.audit_metrics.each_with_index do |audit_metric, index|
 			audit.audit_metrics[index].audit_metric_responses = audit_metric.audit_metric_responses.sort{ |a, b| a.metric_option[:display_order] <=> b.metric_option[:display_order]}
 		end
 		audit.audit_metrics = audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]}
 		#metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 
-		audit.comments.build() unless audit.comments.count > 0
-		audit.images.build() unless audit.images.count > 0
+		audit.comments.build() unless audit.comments.size > 0
+		audit.images.build() unless audit.images.size > 0
 	
 		@page_title = "Edit Audit"
 
@@ -81,6 +82,8 @@ class AuditsController < ApplicationController
 
 		if audit.update(audit_params)
 			flash[:notice] = 'Audit Updated'
+			audit.comments.build() unless audit.comments.size > 0
+			audit.images.build() unless audit.images.size > 0
 			redirect_to audit_path(audit)
 		else			
 			@page_title = "Edit Store"
@@ -93,7 +96,7 @@ class AuditsController < ApplicationController
 
 		id = params[:id]
 
-		audit = Audit.includes([:store, audit_metrics: [:metric, audit_metric_responses: [:metric_option]]]).find(id)
+		audit = Audit.includes([:store, :comments, :images, audit_metrics: [:metric, audit_metric_responses: [:metric_option]]]).find(id)
 		audit.audit_metrics = audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]}	
 
 		@page_title = "Audit for #{audit.store.full_name}"
@@ -131,6 +134,7 @@ class AuditsController < ApplicationController
 				:auditor_name, 
 				:store_id, 
 				:image_upload, 
+				:created_at,
 				audit_metrics_attributes: [
 					:metric_id, 
 					:score_type, 
