@@ -7,30 +7,22 @@ class StoresController < ApplicationController
   def show
     store_id = params[:id]
 
-    inclusions = {
-    :pending_audit => {:only => [:id, :score]},
-    :company => {:only => [:id,:name]}}
-    exceptions = [:company_id]
+    latest_audits = nil
+    latest_orders = nil
 
-    store = Store.includes([:store_contacts, :company ]).find(store_id)
+    store = Store.includes([:store_contacts, :company, :region ]).find(store_id)
+
+    if store.audits.size > 0
+      store.audits.replace( Audit.where({store_id: store_id}).order({created_at: :desc}).limit(5))
+    end
+
+    if store.orders.size > 0
+      store.orders.replace( Order.where({store_id: store_id}).order({created_at: :desc}).limit(5))
+    end
 
     @page_title = store[:name].titlecase + " Dashboard"
 
     respond_to do |format|
-      format.json do
-        return_value = Hash.new
-        return_value[:details] = store
-        render :json => return_value.to_json(
-        :include => inclusions,
-        :except => exceptions)
-      end
-
-      format.xml do
-        render :xml => store.to_xml(
-        :include => inclusions,
-        :except => exceptions)		
-      end
-
       format.html { render :locals => {:store => store}}
     end
 

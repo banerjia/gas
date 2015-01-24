@@ -1,171 +1,161 @@
-<%- content_for :head do -%>
-	<%= stylesheet_link_tag :forms -%>
-	<%= stylesheet_link_tag :table -%>
-	<style type="text/css" media="screen">
-		table.listing {
-			border-bottom:none;
-			margin-top: 0;
-			width:100%;
-		}
-		table.listing caption{display:none;}
-	</style>
-<%- end -%>
-<%- content_for :page_js do -%>
-	<%= javascript_include_tag "dateformat.js" -%>
-  <%= javascript_include_tag :audit_list -%>
-  <%= javascript_include_tag :orders_list -%>
-	<script type="text/javascript">
-		var current_section;
-		var store_id = <%= store[:id] -%>;
-		var orders = null;
-		window.show_store = false;
-		// Replaced Date.today with Time.now to make sure 
-		// that records are not bumped down or repeated 
-		// if a new order is added to the system while this listing
-		// is being viewed.
-		window.end_date =  '<%= Time.now -%>';
-		
-		function switch_sections( target_section ){
-			var previous_section = $(current_section).attr("id");
-			var next_section = $(target_section).attr("id");
-			var onshow = $(target_section).attr("onshow");
-			$(current_section).removeClass("current");
-			$(target_section).addClass("current");
-			current_section = $(target_section);
-			
-			previous_section = previous_section.substring( 0,previous_section.indexOf("_")) + "#" +
-							   previous_section.substring( previous_section.indexOf("_") + 1);
-			next_section = next_section.substring( 0, next_section.indexOf("_")) + "#" +
-						   next_section.substring(next_section.indexOf("_")+1);
-
-			if(onshow) eval( onshow );
-			$(previous_section).hide();
-			$(next_section).show();
-			
-		}
-		
-		function get_orders(){
-			// Only specifying the page_to_load for the first request.
-			// OrderList.current_page takes care of subsequent requests. 
-			// If this is not done then OrderList.load_more_orders will
-			// attempt to pull the second page for the first request.
-			page_to_load = ($("table#order_list tbody tr").length > 0 ? null : 1 );
-			OrderList.load_more_orders({
-				'page': page_to_load,
-				'store_id': <%= store[:id] -%>
-			});
-    }
-    
-    function get_audits(){
-      page_to_load = ($("table#audits tbody tr").length > 0 ? null : 1 );
-      AuditList.get_more_audits({
-          'page': page_to_load,
-          'store': <%= store[:id] -%>
-      });
-    }
-		
-		$(document).ready(function(){
-			current_section = $("ul.nav_items li.current")[0];
-			$("table.listing").hide();
-			$("table#store_contacts").show();
-			$("ul.nav_items li").click(function(){
-				switch_sections( $(this) );
-			});
-
-				var max_width = 0;
-				$("input.icon_buttons").each(function(){
-					max_width = Math.max( $(this).width(), max_width);
-				})
-				$("input.icon_buttons").width( max_width );
-			
-		});
-	</script>
-<%- end -%>
-
-<%- content_for :left_column  do -%>
-	<h2>Links</h2> 
-	<ul class="nav_items">
-		<li class="current" id="div_store_information">Store Information</li>
-		<%- if store.orders.size > 0 -%>
-			<li id="table_order_list" onshow="get_orders()">Orders</li>
-		<%- end -%>
-		<%- if store.audits.size > 0 -%>
-			<li id="table_audits" onshow="get_audits()">Audits</li>
-		<%- end -%>
-	</ul>
-<%- end -%>
-<div id="store_information">
-	<div class="toolbar">
-		<%- if true #current_user.is_admin -%>
-			<input type="button" value="Edit Store" onclick="window.location='<%=edit_store_path( store)-%>'" class= "icon_buttons"/>
-		<%- end -%>
-		<input type="button" value="New Order" onclick="window.location='<%=store_new_order_path(store)-%>'" class="icon_buttons"/>
-		<%- if ENV['RAILS_ENV'] == 'development' -%>
-		<input type="button" value="New Audit" onclick="window.location='<%=store_new_audit_path(store)-%>'" class="icon_buttons"/>
-		<%- end -%>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">Name</div>
-		<div class="entry_value">
-			<%= store[:name] -%>
+<div class="row">
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<div class="row">				
+				<div class="col-md-6 col-sm-6 col-xs-6">
+					<h2 class="h2">Basic Information</h2>
+				</div>
+				<div class="col-md-6 col-sm-6 col-xs-6 text-right">
+					<%- if true #current_user.is_admin -%>
+						<%= link_to "Edit", edit_store_path(store), class: "btn btn-default" -%>
+					<%- end -%>
+				</div>
+			</div>
+		</div>
+		<div class="panel-body store-attributes">
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Name</div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><%=store.full_name -%></div>
+			</div>
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Store Number</div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><%= store[:store_number].blank? ? '<em>None specified</em>'.html_safe : store[:store_number] -%>&nbsp;</div>
+			</div>
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Address</div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><address><%= store.address -%></address></div>
+			</div>
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Locality</div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><%= store[:locality].blank? ? '<em>Not available</em>'.html_safe : store[:locality] -%></div>
+			</div>			
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Region</div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><%=store.region.nil? ? '<em>Not associated with any region</em>'.html_safe : store.region[:name] -%></div>
+			</div>
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Company/Chain</div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><strong><%= link_to store.company[:name], company_path( store.company ) -%></strong></div>
+			</div>
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Phone</div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><%= store[:phone].blank? ? '<em>None specified</em>'.html_safe : store[:phone] -%></div>
+			</div>
 		</div>
 	</div>
-	<div class="entry_row">
-		<div class="entry_label">Locality</div>
-		<div class="entry_value">
-			<%= store[:locality] -%> &nbsp;
-		</div>
-	</div>
-	<%- if !store[:store_number].blank? && !store[:store_number].empty? -%>
-	<div class="entry_row">
-		<div class="entry_label">Store#</div>
-		<div class="entry_value"><%= store[:store_number] -%></div>
-	</div>
-	<%- end -%>
-	<div class="entry_row">
-		<div class="entry_label">Company</div>
-		<div class="entry_value">
-			<%= link_to store.company[:name], company_path(store.company)-%> &nbsp;
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">Address</div>
-		<div class="entry_value"><%= store.address-%></div>
-	</div>
-	<%- if !store[:phone].blank? && !store[:phone].empty? -%>
-	<div class="entry_row">
-		<div class="entry_label">Phone</div>
-		<div class="entry_value"><%= number_to_phone(store[:phone]) -%></div>
-	</div>
-	<%- end -%>
-	<div class="spacer"></div>
-	<%- if store.store_contacts.count > 0 -%>
-	<h3>Store Contacts</h3>
-	<table id="store_contacts" class="listing">
-		<thead>
-			<tr>
-				<th scope="col">Name</th>
-				<th scope="col">Title</th>
-				<th scope="col">Phone</th>
-				<th scope="col">Email</th>
-			</tr>
-		</thead>
-		<tbody>
-			<%- store.store_contacts.each do |store_contact| -%>
-			<tr>
-				<td><%= store_contact[:name]%></td>
-				<td><%= store_contact[:title]%>&nbsp;</td>
-				<td><%= store_contact[:phone]%>&nbsp;</td>
-				<td><%= store_contact[:email]%>&nbsp;</td>
-			</tr>
-			<%- end -%>
-		</tbody>
-	</table>
-	<%- end -%>
 </div>
-<%- if store.orders.count > 0 -%>
+<div class="row">
+	<div class="col-md-6 col-sm-12 col-xs-12 flush-left">
+		<div class="panel panel-default">		
+			<div class="panel-heading">
+				<div class="row">
+				<div class="col-md-3 col-sm-6 col-xs-6"><h2 class="h2">Audits</h2></div>
+				<div class="col-md-3 col-sm-6 col-xs-6 pull-right"><%= link_to "New Audit", store_new_audit_path(store), class: "btn btn-success" -%></div>
+				</div>
+			</div>
+			<div class="panel-body">
+				<%- if store.audits.size > 0 -%>
+				<table class="table table-striped table-condensed">
+					<thead>
+						<tr>
+							<th scope="col">Date</th>
+							<th scope="col" class="visible-lg visible-md">Auditor</th>
+							<th scope="col" class="text-center">Score</th>
+						</tr>
+					</thead>
+					<tbody>
+					<%- store.audits.sort{ |b,a| a[:created_at] <=> b[:created_at]}.each do |audit| -%>
+						<tr class="<%= audit[:has_unresolved_issues] ? 'danger' : nil -%>">
+							<td><%= link_to audit[:created_at].strftime((audit[:created_at].year != Date.today.year ? "%m/%d/%Y" : "%m/%d")), 								audit_path(audit) -%></td>
+							<td class="visible-lg visible-md"><%= audit[:auditor_name].titlecase -%></td>
+							<td class="text-center"><%= audit.total_score -%></td>
+						</tr>
+					<%- end -%>
+					</tbody>
+				</table>
+				<%- else -%>
+					<p class="text-center">At this time there are no audits available for this store</p>
+				<% end -%>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6 col-sm-12 col-xs-12 flush-right">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<div class="row">
+				<div class="col-md-3 col-sm-6 col-xs-6"><h2 class="h2">Orders</h2></div>
+				<div class="col-md-3 col-sm-6 col-xs-6 pull-right"><%=link_to "Create Order", store_new_order_path(store), class: "btn btn-success" -%></div>
+				</div>
+			</div>
+			<div class="panel-body">
+				<%- if store.orders.size > 0 -%>
+				<table class="table table-striped table-condensed">
+					<thead>
+						<tr>
+							<th scope="col">Date</th>
+							<th scope="col">Deliver By</th>
+						</tr>
+					</thead>
+					<tbody>
+					<%- store.orders.each do |order| -%>
+						<tr class="<%= !order[:email_sent] ? 'warning' : nil -%>">
+							<td><%= link_to order[:created_at].strftime((order[:created_at].year != Date.today.year ? "%m/%d/%Y" : "%m/%d")), order_path(order) -%></td>
+							<td><%= order[:delivery_dow].titlecase -%></td>
+						</tr>
+					<%- end -%>
+					</tbody>
+				</table>
+				<%- else -%>
+					<p class="text-center">At this time there are no audits available for this store</p>
+				<% end -%>
+			</div>
+		</div>
+	</div>	
+</div>
+
+<% content_for :head do -%>
+	<style>
+		@media screen and (min-width: 48em){
+			div.form-label { 
+				text-align: right;
+			}
+
+			div.flush-left{
+				padding-left: 0;
+				margin-left: 0;
+			}			
+			div.flush-right{
+				padding-right: 0;
+				margin-right: 0;
+			}
+		}
+		
+		address {
+			margin: 0 auto;
+		}
+		div.store-attributes > div.row{
+			margin: 0.7em auto;
+		}
+
+		.form-label {
+			font-weight: bold;
+		}
+
+		.h2{
+			padding: 0.5em auto;
+			margin: 0 auto;
+		}
+	</style>
+
+<% end -%>
+
+
+<!-- OLD CONTENT -->
+
+
+<%- if false && store.orders.count > 0 -%>
 	<%= render :partial => 'orders/order_listing', :locals => {:show_store => false} %>
 <%- end -%>
-<%- if store.audits.count > 0 -%>
+<%- if false && store.audits.count > 0 -%>
 	<%= render :partial => 'audits/audit_listing' -%>
 <%- end -%>

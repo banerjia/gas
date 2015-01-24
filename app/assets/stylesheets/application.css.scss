@@ -381,3 +381,7 @@ dd {
 .text-danger{
 	@extend .error_field;
 }
+
+.btn{
+	min-width: 7em;
+}
