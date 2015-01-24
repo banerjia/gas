@@ -10,4 +10,5 @@ class AuditMetric < ActiveRecord::Base
 	
 	accepts_nested_attributes_for :audit_metric_responses, reject_if: Proc.new { |a_m_r| a_m_r[:metric_option_id].to_i.zero? }
 
+	validates_associated :audit_metric_responses
 end

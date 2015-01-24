@@ -18,17 +18,20 @@ class Audit < ActiveRecord::Base
   accepts_nested_attributes_for :store, allow_destroy: false, reject_if: Proc.new { |s| s[:id].empty?}
 
   # Validations
-  validates_presence_of :auditor_name #, message: "Please provide a valid auditor name"
-  validates_presence_of :created_at #, message: "Please provide a valid audit date"
+  validates_associated :audit_metrics
+  validates_presence_of :auditor_name, message: "Please provide a valid auditor name"
+  validates_presence_of :created_at, message: "Please provide a valid audit date"
   validates :store, presence: true #, message: "Please select a store"
   validates :comments, presence: true, unless: Proc.new { |audit| audit.total_score > 9 } #, message: "Audits with scores below 10 require comments to be provided"
   
   # Callbacks
-  after_validation :clear_previous_audit, on: :update
 
   before_save do 
     self[:has_unresolved_issues] = (self.audit_metrics.select{ |i| i[:loss] != 0 && !i[:resolved]}.size > 0)
-    # byebug
+
+    AuditMetric.where(audit_id: self[:id]).destroy_all
+    Comment.delete_all({commentable_id: self[:id], commentable_type: 'Audit'})
+    Image.delete_all({imageable_id: self[:id], imageable_type: 'Audit'})
   end
 
   after_commit do
@@ -37,14 +40,6 @@ class Audit < ActiveRecord::Base
 
   before_destroy do |a|
     AuditMetricResponse.delete_all({audit_id: a[:id]})
-  end
-
-
-  # Methods referenced from callbacks
-  def clear_previous_audit
-    AuditMetric.where(audit_id: self[:id]).destroy_all
-    Comment.delete_all({commentable_id: self[:id], commentable_type: 'Audit'})
-    Image.delete_all({imageable_id: self[:id], imageable_type: 'Audit'})
   end
   
   # Post Rails 4 Upgrade Methods
@@ -61,7 +56,7 @@ class Audit < ActiveRecord::Base
 
   def as_indexed_json(options={})
     self.as_json({
-      only: [:id, :auditor_name, :created_at, :has_unresolved_issues],
+      only: [:id, :auditor_name, :audit_date, :has_unresolved_issues],
       methods: [:score],
       include: {
         store: { 

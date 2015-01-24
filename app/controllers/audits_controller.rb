@@ -51,7 +51,7 @@ class AuditsController < ApplicationController
 			#metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 			audit.comments.build() unless audit.comments.size > 0
 			audit.images.build() unless audit.images.size > 0
-			byebug
+			#byebug
 			@page_title = "New Audit"
 			render :new, locals: { audit: audit}
 		end
@@ -62,15 +62,31 @@ class AuditsController < ApplicationController
 		id = params[:id]
 
 		audit = Audit.includes([:store, :comments, :images, audit_metrics: [:metric, audit_metric_responses: [:metric_option]]]).find(id)
+
+		# Prepping the model for rendering purposes
+
+		# The following format will ensure that any time information is ommitted from the 
+		# date in the view
+		audit[:created_at] = audit[:created_at].strftime("%m/%d/%Y")
+
+		# Iterating through the audit metrics and making ensuring that the 
+		# audit_metric_responses are sorted using the metric_option[:display_order]
 		audit.audit_metrics.each_with_index do |audit_metric, index|
 			audit.audit_metrics[index].audit_metric_responses = audit_metric.audit_metric_responses.sort{ |a, b| a.metric_option[:display_order] <=> b.metric_option[:display_order]}
 		end
-		audit.audit_metrics = audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]}
-		#metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 
+		# Finally sorting the audit_metrics using the metrics[:display_order]
+		audit.audit_metrics = audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]}
+
+		# In case no comments and/or images were attached to the audit
+		# create dummy ones so that the fields are rendered in the view. 
+		# In case they are left blank during the update operation they will be rejected
+		# as a result of the configuration of the accepts_nested_attributes
 		audit.comments.build() unless audit.comments.size > 0
 		audit.images.build() unless audit.images.size > 0
 	
+		
+
 		@page_title = "Edit Audit"
 
 		render :edit, locals: {audit: audit}
@@ -78,15 +94,13 @@ class AuditsController < ApplicationController
 
 	def update
 		audit = Audit.find( params[:id ])
-		audit_params[:loss] = audit_params[:loss].to_i.abs
 
 		if audit.update(audit_params)
 			flash[:notice] = 'Audit Updated'
-			audit.comments.build() unless audit.comments.size > 0
-			audit.images.build() unless audit.images.size > 0
 			redirect_to audit_path(audit)
 		else			
 			@page_title = "Edit Store"
+			
 			render :edit, locals: { audit: audit}
 		end
 				
@@ -124,6 +138,9 @@ class AuditsController < ApplicationController
 	private
 	
 	def audit_params
+		# The following line corrects the date input as received from the view
+		# into something that Rails 4 TimeZone parser can understand. 
+		params[:audit][:created_at] = Date.strptime(params[:audit][:created_at], '%m/%d/%Y').to_date unless params[:audit][:created_at].blank?
 		params
 			.require(:audit)
 			.permit(
@@ -133,7 +150,7 @@ class AuditsController < ApplicationController
 				:bonus, 
 				:auditor_name, 
 				:store_id, 
-				:image_upload, 
+				:image_upload,
 				:created_at,
 				audit_metrics_attributes: [
 					:metric_id, 

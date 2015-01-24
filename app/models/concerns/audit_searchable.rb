@@ -27,7 +27,7 @@ module AuditSearchable
           indexes :bonus, type: 'integer', index: 'not_analyzed'
           indexes :total, type: 'integer', index: 'not_analyzed'
         end
-        indexes :created_at, type: 'date', index: 'not_analyzed'
+        indexes :audit_date, type: 'date', index: 'not_analyzed'
         indexes :has_unresolved_issues, type: 'boolean', index: 'not_analyzed'
       end
     end
@@ -41,9 +41,19 @@ module AuditSearchable
         params[:score_lower] = 0 if !params[:score_lower].present? && params[:score_upper].present?
       end
         
-      sort = [{ created_at: { order: "desc"}}]
-      page = params[:page]      
-      size = params[:per_page]
+      sort = []
+      if params[:sort].present?
+        params[:sort].split(',').each do |sort_spec|
+          default_order = "asc"
+          sort_spec_parts = /([^-]+)\-?(.*)/.match(sort_spec)
+          sort.push({sort_spec_parts[1].to_sym => {order: (sort_spec_parts[2].blank? ? default_order : sort_spec_parts[2])}})
+        end
+      else
+        sort.push({ audit_date: { order: "desc"}})
+      end
+      
+      page = params[:page] || 1      
+      size = params[:per_page] || 10
       offset = (page - 1) * size
       
       filter_bool_must_array = []
@@ -64,24 +74,25 @@ module AuditSearchable
         }
       },
       sort: sort,
-      aggs:[
-        {
-          score_ranges:{
-            range:{
-              field: "score.total",
-              ranges:[
-                {to: 50},
-                {from: 10, to: 19},
-                {from: 0, to: 9}              
-              ]
-            }
-          }  
-        }
-      ]    
+      aggs:{
+        score_ranges:{
+          range:{
+            field: "score.total",
+            ranges:[
+              {from: 20, to: 50},
+              {from: 10, to: 19},
+              {from: 0, to: 9}              
+            ]
+          }
+        }  
+      }
+          
       
       
       return_value[:more_pages] = ((es_results.results.total.to_f / size.to_f) > page.to_f )
       return_value[:results] = es_results.results.map { |item| item._source }
+
+      return_value[:aggs] = {}
 
       return_value[:aggs][:score_ranges] = es_results.response['aggregations']['score_ranges']
       
@@ -91,7 +102,8 @@ module AuditSearchable
 #      end
       
       return_value[:total] = es_results.results.total
-      
+      return_value[:sort] = sort
+
       return_value[:search_string] = es_results.search.definition[:body] if !Rails.env.production?
       
       return return_value

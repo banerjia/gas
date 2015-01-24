@@ -28,7 +28,9 @@
 						</div>	
 						<div class="form-group">
 							<%= f.label :created_at, "Audit Date" -%>
-							<%= f.text_field :created_at, class: 'date_picker form-control' -%>
+							<div class="input-group date">
+							  <%= f.text_field :created_at, class: 'form-control' -%><span class="input-group-addon"><i class="icon-calendar"></i></span>
+							</div>	
 						</div>
 						<div class="form-group">
 							<%= f.label :auditor_name, "Auditor" -%>
@@ -355,6 +357,7 @@
 </div>
 
 <%- content_for :head do -%>
+<%= stylesheet_link_tag "datepicker3.css" %>
 <style type="text/css" media="all">
 	.panel-heading {
 		-webkit-border-radius: 2px !important;
@@ -362,9 +365,10 @@
 		border-radius: 2px !important;
 	}
 
-	input.form-control{
-		width: 7em;
+	input.form-control-md{
+		width: 10em;
 	}
+
 	input[type=checkbox] + label {font-weight: normal;}
 	.ng-cloak {
 		display: none !important;
@@ -372,6 +376,12 @@
 
 	.btn-wide {
 		min-width: 7em;
+	}
+	label.fieldWithErrors{
+		color: Red;
+	}
+	input:text.fieldWithErrors{
+		border: 1px solid Red;
 	}
 </style>
 <% end -%>
@@ -384,14 +394,18 @@
 <%= javascript_include_tag "audit_crud.js" -%>
 <script type="text/javascript">
 window.api_v1_stores_search_path = '<%= api_v1_stores_search_path -%>';
-window.show_store_search = <%= audit[:store_id].nil? || audit[:store_id].zero? ? 'true' : 'false' -%>;
+window.show_store_search = <%= (audit[:store_id].nil? || audit[:store_id].zero?).to_s -%>;
 window.audit_store_id = <%= audit[:store_id] || 'null' -%>;
 
 $(document).ready(function(){
-	$('input#audit_created_at')
+	$('.input-group.date')
 	       .datepicker({
-	           format: 'mm/dd/yyyy'
-	       });
+	       		format: 'mm/dd/yyyy',
+			    todayBtn: "linked",
+			    clearBtn: true,
+			    autoclose: true,
+			    todayHighlight: true
+			});
 })
 </script>
 <%- end -%>
