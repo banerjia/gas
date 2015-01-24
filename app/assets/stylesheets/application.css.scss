@@ -1,5 +1,5 @@
 @import "bourbon";
-@import url(http://fonts.googleapis.com/css?family=Voces);
+@import url(http://fonts.googleapis.com/css?family=Asap:400,700);
 
 $errors_msg_shading: #FF8600;
 $wrapper-width: 1024px;
@@ -7,7 +7,7 @@ $left-column-width: 250px;
 
 @mixin overall-font{
 	font: {
-		family: 'Voces', Sans-serif;
+		size: 12pt;
 	}
 }
 
@@ -50,16 +50,18 @@ $left-column-width: 250px;
 	}
 }
 
+.navbar {
+	background: {
+		color: #45221a;
+		repeat: no-repeat;
+	}
+	color: #ffffff;
+}
+
 body {
 	@include overall-font;
-	background: {
-		color: #eee;
-	}
-	height: 100%;
-	margin: 0;
-	padding: 0;
-	text-align: center;
-	width: auto;
+	
+	padding-top: 2em;
 
 	
 	input {
@@ -69,6 +71,24 @@ body {
 	
 	select {
 		@include overall-font;
+	}
+	
+	footer{
+		border: {
+			top: 2px solid #eee;
+		}
+		color: #666;
+		font: {
+			family: Verdana, Tahoma, Arial, Sans-serif;
+			size: 0.8em;
+		}
+		text: {
+			align: center;
+		}
+		
+		p{
+			margin: auto 0.1em;
+		}
 	}
 }
 
@@ -356,7 +376,6 @@ dd {
 .error_field {
 	@extend input:text !optional;
 	@extend select;
-	border: 2px solid red;
 }
 
 .text-danger{

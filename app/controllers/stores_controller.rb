@@ -38,7 +38,7 @@ class StoresController < ApplicationController
 
 	def new
     new_store = nil
-		@page_title = "New Store"
+		@page_title = "Add a Store"
     
     new_store = Store.new({not_a_duplicate: false})
     
@@ -61,7 +61,7 @@ class StoresController < ApplicationController
       flash[:message] = "New store for #{new_store.company[:name]} successfully created"
       redirect_to :action => "show", :id => new_store.id
     else
-      @page_title = "New Store"
+      @page_title = "Add a Store"
       @page_title +=" for #{Company.find(new_store[:company_id])[:name]}" unless new_store[:company_id].nil?
       
       render :action => "new", :locals => {:store => new_store}
@@ -70,7 +70,7 @@ class StoresController < ApplicationController
 
   def edit
     selected_store_id = params[:id]
-    @page_title = "Edit Store Information"
+    @page_title = "Update a Store"
 
     selected_store = Store.find( selected_store_id )
     states = State.all.select([:country, :state_code, :state_name]).order([:country,:state_name])

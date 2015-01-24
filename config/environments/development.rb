@@ -49,5 +49,5 @@ Graeters::Application.configure do
   config.active_record.migration_error = :page_load
   
 
-  BetterErrors::Middleware.allow_ip! '10.0.2.2'
+  #BetterErrors::Middleware.allow_ip! '10.0.2.2'
 end

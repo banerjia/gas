@@ -22,7 +22,10 @@ end
 group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
+  gem 'meta_request'
+  gem 'byebug'
 end 
+
 group :assets do
   gem 'sass-rails'
   gem 'uglifier'
