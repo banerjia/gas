@@ -1,0 +1,411 @@
+<%- 
+	metric_index = 0
+	metric_option_index = 0
+-%>
+
+<div class="row" id="auditEntryForm">
+	<!-- START: Basic Audit Information -->
+	<div class="row ng-cloak" data-ng-hide="show_store_search">	
+		<div class="panel panel-default">
+			<div class="panel-heading"><strong>Basic Audit Information</strong></div>
+			<div class="panel-body">
+				<%= f.fields_for :store do |sf| -%>
+					<div 
+					class="ng-cloak col-md-12 col-sm-12 col-xs-12" 
+					data-ng-controller="StoreController" 
+					data-ng-init="init(<%= sf.object.id || 0 -%>,'<%= sf.object.full_name -%>', '<%= sf.object.address -%>')">
+
+						<div class="form-group">
+							<label>Store</label> 
+							(<a href="#" data-ng-click="changeStore()">Change Store</a>)<br/>
+							<span style="text-transform:uppercase">{{full_name}}</span>
+							<address>{{address}}</address>
+
+							<%= sf.label :store_number, "Store Number" -%>
+							<%= sf.text_field :store_number, class: "form-control", style: "width: 25em", data: {"ng-model" => "store_number"} -%>							
+							
+							<%= sf.hidden_field :id, data: {"ng-value" => "audit_store_id"} %>
+						</div>	
+						<div class="form-group">
+							<%= f.label :created_at, "Audit Date" -%>
+							<div class="input-group date">
+							  <%= f.text_field :created_at, class: 'form-control' -%><span class="input-group-addon"><i class="icon-calendar"></i></span>
+							</div>	
+						</div>
+						<div class="form-group">
+							<%= f.label :auditor_name, "Auditor" -%>
+							<%= f.text_field :auditor_name, class: 'form-control' -%>
+						</div>												
+					</div>
+				<%- end -%>
+			</div>
+		</div>
+	</div>
+	<!-- END: Basic Audit Information -->
+
+	<!-- START: Store Search -->
+	<div class="row ng-cloak" data-ng-show="show_store_search">
+		<div class="panel panel-default">
+			<div class="panel-heading"><strong>Store Search</strong></div>
+			<div class="panel-body" data-ng-controller="StoreSearchController">
+				<div class="col-md-6 col-sm-12 col-xs-12">
+					<p>							 
+					<input type="text" data-ng-model="query_string" class="form-control" placeholder="Search for stores"/>
+					</p>
+					<p>
+						<label>Stores within</label> <br/>
+						<%= select_tag :store_range, options_for_select([['1 mile', '1mi'], ['5 miles', '5mi'], ['10 miles', '10mi']]), prompt: "Any distance", data: {"ng-model" => "dist"}, class: "form-control", style: "max-width: 15em; display: inline-block" -%>
+					</p>
+					<p class="ng-cloak" data-ng-show="dist!= null && dist.length > 0">
+						<label>From</label><br/> 
+						<%= select_tag :from_address, options_for_select([["Specific address", 1]]),prompt: "Current Location", data: {"ng-model" => "locationPoint"}, class: "form-control",style: "max-width: 15em; display: inline-block"-%>
+					
+						<span data-ng-show="locationPoint == '1'">
+							<%= text_field_tag :ref_address, nil, data: {"ng-model" => "ref_address"}, class: "form-control", style: "max-width: 15em; display: inline-block", placeholder: "City, State OR Zip" -%>
+						</span>
+					
+					</p>
+					<p>
+						<button type="button" class="btn btn-primary" data-ng-click="getStores()">Search</button>
+						<button type="button" class="btn btn-default" data-ng-show="audit_store_id != null" data-ng-click="cancel()">Cancel</button>
+					</p>
+					<p class="ng-cloak text-info loading" data-ng-show="loading"><i class="fa fa-circle-o-notch fa-spin"></i> {{loading_message}}</p>
+				</div>			
+				<div class="col-md-5 col-md-offset-1 col-sm-12 col-xs-12" style="padding-right: 1em">	
+					<table class="ng-cloak table table-condensed" data-ng-show="stores.length > 0">
+						<thead>
+							<tr>
+								<th scope="col" style="width: 60%">Store</th>
+								<td>
+								<div data-ng-show="current_page > 1 || more_pages" class="btn-toolbar pull-right" role="toolbar">
+									<div class="btn-group" role="group">			
+										<button type="button" data-ng-click="previousPage()" data-ng-disabled="current_page <= 1" class="ng-cloak btn btn-sm btn-default"> <i class="fa fa-chevron-left"></i> <span class="hidden-sm hidden-xs">Back</span></button> 					
+										<button type="button" data-ng-click="nextPage()" class="ng-cloak btn btn-sm btn-default" data-ng-disabled="!more_pages"><span class="hidden-sm hidden-xs">Next</span> <i class="fa fa-chevron-right"></i></button> 
+									</div>
+								</div>
+								</td>
+							</tr>
+						</thead>
+						<tbody>
+							<tr data-ng-repeat="store in stores">
+								<td >
+									<span style="text-transform:uppercase">{{store.full_name}}</span>
+									<address style="margin:0 0 0 0.3em;padding:0.1em">{{store.address}}</address> 
+									<em data-ng-show="store.distance">({{store.distance.toFixed(1)}} miles)</em>
+									
+								</td>
+								<td>
+									<button type="button" data-ng-click="selectStore(store); store_search=false;" class="btn btn-success pull-right">Select</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>	
+			</div>
+		</div>
+	</div>
+	<!-- END: Store Search -->
+
+	<%= f.fields_for :audit_metrics, include_id: false do |a_m| -%>
+	<%- 
+			assigned_score_field = nil
+			case a_m.object.metric[:score_type] 
+				when "base"
+					assigned_score_field = :base
+				when "bonus"
+					assigned_score_field = :bonus
+				when "loss"
+					assigned_score_field = :loss
+			end
+	-%>
+	<!-- START: Audit Metric -->
+	<div 
+		class="row ng-cloak" 
+		data-ng-hide="show_store_search"
+		data-ng-controller="AuditMetricController" 
+		data-ng-init="init(
+				'<%= a_m.object.metric[:response_type] -%>', 
+				'<%= a_m.object.metric[:score_type] -%>', 
+				<%= metric_index -%>, 
+				{
+					base: <%= a_m.object[:base]  || 0-%>,
+					bonus: <%= a_m.object[:bonus]  || 0-%>,
+					loss: <%= a_m.object[:loss]  || 0-%>
+				})
+		">
+		<div style="display:none">
+			<%= a_m.hidden_field :metric_id -%>
+			<%= a_m.hidden_field :score_type -%>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+			<!-- Audit Metric Title & Score -->
+				<div class="row">				
+					<div class="col-md-10 col-sm-10 col-xs-10">
+						<strong><%= a_m.object.metric[:title].html_safe -%></strong>
+					</div>
+					<div class="col-md-2 col-sm-2 col-xs-2 text-right ng-cloak">
+						<span class="label label-success" data-ng-show="computedBaseScore > 0">{{computedBaseScore}}</span>
+						<span class="label label-danger" data-ng-show="computedLossScore < 0">{{computedLossScore * -1}}</span>
+						<span class="label label-primary" data-ng-show="computedBonusScore > 0">{{computedBonusScore}}</span>
+					</div>
+				</div>
+			</div>
+			<div class="panel-body">
+				<!-- START: Audit Metric Response Body -->
+				<%- if !a_m.object.metric[:description].blank? -%>
+				<div class="col-md-12 col-sm-12 col-xs-12">
+				<!-- Audit Metric Description (if any) -->
+					<p><%= a_m.object.metric[:description].html_safe -%></p>
+				</div>
+				<% end -%>
+				
+				<!-- START: Response Set Choice -->
+				<div class="col-md-12 col-sm-12 col-xs-12">
+					<%- 
+						case a_m.object.metric[:response_type]
+						when 'textarea'
+					-%>						
+							<%=	a_m.fields_for :audit_metric_responses, include_id: false do |a_m_r| -%>
+							<div style="display:none">	
+								<%= a_m.hidden_field :base, value: 0 -%>						
+								<%= a_m_r.hidden_field :metric_option_id -%>
+								<%= a_m_r.hidden_field :selected, value: "1" -%>
+							</div>
+							<%= a_m_r.text_area :entry_value, cols: 80, rows: 5, class: "form-control" -%>
+							<% end -%>
+
+					<%-
+						when 'radio'
+					-%>
+					<%= a_m.fields_for :audit_metric_responses, include_id: false do |a_m_r| -%>
+							<div style="display:none">		
+								<!-- Value added to maintain model consistency					 -->
+								<%= a_m_r.hidden_field :metric_option_id -%>
+								<%= a_m_r.hidden_field :entry_value, value: a_m_r.object.metric_option[:points] -%>
+								<%= a_m_r.hidden_field :selected, data: {"ng-value" => "(score == #{a_m_r.object.metric_option[:points]} ? 1: 0)"}-%>
+							</div>
+							<div class="col-md-4 col-sm-12 col-xs-12">
+								<div class="input-group">
+									<span class="input-group-addon">
+										<%= a_m.radio_button assigned_score_field, a_m_r.object.metric_option[:points], data: {"ng-model" => "score",		"ng-init" => "score = #{a_m.object[assigned_score_field]}", "ng-change" => "calculateScore()"} -%>
+									</span>
+									<%= a_m.label assigned_score_field, a_m_r.object.metric_option[:label], value: a_m_r.object.metric_option[:points], class: "form-control" -%>
+								</div>
+							</div>
+					<%- 
+						end #fields_for end 
+
+						when 'text_compare' 
+							metric_option_index = 0
+					-%>
+						<div style="display:none">
+							<%= a_m.hidden_field( assigned_score_field, 
+									data: {
+										"ng-value" => "computed#{assigned_score_field.to_s.capitalize}Score"} 
+										)-%>
+						</div>
+						<%= a_m.fields_for :audit_metric_responses, include_id: false do |a_m_r| -%>
+						<div class="col-md-4 col-sm-12 col-xs-12">	
+							<div style="display:none">
+								<%= a_m_r.hidden_field :selected, value: "1" -%>
+								<%= a_m_r.hidden_field :metric_option_id -%>
+							</div>								
+							
+							<%= a_m_r.label :entry_value, a_m_r.object.metric_option[:label] -%>
+							<%= a_m_r.number_field :entry_value, min: 0, class: "form-control", data: {"ng-model" => "entry_values[#{metric_option_index}]", "ng-change" => "calculateScore()", "ng-init" => "entry_values[#{metric_option_index}] = #{a_m_r.object[:entry_value] || 0}; entry_value_weights[#{metric_option_index}] = #{a_m_r.object.metric_option[:weight]}; entry_value_scores[#{metric_option_index}] = #{a_m_r.object.metric_option[:points]}"} 
+							-%>
+								
+						</div>
+					<%- 	metric_option_index = metric_option_index + 1 -%>								
+					<%- 
+						end #fields_for end
+
+						when 'custom_shelves'
+							metric_option_index = 0
+						
+					-%>
+						<div style="display:none">								
+							<%= a_m.hidden_field :bonus, data: {"ng-value" => "computedBonusScore"} -%>
+							<%= a_m.hidden_field :loss, data: {"ng-value" => "computedLossScore"} -%>
+							<%= a_m.hidden_field :base, data: {"ng-value" => "computedBaseScore"} -%>
+						</div>
+						<%= a_m.fields_for :audit_metric_responses, include_id: false do |a_m_r| -%>
+						<div class="col-md-4 col-sm-12 col-xs-12 text-nowrap">
+							<div style="display:none">
+								<%= a_m_r.hidden_field :metric_option_id -%>
+								<%= a_m_r.hidden_field :entry_value, value: a_m_r.object.metric_option[:label] -%>
+							</div>
+							<div class="input-group">
+								<span class="input-group-addon">
+									<%= a_m_r.check_box :selected, data:{ 
+													"ng-model" => "entry_values[#{metric_option_index}]", 
+													"ng-change" => "calculateScore()",
+													"ng-init" =>  
+													"entry_values[#{metric_option_index}] = #{a_m_r.object[:selected] || false};
+													entry_value_scoreTypes[#{metric_option_index}] = '#{ a_m.object.metric.metric_options[metric_option_index][:isBonus] ? 'bonus': ( a_m.object.metric.metric_options[metric_option_index][:points] < 0 ? 'loss' : 'base' ) }';
+													entry_value_scores[#{metric_option_index}] = #{a_m.object.metric.metric_options[metric_option_index][:points]}; 
+													entry_value_weights[#{metric_option_index}] = #{a_m.object.metric.metric_options[metric_option_index][:weight]}"										
+												}-%>
+								</span>
+								<%= a_m_r.label :selected, 
+										a_m_r.object.metric_option[:label], 
+										class: "form-control" 
+								-%>
+							</div>						
+						</div>
+						
+					<%-
+							metric_option_index = metric_option_index + 1
+						end #fields_for
+
+						when 'computed'
+
+					-%>
+						<%= a_m.hidden_field assigned_score_field, data: {"ng-value" => "computed#{assigned_score_field.to_s.capitalize}Score"} -%>
+						<%= a_m.fields_for :audit_metric_responses, include_id: false do |a_m_r| -%>
+						<%= a_m_r.hidden_field :metric_option_id -%>
+						<%= a_m_r.hidden_field :selected, value: "1" -%>
+						<%= a_m_r.number_field :entry_value, min: 0, class: "form-control", data: {"ng-model" => "entry_value","ng-init" => "entry_value = #{a_m_r.object[:entry_value] || 0};quantifier = #{a_m_r.object.metric_option[:points]}","ng-change" => "calculateScore()"} -%>
+					<%-
+						end #fields_for
+						
+						end# CASE END
+					-%>
+				</div>
+				<!-- END: Response Set Choice -->
+
+				
+				<p data-ng-show="computedLossScore < 0" style="margin-top: 1em" class="col-md-12 col-sm-12 col-xs-12 alert alert-warning alert-sm ng-cloak">
+					<%= a_m.check_box :resolved, data: {"ng-checked" => "computedLossScore >= 0"} -%>
+					<%= a_m.label :resolved, "This issue has been resolved" -%>
+				</p>
+
+				<!-- END: Audit Metric Response Body -->
+			</div>
+		</div>
+	</div>
+	<%- 	metric_index = metric_index + 1 -%>
+	<%- end -%>
+	<!-- END: Audit Metric -->
+	<div class="row ng-cloak" style="padding:0"
+		data-ng-hide="show_store_search">
+
+		<div class="col-md-3 col-md-push-9 col-sm-12 col-xs-12" style="padding:0">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					Score
+				</div>
+				<div class="panel-body">
+					<ul 
+					data-ng-controller="AuditController"
+					data-ng-init="init({base: <%= f.object[:base] -%>,loss: <%= f.object[:loss] -%>,bonus: <%= f.object[:bonus] -%>})"
+					class="list-group ng-cloak">
+						<li class="list-group-item primary"><span>Base</span><span class="pull-right">{{baseScore}}</span></li>
+						<li class="list-group-item danger"><span>Loss</span><span class="pull-right">{{lossScore}}</span></li>
+						<li class="list-group-item success"><span>Bonus</span><span class="pull-right">{{bonusScore}}</span></li>
+						<li class="list-group-item"><strong><span>Total</span>
+							<span class="pull-right">{{baseScore + lossScore + bonusScore}}</span></strong>
+							<div style="display:none">
+								<%= f.hidden_field :base, data: { "ng-value" => "baseScore"} -%>
+								<%= f.hidden_field :loss, data: { "ng-value" => "lossScore"} -%>
+								<%= f.hidden_field :bonus, data: { "ng-value" => "bonusScore"} -%>		
+								<%= f.hidden_field :store_id, data: {"ng-value" => "audit_store_id"} -%>
+							</div>
+						</li>
+					</ul>
+					<div 
+						class="col-md-12 col-sm-12 col-xs-12 ng-cloak" 
+						data-ng-controller="AuditImageController" 
+						<%- if !f.object.images.first[:content_url].blank? -%>
+						data-ng-init="files.first = '<%= f.object.images.first[:content_url] -%>'"
+						<%- end -%>
+						data-ng-hide="show_store_search">
+						<div class="panel panel-default">
+							<div class="panel-heading">Attach Picture</div>
+							<div class="panel-body">
+								<%= f.fields_for :images, include_id: false do |img| -%>
+								<div style="display:none">
+									<%= img.hidden_field :content_url, data: {"ng-value" => "files.first"} -%>
+								</div>
+								<% end -%>
+								<div 
+									s3-upload 
+									bucket="'<%= ENV['aws_s3_bucket_upload'] -%>'" 
+									ng-model="files.first"
+									s3-upload-options="{getOptionsUri: '<%= api_v1_s3_access_token_path( ENV['aws_s3_bucket_upload'] ) -%>', folder: 'graeters/direct_uploads/'}"></div>			
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-8 col-md-pull-3 col-sm-12 col-xs-12" style="padding: 0">
+			<div class="panel panel-default">
+				<div class="panel-heading"><%= f.label :audit_comment, "Comments" -%></div>
+				<div class="panel-body">
+					<p>[Some description of how scoring is related to comments]</p>
+					<%= f.fields_for :comments, include_id: false do |c| -%>
+
+					<%= c.text_area :content, class: "form-control", cols: 80, rows: 5 -%>
+					<%- end -%>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<%- content_for :head do -%>
+<%= stylesheet_link_tag "datepicker3.css" %>
+<style type="text/css" media="all">
+	.panel-heading {
+		-webkit-border-radius: 2px !important;
+		-moz-border-radius: 2px !important;
+		border-radius: 2px !important;
+	}
+
+	input.form-control-md{
+		width: 10em;
+	}
+
+	input[type=checkbox] + label {font-weight: normal;}
+	.ng-cloak {
+		display: none !important;
+	}
+
+	.btn-wide {
+		min-width: 7em;
+	}
+	label.fieldWithErrors{
+		color: Red;
+	}
+	input:text.fieldWithErrors{
+		border: 1px solid Red;
+	}
+</style>
+<% end -%>
+
+<%- content_for :page_js do -%>
+<%= javascript_include_tag "angular.min.js" -%>
+<%= javascript_include_tag "angular-sanitize.min.js" -%>
+<%= javascript_include_tag "bootstrap-datepicker" -%>
+<%= javascript_include_tag "ng-s3upload.js" -%>
+<%= javascript_include_tag "audit_crud.js" -%>
+<script type="text/javascript">
+window.api_v1_stores_search_path = '<%= api_v1_stores_search_path -%>';
+window.show_store_search = <%= (audit[:store_id].nil? || audit[:store_id].zero?).to_s -%>;
+window.audit_store_id = <%= audit[:store_id] || 'null' -%>;
+
+$(document).ready(function(){
+	$('.input-group.date')
+	       .datepicker({
+	       		format: 'mm/dd/yyyy',
+			    todayBtn: "linked",
+			    clearBtn: true,
+			    autoclose: true,
+			    todayHighlight: true
+			});
+})
+</script>
+<%- end -%>

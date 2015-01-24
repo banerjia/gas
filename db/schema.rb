@@ -11,7 +11,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150104165300) do
+
+ActiveRecord::Schema.define(version: 20150121031127) do
 
   create_table "audit_journals", primary_key: "audit_id", force: true do |t|
     t.string    "title",      limit: 50
@@ -30,29 +31,30 @@ ActiveRecord::Schema.define(version: 20150104165300) do
   end
 
   create_table "audit_metrics", id: false, force: true do |t|
-    t.integer "audit_id",         limit: 8,                   null: false
-    t.integer "metric_id",        limit: 3,                   null: false
-    t.string  "score_type",       limit: 15, default: "base", null: false
-    t.integer "score",            limit: 2,  default: 0,      null: false
-    t.boolean "needs_resolution",            default: false,  null: false
+    t.integer "audit_id",   limit: 8,                   null: false
+    t.integer "metric_id",  limit: 3,                   null: false
+    t.string  "score_type", limit: 15, default: "base", null: false
+    t.integer "loss",       limit: 2,  default: 0,      null: false
+    t.integer "bonus",      limit: 2,  default: 0,      null: false
+    t.integer "base",       limit: 2,  default: 0,      null: false
+    t.boolean "resolved",              default: false,  null: false
   end
 
-  add_index "audit_metrics", ["audit_id", "needs_resolution"], name: "index_audit_metrics_on_audit_id_and_needs_resolution", using: :btree
+  add_index "audit_metrics", ["audit_id", "resolved"], name: "index_audit_metrics_on_audit_id_and_needs_resolution", using: :btree
 
   create_table "audits", force: true do |t|
-    t.integer   "store_id",              limit: 8,                 null: false
-    t.integer   "person_id",             limit: 3,                 null: false
-    t.integer   "base",                  limit: 2, default: 0,     null: false
-    t.integer   "loss",                  limit: 2, default: 0,     null: false
-    t.integer   "bonus",                 limit: 2, default: 0,     null: false
-    t.boolean   "has_unresolved_issues",           default: false
-    t.timestamp "created_at",                                      null: false
-    t.timestamp "updated_at",                                      null: false
+    t.string    "auditor_name",          limit: 30
+    t.integer   "store_id",              limit: 8,                  null: false
+    t.integer   "base",                  limit: 2,  default: 0,     null: false
+    t.integer   "loss",                  limit: 2,  default: 0,     null: false
+    t.integer   "bonus",                 limit: 2,  default: 0,     null: false
+    t.boolean   "has_unresolved_issues",            default: false
+    t.timestamp "created_at",                                       null: false
+    t.timestamp "updated_at",                                       null: false
   end
 
   add_index "audits", ["store_id", "created_at", "id"], name: "Store_Audit_History", using: :btree
   add_index "audits", ["store_id", "has_unresolved_issues"], name: "index_audits_on_store_id_and_has_unresolved_issues", using: :btree
-  add_index "audits", ["store_id", "person_id"], name: "index_audits_on_store_id_and_person_id", using: :btree
 
   create_table "comments", id: false, force: true do |t|
     t.integer  "commentable_id",   limit: 8,  null: false

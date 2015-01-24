@@ -1,5 +1,12 @@
-<%- store.build_region unless store.region -%>
+<%- 
+	store.build_region unless store.region 
+	available_regions = []
+	available_regions = Region.where(:company_id => store[:company_id]).select([:name, :id])  unless store[:company_id].nil? 
+-%>
+
 <%= form_for store do |f| %>
+
+<!-- Hidden Fields -->
 <div style="display:none">
 	<%= f.hidden_field :company_id unless f.object[:company_id].nil? -%>
 	<%= f.hidden_field :street_address, class: 'address-entries' -%>
@@ -9,6 +16,7 @@
 	<%= f.hidden_field :state_code, class: 'address-entries' -%>
 	<%= f.hidden_field :country -%>
 </div>	
+
 <%-	
 available_regions = []
 available_regions = Region.where(company_id: f.object[:company_id]).select([:name, :id])  unless f.object[:company_id].nil? 

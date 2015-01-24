@@ -10,7 +10,7 @@
 <% end -%>
 
 <%= form_for audit, data: {"ng-app" => "audit"}, role: "form" do |f| -%>
-	<div class="row" style="margin-bottom: 0.5em" data-ng-hide="show_store_search">
+	<div class="row ng-cloak" style="margin-bottom: 0.5em" data-ng-hide="show_store_search">
 		<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary btn-wide", data: {"ng-disabled" => "audit_store_id == null || show_store_search"} -%>
 		
 		<button class="btn btn-default btn-wide" type="button">Cancel</button>
@@ -18,5 +18,5 @@
 
 	<%= render :partial => "entry", :locals => {audit: audit, f: f} -%>
 
-
 <%- end -%>
+

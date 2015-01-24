@@ -1,115 +1,75 @@
 class Audit < ActiveRecord::Base
+  include AuditSearchable
+  include AuditImport
 	
-	belongs_to :store, :counter_cache => true
+  # Associations
+	belongs_to :store, counter_cache: true
 	
-	has_many :store_metrics
-	has_many :audit_journal
+	has_many :audit_metrics, dependent: :delete_all
+  has_many :images, as: :imageable, dependent: :delete_all
+  has_many :comments, as: :commentable, dependent: :delete_all
+
 	
-	
-	accepts_nested_attributes_for :store_metrics, :allow_destroy => true, \
-                                :reject_if => proc { |sm| sm[:point_value].blank? }
+	accepts_nested_attributes_for :audit_metrics, allow_destroy: true #, reject_if: Proc.new { |sm| sm[:score].blank? }
+  accepts_nested_attributes_for :comments, allow_destroy: true, reject_if: Proc.new { |c| c[:content].blank? }
+  accepts_nested_attributes_for :images, allow_destroy: true, reject_if: Proc.new { |i| i[:content_url].blank? }
+                                
+                                
+  accepts_nested_attributes_for :store, allow_destroy: false, reject_if: Proc.new { |s| s[:id].empty?}
 
-	# Intentionally disabled. This validation is handled by Javascripts. 
-	# The reason for doing so is to prevent complications involved in repopulating 
-	# selected values in HTML controls in case validation fails. 
-	# validates_presence_of :comments , :unless => proc{ |audit| audit[:score] > 19 }
-	
-	#tire do
-	#	index_name('audits')
-	#	mapping do
-	#		indexes :id,	          :type=>'integer',     :index => 'not_analyzed'
-  #		indexes :store_id,      :type => 'integer',   :index => 'not_analyzed'
-	#		indexes :company_id,    :type => 'integer',   :index => 'not_analyzed',   :as => 'store.company_id'
-	#		indexes :company_name,  :type => 'string',    :index => 'not_analyzed',   :as => 'store.company[:name]'
-	#		indexes :store_name,    :type => 'string',    :analyzer => 'snowball',    :as => 'store.name_with_locality'
-	#		indexes :auditor_facet, :type => 'string',    :index => 'not_analyzed',   :as => 'auditor_name',            :include_in_all => false
-	#		indexes :auditor_name,  :type => 'string',    :analyzer => 'snowball'
-	#		indexes :score,         :type => 'integer',	  :index => 'not_analyzed'
-	#		indexes :pending,       :type => 'boolean',   :index => 'not_analyzed',   :as => 'is_pending?'
-	#		indexes :created_at,    :type => 'date',      :index => 'not_analyzed'
-	#	end
-	#end
+  # Validations
+  validates_associated :audit_metrics
+  validates_presence_of :auditor_name, message: "Please provide a valid auditor name"
+  validates_presence_of :created_at, message: "Please provide a valid audit date"
+  validates :store, presence: true #, message: "Please select a store"
+  validates :comments, presence: true, unless: Proc.new { |audit| audit.total_score > 9 } #, message: "Audits with scores below 10 require comments to be provided"
+  
+  # Callbacks
 
-	after_save do |audit|
-		if audit.comments
-			audit.audit_journal.where("tags like '%Audit%' and tags like '%Notes%'").first[:body] = @audit_comments 
-			audit.save
-		else
-			audit.audit_journal.create( {:title => 'Audit Notes', :tags => 'Audit,Notes', :body => @audit_comments} )
-		end		
-	end
-	
-	def self.search_audits( params )
-		return_value = Hash.new
-		params[:score_upper] = 50 \
-						if params[:score_lower].present? && params[:score_upper].present? && params[:score_lower].to_i > params[:score_upper].to_i
-		tire_results = tire.search :load => {:include => [:store]}, :per_page => params[:per_page], :page => params[:page] do 
-			query do
-      	boolean do
-      		must { string params[:q] || all} 
-      		must { term :company_id, params[:company_id] }  if params[:company_id].present?
-      		must { term :auditor_facet, params[:auditor] }  if params[:auditor].present?
-      		must { term :store_id, params[:store] }         if params[:store].present?
-      		must { range :score, from: params[:score_lower], to: params[:score_upper]} if params[:score_lower].present?
-      	end
-			end
+  before_save do 
+    self[:has_unresolved_issues] = (self.audit_metrics.select{ |i| i[:loss] != 0 && !i[:resolved]}.size > 0)
 
-			facet('chains') {terms :company_id }
-			facet('auditors') {terms :auditor_facet }
-			facet('scores') do 
-      	range :score, [
-      		{ from: 0, to: 19},
-      		{ from: 20, to: 22}, 
-      		{ from: 23, to: 24},
-      		{ from: 25 }
-      	]
-			end
+    AuditMetric.where(audit_id: self[:id]).destroy_all
+    Comment.delete_all({commentable_id: self[:id], commentable_type: 'Audit'})
+    Image.delete_all({imageable_id: self[:id], imageable_type: 'Audit'})
+  end
 
-			sort	{by :created_at, 'desc' } 
-		end
+  after_commit do
+    store.__elasticsearch__.index_document
+  end
 
-		if tire_results.count > 0 
-			return_value[:audits] = tire_results.results
-			facets = Hash.new
+  before_destroy do |a|
+    AuditMetricResponse.delete_all({audit_id: a[:id]})
+  end
+  
+  # Post Rails 4 Upgrade Methods
+  
+  def total_score
+    self[:base] + self[:loss] + self[:bonus]
+  end
 
-			# Organizing Company Facet
-			if (params[:company_id].present? || tire_results.facets['chains']['terms'].count > 0)
-      	facets['chains'] = []
-      	tire_results.facets['chains']['terms'].each_with_index do |chain,index|
-      		chain[:company_name] = Company.find(:first, :conditions => {:id => chain['term'].to_i}, :select => :name)[:name]
-      		facets['chains'].push(chain)
-      	end
-      	facets['chains'].sort!{ |a,b| a[:company_name].sub(/^(the|a|an)\s+/i, '') <=> b[:company_name].sub(/^(the|a|an)\s+/i, '')}
-			end
+  def score
+    { base: self[:base], loss: self[:loss], bonus: self[:bonus], total: self.total_score}
+  end
 
-			# Organizing Auditor Facet
-			if params[:auditor].present? || tire_results.facets['auditors']['terms'].count > 0
-      	facets['auditors'] = []
-      	tire_results.facets['auditors']['terms'].each_with_index do |auditor,index|
-      		facets['auditors'].push(auditor)
-      	end
-      	facets['auditors'].sort!{ |a,b| a['term'] <=> b['term']}
-			end
+  # ElasticSearch Indexing Support Functions
 
-			# Organizing Scores Facet
-			facets['scores'] = tire_results.facets['scores']['ranges']
-
-			return_value[:facets] = facets
-		end
-
-		return return_value
-
-	end
-	
-	def comments
-		self.audit_journal.where("tags like '%Audit%' and tags like '%Notes%'").first[:body] if self.audit_journal.where("tags like '%Audit%' and tags like '%Notes%'").first
-	end
-
-	def comments=(value)	
-		@audit_comments = value
-	end
-	
-	def is_pending?
-		self[:status] == 0
-	end
+  def as_indexed_json(options={})
+    self.as_json({
+      only: [:id, :auditor_name, :audit_date, :has_unresolved_issues],
+      methods: [:score],
+      include: {
+        store: { 
+          only: [:id],
+          methods: [:full_name, :address]
+        }
+      }
+    })
+  end
+  
+  def self.index_refresh
+    Audit.__elasticsearch__.client.indices.delete index: Audit.index_name rescue nil
+    Audit.__elasticsearch__.client.indices.create index: Audit.index_name, body: { settings: Audit.settings.to_hash, mappings: Audit.mappings.to_hash}
+    Audit.import
+  end
 end

@@ -3,7 +3,7 @@ class Store < ActiveRecord::Base
   include StoreSearchable
   include StoreImport
   
-  
+  attr_accessor :possible_duplicates, :not_a_duplicate
   
   # Associations
   belongs_to :company, :counter_cache => true
@@ -16,26 +16,72 @@ class Store < ActiveRecord::Base
   has_many :orders
   
   has_many :audits
-	has_one :last_audit, -> { where("status=1").order("created_at desc") }, :class_name => "Audit"
-  has_one :pending_audit, -> { where "status = 0"}, :class_name => "Audit"
+	has_one :last_audit, -> { order("created_at desc") }, :class_name => "Audit"
 
   accepts_nested_attributes_for   :region, :reject_if => proc {|r| r[:name].blank? }
   
   # Validations  
   validates_presence_of [:company_id, :name, :street_address, :city, :state_code]
   validates_associated :region
-                              
+  validate  :nearby_stores , :on => :create
   
 
   # Callbacks
   geocoded_by :address, if: :street_address_changed?
   
   after_validation :geocode
+  
+  before_save  do |store|
+    StoreContact.where(:store_id => store[:id]).destroy_all
+  end
+  
+  def nearby_stores
+    return if !self.not_a_duplicate.nil? || self[:company_id].nil? || self.address.nil? || self.address.blank?
+    lat_lon = Geocoder.coordinates(self.address)
+    
+    # When a store is being created the :id for the store is going to be nil
+    # which may cause the ES query to fail because of a nil value in the must_not
+    # clause. However, the must_not clause is required to ignore the current record 
+    # when this validation is being performed during an :update operation.     
+    store_id = self[:id] || 0     
+    
+    # A filter is used instead of a query as it comes with less overhead as
+    # compared to a match_all query or something similar.
+    possible_dups = Store.__elasticsearch__.search \
+    :filter => {
+      :bool => {
+        :must => [
+          {
+            :geo_distance => {
+              :distance => "0.5mi",
+              "location" => {
+                :lat => lat_lon[0],
+                :lon => lat_lon[1]
+              }            
+            }
+          },
+          {
+            :term => {
+              "company.id" => self[:company_id]
+            }
+          }
+        ],
+        :must_not => {
+          :term => {
+            :id => store_id
+          }
+        }          
+      }
+    }
+    
+    if possible_dups.results.size 
+      self.possible_duplicates = possible_dups.results.map{ |item| item[:_source]} 
+      errors[:base] << "Possible duplicate entry"
+    end
+    
+  end
 
   # Model Methods
-  def has_pending_audit?
-    !pending_audit.blank?
-  end
 
   def completed_audits( limit = "0,25")
     audits.where({:status => 1}).order("created_at desc").limit( limit ).includes(:audit_journal)    
@@ -63,6 +109,10 @@ class Store < ActiveRecord::Base
     return return_value    
   end
   
+  def location
+    {:lat => self[:latitude], :lon => self[:longitude] }
+  end
+  
   def self.update_geolocation
     stores_to_update = Store.where("latitude IS NULL OR longitude IS NULL")
     stores_to_update.each_with_index do |store, index|
@@ -77,12 +127,12 @@ class Store < ActiveRecord::Base
 
   def as_indexed_json(options={})
     self.as_json({
-      only: [:id, :country, :state_code],
-      methods: [:address, :full_name],
+      only: [:id, :country, :state_code, :store_number],
+      methods: [:address, :full_name, :location],
       include: {
         company: { only: [:id, :name] },
         state: { only: :state_name },
-        last_audit: {only: [:id, :created_at, :score]},
+        last_audit: {only: [:id, :created_at], methods: [:score]},
         region: {only: [:id, :name]}
       }
     })

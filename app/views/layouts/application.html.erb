@@ -4,8 +4,11 @@
 	<title><%= @page_title || 'Untitled' -%></title>
 	<%= csrf_meta_tags %>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" type="text/css" media="screen" charset="utf-8"/>
-	<%= stylesheet_link_tag "normalize.min.css" %>
+
+	<%= stylesheet_link_tag "bootstrap.min.css" -%>
+	<%= stylesheet_link_tag "normalize.min.css" -%>
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+
 	<%= stylesheet_link_tag "application" %>
 	<%= yield :head %>
 </head>
@@ -24,6 +27,7 @@
 				</div>
 				<div id="navbar" class="collapse navbar-collapse">
 					<ul class="nav navbar-nav navbar-right">
+
 						<%- if !Rails.env.production? -%>
 						<li><p class="navbar-text"><span class="label label-warning"><%=branch_info -%></span></p></li>
 						<%- end -%>
@@ -62,6 +66,7 @@
 	</div>
 	<footer class="container">
 		<p>Developed by Tagore Town LLC. for Graeters Inc.</p>
+
 		<p>&copy; Copyright reserved <%= Date.today.year -%>.</p>
 	</footer>
 	<div style="display:none">
@@ -75,11 +80,12 @@
 			ga('create', '<%=ENV['google_analytics_id']-%>', 'auto');
 			ga('send', 'pageview');
 
-
 		</script>
 		<%- end -%>
-		<%= javascript_include_tag "jquery-2.1.3.min.js" -%>	
+
+		<%= javascript_include_tag "jquery-2.1.3.min.js" -%>
 		<%= javascript_include_tag "bootstrap.min.js" -%>
+		
 		<%= javascript_include_tag :application -%>
 		<%= yield :page_js %>
 	</div>

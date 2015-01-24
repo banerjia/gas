@@ -15,21 +15,21 @@ class @GoogleMapsAutoComplete
 	constructor: ->
 		componentForm = arguments[1] if arguments.length > 1
 		addressSearchElementId = arguments[0] if arguments.length > 0
-		initialize()
+		@initialize()
 		return
 
-	initialize = () ->				
-		autocomplete = new google.maps.places.Autocomplete document.getElementById(addressSearchElementId), {types: ['establishment'], componentRestrictions: {country: 'us'}}	
+	initialize: ->				
+		autocomplete = new google.maps.places.Autocomplete document.getElementById(addressSearchElementId), {types: ['address'], componentRestrictions: {country: 'us'}}	
 		google.maps.event.addDomListener document.getElementById(addressSearchElementId), 'keydown', (e) ->  
 			e.preventDefault() if (e.keyCode == 13)
 			return
 			
 		google.maps.event.addListener autocomplete, 'place_changed', () ->
-			fillInAddress()
+			@fillInAddress()
 			return
 		return
 	
-	fillInAddress = () ->
+	fillInAddress: ->
 		place = autocomplete.getPlace()
 		for component in Object.keys(componentForm)
 			do (component) ->

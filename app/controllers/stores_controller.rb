@@ -154,6 +154,6 @@ class StoresController < ApplicationController
 
 private
   def store_params
-    params.require(:store).permit(:company_id, :region_id, :name, :locality, :street_address, :city, :county, :state_code, :zip, :country, :store_number, :phone, :region_attributes => [:name])
+    params.require(:store).permit(:not_a_duplicate, :company_id, :region_id, :name, :locality, :street_address, :city, :county, :state_code, :zip, :country, :store_number, :phone, :store_contacts_attributes => [:name, :title, :phone, :email], :region_attributes => [:name])
   end
 end
