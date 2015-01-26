@@ -61,7 +61,7 @@
 		<% end -%>
 	</div>
 	<div class="col-md-9 col-md-offset-1 col-sm-12 col-xs-12" data-ng-app>
-		<%= render partial: "store_list", locals: {store_list: stores_found, more_pages: (total_results/options[:per_page] > options[:page]), options: options} -%>
+		<%= render partial: "store_list", locals: {store_list: stores_found, more_pages: ((total_results.to_f/options[:per_page].to_f) > options[:page].to_f), options: options} -%>
 	</div>	
 </div>
 
