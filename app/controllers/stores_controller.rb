@@ -1,7 +1,7 @@
 class StoresController < ApplicationController
 
   def index
-    redirect_to :action => "search"
+    redirect_to action: "search"
   end
 
   def show
@@ -23,7 +23,7 @@ class StoresController < ApplicationController
     @page_title = store[:name].titlecase + " Dashboard"
 
     respond_to do |format|
-      format.html { render :locals => {:store => store}}
+      format.html { render locals: {store: store}}
     end
 
   end
@@ -41,7 +41,7 @@ class StoresController < ApplicationController
       new_store[:company_id] = company_id
 		end
     
-    render :locals => {:store => new_store}
+    render locals: {store: new_store}
 	end
 
 	def create
@@ -51,12 +51,12 @@ class StoresController < ApplicationController
     new_store = Store.create(store)
     if new_store.valid?
       flash[:message] = "New store for #{new_store.company[:name]} successfully created"
-      redirect_to :action => "show", :id => new_store.id
+      redirect_to action: "show", id: new_store.id
     else
       @page_title = "Add a Store"
       @page_title +=" for #{Company.find(new_store[:company_id])[:name]}" unless new_store[:company_id].nil?
       
-      render :action => "new", :locals => {:store => new_store}
+      render action: "new", locals: {store: new_store}
     end
 	end
 
@@ -70,7 +70,7 @@ class StoresController < ApplicationController
 
     respond_to do |format|
       format.html do           
-        render :locals => {:store => selected_store, :states => states, :companies => companies }
+        render locals: {store: selected_store, states: states, companies: companies }
       end
     end
   end
@@ -81,17 +81,10 @@ class StoresController < ApplicationController
     store_to_update.update_attributes( store_params )
     if store_to_update.valid?
       flash[:notice] = "Store information updated."
-      redirect_to :action => "show", :id => selected_store_id
+      redirect_to action: "show", id: selected_store_id
     else      
-      render :action => "edit", :locals => {:store => store_to_update}     
+      render action: "edit", locals: {store: store_to_update}     
     end    
-  end
-
-  def new_audit
-    page_title = "New Audit"
-    respond_to do |format|
-      format.html { render :locals => {:page_title => page_title}}
-    end
   end
 
   def search
@@ -99,24 +92,24 @@ class StoresController < ApplicationController
     page = (params[:page] || 1).to_i.abs
     params[:per_page] = (params[:per_page] || $per_page).to_i.abs
     params[:per_page] = $per_page if params[:per_page] == 0
+    params[:page] = page
 
-    stores_found = Store.search params                  
+    stores_found = Store.search params   
+    aggs = stores_found[:aggs]               
     
     respond_to do |format|
-      format.json do
-        return_value = Hash.new
-        return_value[:stores] = stores_found[:results]
-        return_value[:more_pages] = stores_found[:more_pages]
-        return_value[:stores_found] = stores_found[:total]
-        return_value[:aggs] = stores_found[:aggs]
-        render :json => return_value.to_json(
-        :include => $store_inclusions,
-        :except => $exclusions + [:phone])
-      end
+      # format.json do
+      #   return_value = Hash.new
+      #   return_value[:stores] = stores_found[:results]
+      #   return_value[:more_pages] = stores_found[:more_pages]
+      #   return_value[:stores_found] = stores_found[:total]
+      #   return_value[:aggs] = stores_found[:aggs]
+      #   render json: return_value.to_json(
+      #   include: $store_inclusions,
+      #   except: $exclusions + [:phone])
+      # end
       format.html do
         [:action, :controller, :format].each { |key| params.delete(key) }
-        @stores = stores_found[:results]
-        @aggs = stores_found[:aggs] 
         
         # HACK NOTE:
         # The following line has been conditional because putting the COMPANY_ID in 
@@ -125,22 +118,20 @@ class StoresController < ApplicationController
         # but when a search is performed for Byerly stores the regions associated with 
         # Krogers still show up. So this is a hack for the time being till the 
         # ES query is fine tuned to avoid this problem.
-        if @aggs[:regions].present? && params[:company_id].present? && !Store.where(["company_id = ? AND region_id IS NOT NULL", params[:company_id].to_i]).any?
-          @aggs[:regions] = nil
+        if aggs[:regions].present? && params[:company_id].present? && !Store.where(["company_id = ? AND region_id IS NOT NULL", params[:company_id].to_i]).any?
+          aggs[:regions] = nil
         end
         # END HACK NOTE
         
         
-        @more_pages = stores_found[:more_pages]
-        if @stores.size > 0	
-			      @page_title = @stores[0].company.name + " Stores in " + @stores[0].state.state_name           		  
-            render "search_results", :locals => {\
-              :options => params}
+        if stores_found[:results].size > 0	
+			      @page_title = "Store Listing"    
+            @page_title = "#{@page_title} for #{stores_found[:results].first.company.name}" if params[:company_id].present? 
+            @browser_title = "#{stores_found[:results].first.company.name} Stores" if params[:company_id].present?      		  
+            render "search_results", locals: {stores_found: stores_found[:results], total_results: stores_found[:total], aggs: stores_found[:aggs] , options: params}
         else
 		      @page_title = "Information Unavailable"
-          render "search_results", :locals => {\
-			        :options => params, \
-			        :stores => nil}			
+          render "search_results", locals: {options: params, stores_found: nil, total_results: 0, aggs: nil}			
         end
       end
     end
@@ -148,6 +139,6 @@ class StoresController < ApplicationController
 
 private
   def store_params
-    params.require(:store).permit(:not_a_duplicate, :company_id, :region_id, :name, :locality, :street_address, :city, :county, :state_code, :zip, :country, :store_number, :phone, :store_contacts_attributes => [:name, :title, :phone, :email], :region_attributes => [:name])
+    params.require(:store).permit(:not_a_duplicate, :company_id, :region_id, :name, :locality, :street_address, :city, :county, :state_code, :zip, :country, :store_number, :phone, store_contacts_attributes: [:name, :title, :phone, :email], region_attributes: [:name])
   end
 end

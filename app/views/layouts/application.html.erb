@@ -2,13 +2,13 @@
 <html> 
 
 <head>
-	<title><%= @page_title || 'Untitled' -%></title>
+	<title><%= @browser_title || @page_title || 'Untitled' -%></title>
 	<%= csrf_meta_tags %>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<%= stylesheet_link_tag "bootstrap.min.css" -%>
 	<%= stylesheet_link_tag "normalize.min.css" -%>
-	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+	<%= stylesheet_link_tag "font-awesome.min.css" -%>
 
 	<%= stylesheet_link_tag "application" %>
 	<%= yield :head %>

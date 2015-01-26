@@ -1,62 +1,77 @@
-<% content_for :page_js do %>
-	<% if !@stores.nil? then %>
-	<script type="text/javascript">
-		var ajax_path = '<%= stores_search_path({:format=>:json}.merge(options)) %>';
-	</script>
-	<% end %>
-<% end  %>
-<% content_for :head do %>
-	<%= stylesheet_link_tag "table" %>
-	<%= stylesheet_link_tag "forms" %>
-	<style type="text/css" media="screen">
-		div#page_body {text-align:center;}
-		div#sub_container {
-			margin: 0 auto;
-			text-align: left;
-			width:70%;
-		}
-		table.listing{
-			border-bottom:none;
-		}
-		input#q{
-			width:30em;
+<div class="row">
+	<div class="col-md-12 col-sm-12 col-xs-12">
+		<%= render :partial => 'store_search', :locals => {:options => options} %>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-2 hidden-sm hidden-xs" id="aggs">
+		<%- if options[:company_id].present? -%>
+		<h2 class="h4">Regions</h2>
+			<%- if !aggs.nil? && aggs[:regions].present? -%>
+			<%-
+				params_without_region = options.reject{ |key,value| key.to_s == '_region' || key.to_s == "page" }
+				path_prefix = stores_search_path
+				path_prefix += "?" + params_without_region.to_param if params_without_region
+			-%>
+			<ul class="list-unstyled">
+
+				<%- if options[:_region] -%>
+					<li><strong><%= link_to "All Regions", path_prefix -%></strong></li>
+				<%- end -%>
+				<%- aggs[:regions].each do |region| -%>
+				<%-
+					url = path_prefix + "&" + {:_region => region[:id]}.to_param
+				-%>
+					<li <%= options[:_region].to_i ==  region[:id].to_i ? raw("class='active'"): "" -%>>
+						<%= link_to_if options[:_region].to_i !=  region[:id].to_i,  region[:name], url -%>
+					</li>
+				<% end -%>
+			</ul>
+			<%- else -%>
+				<p><em>No region filtering options are available for the current store listing.</em></p>
+			<% end -%>
+		<% end -%>
+
+		<h2 class="h4">States</h2>
+		<%- if !aggs.nil? && aggs[:states].present? && aggs[:states].size > 1 -%>
+		<%-
+			params_without_state = options.reject{ |key,value| key.to_s == '_state' || key.to_s == "page" }
+			path_prefix = stores_search_path
+			path_prefix += "?" + params_without_state.to_param if params_without_state
+		-%>
+		<ul class="list-unstyled">
+			<%- if options[:_state] -%>
+				<li><strong><%= link_to "All States", path_prefix -%></strong></li>
+			<%- end -%>
+			<%- aggs[:states].each do |state| -%>
+			<%-
+				url = path_prefix + "&" + {:_state => state[:state_code]}.to_param
+			-%>
+				<li <%= options[:_state] ==  state[:id] ? raw("class='active'"): "" -%>>
+				<%- if options[:_state] !=  state[:state_code] -%>
+					<i class="fa"></i><%= link_to   state[:name], url -%>
+				<%- else -%>
+					<i class="fa fa-chevron-right"><%= state[:name] -%></i>
+				<% end -%>
+				</li>
+			<% end -%>
+		</ul>
+		<%- else -%>
+			<p><em>No state filtering options are available for the current store listing.</em></p>
+		<% end -%>
+	</div>
+	<div class="col-md-9 col-md-offset-1 col-sm-12 col-xs-12" data-ng-app>
+		<%= render partial: "store_list", locals: {store_list: stores_found, more_pages: (total_results/options[:per_page] > options[:page]), options: options} -%>
+	</div>	
+</div>
+
+<%- content_for :head do -%>
+	<style type="text/css">
+		div#aggs > h2.h4{
+			border-bottom: 1px solid #CCC;
+			line-height: 2.2;
 		}
 	</style>
-<% end %>
-<% content_for :left_column do %>
-<h2>Filtering Options</h2>
-<%- 
-	if @aggs[:regions].present?
-		params_without_region = options.reject{ |key,value| key.to_s == 'region' }
-		path_prefix = stores_search_path
-		path_prefix += "?" + params_without_region.to_param if params_without_region
--%>
-	<h3 style="text-align:left">Regions</h3>
-	<ul class="nav_items">
-		<%- 
-			@aggs[:regions].each do |item| 
-				url = path_prefix + "&" + {:region => item[:region_id]}.to_param
-		-%>
-			<li <%= options[:region].to_i ==  item[:region_id].to_i ? raw("class='current'"): "" -%>><%= link_to_if options[:region].to_i !=  item[:region_id].to_i,  item[:name], url -%></li>
-		<%- end -%>
-		
-		<%- if options[:region] -%>
-			<li><%= link_to "All Regions", path_prefix -%></li>
-		<%- end -%>
-	</ul>
-<%-
-		params_without_region.delete_if{ true }
-		params_without_region = nil
-	else
--%>
-		<p>No filtering options available for the current store listing</p>
-	<%- end -%>
-<% end %>
-<%= render :partial => 'store_search', :locals => {:options => options} %>
+<% end -%>
 
-<% if !@stores.nil? then %>
-	<%= render :partial => "stores", \
-		:locals => {:store_collection =>  @stores, :more_pages => @more_pages}%>
-<% else %>
-	We were unable to locate any stores matching the criteria you provided. Please review the search criteria.
-<% end %>
+
