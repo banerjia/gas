@@ -1,91 +1,142 @@
-<% content_for :left_column do %>
-  <h2>Options</h2>
-  <h3>Find Orders</h3>
-  <ul class="nav_items">
-    <%- @pre_defined_search_options.each do |search_specs| -%>		
-      <li class="<%=search_specs[1][:class]-%>">
-      <%= link_to_if !search_specs[1][:class].present?, search_specs[0], orders_search_path(search_specs[1]) -%>
-      </li>
-    <%- end -%>
-  </ul>
-  <%- 
-    if defined?(@facets) 
-      path_prefix = orders_search_path  
 
-      if @facets['states'] || @search_params[:shipping_state].present?
-	search_params_without_state = @search_params.reject{ |key,value| key.to_s == 'shipping_state' }
-      -%>
-      <h3>Filter by Shipping State</h3>
-      <ul class="nav_items">
-
-	<%- if @facets['states'] -%>
-	  <%-    @facets['states'].each do |facet_term|
-	    url = [search_params_without_state.to_param, "shipping_state=#{facet_term['term']}"].join("&")
-	    url = [path_prefix, url].join("?")
-	  -%>
-	  <li <%= @search_params[:shipping_state] ==  facet_term['term'] ? raw("class='current'"): "" -%>><%= link_to_if @search_params[:shipping_state] !=  facet_term['term'],  facet_term[:state_name], url -%></li>
-	<%- end
-	  search_params_without_state.delete_if{ true }
-	  search_params_without_state = nil
-	else
-      -%>
-      <li class="current">
-      <%= State.find(['US', @search_params[:shipping_state]])[:state_name] -%>
-      <span style="float:right">
-	<%= link_to "X", [path_prefix, search_params_without_state.to_param].join("?") -%>							
-      </span>
-      </li>
-    <%- end -%>
-  <%- end -%>		
-</ul>
-<%-		
-  if @facets['chains'] || @search_params[:company_id].present?
-    search_params_without_chain = @search_params.reject{ |key,value| key.to_s == 'company_id' }
-  -%>
-  <h3>Filter by Chain</h3>
-  <ul class="nav_items">
-    <%-
-      if @facets['chains']
-	@facets['chains'].each do |facet_term|
-	  url = [search_params_without_chain.to_param, "company_id=#{facet_term['term']}"].join("&")
-	  url = [path_prefix, url].join("?")
-	-%>
-	<li <%= @search_params[:company_id].to_i ==  facet_term['term'].to_i ? raw("class='current'"): "" -%>><%= link_to_if @search_params[:company_id].to_i !=  facet_term['term'].to_i,  facet_term[:company_name], url -%></li>
-	<%-  
-	end
-      else  
-    -%>
-    <li class="current">
-    <%= Company.find(@search_params[:company_id])[:name] -%>
-    <span style="float:right">
-      <%= link_to "X", [path_prefix, search_params_without_chain.to_param].join("?") -%>							
-    </span>
-    </li>	
-    <%-
-      end
-      search_params_without_chain.delete_if{ true }
-      search_params_without_chain = nil
-  end
--%>		
-      </ul>
-    <%- end -%>
-  <%- end -%>
-  <%- content_for :head do -%>
-    <style type="text/css" media="screen">
-      page_body#h3 {font-size: 10pt}
-      page_body ul.nav_items li.current {
-	background-color: #ddd;
-	color: #000;
-	font-weight: bold;
-      }
-    </style>
-  <%- end -%>
-  <%- content_for :page_js do -%>
-    <script type="text/javascript">
-      <%- if !@search_params[:start_date].present? -%>
-	window.start_date = '<%=Time.now.strftime("%Y-%m-%d")-%>';
+<div class="row">
+  <div class="col-md-3 hidden-sm hidden-xs">
+    <h2 class="h3">Find Orders by Date</h2>
+    <ul class="list-unstyled">
+      <%- predefined_search_criteria.each do |search_specs| -%>   
+        <li>
+        <%= link_to_if (search_specs[1][:start_date].to_date != options[:start_date].to_date || search_specs[1][:end_date].to_date != options[:end_date].to_date), search_specs[0], orders_search_path(search_specs[1]) -%>
+        </li>
       <%- end -%>
-      window.end_date = '<%= !@search_params[:end_date] || @search_params[:end_date].to_date.today? ? Time.now : @search_params[:end_date] -%>';
-      </script>
-    <%- end -%>
-    <%= render :partial => 'order_listing', :locals => {:orders => @orders, :show_store => true, :more_pages => @more_pages, :search_title => @search_title, :search_params => @search_params} %>
+    </ul>
+    <h2 class="h3">Filtering Options</h2>
+
+    <h3 class="h4">By State</h3>
+    
+    <ul class="list-unstyled">
+    <%-
+          options_without_state = options.clone
+          options_without_state.delete(:_shipping_state)
+    -%>
+    <%- if options[:_shipping_state].present? then -%>
+      <li><%= link_to "All States", orders_search_path(options_without_state) -%></li>
+    <% end -%>
+    <%- aggs[:states].each do |state| -%>
+      <li>
+        <%= link_to_if aggs[:states].size > 1 && state[:state_code] != options[:_shipping_state], state[:name],orders_search_path(options_without_state.merge({_shipping_state: state[:state_code]})) -%>
+      </li>
+    <% end -%>
+    </ul>
+
+    <h3 class="h4">By Company</h3>
+    <ul class="list-unstyled">
+    <%-
+          options_without_company = options.clone
+          options_without_company.delete(:_company_id)
+    -%>
+    <%- if options[:_company_id].present? then -%>
+      <li><%= link_to "All Companies", orders_search_path(options_without_company) -%></li>
+    <% end -%>
+    <%- aggs[:companies].each do |company| -%>
+      <li>
+        <%= link_to_if (aggs[:companies].size > 1 && company[:id].to_i != options[:_company_id].to_i), company[:name],orders_search_path(options_without_company.merge({_company_id: company[:id]})) -%>
+      </li>
+    <% end -%>
+    </ul>
+
+    <h3 class="h4">By Route</h3>
+    <ul class="list-unstyled">
+    <%-
+          options_without_route = options.clone
+          options_without_route.delete(:_route)
+    -%>
+    <%- if options[:_route].present? then -%>
+      <li><%= link_to "All Routes", orders_search_path(options_without_route) -%></li>
+    <% end -%>
+    <%- aggs[:routes].each do |route| -%>
+
+      <li>
+        <%= link_to_if (aggs[:routes].size > 1 && route[:id].to_i != options[:_route].to_i), route[:name],orders_search_path(options_without_route.merge({_route: route[:id]})) -%>
+      </li>
+    <% end -%>
+    </ul>
+  </div>
+  <div class="col-md-9 col-sm-12 col-xs-12">
+    <form id="order_list_form" onsubmit="return false" method="get">
+      <table class="table table-condensed" id="order_list">
+        <thead>
+          <tr>
+            <th scope="col">
+              Select All<br/>
+              <%= check_box_tag :select_all if !defined?(orders) || (defined?(orders) && orders.size > 0) -%>
+            </th>
+            <th scope="col">Created On</th>
+            <th scope="col">Store</th>
+            <th scope="col">Deliver By</th>
+            <th scope="col">Email Status</th>
+          </tr>
+          <tr class="toolbar">
+            <td colspan="5" class="well well-sm">
+              <input type="button" class="btn btn-primary" rel="div#email_order" id="a_email_order" value="Email Order"/>
+              <input type="button" class="btn btn-danger" value="Delete" id="delete_orders"/>
+            </td>    
+          </tr>
+        </thead>
+        <tbody>
+        <%- orders.each do |order| -%>
+          <tr>
+            <td><%= check_box_tag :order, order[:id] -%></td>
+            <td><%= link_to order[:created_at].to_date.strftime("%b %d, %Y") , order_path(order[:id]), target: "_blank" -%></td>
+            <td><%= order[:store][:full_name] -%></td>
+            <td><%= order[:delivery_day_of_the_week]  -%></td>
+            <td class="text-center">
+              <%- if order[:email_sent] -%>
+                <span class="label label-success">Sent</span>
+              <%- end -%>
+            </td>
+          </tr>
+        <%- end -%>
+        </tbody>
+      </table>
+    </form>
+    <div id="email_order">
+      <form id="email_order_form" onsubmit="return false;" method="get">
+        <div id="email_order-header">
+          <h3>Email Order(s)</h3>
+          <a class="modal_close modal_close_positioning btn btn-default" style="min-width: 1px" href="#"><i class="fa fa-1x fa-close"></i></a>
+        </div>
+        <div class="entry_row" style="display:none">
+          <label for="email_addresses">Email Address(es)</label><br/>
+                            <%= email_field_tag :email_addresses, ENV['order_email'], :multiple => true -%>
+        </div>
+        <div class="entry_row">
+          <label for="email_body">Message</label> - <em>optional</em><br/>
+          <%= text_area_tag :email_body, nil, :rows => 5, :cols => 65 -%>
+        </div>
+        
+        <div class="col-md-12 col-sm-12 col-xs-12">
+          <button type="button" class="btn btn-primary" id="send_email">Send</button>
+          <button class="btn btn-default modal_close">Cancel</button>
+        </div>
+      </form> 
+    </div>
+  </div>
+</div>
+
+<%- content_for :head do -%>
+  <%= stylesheet_link_tag :order_list -%>
+<% end -%>
+<%- content_for :page_js do -%>
+
+<%= javascript_include_tag "jquery.leanModal.min.js" -%>
+<%= javascript_include_tag :orders_list -%>
+<script type="text/javascript">
+  window.order_path = '<%= orders_path -%>';
+  window.email_order_path = '<%= email_order_path -%>';
+  window.orders_search_path = '<%= orders_search_path -%>';
+  $( document ).ready( function(){
+    OrderList.init();     
+  });  
+</script>
+
+<% end -%>

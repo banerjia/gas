@@ -1,4 +1,6 @@
 class Order < ActiveRecord::Base
+  include OrderSearchable
+  include OrderImport
   
   # Associations
   has_many :product_orders, :dependent => :destroy
@@ -10,27 +12,9 @@ class Order < ActiveRecord::Base
   
   # Validations
   accepts_nested_attributes_for :product_orders, :allow_destroy => true, \
-                                :reject_if => proc { |po| po[:quantity].blank? || (!po[:quantity].blank? && po[:quantity].to_i<=0) }
+                                :reject_if => proc { |po| po[:quantity].blank? || (!po[:quantity].blank? && po[:quantity].to_i.zero?) }
   
-  # ElasticSearch Index
-#  tire do 
-#    index_name('orders')
-#    mapping do
-#      indexes :id,              :type => "integer",   :index => 'not_analyzed', :include_in_all => false
-#      indexes :invoice_number,  :type => "string",    :index => 'not_analyzed'
-#      indexes :email_sent,     	:type => "boolean",   :index => 'not_analyzed'
-#      indexes :store_name,      :type => "string",    :analyzer => 'snowball',  :as => 'store.name_with_locality'
-#      indexes :store_id,        :type => 'integer',   :index => 'not_analyzed', :as => 'store[:id]'
-#      indexes :company_id,      :type => 'integer',   :index => 'not_analyzed', :as => 'store.company[:id]'
-#      indexes :company_name,    :type => 'string',    :analyzer => 'snowball',  :as => 'store.company[:name]'
-#      indexes :ship_to_state,   :type => 'string',    :index => 'not_analyzed', :as => 'store.state.state_name'
-#      indexes :ship_to_state_code, :type => 'string', :index => 'not_analyzed', :as => 'store[:state_code]'
-#      indexes :deliver_by_day,  :type => 'string',    :index => 'not_analyzed', :as => 'delivery_day_of_the_week'
-#      indexes :created_at,      :type => 'date',      :index => 'not_analyzed'
-#      indexes :route_id,        :type => 'integer',   :index => 'not_analyzed'
-#      indexes :route_name,      :type => 'string',    :index => 'not_analyzed', :as => 'route[:name]'
-#    end
-#  end
+
   # Callbacks  
   before_save do |order|
     # Setting the order sent date
@@ -105,102 +89,29 @@ class Order < ActiveRecord::Base
     return products_by_category
   end
 
+  def as_indexed_json(options={})
+    self.as_json({
+      only: [:id, :invoice_number, :email_sent, :created_at],
+      methods: [:delivery_day_of_the_week],
+      include: {
+        store: { 
+          only: [:id, :state_code], 
+          methods: [:full_name],
+          include: {
+            company: { only: [:id, :name]},
+            state: { only: [:state_name]}
+          }
+        },
+        route: {
+          only: [:id, :name]
+        }
+      }
+    })
+  end  
 
-  def self.search_orders( params , per_page = 10, page = 1  )
-    store_id = params[:store_id] if params[:store_id].present?
-    company_id = params[:company_id] if params[:company_id].present?
-    route_id = params[:route_id] if params[:route_id].present?
-    state_code = params[:shipping_state] if params[:shipping_state].present?
-    email_sent_status = params[:email_sent] if params[:email_sent].present?
-  
-    # Initialize both dates to nil so that in case the "else"
-    # part is executed the missing date is always set to nil
-    start_date = end_date = nil
-    if !(params[:start_date].present? || params[:end_date].present?)
-        # If neither dates are specified then default to today
-        start_date = end_date = Date.today.to_date
-    else
-	    # Otherwise assign the values if they are present. 
-    	start_date = params[:start_date] if params[:start_date].present?
-    	end_date = params[:end_date] if params[:end_date].present?
-    end  
-
-    query = params[:q] if params[:q].present?
-    
-    tire_order_listing = self.tire.search :per_page => per_page, :page => page do 
-      query do
-           boolean do
-	           # Based on the logic above either both of the dates or at least one of them
-	           # one of them will have dates in them or will be set to nil. Hence no defined? check for them.
-      	     must { range :created_at, {:gte => start_date } } unless start_date.nil?
-      	     must { range :created_at, {:lte => end_date.to_s } } unless end_date.nil?
-      	     must { string query } if defined?(query) && query
-      	     must { term :store_id,  store_id.to_i } if defined?(store_id) && store_id
-      	     must { term :company_id, company_id } if defined?(company_id) && company_id
-      	     must { term :ship_to_state_code, state_code } if defined?(state_code) && state_code
-      	     must { term :email_sent, email_sent_status } if defined?(email_sent_status) && !email_sent_status.nil?
-           end
-      end
-
-      # Filtering for facets
-      filter :term, :route_id => route_id             if defined?(route_id) && route_id
-
-      # Defining facets
-      if !params[:shipping_state].present?
-        facet 'states' do
-          terms :ship_to_state_code
-        end  
-      end
-      if !params[:company_id].present?
-        facet 'chains' do 
-          terms :company_id
-        end  
-      end
-      
-      facet 'delivery_day' do
-        terms :deliver_by_day
-      end
-        
-      facet 'routes' do
-        terms :route_id
-      end
-      
-      sort  {by :created_at, 'desc'} unless params[:sort].present?
-    end
-
-    more_pages = (tire_order_listing.total_pages > page )
-    
-    facets = Hash.new
-
-
-    # Populating States Facet
-    if tire_order_listing.facets['states'] && tire_order_listing.facets['states']['terms'].count > 0
-      facets['states'] = []
-      tire_order_listing.facets['states']['terms'].each_with_index do |state,index| 
-        state[:state_name] = State.where(:state_code => state['term']).first()[:state_name]
-        facets['states'].push(state)
-      end  
-      facets['states'].sort!{ |a,b| a[:state_name] <=> b[:state_name]}
-    end
-    
-    # Populating Chains Facet
-    if tire_order_listing.facets['chains'] && tire_order_listing.facets['chains']['terms'].count > 0
-      facets['chains'] = []
-      tire_order_listing.facets['chains']['terms'].each_with_index do |chain,index|
-        chain[:company_name] = Company.find(chain['term'].to_i)[:name]
-        facets['chains'].push(chain)
-      end  
-      facets['chains'].sort!{ |a,b| a[:company_name].sub(/^(the|a|an)\s+/i, '') <=> b[:company_name].sub(/^(the|a|an)\s+/i, '')}
-    end
-    
-    # Populating Delivery Day Facets
-    facets['delivery_day'] = tire_order_listing.facets['delivery_day']['terms'] if tire_order_listing.facets['delivery_day']['terms'].count > 1
-
-    return_value = Hash.new
-    return_value[:results] = tire_order_listing
-    return_value[:facets] = facets
-    return_value[:more_pages] = more_pages
-    return_value[:dates] = [start_date,end_date]
-    return return_value
+  def self.index_refresh
+    Order.__elasticsearch__.client.indices.delete index: Order.index_name rescue nil
+    Order.__elasticsearch__.client.indices.create index: Order.index_name, body: { settings: Order.settings.to_hash, mappings: Order.mappings.to_hash}
+    Order.import
   end
 end
