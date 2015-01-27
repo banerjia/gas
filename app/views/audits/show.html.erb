@@ -55,7 +55,7 @@
 		</div>		
 	</div>
 </div>
-<%- audit.audit_metrics.each do |audit_metric| -%>
+<%- audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]}.each do |audit_metric| -%>
 
 	<div class="row">
 		<div class="panel panel-default">

@@ -20,7 +20,10 @@ module AuditSearchable
           end
         end
         
-        indexes :auditor_name, type: 'string', analyzer: 'standard'
+        indexes :auditor_name, type: 'multi_field' do
+          indexes :auditor_name
+          indexes :raw, index: 'not_analyzed'
+        end
         indexes :score do 
           indexes :base, type: 'integer', index: 'not_analyzed'
           indexes :loss, type: 'integer', index: 'not_analyzed'
@@ -84,6 +87,11 @@ module AuditSearchable
               {from: 0, to: 9}              
             ]
           }
+        },
+        auditors: {
+          terms:{
+            field: "auditor_name.raw"
+          }
         }  
       }
           
@@ -95,6 +103,8 @@ module AuditSearchable
       return_value[:aggs] = {}
 
       return_value[:aggs][:score_ranges] = es_results.response['aggregations']['score_ranges']
+      return_value[:aggs][:auditors] = es_results.response['aggregations']['auditors']['buckets']#.map{ |item| {name: item['region_names']['buckets'].first['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  if es_results.response['aggregations']['auditors']['buckets'].size > 0
+
       
 #      if es_results.response['aggregations'].present?
 #        return_value[:aggs] = {}
