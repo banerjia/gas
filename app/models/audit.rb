@@ -34,6 +34,7 @@ class Audit < ActiveRecord::Base
 
   after_commit do
     store.__elasticsearch__.index_document
+    __elasticsearch__.update_document
   end
 
   before_destroy do |a|

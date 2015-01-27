@@ -79,66 +79,73 @@ class OrdersController < ApplicationController
   end
   
   def search 
-    sort_condition = params[:sort] || 0
-    sort_direction = params[:dir] || "desc"
+    # sort_condition = params[:sort] || 0
+    # sort_direction = params[:dir] || "desc"
+
+    # Sanitizing the params for return value
+    [:action, :controller, :format, :es].each{ |key| params.delete(key) }
+
     # Pagination is not a major concerns as 
     # subsequent pages pulled using AJAX in most
     # cases.
-    page = (params[:page] || 1 ).to_i
-    per_page = (params[:per_page] || $per_page).to_i
+    params[:page] = (params[:page] || 1 ).to_i
+    params[:per_page] = (params[:per_page] || $per_page).to_i    
     
-    search_results = Order.search_orders( params, per_page, page)     
+    # Initialize both dates to nil so that in case the "else"
+    # part is executed the missing date is always set to nil
+    start_date = end_date = nil
+    if !(params[:start_date].present? || params[:end_date].present?)
+        # If neither dates are specified then default to today
+        start_date = end_date = Date.today.to_date
+    else
+      # Otherwise assign the values if they are present. 
+      start_date = params[:start_date] if params[:start_date].present?
+      end_date = params[:end_date] if params[:end_date].present?
+    end 
+
+    params[:start_date] = start_date
+    params[:end_date] = end_date
+
+    search_results = Order.search( params )   
     
+    # The following code block is used to properly
+    # list the Find Order options and to mark of the one that is selected
+    today = Date.today.to_date
+    search_date_params = { :start_date => (params[:start_date] || today ).to_date, :end_date => (params[:end_date] || today ).to_date }
+
+    predefined_search_options = []
+    predefined_search_options.push(["Created today", \
+                                    {:start_date => today, :end_date => today}]  )                             
+    predefined_search_options.push(["Created this week", \
+                                    {:start_date => today.days_to_week_start.days.ago.to_date, :end_date => today }]) unless today.monday?
+                                    
+    predefined_search_options.push(["From last week", {:end_date => ((today.days_to_week_start).days.ago - 1.day).to_date, :start_date => ((today.days_to_week_start).days.ago.to_date - 1.week).to_date}])
+    
+    predefined_search_options.push(["Created this month", \
+                                      {:start_date => (today.day - 1).days.ago.to_date, :end_date => today}])
+     
+    # Make view responsible for tracking pages
+    page = params.delete(:page)  
+
+    return_value = { \
+      orders: search_results[:results], \
+      total_results: search_results[:total], \
+      aggs: search_results[:aggs], \
+      more_pages: (search_results[:total].to_f/params[:per_page].to_f > page), \
+      options: params, \
+      predefined_search_criteria: predefined_search_options
+
+    }
     respond_to do |format|
       format.html do
         
-        @page_title = "Orders Dashboard"
-        @search_title = "Orders "
+        @page_title = "Orders"
         
-        # Sanitize Params
-        [:page, :action, :controller, :format, :es].each{ |key| params.delete(key) }
-        @search_params = params
-        
-        @orders = search_results[:results]
-        @facets = search_results[:facets]
-        @more_pages = search_results[:more_pages]
-        @current_page = page
-        
-        # The following code block is used to properly
-        # list the Find Order options and to mark of the one that is selected
-        today = Date.today.to_date
-        search_date_params = { :start_date => (params[:start_date] || today ).to_date, :end_date => (params[:end_date] || today ).to_date }
-
-        @pre_defined_search_options = []
-        @pre_defined_search_options.push(["Created today", \
-                                        {:start_date => today, :end_date => today}]  )                             
-        @pre_defined_search_options.push(["Created this week", \
-                                        {:start_date => today.days_to_week_start.days.ago.to_date, :end_date => today }]) unless today.monday?
-                                        
-        @pre_defined_search_options.push(["From last week", {:end_date => ((today.days_to_week_start).days.ago - 1.day).to_date, :start_date => ((today.days_to_week_start).days.ago.to_date - 1.week).to_date}])
-        
-        @pre_defined_search_options.push(["Created this month", \
-                                          {:start_date => (today.day - 1).days.ago.to_date, :end_date => today}])
-                                          
-                                          
-        @pre_defined_search_options.each do |search_specs|
-          if search_specs[1] == search_date_params
-            search_specs[1][:class] = 'current' 
-            @search_title += search_specs[0].titlecase
-            break
-          end
-        end
-        
-        # Further defining the title for the search page
-        @search_title += ' for ' + Company.find(params[:company_id])[:name] if params[:company_id].present? 
-        @search_title += ' in ' + State.find(['US', params[:shipping_state]])[:state_name] if params[:shipping_state].present?
+        render locals: return_value
       end
       
       format.json do
-        return_value = Hash.new
-        return_value[:orders] = search_results[:results]
-        return_value[:facets] = search_results[:facets]
-        return_value[:more_pages] = search_results[:more_pages]
+        #[:aggs, :predefined_search_criteria].each { |key| return_value.delete(key)}
         render :json => return_value.to_json
       end
     end

@@ -15,6 +15,8 @@ class @OrderList
 			window.select_all = jQuery( "input#select_all", window.order_list_form )
 			window.toolbar = jQuery( "table#order_list thead tr.toolbar" )
 
+			console.log(window.toolbar)
+
 			# Binding events handlers to objects
 			jQuery(window.select_all).click OrderList.select_all_toggle
 			jQuery( "input#send_email", window.email_order_form ).bind "click", OrderList.send_email
@@ -74,7 +76,8 @@ class @OrderList
 							jQuery( order ).val()
 		
 		 params_id = ids.join(",")
-		 jQuery.ajax
+
+		 jQuery.ajax({
 			url: window.order_path + '/' + params_id
 			beforeSend: (xhr) ->
 				 xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))
@@ -83,8 +86,10 @@ class @OrderList
 				 "id": params_id
 			type: 'DELETE'
 			complete: () ->
+				 console.log window.order_path
 				 window.location.reload(true)
 				 return
+		})
 		 return
 	
 	@bind_click_event_for_checkboxes : () ->
