@@ -105,8 +105,8 @@
 		</div>
 	</div>
 	<!-- END: Store Search -->
-
-	<%= f.fields_for :audit_metrics, include_id: false do |a_m| -%>
+	<%- audit.audit_metrics.sort{|a,b| a.metric[:display_order] <=> b.metric[:display_order]}.each do |obj_am| -%>
+	<%= f.fields_for :audit_metrics, obj_am, include_id: false do |a_m| -%>
 	<%- 
 			assigned_score_field = nil
 			case a_m.object.metric[:score_type] 
@@ -287,6 +287,7 @@
 	</div>
 	<%- 	metric_index = metric_index + 1 -%>
 	<%- end -%>
+	<% end -%>
 	<!-- END: Audit Metric -->
 	<div class="row ng-cloak" style="padding:0"
 		data-ng-hide="show_store_search">

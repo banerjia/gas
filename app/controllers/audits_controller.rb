@@ -76,7 +76,7 @@ class AuditsController < ApplicationController
 		end
 
 		# Finally sorting the audit_metrics using the metrics[:display_order]
-		audit.audit_metrics = audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]}
+		# audit.audit_metrics.replace(audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]})
 
 		# In case no comments and/or images were attached to the audit
 		# create dummy ones so that the fields are rendered in the view. 
@@ -111,8 +111,7 @@ class AuditsController < ApplicationController
 		id = params[:id]
 
 		audit = Audit.includes([:store, :comments, :images, audit_metrics: [:metric, audit_metric_responses: [:metric_option]]]).find(id)
-		audit.audit_metrics = audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]}	
-
+		
 		@page_title = "Audit for #{audit.store.full_name}"
 
 		render :show, locals: {audit: audit}	
@@ -121,17 +120,22 @@ class AuditsController < ApplicationController
 	def search
 		params[:page] ||=  1 
 		params[:per_page] ||= $per_page
-		params[:q] ||= "*"
+
 		results = Audit.search(params) 
+
+		# Sanitize params
+		[:action, :controller, :format].each { |key| params.delete(key) }
+
 		respond_to do |format|
 			format.html do 
-				# Sanitize params
-				[:action, :controller, :format].each { |key| params.delete(key) }
 				@page_title = 'Audits'
 				@previous_search = params
 				@search_results = results
 			end
-			format.json { render json: results.to_json( include: {store: {only: [:name], methods: [:address]} }, methods: [:comments] ) }
+			format.json do
+				render json: results.to_json
+			end
+			 # { render json: results.to_json( include: {store: {only: [:name], methods: [:address]} }, methods: [:comments] ) }
 		end
 	end
 	
@@ -141,6 +145,8 @@ class AuditsController < ApplicationController
 		# The following line corrects the date input as received from the view
 		# into something that Rails 4 TimeZone parser can understand. 
 		params[:audit][:created_at] = Date.strptime(params[:audit][:created_at], '%m/%d/%Y').to_date unless params[:audit][:created_at].blank?
+		ams = params[:audit][:audit_metrics_attributes].map{ |k| {loss: k.second[:loss], resolved: k.second[:resolved]}}
+		params[:audit][:has_unresolved_issues] = (ams.select{ |i| !i[:loss].nil? && i[:loss].to_i != 0 && i[:resolved].to_i.zero?}.size > 0)
 		params
 			.require(:audit)
 			.permit(
@@ -152,6 +158,7 @@ class AuditsController < ApplicationController
 				:store_id, 
 				:image_upload,
 				:created_at,
+				:has_unresolved_issues,
 				audit_metrics_attributes: [
 					:metric_id, 
 					:score_type, 
