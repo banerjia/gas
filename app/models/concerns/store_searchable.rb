@@ -84,8 +84,29 @@ module StoreSearchable
       query_bool_array_must.push( {term: {state_code: params[:state]}}) if params[:state].present?
       query_bool_array_must.push( {term: {country: params[:country]}}) if params[:country].present?
       query_bool_array_must.push({term: {"region.id" => params[:region]}}) if params[:region].present?
+
+      query_bool_array_must.push({query_string: {query: params[:q]}}) if params[:q].present? && !params[:q].blank?
+ 
+      if query_bool_array_must.size > 1
+        # If query_bool_array_must.size > 1 => there are other
+        # query parameters provided for the query. So pop-off the
+        # default match_all criteria that was added earlier on.
+        query_bool_array_must.delete_at(0) if query_bool_array_must.size > 1
+
+        # Rearranging the object to look like a BOOL query object
+        query_bool_array_must = {bool: {must: query_bool_array_must}}
+      else
+        query_bool_array_must = query_bool_array_must[0]
+      end
+
+
+      # Construct Filter Bool Array
+      filter_bool_array_must.push( {term: {"company.id" => params[:_company_id]}}) if params[:_company_id].present?
+      filter_bool_array_must.push( {term: {state_code: params[:_state]}}) if params[:_state].present?
+      filter_bool_array_must.push( {term: {country: params[:_country]}}) if params[:_country].present?
+      filter_bool_array_must.push({term: {"region.id" => params[:_region]}}) if params[:_region].present?
       if params[:distance].present?
-        query_bool_array_must.push({
+        filter_bool_array_must.push({
           geo_distance: {
             distance: params[:distance],
             location: {
@@ -107,25 +128,6 @@ module StoreSearchable
             }
           })
       end
-      query_bool_array_must.push({query_string: {query: params[:q]}}) if params[:q].present? && !params[:q].blank?
- 
-      if query_bool_array_must.size > 1
-        # If query_bool_array_must.size > 1 => there are other
-        # query parameters provided for the query. So pop-off the
-        # default match_all criteria that was added earlier on.
-        query_bool_array_must.delete_at(0) if query_bool_array_must.size > 1
-
-        # Rearranging the object to look like a BOOL query object
-        query_bool_array_must = {bool: {must: query_bool_array_must}}
-      end
-
-
-      # Construct Filter Bool Array
-      filter_bool_array_must.push( {term: {"company.id" => params[:_company_id]}}) if params[:_company_id].present?
-      filter_bool_array_must.push( {term: {state_code: params[:_state]}}) if params[:_state].present?
-      filter_bool_array_must.push( {term: {country: params[:_country]}}) if params[:_country].present?
-      filter_bool_array_must.push({term: {"region.id" => params[:_region]}}) if params[:_region].present?
-
     
       es_results = __elasticsearch__.search size: size, from: offset, 
       query: query_bool_array_must,
@@ -134,18 +136,18 @@ module StoreSearchable
           must: filter_bool_array_must
         }
       },
-  	  aggs: {
-    		regions: {
-    			terms: {
-    				field: "region.id"
-    			},
-    			aggs: {
-    				region_names: {
-    					terms: {
-    						field: "region.name.raw"
-    					}
-    				}
-    			}
+      aggs: {
+        regions: {
+          terms: {
+            field: "region.id"
+          },
+          aggs: {
+            region_names: {
+              terms: {
+                field: "region.name.raw"
+              }
+            }
+          }
         },
         states: {
           terms: {
@@ -159,7 +161,7 @@ module StoreSearchable
             }
           }
         } 
-  	  },
+      },
       sort: sort_array      
     
 
