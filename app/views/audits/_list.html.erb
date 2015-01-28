@@ -1,0 +1,26 @@
+<thead>
+	<tr>
+		<th scope="col" style="width: 10%">Date</th>
+		<th scope="col" style="width: 30%">Store</th>
+		<th scope="col">Auditor</th>
+		<th scope="col" class="text-center">Score</th>
+	</tr>
+</thead>
+<tbody>
+<%- if audits.size > 0 -%>
+	<%- audits.each do |audit| -%>
+	<tr <%= audit[:has_unresolved_issues] ? 'class="danger"'.html_safe : nil -%>>
+		<td><%= audit[:created_at].to_date.strftime( Date.today.year == audit[:created_at].to_date.year ? "%m/%d": "%m/%d/%Y" )-%></td>
+		<td><%= (audit[:store] || audit.store).full_name -%></td>
+		<td><%= audit[:auditor_name] -%></td>
+		<td class="text-center"><%= audit.score[:total] -%></td>
+	</tr>
+	<% end -%>
+<%- else -%>
+	<tr>
+		<td colspan="4" class="text-center">
+			<p><em>No audits to list</em></p>
+		</td>
+	</tr>
+<% end -%>
+</tbody>

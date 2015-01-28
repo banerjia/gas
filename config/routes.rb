@@ -1,7 +1,7 @@
 Graeters::Application.routes.draw do
   defaults( format: :html ) do 
 
-    root to: 'companies#index', format: :html	  
+    root to: 'home#index', format: :html	  
     namespace :api, constraints: { format: :json } do
       namespace :v1 do
         resources :regions, only: [:index]
