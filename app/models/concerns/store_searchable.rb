@@ -57,8 +57,15 @@ module StoreSearchable
       offset = (page - 1) * size
       include_distance_in_result = (params[:lat].present? && params[:lon].present?)
       
-      bool_array_must = []
-      query_string = {match_all:{}}
+      query_bool_array_must = []
+      filter_bool_array_must = []
+
+      # This is the default bool array setting for queries.
+      # If no other query parameters are provided then 
+      # this will push the query through. On the other 
+      # hand if there are other query parameters add to the
+      # array then this item is popped off the array. 
+      query_bool_array_must.push({constant_score: {filter: { match_all:{}}}})
 
       # TO DO: Implement functionality to have only certain fields returned in the query set. 
       fields = {}
@@ -69,12 +76,34 @@ module StoreSearchable
         {full_name: {order:"asc"}}
       ]
       
-      bool_array_must.push( {term: {"company.id" => params[:company_id]}}) if params[:company_id].present?
-      bool_array_must.push( {term: {state_code: params[:state]}}) if params[:state].present?
-      bool_array_must.push( {term: {country: params[:country]}}) if params[:country].present?
-      bool_array_must.push({term: {"region.id" => params[:region]}}) if params[:region].present?
+
+      query_bool_array_must.push( {term: {"company.id" => params[:company_id]}}) if params[:company_id].present?
+      query_bool_array_must.push( {term: {state_code: params[:state]}}) if params[:state].present?
+      query_bool_array_must.push( {term: {country: params[:country]}}) if params[:country].present?
+      query_bool_array_must.push({term: {"region.id" => params[:region]}}) if params[:region].present?
+
+      query_bool_array_must.push({query_string: {query: params[:q]}}) if params[:q].present? && !params[:q].blank?
+ 
+      if query_bool_array_must.size > 1
+        # If query_bool_array_must.size > 1 => there are other
+        # query parameters provided for the query. So pop-off the
+        # default match_all criteria that was added earlier on.
+        query_bool_array_must.delete_at(0) if query_bool_array_must.size > 1
+
+        # Rearranging the object to look like a BOOL query object
+        query_bool_array_must = {bool: {must: query_bool_array_must}}
+      else
+        query_bool_array_must = query_bool_array_must[0]
+      end
+
+
+      # Construct Filter Bool Array
+      filter_bool_array_must.push( {term: {"company.id" => params[:_company_id]}}) if params[:_company_id].present?
+      filter_bool_array_must.push( {term: {state_code: params[:_state]}}) if params[:_state].present?
+      filter_bool_array_must.push( {term: {country: params[:_country]}}) if params[:_country].present?
+      filter_bool_array_must.push({term: {"region.id" => params[:_region]}}) if params[:_region].present?
       if params[:distance].present?
-        bool_array_must.push({
+        filter_bool_array_must.push({
           geo_distance: {
             distance: params[:distance],
             location: {
@@ -96,29 +125,40 @@ module StoreSearchable
             }
           })
       end
-      query_string = {query_string: {query: params[:q]}} if params[:q].present? && !params[:q].blank?
     
       es_results = __elasticsearch__.search size: size, from: offset, 
-      query: query_string,
+      query: query_bool_array_must,
       filter: {
         bool: {
-          must: bool_array_must
+          must: filter_bool_array_must
         }
       },
-  	  aggs: {
-    		regions: {
-    			terms: {
-    				field: "region.id"
-    			},
-    			aggs: {
-    				region_names: {
-    					terms: {
-    						field: "region.name.raw"
-    					}
-    				}
-    			}
+      aggs: {
+        regions: {
+          terms: {
+            field: "region.id"
+          },
+          aggs: {
+            region_names: {
+              terms: {
+                field: "region.name.raw"
+              }
+            }
+          }
+        },
+        states: {
+          terms: {
+            field: "state_code"
+          },
+          aggs: {
+            state_names: {
+              terms: {
+                field: "state.state_name"
+              }
+            }
+          }
         } 
-  	  },
+      },
       sort: sort_array      
     
 
@@ -136,7 +176,8 @@ module StoreSearchable
       end
       if es_results.response['aggregations'].present?
         return_value[:aggs] = {}
-        return_value[:aggs][:regions] = es_results.response['aggregations']['regions']['buckets'].map{ |item| {region_id: item['key'], name: item['region_names']['buckets'].first['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  if es_results.response['aggregations']['regions']['buckets'].size > 0
+        return_value[:aggs][:regions] = es_results.response['aggregations']['regions']['buckets'].map{ |item| {id: item['key'], name: item['region_names']['buckets'].first['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  if es_results.response['aggregations']['regions']['buckets'].size > 0
+        return_value[:aggs][:states] = es_results.response['aggregations']['states']['buckets'].map{ |item| {state_code: item['key'], name: item['state_names']['buckets'].first['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  if es_results.response['aggregations']['states']['buckets'].size > 0
       end
       return_value[:total] = es_results.results.total
       
