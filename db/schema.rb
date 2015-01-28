@@ -11,6 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+
 ActiveRecord::Schema.define(version: 20150121031127) do
 
   create_table "audit_journals", primary_key: "audit_id", force: true do |t|

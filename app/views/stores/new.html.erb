@@ -1,39 +1,3 @@
-<% content_for :head do %>
-	<%= stylesheet_link_tag "forms" %>
-	<%= stylesheet_link_tag "table" %>
-	<style type="text/css">
-		fieldset.form_sections legend{
-			background-color:#eee;
-			border: 2px solid #ccc;
-			padding: 0.5em;
-			text-transform:uppercase;
-		}
-		div#left_column, div#right_column { display:none }
-		table#contacts { width: 99.9%}
-		table#contacts caption, h2#StoreHeading{ 
-			font-size: 12pt;
-			font-weight: bold;
-			line-height: 2.2;
-			text-transform: uppercase;
-		}
-		
-		table#contacts tfoot td {
-			padding: 1em;
-			text-align: left 
-		}
-		
-		td#td_AddContacts a {
-			background-image: url( <%= image_path( "add_contact_32x32.png" ) %> );
-			background-position: left center;
-			background-repeat: no-repeat;
-			display:block;
-			min-height: 35px;
-			line-height: 2.2;
-			padding-left: 40px;
-		}
-	</style>
-<% end %>
-
 <%- 
 content_for :body do 
 	render :partial => "entry", :locals => {:store => store}

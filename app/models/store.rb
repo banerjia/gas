@@ -6,29 +6,30 @@ class Store < ActiveRecord::Base
   attr_accessor :possible_duplicates, :not_a_duplicate
   
   # Associations
-  belongs_to :company, :counter_cache => true
-  belongs_to :state, :foreign_key => [:country, :state_code]
+  belongs_to :company, counter_cache: true
+  belongs_to :state, foreign_key: [:country, :state_code]
   
-  belongs_to :region, :counter_cache => true
+  belongs_to :region, counter_cache: true
   
   has_many :store_contacts
 
   has_many :orders
   
   has_many :audits
+
 	has_one :last_audit, -> { order("created_at desc") }, :class_name => "Audit"
 
-  accepts_nested_attributes_for   :store_contacts, :allow_destroy => true, :reject_if => proc { |sc| sc[:name].blank? }
   accepts_nested_attributes_for   :region, :reject_if => proc {|r| r[:name].blank? }
+
   
   # Validations  
   validates_presence_of [:company_id, :name, :street_address, :city, :state_code]
   validates_associated :region
-  validate  :nearby_stores , :on => :create
+  validate  :nearby_stores , on: [:create, :update], unless: Proc.new { |store| !store.not_a_duplicate.nil? && !store.not_a_duplicate.to_i.zero? }
   
 
   # Callbacks
-  geocoded_by :address if :street_address_changed?
+  geocoded_by :address, if: :street_address_changed?
   
   after_validation :geocode
   
@@ -37,7 +38,7 @@ class Store < ActiveRecord::Base
   end
   
   def nearby_stores
-    return if !self.not_a_duplicate.nil? || self[:company_id].nil? || self.address.nil? || self.address.blank?
+    return if self[:company_id].nil? || self.address.nil? || self.address.blank?
     lat_lon = Geocoder.coordinates(self.address)
     
     # When a store is being created the :id for the store is going to be nil
@@ -49,33 +50,33 @@ class Store < ActiveRecord::Base
     # A filter is used instead of a query as it comes with less overhead as
     # compared to a match_all query or something similar.
     possible_dups = Store.__elasticsearch__.search \
-    :filter => {
-      :bool => {
-        :must => [
+    filter: {
+      bool: {
+        must: [
           {
-            :geo_distance => {
-              :distance => "0.5mi",
+            geo_distance: {
+              distance: "0.5mi",
               "location" => {
-                :lat => lat_lon[0],
-                :lon => lat_lon[1]
+                lat: lat_lon[0],
+                lon: lat_lon[1]
               }            
             }
           },
           {
-            :term => {
+            term: {
               "company.id" => self[:company_id]
             }
           }
         ],
-        :must_not => {
-          :term => {
-            :id => store_id
+        must_not: [{
+          term: {
+            id: store_id
           }
-        }          
+        }]          
       }
-    }
+    }    
     
-    if possible_dups.results.size 
+    if !possible_dups.results.size.zero? 
       self.possible_duplicates = possible_dups.results.map{ |item| item[:_source]} 
       errors[:base] << "Possible duplicate entry"
     end
@@ -85,7 +86,7 @@ class Store < ActiveRecord::Base
   # Model Methods
 
   def completed_audits( limit = "0,25")
-    audits.where({:status => 1}).order("created_at desc").limit( limit ).includes(:audit_journal)    
+    audits.where({status: 1}).order("created_at desc").limit( limit ).includes(:audit_journal)    
   end
   
   def address
@@ -111,19 +112,7 @@ class Store < ActiveRecord::Base
   end
   
   def location
-    {:lat => self[:latitude], :lon => self[:longitude] }
-  end
-  
-  def self.update_geolocation
-    stores_to_update = Store.where("latitude IS NULL OR longitude IS NULL")
-    stores_to_update.each_with_index do |store, index|
-      lat_lng = Location.get_geolocation( store.address )
-      lat_lng = Location.get_geolocation( store[:zip] ) if lat_lng==[nil,nil]
-      store[:latitude] = lat_lng[0]
-      store[:longitude] = lat_lng[1]
-      store.update_columns({:latitude => lat_lng[0], :longitude => lat_lng[1]})
-      sleep(1) if (index%10) == 0
-    end
+    {lat: self[:latitude], lon: self[:longitude] }
   end
 
   def as_indexed_json(options={})
@@ -137,12 +126,6 @@ class Store < ActiveRecord::Base
         region: {only: [:id, :name]}
       }
     })
-  end
-  
-  def self.index_refresh
-    Store.__elasticsearch__.client.indices.delete index: Store.index_name rescue nil
-    Store.__elasticsearch__.client.indices.create index: Store.index_name, body: { settings: Store.settings.to_hash, mappings: Store.mappings.to_hash}
-    Store.import
   end
 end
 

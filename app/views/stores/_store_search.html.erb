@@ -1,26 +1,27 @@
-<div id="refine">
-	<form method="get" action="<%= stores_search_path(:format => :html)%>">
-		<div class="entry_row">
-			<div class="entry_label"><%= defined?(search_label) ? search_label : "Search" -%></div>
-			<div class="entry_value">
-			<% if defined?(options) && !options[:q].nil? then%>
-				<input type="text" name="q" id="q" value="<%=options[:q]%>" placeholder="Store Name, Company, City or State"/>
-			<% else %>
-				<input type="text" name="q" id="q" placeholder="Store Name, Company, City or State"/>
+<form method="get" action="<%= stores_search_path(:format => :html)%>">
+	<div class="col-md-10 col-sm-12 col-xs-12">
+		<input 
+			type="text" 
+			name="q" 
+			id="q" 
+			class="form-control" 
+			value="<%= defined?(options) && options[:q] ? options[:q] : nil -%>" 
+			placeholder="Store Name, Company, City or State"/>
+
+		<% if defined?(options) && !options.nil? then %>
+			<div style="display:none">
+			<% if !options[:company_id].nil? then%>
+				<input type="hidden" name="company_id" value="<%=options[:company_id]%>"/>
 			<% end %>
-			<% if defined?(options) && !options.nil? then %>
-				<div style="display:none">
-				<% if !options[:company_id].nil? then%>
-					<input type="hidden" name="company_id" value="<%=options[:company_id]%>"/>
-				<% end %>
-				<% if !options[:state].nil? then%>
-					<input type="hidden" name="state" value="<%=options[:state]%>"/>
-					<input type="hidden" name="country" value="<%=options[:country]%>"/>
-				<% end %>
-				</div>
+			<% if !options[:state].nil? then%>
+				<input type="hidden" name="state_code" value="<%=options[:state]%>"/>
+				<input type="hidden" name="country" value="<%=options[:country]%>"/>
 			<% end %>
-				<input type="submit" value="Search" style="float:right"/>
 			</div>
-		</div>
-	</form>
-</div>
+		<% end %>
+
+	</div>
+	<div class="col-md-2 col-sm-12 col-xs-12">
+		<button type="submit" class="btn btn-primary col-md-12 col-sm-12 col-xs-12">Search</button>
+	</div>
+</form>
