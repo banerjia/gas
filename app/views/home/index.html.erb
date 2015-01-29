@@ -5,10 +5,7 @@
 		</div>
 		<div class="panel-body">
 			<div class="row table-responsive">
-				<table class="table table-condensed">
-					<caption>Audits</caption>
-					<%= render partial: 'audits/list', locals: {audits: @recent_audits} -%>
-				</table>
+					<%= render partial: 'audits/verbose_listing', locals: {audits: @recent_audits, caption: "Recent Audits"} -%>
 			</div>
 			<div class="row table-responsive">
 				<table class="table table-condensed">
