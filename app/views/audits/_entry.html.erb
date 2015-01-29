@@ -279,7 +279,7 @@
 				
 				<p data-ng-show="needsResolution && computedLossScore < 0" style="margin-top: 1em" class="col-md-12 col-sm-12 col-xs-12 alert alert-warning alert-sm ng-cloak">
 					<%= a_m.check_box :resolved, data: {"ng-checked" => "!needsResolution ||computedLossScore >= 0"} -%>
-					<%= a_m.label :resolved, "This issue has been resolved" -%>
+					<%= a_m.label :resolved, "Check here if this issue has been resolved" -%>
 				</p>
 
 				<!-- END: Audit Metric Response Body -->
@@ -303,9 +303,9 @@
 					data-ng-controller="AuditController"
 					data-ng-init="init({base: <%= f.object[:base] -%>,loss: <%= f.object[:loss] -%>,bonus: <%= f.object[:bonus] -%>})"
 					class="list-group ng-cloak">
-						<li class="list-group-item primary"><span>Base</span><span class="pull-right">{{baseScore}}</span></li>
-						<li class="list-group-item danger"><span>Loss</span><span class="pull-right">{{lossScore}}</span></li>
-						<li class="list-group-item success"><span>Bonus</span><span class="pull-right">{{bonusScore}}</span></li>
+						<li class="list-group-item text-success"><span>Base</span><span class="pull-right">{{baseScore}}</span></li>
+						<li class="list-group-item text-danger"><span>Loss</span><span class="pull-right">{{lossScore}}</span></li>
+						<li class="list-group-item text-info"><span>Bonus</span><span class="pull-right">{{bonusScore}}</span></li>
 						<li class="list-group-item"><strong><span>Total</span>
 							<span class="pull-right">{{baseScore + lossScore + bonusScore}}</span></strong>
 							<div style="display:none">
