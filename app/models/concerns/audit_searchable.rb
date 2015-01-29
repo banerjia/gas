@@ -46,31 +46,50 @@ module AuditSearchable
         
       sort = []
       if params[:sort].present?
+        default_order = "asc"
         params[:sort].split(',').each do |sort_spec|
-          default_order = "asc"
           sort_spec_parts = /([^-]+)\-?(.*)/.match(sort_spec)
           sort.push({sort_spec_parts[1].to_sym => {order: (sort_spec_parts[2].blank? ? default_order : sort_spec_parts[2])}})
         end
       else
-        sort.push({ audit_date: { order: "desc"}})
+        sort.push({ created_at: { order: "desc"}})
       end
       
-      page = params[:page] || 1      
-      size = params[:per_page] || 10
+      page = (params[:page] || 1).to_i   
+      size = (params[:per_page] || 10).to_i
       offset = (page - 1) * size
       
-      filter_bool_must_array = []
-      query_string = {match_all:{}}
-    
-      query_string = { query_string: {query: params[:q]}} if params[:q].present?
-      
-      filter_bool_must_array.push( {term: { "store.company.id" => params[:company_id]}}) if params[:company_id].present?
-      filter_bool_must_array.push( {term: { "store.id" =>  params[:store_id]}}) if params[:store_id].present?
-      filter_bool_must_array.push( {range: {"score.total" => {gte: params[:score_lower], lte: params[:score_upper]}}}) if params[:score_lower].present?
+      query_bool_array_must = []
+      query_bool_array_must.push({constant_score: {filter: { match_all:{}}}})
 
+      query_bool_array_must.push( {term: {"store.id" => params[:store_id]}}) if params[:store_id].present?
+      query_bool_array_must.push( {term: {"store.state_code" => params[:state]}}) if params[:state].present?
+      query_bool_array_must.push( {term: {"store.company.id" => params[:company_id]}}) if params[:company_id].present?
+      query_bool_array_must.push( {range: {created_at: {gte: params[:start_date]}}}) unless params[:start_date].nil? || params[:start_date].blank?
+      query_bool_array_must.push( {range: {created_at: {lte: params[:end_date]}}}) unless params[:end_date].nil? || params[:end_date].blank?
+    
+      query_bool_array_must.push( { query_string: {query: params[:q]}} ) if params[:q].present?
+      
+
+      filter_bool_must_array = []
+      filter_bool_must_array.push( {term: { "store.company.id" => params[:_company_id]}}) if params[:_company_id].present?
+      filter_bool_must_array.push( {term: { "store.id" =>  params[:_store_id]}}) if params[:_store_id].present?
+      filter_bool_must_array.push( {range: {"score.total" => {gte: params[:_score_lower], lte: params[:_score_upper]}}}) if params[:_score_lower].present?
+
+      if query_bool_array_must.size > 1
+        # If query_bool_array_must.size > 1 => there are other
+        # query parameters provided for the query. So pop-off the
+        # default match_all criteria that was added earlier on.
+        query_bool_array_must.delete_at(0) if query_bool_array_must.size > 1
+
+        # Rearranging the object to look like a BOOL query object
+        query_bool_array_must = {bool: {must: query_bool_array_must}}
+      else
+        query_bool_array_must = query_bool_array_must[0]
+      end
     
       es_results = __elasticsearch__.search size: size, from: offset, 
-      query: query_string,
+      query: query_bool_array_must,
       filter: {
         bool:{
           must: filter_bool_must_array
@@ -115,6 +134,7 @@ module AuditSearchable
       return_value[:sort] = sort
 
       return_value[:search_string] = es_results.search.definition[:body] if !Rails.env.production?
+      return_value[:params] = params if !Rails.env.production?
       
       return return_value
 

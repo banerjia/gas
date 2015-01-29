@@ -1,6 +1,7 @@
 
 <div class="row form-group">
 	<%= link_to "Edit Audit", edit_audit_path(audit), class: "btn btn-primary" -%>
+	<button class="btn btn-default btn-wide" type="button" onclick="history.go(-1)">Close</button>
 	<%= link_to "Delete Audit", "#", class: "btn btn-danger" -%>
 </div>
 <div class="row well well-sm">
@@ -46,9 +47,9 @@
 			<div class="panel-heading">Score</div>
 			<div class="panel-body">
 				<ul class="list-group">
-					<li class="list-group-item alert-success"><label>Base</label><span class="pull-right"><%= audit[:base] -%></span></li>
-					<li class="list-group-item alert-danger"><label>Loss</label><span class="pull-right"><%= audit[:loss] -%></span></li>
-					<li class="list-group-item alert-info"><label>Bonus</label><span class="pull-right"><%= audit[:bonus] -%></span></li>
+					<li class="list-group-item text-success"><label>Base</label><span class="pull-right"><%= audit[:base] -%></span></li>
+					<li class="list-group-item text-danger"><label>Loss</label><span class="pull-right"><%= audit[:loss] -%></span></li>
+					<li class="list-group-item text-info"><label>Bonus</label><span class="pull-right"><%= audit[:bonus] -%></span></li>
 					<li class="list-group-item"><strong><label>Total</label><span class="pull-right"><%= audit.total_score -%></span></strong></li>
 				</ul>					
 			</div>
@@ -68,6 +69,14 @@
 						<%= "<span class='label label-success'>#{audit_metric[:base]}</span>".html_safe unless audit_metric[:base].zero? -%> 
 						<%= "<span class='label label-danger'>#{audit_metric[:loss].abs}</span>".html_safe unless audit_metric[:loss].zero? -%>
 						<%= "<span class='label label-primary'>#{audit_metric[:bonus]}</span>".html_safe unless audit_metric[:bonus].zero? -%>
+						<%- 
+							if audit_metric.metric[:track_resolution] && !audit_metric[:loss].zero?
+								html_class= (audit_metric[:resolved] ? "success" : "warning")
+								icon = (audit_metric[:resolved] ? "check" : "exclamation-triangle")
+								text = (audit_metric[:resolved] ? "Issue resolved" : "This issue has not been resolved")
+						-%>
+							<span class="label label-<%= html_class -%>"><i class="fa fa-<%= icon -%>" title="<%= text -%>"></i></span>
+						<%- end -%>
 					</div>
 				</div>
 			</div>
@@ -90,9 +99,6 @@
 				<%- end -%>
 
 				</ul>
-				<%- if !audit_metric[:loss].zero? -%>
-					<%= (!audit_metric[:resolved] ? "<p style='margin: 0' class='alert alert-danger text-center'>Issue has not been resolved</p style='margin: 0'>" : "This issues has been resolved").html_safe -%>
-				<% end -%>
 			</div>
 		</div>
 	</div>

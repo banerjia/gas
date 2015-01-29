@@ -316,12 +316,14 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 		$scope.entry_value_scores = [];
 		$scope.entry_value_scoreTypes = [];
 		$scope.metricIndex = 0;
+		$scope.needsResolution = false;
 		
 		
-		$scope.init = function( comparisonType, scoreType, index, initial_values ){
+		$scope.init = function( comparisonType, scoreType, needsResolution, index, initial_values ){
 			$scope.comparisonType = comparisonType;
 			$scope.metricScoreType = scoreType;
 			$scope.metricIndex = index;
+			$scope.needsResolution = needsResolution;
 			totalScore.addMetric();
 			if(initial_values != null){
 				$scope.computedBaseScore = initial_values.base;

@@ -1,0 +1,18 @@
+<div class="row">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h2 class="h4">Recent Activity</h2>
+		</div>
+		<div class="panel-body">
+			<div class="row table-responsive">
+					<%= render partial: 'audits/verbose_listing', locals: {audits: @recent_audits, caption: "Recent Audits"} -%>
+			</div>
+			<div class="row table-responsive">
+				<table class="table table-condensed">
+					<caption>Orders</caption>
+					<%= render partial: 'orders/list', locals: {orders: @recent_orders} -%>
+				</table>				
+			</div>
+		</div>
+	</div>	
+</div>

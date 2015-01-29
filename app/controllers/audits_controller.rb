@@ -2,6 +2,7 @@ class AuditsController < ApplicationController
 	def index
 		redirect_to action: :search
 	end
+
 	def new
 		new_audit = Audit.new({created_at: Date.today})
 
@@ -13,6 +14,7 @@ class AuditsController < ApplicationController
 			new_audit.build_store()
 		end
 
+		new_audit[:created_at] = new_audit[:created_at].strftime("%m/%d/%Y")
 		new_audit.comments.build()
 		new_audit.images.build()
 
@@ -48,10 +50,12 @@ class AuditsController < ApplicationController
 			redirect_to store_path(audit[:store_id])
 		else
 			flash[:warning] = 'Error processing audit'
-			#metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
+
+			
+			audit[:created_at] = audit[:created_at].strftime("%m/%d/%Y") unless audit[:created_at].nil? || audit[:created_at].blank?
 			audit.comments.build() unless audit.comments.size > 0
 			audit.images.build() unless audit.images.size > 0
-			#byebug
+
 			@page_title = "New Audit"
 			render :new, locals: { audit: audit}
 		end
@@ -74,9 +78,6 @@ class AuditsController < ApplicationController
 		audit.audit_metrics.each_with_index do |audit_metric, index|
 			audit.audit_metrics[index].audit_metric_responses = audit_metric.audit_metric_responses.sort{ |a, b| a.metric_option[:display_order] <=> b.metric_option[:display_order]}
 		end
-
-		# Finally sorting the audit_metrics using the metrics[:display_order]
-		# audit.audit_metrics.replace(audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]})
 
 		# In case no comments and/or images were attached to the audit
 		# create dummy ones so that the fields are rendered in the view. 
@@ -101,6 +102,8 @@ class AuditsController < ApplicationController
 		else			
 			@page_title = "Edit Store"
 			
+			audit[:created_at] = audit[:created_at].strftime("%m/%d/%Y") unless audit[:created_at].nil? || audit[:created_at].blank?
+
 			render :edit, locals: { audit: audit}
 		end
 				
@@ -118,8 +121,10 @@ class AuditsController < ApplicationController
 	end
 
 	def search
+		params = (request.params || {}).clone
 		params[:page] ||=  1 
 		params[:per_page] ||= $per_page
+		params = params.merge({sort: "created_at-desc"}) unless params[:sort].present?
 
 		results = Audit.search(params) 
 
@@ -127,15 +132,15 @@ class AuditsController < ApplicationController
 		[:action, :controller, :format].each { |key| params.delete(key) }
 
 		respond_to do |format|
-			format.html do 
-				@page_title = 'Audits'
-				@previous_search = params
-				@search_results = results
+			format.html do
+				@page_title = "Audits"
+				@page_title = @page_title + ' for ' + results[:results].first[:store].full_name if params[:store_id].present?
+				render locals: {audits: results, options: params}
 			end
-			format.json do
+
+			format.json do 
 				render json: results.to_json
 			end
-			 # { render json: results.to_json( include: {store: {only: [:name], methods: [:address]} }, methods: [:comments] ) }
 		end
 	end
 	
