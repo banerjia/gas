@@ -23,15 +23,15 @@ ActiveRecord::Schema.define(version: 20150129000730) do
 
   create_table "audit_metric_responses", id: false, force: true do |t|
     t.integer "metric_option_id", limit: 3,    null: false
-    t.integer "audit_id",         limit: 8,    null: false
-    t.integer "metric_id",        limit: 3,    null: false
+    t.integer "metric_id"
+    t.integer "audit_id"
     t.boolean "selected"
     t.string  "entry_value",      limit: 1024, null: false
   end
 
   create_table "audit_metrics", id: false, force: true do |t|
-    t.integer "audit_id",   limit: 8,                   null: false
-    t.integer "metric_id",  limit: 3,                   null: false
+    t.integer "audit_id"
+    t.integer "metric_id"
     t.string  "score_type", limit: 15, default: "base", null: false
     t.integer "loss",       limit: 2,  default: 0,      null: false
     t.integer "bonus",      limit: 2,  default: 0,      null: false
@@ -54,6 +54,7 @@ ActiveRecord::Schema.define(version: 20150129000730) do
 
   add_index "audits", ["store_id", "created_at", "id"], name: "Store_Audit_History", using: :btree
   add_index "audits", ["store_id", "has_unresolved_issues"], name: "index_audits_on_store_id_and_has_unresolved_issues", using: :btree
+  add_index "audits", ["store_id"], name: "index_audits_on_store_id_and_person_id", using: :btree
 
   create_table "comments", id: false, force: true do |t|
     t.integer  "commentable_id",   limit: 8,  null: false
@@ -231,7 +232,7 @@ ActiveRecord::Schema.define(version: 20150129000730) do
     t.string    "county"
     t.string    "state_code",                                null: false
     t.string    "zip",            limit: 10
-    t.string    "country",        limit: 3,   default: "US", null: false
+    t.string    "country",                    default: "US", null: false
     t.string    "store_number",   limit: 10
     t.string    "phone",          limit: 15
     t.integer   "orders_count",   limit: 3,   default: 0,    null: false
