@@ -1,6 +1,6 @@
 <%-
 	show_store ||= true
-	audit_list = (audits[:results] || audits)
+	audit_list = (!(audits.is_a?(ActiveRecord::Base) || audits.is_a?(ActiveRecord::Relation)) ? audits[:results] : audits)
 -%>
 
 <table class="table table-condensed">
