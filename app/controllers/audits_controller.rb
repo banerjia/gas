@@ -2,6 +2,7 @@ class AuditsController < ApplicationController
 	def index
 		redirect_to action: :search
 	end
+
 	def new
 		new_audit = Audit.new({created_at: Date.today})
 
@@ -13,6 +14,7 @@ class AuditsController < ApplicationController
 			new_audit.build_store()
 		end
 
+		new_audit[:created_at] = new_audit[:created_at].strftime("%m/%d/%Y")
 		new_audit.comments.build()
 		new_audit.images.build()
 
@@ -48,10 +50,12 @@ class AuditsController < ApplicationController
 			redirect_to store_path(audit[:store_id])
 		else
 			flash[:warning] = 'Error processing audit'
-			#metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
+
+			
+			audit[:created_at] = audit[:created_at].strftime("%m/%d/%Y") unless audit[:created_at].nil? || audit[:created_at].blank?
 			audit.comments.build() unless audit.comments.size > 0
 			audit.images.build() unless audit.images.size > 0
-			#byebug
+
 			@page_title = "New Audit"
 			render :new, locals: { audit: audit}
 		end
@@ -74,9 +78,6 @@ class AuditsController < ApplicationController
 		audit.audit_metrics.each_with_index do |audit_metric, index|
 			audit.audit_metrics[index].audit_metric_responses = audit_metric.audit_metric_responses.sort{ |a, b| a.metric_option[:display_order] <=> b.metric_option[:display_order]}
 		end
-
-		# Finally sorting the audit_metrics using the metrics[:display_order]
-		audit.audit_metrics = audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]}
 
 		# In case no comments and/or images were attached to the audit
 		# create dummy ones so that the fields are rendered in the view. 
@@ -101,6 +102,8 @@ class AuditsController < ApplicationController
 		else			
 			@page_title = "Edit Store"
 			
+			audit[:created_at] = audit[:created_at].strftime("%m/%d/%Y") unless audit[:created_at].nil? || audit[:created_at].blank?
+
 			render :edit, locals: { audit: audit}
 		end
 				
@@ -111,27 +114,33 @@ class AuditsController < ApplicationController
 		id = params[:id]
 
 		audit = Audit.includes([:store, :comments, :images, audit_metrics: [:metric, audit_metric_responses: [:metric_option]]]).find(id)
-		audit.audit_metrics = audit.audit_metrics.sort{ |a, b| a.metric[:display_order] <=> b.metric[:display_order]}	
-
+		
 		@page_title = "Audit for #{audit.store.full_name}"
 
 		render :show, locals: {audit: audit}	
 	end
 
 	def search
+		params = (request.params || {}).clone
 		params[:page] ||=  1 
 		params[:per_page] ||= $per_page
-		params[:q] ||= "*"
+		params = params.merge({sort: "created_at-desc"}) unless params[:sort].present?
+
 		results = Audit.search(params) 
+
+		# Sanitize params
+		[:action, :controller, :format].each { |key| params.delete(key) }
+
 		respond_to do |format|
-			format.html do 
-				# Sanitize params
-				[:action, :controller, :format].each { |key| params.delete(key) }
-				@page_title = 'Audits'
-				@previous_search = params
-				@search_results = results
+			format.html do
+				@page_title = "Audits"
+				@page_title = @page_title + ' for ' + results[:results].first[:store].full_name if params[:store_id].present?
+				render locals: {audits: results, options: params}
 			end
-			format.json { render json: results.to_json( include: {store: {only: [:name], methods: [:address]} }, methods: [:comments] ) }
+
+			format.json do 
+				render json: results.to_json
+			end
 		end
 	end
 	
@@ -141,6 +150,8 @@ class AuditsController < ApplicationController
 		# The following line corrects the date input as received from the view
 		# into something that Rails 4 TimeZone parser can understand. 
 		params[:audit][:created_at] = Date.strptime(params[:audit][:created_at], '%m/%d/%Y').to_date unless params[:audit][:created_at].blank?
+		ams = params[:audit][:audit_metrics_attributes].map{ |k| {loss: k.second[:loss], resolved: k.second[:resolved]}}
+		params[:audit][:has_unresolved_issues] = (ams.select{ |i| !i[:loss].nil? && i[:loss].to_i != 0 && i[:resolved].to_i.zero?}.size > 0)
 		params
 			.require(:audit)
 			.permit(
@@ -152,6 +163,7 @@ class AuditsController < ApplicationController
 				:store_id, 
 				:image_upload,
 				:created_at,
+				:has_unresolved_issues,
 				audit_metrics_attributes: [
 					:metric_id, 
 					:score_type, 

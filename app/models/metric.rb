@@ -6,7 +6,7 @@ class Metric < ActiveRecord::Base
 	
 	has_and_belongs_to_many :audits, join_table: :audits
 	
-  # Scopes
-  scope :active_metrics, ->() { where(["(start_date IS NULL OR start_date <= ?) AND (end_date IS NULL OR end_date >= ?)", Date.today, Date.today]) }
+  	# Scopes
+  	scope :active_metrics, ->() { where(["(start_date IS NULL OR start_date <= ?) AND (end_date IS NULL OR end_date >= ?)", Date.today, Date.today]).order(:display_order) }
   
 end

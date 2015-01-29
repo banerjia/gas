@@ -29,10 +29,11 @@ Graeters::Application.routes.draw do
       end      
       
       
-      get 'audits/search' => 'audits#search', as: 'audit_search'
+      
       get "signout" => "sessions#destroy", as: "logout"
       get "signin" => "sessions#new", as: "login"
 
+      
       resources :audits
       resources :resources, only: ["index"]
       resources :products
@@ -43,6 +44,7 @@ Graeters::Application.routes.draw do
     end
     post "order/email" => "orders#send_email", as: "email_order"
     get "orders/search" => "orders#search", as: "orders_search"
+    get 'audits/search' => 'audits#search', as: 'audit_search'
     resources :orders
   end
 end
