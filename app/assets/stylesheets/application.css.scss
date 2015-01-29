@@ -1,4 +1,3 @@
-@import "bourbon";
 @import url(http://fonts.googleapis.com/css?family=Asap:400,700);
 
 $errors_msg_shading: #FF8600;
@@ -9,22 +8,6 @@ $left-column-width: 250px;
 	font: {
 		size: 12pt;
 	}
-}
-
-@mixin left-column-h2{
-	background: {
-		color: #d5d5e5;
-	}
-	color: #000;
-	font: {
-		size: 11pt;
-	}
-	margin: 0 {
-		bottom: 2px;
-	}
-	padding: 0.5em;
-	text-align: left;
-	width: auto;
 }
 
 @mixin flash-messages {
@@ -52,22 +35,16 @@ $left-column-width: 250px;
 
 .navbar {
 	background: {
-		color: #45221a;
+		//color: #45221a;
 		repeat: no-repeat;
 	}
-	color: #ffffff;
+	//color: #ffffff;
 }
 
 body {
 	@include overall-font;
 	
 	padding-top: 2em;
-
-	
-	input {
-		@include overall-font;
-		padding: 0.2em 0.3em;
-	}
 	
 	select {
 		@include overall-font;
@@ -102,182 +79,6 @@ div {
 	&.spacer {
 		clear: both;
 		width: auto;
-	}
-	
-	&#wrapper {
-		background: {
-			color: #fff;
-		}
-		border: 2px solid #ddd {
-			top: none;
-			bottom: none;
-		}
-		display: block;
-		margin: 0 auto;
-		padding: 0 1px;
-		text-align: left;
-		width: $wrapper-width;
-	}
-		
-		
-	&.page_blocks {
-		background-color: transparent;
-		display: block;
-		margin: 0 0 1em 0;
-		padding: 0.5em;
-		width: auto;
-	}
-	
-	&#page_header {
-		background-color: #933;
-		color: #fff;
-		padding-bottom: 0;
-	
-	
-		h1 {
-			@includes overall-font;
-			line-height: 1.5;
-		}
-	}
-	
-	&#page_footer{
-		background: {
-			color: #eee;
-		}
-		border: {
-			top: 2px solid #CCC;
-		}
-		color: #666;
-		font: {
-			family: Verdana, Tahoma, Arial, Sans-serif;
-			size: 0.8em;
-		}
-		margin: -3px{
-			top: 1px;
-		}
-		text: {
-			align: center;
-		}
-		
-		p{
-			margin: auto 0.1em;
-		}
-	}
-	
-	&#top_nav {
-		ul {
-			border-top: 2px solid #eee;
-			list-style: none;
-			margin: auto -0.5em {
-				bottom: 0;
-			}
-			padding: 0;
-			width: auto;
-					
-			li {
-				border-right: 2px solid #fff;					
-				display: inline-block;
-				font-weight: bold;
-				letter-spacing: 1.5px;
-				line-height: 2;
-				margin: auto 0;
-				text: {
-					align: center;
-					transform: uppercase;
-				}
-				min-width: 19%;
-				max-width: 19%;
-				vertical-align: middle;
-				
-				a {
-					color: #fff;
-					display: block;
-					margin: 0;
-					text-decoration: none;
-					width: auto;
-					
-					&:hover {
-						background-color: #eee;
-						color: #000;
-					}
-				}
-				&.current {
-					background-color: #eee;
-					color: #000;
-				}
-			}
-			
-			li:last-child {
-				border: none;
-			}
-		}
-	}
-		
-	&#page_body {
-		a:link, a:visited {
-			color: #900;
-			text-decoration: none;			
-		}
-		a:hover { text-decoration: underline }
-	}
-	
-	&#left_column {
-		@include column-padding;
-		border: 3px solid #eee;
-		margin-left: 0;
-		width: $left-column-width;
-				
-		& > {
-			h2 {
-				@include left-column-h2;
-				margin: {
-					left: -0.45em;
-					right: -0.45em;
-				}
-			}
-		}
-	}
-	&#right_column {
-		float: right;
-		margin-right: 0;
-		width: ($wrapper-width - $left-column-width - 54px);
-	}
-	
-	&.toolbar {
-		@include left-column-h2;
-
-		.icon_buttons {
-			@include button;
-			font-size: 1em;
-			letter-spacing: 1.2px;
-			text-transform: uppercase;
-		}
-		a.icon_buttons { color: #FFF }
-	}
-
-	&.form_errors {
-		background-color: #eee;
-		border: {
-			color: $errors_msg_shading;
-			size: 2px;
-			style: solid;
-		}
-		display: block;
-		margin: 0 0 0.4em 0;
-		padding: 0.4em {
-			top: 0;
-		}
-		width: auto;
-	}
-	
-	&.form_errors > {
-		h2 {
-			background-color: $errors_msg_shading;
-			color: #fff;
-			font-size: 11.5pt;
-			margin: 0 -0.42em 0.4em -0.42em;
-			padding-left: 0.4em;
-		}
 	}
 }
 

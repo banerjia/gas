@@ -13,7 +13,7 @@
 	<div class="row" style="margin-bottom: 0.5em" data-ng-hide="show_store_search">
 		<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary btn-wide", data: {"ng-disabled" => "audit_store_id == null || show_store_search"} -%>
 		
-		<button class="btn btn-default btn-wide" type="button">Cancel</button>
+		<button class="btn btn-default btn-wide" type="button" onclick="history.go(-1)">Cancel</button>
 	</div>
 
 	<%= render :partial => "entry", :locals => {audit: audit, f: f} -%>

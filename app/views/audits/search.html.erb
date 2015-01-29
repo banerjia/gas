@@ -1,135 +1,60 @@
-<%-
-	path_prefix = audit_search_path
-	@previous_search.delete(:q)
-	search_params_without_auditor = @previous_search.reject{ |key,value| key.to_s == 'auditor' }
-	search_params_without_chain = @previous_search.reject{ |key,value| key.to_s == 'company_id' }
-	search_params_without_score = @previous_search.reject{ |key,value| key.to_s.starts_with?("score") }
-	search_params_without_created_at = @previous_search.reject{ |key,value| key.to_s.starts_with?("created_at") }
--%>
+<div class="row">
 
-<%- content_for :left_column do -%>
-	<h3>Find Audits</h3>
-	<ul class="nav_items">
-		<li><%= link_to "Created Today", '#' -%></li>
-		<li><%= link_to "This Week", '#' -%></li>
-		<li><%= link_to "Last Week", '#' -%></li>
-		<li>
-			Custom Date Range<br/>
-			<form action='<%= [path_prefix, search_params_without_created_at.to_param].join("?")-%>' method='get'>
-							<input type="text" id='created_at_start' name='created_at_start' placeholder='From' class='date-pick'/><br/>
-							<input type='text' id='created_at_stop' name='created_at_stop' placeholder='To' class='date-pick'/><br/>
-			</form>
-		</li>
-	</ul>
-	
-	<%- if @search_results[:facets]['auditors'] -%>
-	<h3>Filter by Auditor</h3>
-	<ul class="nav_items">
-		<%- if @previous_search[:auditor].present? -%>
-		<li class="current">
-			<%= @previous_search[:auditor].titleize -%>
-			<span style="float:right">
-				<%= link_to "X", [path_prefix, search_params_without_auditor.to_param].join("?") -%>
-			</span>
-		</li>
-		<%- else -%>		  
-			<%- @search_results[:facets]['auditors'].each do |facet| -%>
-				<li><%= link_to facet['term'].titleize, [path_prefix, search_params_without_auditor.merge({:auditor => facet['term']}).to_param].join("?")-%></li>
-			<%- end -%>
-		<%- end -%>
-	</ul>
-	<%- end -%>
-	
-	<%- if @search_results[:facets]['chains'] -%>
-	<h3>Filter by Chain</h3>
-	<ul class="nav_items">
-		<%- if @previous_search[:company_id].present? -%>
-		<li class="current">
-			<%= @search_results[:facets]['chains'].first[:company_name].titleize -%>
-			<span style="float:right">
-				<%= link_to "X", [path_prefix, search_params_without_chain.to_param].join("?") -%>
-			</span>
-		</li>
-		<%- else -%>		  
-			<%- @search_results[:facets]['chains'].each do |facet| -%>
-				<li><%= link_to facet[:company_name].titleize, [path_prefix, search_params_without_chain.merge({:company_id => facet['term'].to_i}).to_param].join("?") -%></li>
-			<%- end -%>
-		<%- end -%>
-	</ul>
-	<%- end -%>
-	<h3>Filter by Score</h3>
-	<ul class="nav_items">
-		<%- if @previous_search[:score_lower].present? || @previous_search[:score_upper].present? -%>
-			<li class="current">
+	<div class="col-md-10 col-md-push-2 col-sm-12 col-xs-12 table-responsive">
+		<%= render partial: 'verbose_listing', locals: {audits: audits} -%>
+	</div>
+
+	<div class="col-md-pull-10 col-md-2 col-sm-12 col-xs-12">
+		<h2 class="h3">Filtering Options</h2>
+		<div class="row">
+			<div class="col-md-12 col-sm-3 col-xs-12">
+				<h3 class="h4">By Date</h3>
 				<%-
-					score_text = @previous_search[:score_lower].to_i.to_s
-					score_text += @previous_search[:score_upper].present? ? " - #{@previous_search[:score_upper].to_i.to_s}" : ' +'
+					options_for_url = options.clone
+					[:page, :per_page, :sort, :start_date, :end_date].each {|key| options_for_url.delete(key)}
+
+					date_from_search_scope = { \
+						start_date: ( options[:start_date].nil? ? nil: options[:start_date].to_date), \
+						end_date: ( options[:end_date].nil? ? nil: options[:end_date].to_date) \
+					}
+					date_range_all = {start_date: nil, end_date: nil}
+					date_range_yesterday = {start_date: 1.day.ago.to_date, end_date: 1.day.ago.to_date}
+					date_range_this_week = {start_date: Date.today.at_beginning_of_week, end_date: Date.today}
+					date_range_today = {start_date: Date.today, end_date: Date.today}
+					date_range_this_month = {start_date: Date.today.at_beginning_of_month, end_date: Date.today}
 				-%>
-				<%= score_text -%>
-				<span style="float:right">
-					<%= link_to "X", [path_prefix, search_params_without_score.to_param].join("?") -%>
-				</span>
-			</li>
-			<%- else -%>
-				<%- @search_results[:facets]['scores'].select{ |entry| entry['count'].to_i > 0 }.each do |facet| -%>
-				<%-
-					score_text = facet['from'].to_i.to_s
-					score_text += facet['to'].to_i > 0 ? " - #{facet['to'].to_i.to_s}" : ' +'
-				-%>
-					<li><%= link_to score_text, [path_prefix, search_params_without_score.merge({:score_lower => facet['from'].to_i, :score_upper => facet['to'].to_i}).to_param].join("?") -%></li>
-				<%- end -%>
-			<%- end -%>
-	</ul>
-<%- end -%>
-
-<%- content_for :head do -%>
-	<%= stylesheet_link_tag :table -%>
-	<%= stylesheet_link_tag :datepicker -%>
-	<style type="text/css" media="screen">
-		table#audits_list{
-			width: 99.9%
-		}
-	</style>
-<%- end -%>
-
-<%- content_for :page_js do -%>
-	<%= javascript_include_tag :date -%>
-	<%= javascript_include_tag 'jquery.datePicker.js' -%>
-	<script type="text/javascript">
-					$(document).ready( function(){
-									$('input.date-pick').datePicker();
-					});
-	</script>
-<%- end -%>
-
-<h2>Results</h2>
-
-<%- if @search_results[:audits].count > 0 -%>
-	<table id="audits_list" class="listing">
-		<thead>
-			<tr>
-				<th scope="col">Store</th>
-				<th scope="col">Audit Score</th>
-			</tr>
-		</thead>
-		<tfoot>
-			<tr>
-				<td colspan="2">
-					More
-				</td>
-			</tr>
-		</tfoot>
-		<tbody>
-			<%- @search_results[:audits].each do |entry| -%>
-			<tr class="<%= cycle('regular','alternate') -%>">
-				<td><%= entry.store[:name] -%></td>
-				<td><%= link_to entry[:score], audit_path( entry[:id] ) -%></td>
-			</tr>
-			<%- end -%>
-		</tbody>
-	</table>
-<%- else -%>
-	<p>No audits found.</p>
-<%- end -%>
-
-<%= render :template => 'layouts/two_column' -%>
+				<ul class="list-unstyled">
+					<li>
+						<%= link_to_unless date_from_search_scope == date_range_all, "All Audits", audit_search_path(options_for_url) -%>
+						
+					</li>
+					<li>
+						<%= link_to_unless date_from_search_scope == date_range_today, "Today", audit_search_path( options_for_url.merge(date_range_today)) -%>
+						
+					</li>
+					<li>
+						<%= link_to_unless date_from_search_scope == date_range_yesterday, "Yesterday", audit_search_path( options_for_url.merge(date_range_yesterday)) -%>
+					</li>
+					<%- if Date.today.wday > 2 -%>
+					<li>
+						
+						<%= link_to_unless date_from_search_scope == date_range_this_week, "This week", audit_search_path( options_for_url.merge(date_range_this_week)) -%>
+					</li>
+					<% end -%>
+					<%- if Date.today.day > 7 -%>
+					<li>
+						
+						<%= link_to_unless date_from_search_scope == date_range_this_month, "This month", audit_search_path( options_for_url.merge(date_range_this_month)) -%>
+					</li>
+					<% end -%>
+				</ul>			
+			</div>
+			<div class="col-md-12 col-sm-3 col-xs-12">
+				<h3 class="h4">By Auditor</h3>
+			</div>
+			<div class="col-md-12 col-sm-3 col-xs-12">
+				<h3 class="h4">By State</h3>
+			</div>
+		</div>
+	</div>
+</div>

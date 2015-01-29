@@ -1,0 +1,61 @@
+<%-
+	show_store ||= true
+	audit_list = (audits[:results] || audits)
+-%>
+
+<table class="table table-condensed">
+<%- if defined?(caption) -%>
+	<caption>#{caption}</caption>
+<% end -%>
+	<thead>
+		<tr>
+			<th scope="col" style="width: 5%"><span style="visibility: hidden">Options</span></th>
+			<th scope="col" style="width: 10%">Date</th>
+			<th scope="col" style="width: 35%">Store</th>
+			<th scope="col">Auditor</th>
+			<th scope="col" style="width: 10%" class="text-center">Score</th>
+		</tr>
+	</thead>
+	<tbody>
+	<%- if audit_list.size > 0 -%>
+	<%- audit_list.each do |audit| -%>
+	<%-
+		# This is done to accomodate for search from either the 
+		# database or from ES
+		audit_store = audit[:store] || audit.store
+
+		# row_class - is used to add a visual clue for audits with unresolved issues
+		row_class = (audit[:has_unresolved_issues] ? 'class="danger"' : "")
+	-%>
+		<tr <%= row_class.html_safe -%>>
+			<td>
+				<ul class="list-unstyled list-inline">
+					<li>
+						<%= link_to audit_path(audit[:id]), title: "View"  do -%>
+							<i class="fa fa-folder-open"></i>
+						<% end -%>
+					</li>
+					<li>
+						<%= link_to edit_audit_path( audit[:id]), title: "Edit" do -%>
+							<i class="fa fa-edit"></i>
+						<% end -%>
+					</li>
+				</ul>				
+			</td>
+			<td><%= audit[:created_at].to_date.strftime("%b %d" + (audit[:created_at].to_date.year != Date.today.year ? ", %Y" : "")) -%></td>
+			<td><%= link_to audit_store.full_name, store_path( audit_store[:id] ) -%></td>
+			<td><%= audit[:auditor_name] -%></td>
+			<td class="text-center"><%= audit.score[:total]-%></td>
+		</tr>
+	<% end -%>
+	<%- else -%>
+		<tr>
+			<td colspan="5" class="text-center">
+				<p><em>
+					<%= defined?(message_noRecords) ? message_noRecords : "No audits found" -%>
+				</em></p>
+			</td>
+		</tr>
+	<%- end -%>
+	</tbody>
+</table>
