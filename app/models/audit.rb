@@ -26,9 +26,7 @@ class Audit < ActiveRecord::Base
   
   # Callbacks
 
-  before_save do 
-    self[:has_unresolved_issues] = (self.audit_metrics.select{ |i| i[:loss] != 0 && !i[:resolved]}.size > 0)
-
+  before_save do
     AuditMetric.where(audit_id: self[:id]).destroy_all
     Comment.delete_all({commentable_id: self[:id], commentable_type: 'Audit'})
     Image.delete_all({imageable_id: self[:id], imageable_type: 'Audit'})
@@ -57,7 +55,7 @@ class Audit < ActiveRecord::Base
 
   def as_indexed_json(options={})
     self.as_json({
-      only: [:id, :auditor_name, :audit_date, :has_unresolved_issues],
+      only: [:id, :auditor_name, :created_at, :has_unresolved_issues],
       methods: [:score],
       include: {
         store: { 

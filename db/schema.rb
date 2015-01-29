@@ -11,8 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-
-ActiveRecord::Schema.define(version: 20150121031127) do
+ActiveRecord::Schema.define(version: 20150129000730) do
 
   create_table "audit_journals", primary_key: "audit_id", force: true do |t|
     t.string    "title",      limit: 50
@@ -112,6 +111,7 @@ ActiveRecord::Schema.define(version: 20150121031127) do
     t.boolean   "free_form_response",               default: false
     t.boolean   "apply_points_per_item",            default: false
     t.string    "response_type"
+    t.boolean   "track_resolution",                 default: true,   null: false
     t.integer   "metric_options_count",  limit: 1,  default: 0,      null: false
     t.timestamp "created_at",                                        null: false
     t.timestamp "updated_at",                                        null: false
