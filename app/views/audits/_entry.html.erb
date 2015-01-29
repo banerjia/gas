@@ -125,7 +125,8 @@
 		data-ng-controller="AuditMetricController" 
 		data-ng-init="init(
 				'<%= a_m.object.metric[:response_type] -%>', 
-				'<%= a_m.object.metric[:score_type] -%>', 
+				'<%= a_m.object.metric[:score_type] -%>',
+				<%= a_m.object.metric[:track_resolution].to_s -%>, 
 				<%= metric_index -%>, 
 				{
 					base: <%= a_m.object[:base]  || 0-%>,
@@ -276,8 +277,8 @@
 				<!-- END: Response Set Choice -->
 
 				
-				<p data-ng-show="computedLossScore < 0" style="margin-top: 1em" class="col-md-12 col-sm-12 col-xs-12 alert alert-warning alert-sm ng-cloak">
-					<%= a_m.check_box :resolved, data: {"ng-checked" => "computedLossScore >= 0"} -%>
+				<p data-ng-show="needsResolution && computedLossScore < 0" style="margin-top: 1em" class="col-md-12 col-sm-12 col-xs-12 alert alert-warning alert-sm ng-cloak">
+					<%= a_m.check_box :resolved, data: {"ng-checked" => "!needsResolution ||computedLossScore >= 0"} -%>
 					<%= a_m.label :resolved, "This issue has been resolved" -%>
 				</p>
 
