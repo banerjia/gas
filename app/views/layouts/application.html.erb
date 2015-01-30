@@ -41,8 +41,6 @@
 					</div>
 					<div id="navbar" class="collapse navbar-collapse">
 						<ul class="nav navbar-nav navbar-right">
-
-<<<<<<< HEAD
 						<%- if !Rails.env.production? -%>
 						<li><p class="navbar-text"><span class="label label-warning"><%=branch_info -%></span></p></li>
 						<%- end -%>
@@ -74,7 +72,7 @@
 			</div><!-- /.container -->
 		</nav><!-- /.navbar -->
 	</header>
-	<div role="main" class="container">
+	<div role="main">
 		<%= "<h1>#{@page_title}</h1>".html_safe unless !defined?@page_title || @page_title.blank? -%>
 		<div class="container">
 			<%= content_for?(:body) ? yield(:body) : yield -%>
