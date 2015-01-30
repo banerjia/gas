@@ -58,11 +58,18 @@
 						<form method="GET" action="<%= audit_search_path -%>">
 							<div class="form-group">
 								<label for="start_date">From</label>
-								<input type="text" id="start_date" name="start_date" class="form-control input-sm date-picker">
+								<div class="input-group date">
+								  <input type="text" id="start_date" name="start_date" class="form-control input-sm date-picker" value="<%= options[:start_date].to_date.strftime("%m/%d/%Y") if options[:end_date].present?-%>"><span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+								</div>
+								
 							</div>
 							<div class="form-group">
 								<label for="end_date">To</label>
-								<input type="text" id="end_date" name="end_date" class="form-control input-sm date-picker">
+								<div class="input-group date">
+								  <input type="text" id="end_date" name="end_date" class="form-control input-sm date-picker" value="<%= options[:end_date].to_date.strftime("%m/%d/%Y") if options[:end_date].present?-%>"><span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+								</div>
+								
+								
 							</div>
 							<div class="form-buttons">
 								<button class="btn-primary">Find Audits</button>
@@ -147,7 +154,7 @@
 	<%= javascript_include_tag "bootstrap-datepicker.js" -%>
 	<script type="text/javascript">
 		$(document).ready(function(){
-			$('.date-picker')
+			$('.input-group.date')
 			       .datepicker({
 			       		format: 'mm/dd/yyyy',
 					    todayBtn: "linked",
