@@ -126,6 +126,9 @@ class AuditsController < ApplicationController
 		params[:per_page] ||= $per_page
 		params = params.merge({sort: "created_at-desc"}) unless params[:sort].present?
 
+		params[:start_date] = Date.strptime(params[:start_date], '%m/%d/%Y') if params[:start_date].present? && !params[:start_date].blank?
+		params[:end_date] = Date.strptime(params[:end_date], '%m/%d/%Y') if params[:end_date].present? && !params[:end_date].blank?
+
 		results = Audit.search(params) 
 
 		# Sanitize params

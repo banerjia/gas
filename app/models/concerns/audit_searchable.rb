@@ -78,8 +78,10 @@ module AuditSearchable
       filter_bool_must_array = []
       filter_bool_must_array.push( {term: { "store.company.id" => params[:_company_id]}}) if params[:_company_id].present?
       filter_bool_must_array.push( {term: { "store.id" =>  params[:_store_id]}}) if params[:_store_id].present?
-      filter_bool_must_array.push( {range: {"score.total" => {gte: params[:_score_lower], lte: params[:_score_upper]}}}) if params[:_score_lower].present?
-      filter_bool_must_array.push( {term: {auditor_name: params[:_auditor]}}) unless !params[:_auditor].present? || params[:_auditor].blank?
+      filter_bool_must_array.push( {range: {"score.total" => {gte: params[:_score_lower].to_i}}}) if params[:_score_lower].present?
+      filter_bool_must_array.push( {range: {"score.total" => {lte: params[:_score_upper].to_i}}}) if params[:_score_upper].present?
+      filter_bool_must_array.push( {term: {"auditor_name.raw" => params[:_auditor]}}) unless !params[:_auditor].present? || params[:_auditor].blank?
+      filter_bool_must_array.push( {term: {"store.state_code" => params[:_state]}}) if params[:_state].present?
 
       if query_bool_array_must.size > 1
         # If query_bool_array_must.size > 1 => there are other
