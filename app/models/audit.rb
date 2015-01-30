@@ -58,8 +58,13 @@ class Audit < ActiveRecord::Base
       methods: [:score],
       include: {
         store: { 
-          only: [:id],
-          methods: [:full_name, :address]
+          only: [:id, :state_code],
+          methods: [:full_name, :address],
+          include: {
+            state: {
+              only: [:state_name]
+            }            
+          }
         }
       }
     })
