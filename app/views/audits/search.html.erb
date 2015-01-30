@@ -9,10 +9,10 @@
 	</div>
 
 	<div class="col-md-pull-10 col-md-2 col-sm-12 col-xs-12 well well-sm">
-		<h2 class="h4">Filtering Options</h2>
+		
 		<div class="row">
 			<div class="col-md-12 col-sm-3 col-xs-12">
-				<h3 class="h5">By Date</h3>
+				<h3 class="h5">Find Audits</h3>
 				<%-
 					options_for_url = sanitized_options.clone
 					[:start_date, :end_date].each {|key| options_for_url.delete(key)}
@@ -31,71 +31,137 @@
 				-%>
 				<ul class="list-unstyled" style="padding-left: 0.7em">
 					<li>
-						<%= link_to_unless date_from_search_scope == date_range_all, "All Audits", audit_search_path(options_for_url) -%>
+						<%= link_to_unless date_from_search_scope == date_range_all, "All Audits", audit_search_path -%>
 						
 					</li>
 					<li>
-						<%= link_to_unless date_from_search_scope == date_range_today, "Today", audit_search_path( options_for_url.merge(date_range_today)) -%>
+						<%= link_to_unless date_from_search_scope == date_range_today, "Today", audit_search_path( date_range_today) -%>
 						
 					</li>
 					<li>
-						<%= link_to_unless date_from_search_scope == date_range_yesterday, "Yesterday", audit_search_path( options_for_url.merge(date_range_yesterday)) -%>
+						<%= link_to_unless date_from_search_scope == date_range_yesterday, "Yesterday", audit_search_path(date_range_yesterday) -%>
 					</li>
 					<%- if Date.today.wday > 2 -%>
 					<li>
 						
-						<%= link_to_unless date_from_search_scope == date_range_this_week, "This week", audit_search_path( options_for_url.merge(date_range_this_week)) -%>
+						<%= link_to_unless date_from_search_scope == date_range_this_week, "This week", audit_search_path( date_range_this_week) -%>
 					</li>
 					<% end -%>
 					<%- if Date.today.day > 7 -%>
 					<li>
 						
-						<%= link_to_unless date_from_search_scope == date_range_this_month, "This month", audit_search_path( options_for_url.merge(date_range_this_month)) -%>
+						<%= link_to_unless date_from_search_scope == date_range_this_month, "This month", audit_search_path( date_range_this_month) -%>
 					</li>
 					<% end -%>
+					<li>
+						Date Range: <br/>
+						<form method="GET" action="<%= audit_search_path -%>">
+							<div class="form-group">
+								<label for="start_date">From</label>
+								<div class="input-group date">
+								  <input type="text" id="start_date" name="start_date" class="form-control input-sm date-picker" value="<%= options[:start_date].to_date.strftime("%m/%d/%Y") if options[:end_date].present?-%>"><span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+								</div>
+								
+							</div>
+							<div class="form-group">
+								<label for="end_date">To</label>
+								<div class="input-group date">
+								  <input type="text" id="end_date" name="end_date" class="form-control input-sm date-picker" value="<%= options[:end_date].to_date.strftime("%m/%d/%Y") if options[:end_date].present?-%>"><span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+								</div>
+								
+								
+							</div>
+							<div class="form-buttons">
+								<button class="btn-primary">Find Audits</button>
+							</div>
+						</form>
+					</li>
 				</ul>			
 			</div>
-			<%- 
-				current_auditor = nil 
-				current_auditor = sanitized_options[:_auditor].downcase.strip unless !sanitized_options[:_auditor].present? || sanitized_options[:_auditor].blank?
 
-				options_without_auditor = sanitized_options.clone
-				options_without_auditor.delete(:_auditor)
+			<%- 
+				current_score = {_score_lower: nil, _score_upper: nil} 
+				if defined?(options)
+					current_score = {_score_lower: options[:_score_lower].to_i, _score_upper: (options[:_score_upper].present? ? options[:_score_upper].to_i : nil)}
+				end
+
+				options_without_score = sanitized_options.clone
+				[:_score_lower, :_score_upper].each { |key| options_without_score.delete(key) }
 			-%>
 			<div class="col-md-12 col-sm-3 col-xs-12">
-				<h3 class="h5">By Auditor</h3>
+				<h3 class="h5">Filter by Score</h3>
 				<ul class="list-unstyled" style="padding-left: 0.7em">
-				<%- audits[:aggs][:auditors].each do |auditor| -%>
+				<%- if audits[:aggs][:score_ranges].size > 1 -%>
+					<li><%= link_to_unless !(options[:_score_lower].present? || options[:_score_lower].present?) , "All Scores", audit_search_path(options_without_score) -%></li>
+				<% end -%>
+				<%- audits[:aggs][:score_ranges].each do |score_range| -%>
 					<li>
-						<%= link_to_unless audits[:aggs][:auditors].size == 1 || current_auditor == auditor[:name].downcase.strip, auditor[:name], audit_search_path(options_without_auditor.merge({_auditor: auditor[:name]})) -%>
+						<%= link_to_unless audits[:aggs][:score_ranges].size == 1 || (score_range[:from] == current_score[:_score_lower] && score_range[:to] == current_score[:_score_upper]), score_range[:name], audit_search_path(options_without_score.merge({_score_upper: score_range[:to], _score_lower: score_range[:from]})) -%>
 					</li>	
 				<% end -%>
 				</ul>
 			</div>
-
 			<%- 
-				current_state = nil 
-				current_state = sanitized_options[:_state].downcase.strip unless !sanitized_options[:_state].present? || sanitized_options[:_state].blank?
+				if audits[:aggs][:auditors].size > 0
+					current_auditor = nil 
+					current_auditor = sanitized_options[:_auditor].strip unless !sanitized_options[:_auditor].present? || sanitized_options[:_auditor].blank?
 
-				options_without_state = sanitized_options.clone
-				options_without_state.delete(:_state)
+					options_without_auditor = sanitized_options.clone
+					options_without_auditor.delete(:_auditor)
 			-%>
 			<div class="col-md-12 col-sm-3 col-xs-12">
-				<h3 class="h5">By State</h3>
+				<h3 class="h5">Filter by Auditor</h3>
 				<ul class="list-unstyled" style="padding-left: 0.7em">
+				<%- if audits[:aggs][:auditors].size > 1 -%>
+					<li><%= link_to_unless !options[:_auditor].present?, "All Auditors", audit_search_path(options_without_auditor) -%></li>
+				<% end -%>
+				<%- audits[:aggs][:auditors].each do |auditor| -%>
+					<li>
+						<%= link_to_unless audits[:aggs][:auditors].size == 1 || auditor[:name].strip == current_auditor, auditor[:name], audit_search_path(options_without_auditor.merge({_auditor: auditor[:name]})) -%>
+					</li>	
+				<% end -%>
+				</ul>
+			</div>
+			<% end -%>
+
+			<%- 
+				if audits[:aggs][:states].size > 0
+					current_state = nil 
+					current_state = sanitized_options[:_state].downcase.strip unless !sanitized_options[:_state].present? || sanitized_options[:_state].blank?
+
+					options_without_state = sanitized_options.clone
+					options_without_state.delete(:_state)
+			-%>
+			<div class="col-md-12 col-sm-3 col-xs-12">
+				<h3 class="h5">Filter by State</h3>
+				<ul class="list-unstyled" style="padding-left: 0.7em">
+				<%- if audits[:aggs][:states].size > 1 -%>
+					<li><%= link_to_unless !options[:_state].present?, "All States", audit_search_path(options_without_state) -%></li>
+				<% end -%>
 				<%- audits[:aggs][:states].each do |state| -%>
 					<li>
-						<%- if audits[:aggs][:states].size > 1 && current_state == state[:state_code]-%>
-							<%= link_to audit_search_path(options_without_state), class: "label label-danger" do -%>
-								<i class="fa fa-times"></i>
-							<% end -%>
-							&nbsp;
-						<% end -%>
 						<%= link_to_unless audits[:aggs][:states].size == 1 || current_state == state[:state_code].downcase.strip, state[:state_name], audit_search_path(options_without_state.merge({_state: state[:state_code]})) -%>	
 					</li>
 				<% end -%>
 				</ul>
 			</div>
+			<% end -%>
 		</div>
 	</div>
 </div>
+
+<%- content_for :page_js do -%>
+	<%= javascript_include_tag "bootstrap-datepicker.js" -%>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('.input-group.date')
+			       .datepicker({
+			       		format: 'mm/dd/yyyy',
+					    todayBtn: "linked",
+					    clearBtn: true,
+					    autoclose: true,
+					    todayHighlight: true
+					});
+		})
+	</script>
+<% end -%>
