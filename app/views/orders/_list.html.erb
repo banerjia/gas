@@ -19,7 +19,7 @@
 <%- else -%>
 	<tr>
 		<td colspan="4" class="text-center">
-			<p><em>No orders to show here.</em></p>
+			<p><em><%= (defined?(noRecordsMessage) ? noRecordsMessage : "No orders found").html_safe -%></em></p>
 		</td>
 	</tr>
 <% end -%>

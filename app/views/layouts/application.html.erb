@@ -13,7 +13,15 @@
 
 
 	<%= stylesheet_link_tag "application" %>
-	<style type="text/css" media="screen">
+	<style type="text/css">
+		@media screen and (min-width: 48em){
+			.btn{
+				min-width: 7em;
+			}
+		}
+		table.table-condensed > thead > tr > th {
+			border-bottom: 2px solid #2c3e50;
+		}
 	</style>
 	<%= yield :head %>
 </head>
@@ -63,7 +71,7 @@
 			</div><!-- /.container -->
 		</nav><!-- /.navbar -->
 	</header>
-	<div role="main" class="container">
+	<div role="main">
 		<%= "<h1>#{@page_title}</h1>".html_safe unless !defined?@page_title || @page_title.blank? -%>
 		<div class="container">
 			<%= content_for?(:body) ? yield(:body) : yield -%>

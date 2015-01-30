@@ -1,21 +1,27 @@
+<%-
+	sanitized_options = options.clone
+	[:page, :per_page, :sort].each { |key| sanitized_options.delete(key)}
+-%>
 <div class="row">
 
-	<div class="col-md-10 col-md-push-2 col-sm-12 col-xs-12 table-responsive">
-		<%= render partial: 'verbose_listing', locals: {audits: audits} -%>
+	<div class="col-md-10 col-md-push-2 col-sm-12 col-xs-12">
+		<%= render partial: 'verbose_listing', locals: {audits: audits, options: options} -%>
 	</div>
 
-	<div class="col-md-pull-10 col-md-2 col-sm-12 col-xs-12">
-		<h2 class="h3">Filtering Options</h2>
+	<div class="col-md-pull-10 col-md-2 col-sm-12 col-xs-12 well well-sm">
+		<h2 class="h4">Filtering Options</h2>
 		<div class="row">
 			<div class="col-md-12 col-sm-3 col-xs-12">
-				<h3 class="h4">By Date</h3>
+				<h3 class="h5">By Date</h3>
 				<%-
-					options_for_url = options.clone
-					[:page, :per_page, :sort, :start_date, :end_date].each {|key| options_for_url.delete(key)}
+					options_for_url = sanitized_options.clone
+					[:start_date, :end_date].each {|key| options_for_url.delete(key)}
 
+					# link_to_if compares against this Hash to determine which 
+					# search option was selected
 					date_from_search_scope = { \
-						start_date: ( options[:start_date].nil? ? nil: options[:start_date].to_date), \
-						end_date: ( options[:end_date].nil? ? nil: options[:end_date].to_date) \
+						start_date: ( sanitized_options[:start_date].nil? ? nil: sanitized_options[:start_date].to_date), \
+						end_date: ( sanitized_options[:end_date].nil? ? nil: sanitized_options[:end_date].to_date) \
 					}
 					date_range_all = {start_date: nil, end_date: nil}
 					date_range_yesterday = {start_date: 1.day.ago.to_date, end_date: 1.day.ago.to_date}
@@ -23,7 +29,7 @@
 					date_range_today = {start_date: Date.today, end_date: Date.today}
 					date_range_this_month = {start_date: Date.today.at_beginning_of_month, end_date: Date.today}
 				-%>
-				<ul class="list-unstyled">
+				<ul class="list-unstyled" style="padding-left: 0.7em">
 					<li>
 						<%= link_to_unless date_from_search_scope == date_range_all, "All Audits", audit_search_path(options_for_url) -%>
 						
@@ -49,11 +55,46 @@
 					<% end -%>
 				</ul>			
 			</div>
+			<%- 
+				current_auditor = nil 
+				current_auditor = sanitized_options[:_auditor].downcase.strip unless !sanitized_options[:_auditor].present? || sanitized_options[:_auditor].blank?
+
+				options_without_auditor = sanitized_options.clone
+				options_without_auditor.delete(:_auditor)
+			-%>
 			<div class="col-md-12 col-sm-3 col-xs-12">
-				<h3 class="h4">By Auditor</h3>
+				<h3 class="h5">By Auditor</h3>
+				<ul class="list-unstyled" style="padding-left: 0.7em">
+				<%- audits[:aggs][:auditors].each do |auditor| -%>
+					<li>
+						<%= link_to_unless audits[:aggs][:auditors].size == 1 || current_auditor == auditor[:name].downcase.strip, auditor[:name], audit_search_path(options_without_auditor.merge({_auditor: auditor[:name]})) -%>
+					</li>	
+				<% end -%>
+				</ul>
 			</div>
+
+			<%- 
+				current_state = nil 
+				current_state = sanitized_options[:_state].downcase.strip unless !sanitized_options[:_state].present? || sanitized_options[:_state].blank?
+
+				options_without_state = sanitized_options.clone
+				options_without_state.delete(:_state)
+			-%>
 			<div class="col-md-12 col-sm-3 col-xs-12">
-				<h3 class="h4">By State</h3>
+				<h3 class="h5">By State</h3>
+				<ul class="list-unstyled" style="padding-left: 0.7em">
+				<%- audits[:aggs][:states].each do |state| -%>
+					<li>
+						<%- if audits[:aggs][:states].size > 1 && current_state == state[:state_code]-%>
+							<%= link_to audit_search_path(options_without_state), class: "label label-danger" do -%>
+								<i class="fa fa-times"></i>
+							<% end -%>
+							&nbsp;
+						<% end -%>
+						<%= link_to_unless audits[:aggs][:states].size == 1 || current_state == state[:state_code].downcase.strip, state[:state_name], audit_search_path(options_without_state.merge({_state: state[:state_code]})) -%>	
+					</li>
+				<% end -%>
+				</ul>
 			</div>
 		</div>
 	</div>
