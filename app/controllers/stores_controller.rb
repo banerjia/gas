@@ -7,20 +7,13 @@ class StoresController < ApplicationController
   def show
     store_id = params[:id]
 
-    latest_audits = nil
-    latest_orders = nil
-
     store = Store.includes([:store_contacts, :company, :region ]).find(store_id)
 
-    if store.audits.size > 0
-      store.audits.replace( Audit.where({store_id: store_id}).order({created_at: :desc}).limit(5))
-    end
+    store.audits.replace( Audit.where({store_id: store_id}).order({created_at: :desc}).limit(5))
 
-    if store.orders.size > 0
-      store.orders.replace( Order.where({store_id: store_id}).order({created_at: :desc}).limit(5))
-    end
+    store.orders.replace( Order.where({store_id: store_id}).order({created_at: :desc}).limit(5))
 
-    @page_title = store[:name].titlecase + " Dashboard"
+    @page_title = "Store Dashboard"
 
     respond_to do |format|
       format.html { render locals: {store: store}}
