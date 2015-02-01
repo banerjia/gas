@@ -143,7 +143,14 @@ class AuditsController < ApplicationController
 		respond_to do |format|
 			format.html do
 				@page_title = "Audits"
-				@page_title = @page_title + ' for ' + results[:results].first[:store].full_name if params[:store_id].present?
+				store_name = nil
+				if params[:store_id].present? && results[:results].size > 0
+					store_name = results[:results].first[:store].full_name
+				else
+					store_name = Store.find( params[:store_id]).full_name if params[:store_id].present?
+				end
+
+				@page_title = @page_title + ' for ' + store_name if params[:store_id].present?
 				render locals: {audits: results, options: params}
 			end
 
