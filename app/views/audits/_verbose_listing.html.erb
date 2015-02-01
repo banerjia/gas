@@ -49,11 +49,11 @@
 <div class="table-responsive">
 <table class="table table-condensed table-striped">
 <%- if defined?(caption) -%>
-	<caption><%= caption -%></caption>
+	<caption class="h3"><%= caption -%></caption>
 <% end -%>
 	<thead>
 		<tr>
-			<th scope="col" style="width: 5%"><span style="visibility: hidden">Options</span></th>
+			<th scope="col" style="width: 10%"><span style="visibility: hidden">Options</span></th>
 			<th scope="col" style="width: 10%">
 				Date
 			</th>
@@ -62,16 +62,6 @@
 			<th scope="col" style="width: 10%" class="text-center">Score</th>
 		</tr>
 	</thead>
-	<%- if defined?(buttons)-%>
-	<tfoot>
-		<tr>
-			<td colspan="5" class="well well-sm">
-				<%= link_to "New Audits", new_audit_path, class: "btn btn-sm btn-success" if buttons[:newAudit].present? && buttons[:newAudit] -%>
-				<%= link_to "View All Audits", audits_path, class: "btn btn-sm btn-primary" if buttons[:viewAudits].present? && buttons[:viewAudits] -%>
-			</td>
-		</tr>
-	</tfoot>
-	<% end -%>
 	<tbody>
 	<%- if audits_list.size > 0 -%>
 	<%- audits_list.each do |audit| -%>
@@ -91,11 +81,17 @@
 							<i class="fa fa-folder-open"></i>
 						<% end -%>
 					</li>
+					<%- if audit.images.size > 0 -%>
 					<li>
-						<%= link_to edit_audit_path( audit[:id]), title: "Edit" do -%>
-							<i class="fa fa-edit"></i>
-						<% end -%>
+						<i class="fa fa-file-image-o"></i>
 					</li>
+					<% end -%>
+					<%- if audit.comments.size > 0 -%>
+					<li>
+						<i class="fa fa-comment"></i>
+					</li>
+					<% end -%>
+
 				</ul>				
 			</td>
 			<td><%= audit[:created_at].to_date.strftime("%b %d" + (audit[:created_at].to_date.year != Date.today.year ? ", %Y" : "")) -%></td>

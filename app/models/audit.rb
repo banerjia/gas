@@ -47,11 +47,11 @@ class Audit < ActiveRecord::Base
     self[:base] + self[:loss] + self[:bonus]
   end
 
+  # ElasticSearch Indexing Support Functions
+
   def score
     { base: self[:base], loss: self[:loss], bonus: self[:bonus], total: self.total_score}
   end
-
-  # ElasticSearch Indexing Support Functions
 
   def as_indexed_json(options={})
     self.as_json({
@@ -59,13 +59,14 @@ class Audit < ActiveRecord::Base
       methods: [:score],
       include: {
         store: { 
-          only: [:id, :state_code],
-          methods: [:full_name, :address],
-          include: {
-            state: {
-              only: [:state_name]
-            }            
-          }
+          only: [:id],
+          methods: [:full_name],
+        },
+        images: {
+          only: [:content_url]
+        },
+        comments: {
+          only: [:content]
         }
       }
     })

@@ -10,17 +10,14 @@ module AuditSearchable
 			mapping do 
 				indexes :id, type: 'integer', index: 'not_analyzed'
         indexes :store_id, type: 'integer', index: 'not_analyzed'
+        indexes :created_at, type: 'date', index: 'not_analyzed'
+        indexes :has_unresolved_issues, type: 'boolean', index: 'not_analyzed'
 
         indexes :store do 
           indexes :id, type: 'integer', index: 'not_analyzed'
-          indexes :address, type: 'string', index: 'not_analyzed'
-          indexes :state_code, type: 'string', index: 'not_analyzed'
           indexes :full_name, type: 'multi_field' do
             indexes :full_name
             indexes :raw, index: 'not_analyzed'
-          end
-          indexes :state do 
-            indexes :state_name, type: 'string', index: 'not_analyzed'
           end
         end
         
@@ -34,8 +31,14 @@ module AuditSearchable
           indexes :bonus, type: 'integer', index: 'not_analyzed'
           indexes :total, type: 'integer', index: 'not_analyzed'
         end
-        indexes :audit_date, type: 'date', index: 'not_analyzed'
-        indexes :has_unresolved_issues, type: 'boolean', index: 'not_analyzed'
+
+        indexes :images do
+          indexes :content_url,  type: 'string', index: 'not_analyzed'
+        end
+
+        indexes :comments do
+          indexes :content, type: 'string', index: "not_analyzed"
+        end
       end
     end
     
@@ -118,18 +121,6 @@ module AuditSearchable
           terms:{
             field: "auditor_name.raw"
           }
-        },
-        states: {
-          terms:{
-            field: "store.state_code"
-          },
-          aggs:{
-            state_names: {
-              terms:{
-                field: "store.state.state_name"
-              }
-            }
-          }
         } 
       }
           
@@ -144,7 +135,6 @@ module AuditSearchable
 
       return_value[:aggs][:score_ranges] = es_results.response['aggregations']['score_ranges']['buckets'].map{|item| {name: item['key'].gsub(/\.0/,'').gsub(/\-\*$/,'+'), found: item['doc_count'].to_i, from: item['from'], to: item['to']}}.sort_by{ |i| i[:from]}.reverse
       return_value[:aggs][:auditors] = es_results.response['aggregations']['auditors']['buckets'].map{ |item| {name: item['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  
-      return_value[:aggs][:states] = es_results.response['aggregations']['states']['buckets'].map{ |item| {state_name: item['state_names']['buckets'].first['key'], state_code: item['key'], found: item['doc_count']}}.sort_by{ |item| item[:state_name]}  
 
 
       return_value[:search_string] = es_results.search.definition[:body] if !Rails.env.production?
