@@ -49,7 +49,7 @@
 <div class="table-responsive">
 <table class="table table-condensed table-striped">
 <%- if defined?(caption) -%>
-	<caption><%= caption -%></caption>
+	<caption class="h3"><%= caption -%></caption>
 <% end -%>
 	<thead>
 		<tr>
@@ -62,16 +62,6 @@
 			<th scope="col" style="width: 10%" class="text-center">Score</th>
 		</tr>
 	</thead>
-	<%- if defined?(buttons)-%>
-	<tfoot>
-		<tr>
-			<td colspan="5" class="well well-sm">
-				<%= link_to "New Audit", new_audit_path, class: "btn btn-sm btn-success" if buttons[:newAudit].present? && buttons[:newAudit] -%>
-				<%= link_to "View All Audits", audits_path, class: "btn btn-sm btn-primary" if buttons[:viewAudits].present? && buttons[:viewAudits] -%>
-			</td>
-		</tr>
-	</tfoot>
-	<% end -%>
 	<tbody>
 	<%- if audits_list.size > 0 -%>
 	<%- audits_list.each do |audit| -%>
