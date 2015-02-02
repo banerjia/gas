@@ -117,7 +117,18 @@ class AuditsController < ApplicationController
 		
 		@page_title = "Audit for #{audit.store.full_name}"
 
+		session['return_path'] = request.referer
+
 		render :show, locals: {audit: audit}	
+	end
+
+	def destroy
+		Audit.find(params[:id]).destroy
+		respond_to do |format|
+			format.json do
+				render json: {success: true}.to_json
+			end
+		end		
 	end
 
 	def search
@@ -134,6 +145,8 @@ class AuditsController < ApplicationController
 
 		params[:start_date] = Date.strptime(params[:start_date], '%m/%d/%Y') if params[:start_date].present? && !params[:start_date].blank? && /^\d{4}\-\d{2}\-\d{2}/.match(params[:start_date]).nil?
 		params[:end_date] = Date.strptime(params[:end_date], '%m/%d/%Y') if params[:end_date].present? && !params[:end_date].blank? && /^\d{4}\-\d{2}\-\d{2}/.match(params[:end_date]).nil?
+
+		params = params.reject{|k,v| v.blank?}
 
 		results = Audit.search(params) 
 

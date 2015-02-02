@@ -11,3 +11,13 @@ String.prototype.toTitleCase=() ->
 	this.replace /\w\S*/g, (txt) ->
 		txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
 
+
+
+@closeButton = () ->
+	if URL != null && URL.return_path.length > 0 
+		window.location = URL.return_path
+	else
+		history.go(-1)
+
+	return
+
