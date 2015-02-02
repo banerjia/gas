@@ -1,8 +1,8 @@
 
 <div class="row form-group">
-	<%= link_to "Edit Audit", edit_audit_path(audit), class: "btn btn-primary" -%>
-	<button class="btn btn-default btn-wide" type="button" onclick="history.go(-1)">Close</button>
-	<%= link_to "Delete Audit", "#", class: "btn btn-danger" -%>
+	<%= link_to "Edit", edit_audit_path(audit), class: "btn btn-primary" -%>
+	<button class="btn btn-default btn-wide" type="button" onclick="closeButton()">Close</button>
+	<button class="btn btn-danger" type="button" onclick="deleteAudit()">Delete</button>
 </div>
 <div class="row well well-sm">
 	<div class="col-md-6 col-sm-12 col-xs-12 container">
@@ -35,9 +35,21 @@
 		<%- end -%>	
 		<%- if audit.comments.present? -%>
 		<div class="row" style="margin-bottom: 0.7em">
-			<div class="col-m-12 col-sm-12 col-xs-12"><label>Comments</label></div>
-			<div class="col-m-12 col-sm-12 col-xs-12">
+			<div class="col-md-2 col-sm-12 col-xs-12"><label>Comments</label></div>
+			<div class="col-md-10 col-sm-12 col-xs-12">
 				<%= audit.comments.first[:content] -%>
+			</div>
+		</div>
+		<%- end -%>
+		<%- if audit.images.present? -%>
+		<div class="row" style="margin-bottom: 0.7em">
+			<div class="col-md-2 col-sm-12 col-xs-12"><label>Attached Picture</label></div>
+			<div class="col-md-10 col-sm-12 col-xs-12">
+			<%- audit.images.each do |image| -%>
+				<a href="<%= image[:content_url] -%>" class="fancybox-thumb" rel="fancybox-thumb">
+					<img src="<%= image[:content_url] -%>" style="max-width: 200px; max-height: 100px" />
+				</a>
+			<% end -%>
 			</div>
 		</div>
 		<%- end -%>
@@ -82,8 +94,8 @@
 			</div>
 			<div class="panel-body">
 				<ul style="list-style: none">
-				<%- audit_metric.audit_metric_responses.select{|i| i[:selected]}.sort{ |a, b| a.metric_option[:display_order] <=> a.metric_option[:display_order]}.each do |response| -%>
-					<li>
+				<%- audit_metric.audit_metric_responses.select{|i| i.metric_option.metric[:response_type] == 'custom_shelves' || i[:selected]}.sort{ |a, b| a.metric_option[:display_order] <=> a.metric_option[:display_order]}.each do |response| -%>
+					<li class="col-md-4 col-sm-12 col-xs-12">
 					<%-
 						case audit_metric.metric[:response_type]
 							when "text_compare"
@@ -93,6 +105,10 @@
 					<%-		when /^(computed|textarea)$/ -%>
 								<%= response[:entry_value] -%>
 					<%- 	else -%>
+								<%- if response.metric_option.metric[:response_type] != "radio" -%>
+									<i class="fa <%= response[:selected] ? "fa-check-square-o": "fa-square-o" -%>"></i> 
+								<%- end -%>
+
 								<%= response.metric_option[:label] -%>
 					<% end -%>
 					</li>
@@ -104,3 +120,61 @@
 	</div>
 
 <% end -%>
+
+<%- content_for :head do -%>
+	<%= stylesheet_link_tag "jquery.fancybox.css" -%>
+	<%= stylesheet_link_tag "sweet-alert.css" -%>
+<%- end -%>
+
+<%- content_for :page_js do -%>
+	<%= javascript_include_tag "jquery.fancybox.js" -%>
+	<%= javascript_include_tag "sweet-alert.min.js" -%>
+	<script type="text/javascript">
+	var URL = {
+		destroy_audit: '<%= audit_path(audit[:id], format: :json) -%>',
+		return_path: '<%= session['return_path'].present? ? URI.decode(session['return_path']): nil -%>',
+		audits_path: '<%= audits_path -%>'
+	};
+
+	$(document).ready(function() {
+		$(".fancybox-thumb").fancybox({
+			prevEffect	: 'none',
+			nextEffect	: 'none',
+			helpers	: {
+				title	: {
+					type: 'outside'
+				},
+				thumbs	: {
+					width	: 50,
+					height	: 50
+				}
+			}
+		});
+	});
+
+	function deleteAudit(){
+		swal({
+			title: "Are you sure?",
+			text: "You will not be able to recover this audit",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonText: "Yes",
+			closeOnConfirm: true
+		},
+		function(){
+			$.ajax({
+				type: "DELETE",
+				url: URL.destroy_audit,
+				dataType: 'json',
+				success: function(data){
+					window.location = URL.audits_path;
+				},
+				error: function(xhr){
+					alert("Could not delete");
+				}
+			});			
+		});
+
+	}
+	</script>
+<%- end -%>

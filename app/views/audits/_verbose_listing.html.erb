@@ -1,24 +1,70 @@
 <%-
 	show_store ||= true
-	audit_list = (!(audits.is_a?(ActiveRecord::Base) || audits.is_a?(ActiveRecord::Relation)) ? audits[:results] : audits)
--%>
 
-<table class="table table-condensed">
+	audits_list = []
+	more_pages ||= false
+	total_audits ||= 0
+	page = (defined?(options) && options[:page].present? ? options[:page] : 1).to_i
+
+	if audits.is_a?(ActiveRecord::Base) || audits.is_a?(ActiveRecord::Relation)
+		audits_list = audits
+		total_audits = audits.size
+	else
+		audits_list = audits[:results]
+		total_audits = audits[:total]
+		more_pages = audits[:more_pages]
+	end
+
+	if defined?(options)
+		options_without_page = options.clone
+		options_without_page.delete(:page)
+	end
+-%>
+<%- if page > 1 || more_pages -%>
+<div class="row" style="margin-bottom: 1em">
+	<div class="col-md-12 col-sm-12 col-xs-12">
+		<div class="btn-toolbar pull-right" role="toolbar">
+			<div class="btn-group" role="group">			
+				<button 
+					class="btn btn-sm btn-default" 
+					type="button"
+					<%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
+					<%= page > 1 ? 'onclick="window.location = "' + audit_search_path(options_without_page.merge({page: page-1})) +'"'.html_safe : nil -%>>
+					<i class="fa fa-chevron-left"></i>
+					<span class="hidden-sm hidden-xs">Back</span>					
+				</button>
+				<button 
+					class="btn btn-sm btn-default" 
+					type="button"
+					<%= !more_pages ? 'disabled="disabled"'.html_safe : nil -%>
+					<%= more_pages ? 'onclick="window.location = "' + audit_search_path(options_without_page.merge({page: page+1})) +'"'.html_safe : nil -%>>
+					<span class="hidden-sm hidden-xs">Next</span>
+					<i class="fa fa-chevron-right"></i>					
+				</button>
+			</div>
+		</div>
+	</div>		
+</div>
+<% end -%>
+<div class="table-responsive">
+<table class="table table-condensed table-striped">
 <%- if defined?(caption) -%>
-	<caption>#{caption}</caption>
+	<caption class="h3"><%= caption -%></caption>
 <% end -%>
 	<thead>
 		<tr>
-			<th scope="col" style="width: 5%"><span style="visibility: hidden">Options</span></th>
-			<th scope="col" style="width: 10%">Date</th>
+			<th scope="col" style="width: 10%"><span style="visibility: hidden">Options</span></th>
+			<th scope="col" style="width: 10%">
+				Date
+			</th>
 			<th scope="col" style="width: 35%">Store</th>
 			<th scope="col">Auditor</th>
 			<th scope="col" style="width: 10%" class="text-center">Score</th>
 		</tr>
 	</thead>
 	<tbody>
-	<%- if audit_list.size > 0 -%>
-	<%- audit_list.each do |audit| -%>
+	<%- if audits_list.size > 0 -%>
+	<%- audits_list.each do |audit| -%>
 	<%-
 		# This is done to accomodate for search from either the 
 		# database or from ES
@@ -35,11 +81,17 @@
 							<i class="fa fa-folder-open"></i>
 						<% end -%>
 					</li>
+					<%- if audit.images.size > 0 -%>
 					<li>
-						<%= link_to edit_audit_path( audit[:id]), title: "Edit" do -%>
-							<i class="fa fa-edit"></i>
-						<% end -%>
+						<i class="fa fa-file-image-o"></i>
 					</li>
+					<% end -%>
+					<%- if audit.comments.size > 0 -%>
+					<li>
+						<i class="fa fa-comment"></i>
+					</li>
+					<% end -%>
+
 				</ul>				
 			</td>
 			<td><%= audit[:created_at].to_date.strftime("%b %d" + (audit[:created_at].to_date.year != Date.today.year ? ", %Y" : "")) -%></td>
@@ -59,3 +111,4 @@
 	<%- end -%>
 	</tbody>
 </table>
+</div>

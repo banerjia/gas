@@ -34,6 +34,7 @@ class Audit < ActiveRecord::Base
 
   after_commit do
     store.__elasticsearch__.index_document
+    __elasticsearch__.update_document
   end
 
   before_destroy do |a|
@@ -46,11 +47,11 @@ class Audit < ActiveRecord::Base
     self[:base] + self[:loss] + self[:bonus]
   end
 
+  # ElasticSearch Indexing Support Functions
+
   def score
     { base: self[:base], loss: self[:loss], bonus: self[:bonus], total: self.total_score}
   end
-
-  # ElasticSearch Indexing Support Functions
 
   def as_indexed_json(options={})
     self.as_json({
@@ -59,7 +60,13 @@ class Audit < ActiveRecord::Base
       include: {
         store: { 
           only: [:id],
-          methods: [:full_name, :address]
+          methods: [:full_name],
+        },
+        images: {
+          only: [:content_url]
+        },
+        comments: {
+          only: [:content]
         }
       }
     })

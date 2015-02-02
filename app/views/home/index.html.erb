@@ -1,0 +1,27 @@
+<div class="row">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h2 class="h4">Recent Activity</h2>
+		</div>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-md-12 col-sm-12 col-xs-12 table-responsive">
+					<%= render partial: 'audits/verbose_listing', locals: {audits: @recent_audits, caption: "Recent Audits", buttons: {viewAudits: true, newAudit: true}} -%>
+					<div class="form-buttons well well-sm text-right">
+						<%= link_to "New Audit", new_audit_path, class: "btn btn-sm btn-success" -%>
+						<%= link_to "View All Audits", audits_path, class: "btn btn-sm btn-primary" -%>
+					</div>
+					
+				</div>					
+			</div>
+			<div class="row">
+				<div class="col-md-12 col-sm-12 col-xs-12 table-responsive">
+					<table class="table table-condensed">
+						<%= render partial: 'orders/list', locals: {orders: @recent_orders, noRecordsMessage: "No recent orders found", caption: "Recent Orders"} -%>
+					</table>
+				</div>
+				
+			</div>
+		</div>
+	</div>	
+</div>

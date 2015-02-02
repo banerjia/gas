@@ -15,36 +15,15 @@
 }
 
 table {
-	&#order_list {
-		margin: auto 1px;
-		width: 99.5%;
-	
-		caption {
-			border: 2px solid #CCC;
-			background-color: #EEE;
-			font: {
-				weight: bold;
-				padding: 0.7em auto;
-			}
-		}
-	
+	&#order_list {	
 		thead {
 			tr {
 				&:first-child {
-					th {
+					th:first-child {
 						text: {
 							align: center;
 							width: 10%;
 						}
-					}
-				}
-				&.toolbar {				
-					td {
-						background-color: #505050;
-						color: #FFF;
-						font-weight: bold;
-						padding: 0.5em;
-						text-align: left;
 					}
 				}
 			}
@@ -151,13 +130,8 @@ div {
 	}
 }
 
-.modal_close {
-	background-image: url( <%= image_path("modal_close.png") %>);
-	display: block;
-	height: 14px;
+.modal_close_positioning {
 	position: absolute;
 	right: 12px;
 	top: 12px;
-	width: 14px;
-	z-index: 2;
 }

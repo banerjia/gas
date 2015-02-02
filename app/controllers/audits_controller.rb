@@ -14,7 +14,7 @@ class AuditsController < ApplicationController
 			new_audit.build_store()
 		end
 
-		new_audit[:created_at] = new_audit[:created_at].strftime("%m/%d/%Y")
+		new_audit[:created_at] = Date.today.strftime("%m/%d/%Y")
 		new_audit.comments.build()
 		new_audit.images.build()
 
@@ -117,7 +117,18 @@ class AuditsController < ApplicationController
 		
 		@page_title = "Audit for #{audit.store.full_name}"
 
+		session['return_path'] = request.referer
+
 		render :show, locals: {audit: audit}	
+	end
+
+	def destroy
+		Audit.find(params[:id]).destroy
+		respond_to do |format|
+			format.json do
+				render json: {success: true}.to_json
+			end
+		end		
 	end
 
 	def search
@@ -125,16 +136,34 @@ class AuditsController < ApplicationController
 		params[:page] ||=  1 
 		params[:per_page] ||= $per_page
 		params = params.merge({sort: "created_at-desc"}) unless params[:sort].present?
+		if params[:_score_range].present?
+			matches = params[:_score_range].scan(/[\d\.]+/)
+
+			params[:_score_lower] = matches[0].to_i		
+			params[:_score_upper] = matches[1].to_i unless matches.size < 2
+		end
+
+		params[:start_date] = Date.strptime(params[:start_date], '%m/%d/%Y') if params[:start_date].present? && !params[:start_date].blank? && /^\d{4}\-\d{2}\-\d{2}/.match(params[:start_date]).nil?
+		params[:end_date] = Date.strptime(params[:end_date], '%m/%d/%Y') if params[:end_date].present? && !params[:end_date].blank? && /^\d{4}\-\d{2}\-\d{2}/.match(params[:end_date]).nil?
+
+		params = params.reject{|k,v| v.blank?}
 
 		results = Audit.search(params) 
 
 		# Sanitize params
-		[:action, :controller, :format].each { |key| params.delete(key) }
+		[:action, :controller, :format, :_score_lower, :_score_upper].each { |key| params.delete(key) }
 
 		respond_to do |format|
 			format.html do
 				@page_title = "Audits"
-				@page_title = @page_title + ' for ' + results[:results].first[:store].full_name if params[:store_id].present?
+				store_name = nil
+				if params[:store_id].present? && results[:results].size > 0
+					store_name = results[:results].first[:store].full_name
+				else
+					store_name = Store.find( params[:store_id]).full_name if params[:store_id].present?
+				end
+
+				@page_title = @page_title + ' for ' + store_name if params[:store_id].present?
 				render locals: {audits: results, options: params}
 			end
 

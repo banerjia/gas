@@ -10,10 +10,11 @@ module AuditSearchable
 			mapping do 
 				indexes :id, type: 'integer', index: 'not_analyzed'
         indexes :store_id, type: 'integer', index: 'not_analyzed'
+        indexes :created_at, type: 'date', index: 'not_analyzed'
+        indexes :has_unresolved_issues, type: 'boolean', index: 'not_analyzed'
 
         indexes :store do 
           indexes :id, type: 'integer', index: 'not_analyzed'
-          indexes :address, type: 'string', index: 'not_analyzed'
           indexes :full_name, type: 'multi_field' do
             indexes :full_name
             indexes :raw, index: 'not_analyzed'
@@ -30,8 +31,14 @@ module AuditSearchable
           indexes :bonus, type: 'integer', index: 'not_analyzed'
           indexes :total, type: 'integer', index: 'not_analyzed'
         end
-        indexes :audit_date, type: 'date', index: 'not_analyzed'
-        indexes :has_unresolved_issues, type: 'boolean', index: 'not_analyzed'
+
+        indexes :images do
+          indexes :content_url,  type: 'string', index: 'not_analyzed'
+        end
+
+        indexes :comments do
+          indexes :content, type: 'string', index: "not_analyzed"
+        end
       end
     end
     
@@ -74,7 +81,10 @@ module AuditSearchable
       filter_bool_must_array = []
       filter_bool_must_array.push( {term: { "store.company.id" => params[:_company_id]}}) if params[:_company_id].present?
       filter_bool_must_array.push( {term: { "store.id" =>  params[:_store_id]}}) if params[:_store_id].present?
-      filter_bool_must_array.push( {range: {"score.total" => {gte: params[:_score_lower], lte: params[:_score_upper]}}}) if params[:_score_lower].present?
+      filter_bool_must_array.push( {range: {"score.total" => {gte: params[:_score_lower].to_i}}}) if params[:_score_lower].present?
+      filter_bool_must_array.push( {range: {"score.total" => {lte: params[:_score_upper].to_i}}}) if params[:_score_upper].present?
+      filter_bool_must_array.push( {term: {"auditor_name.raw" => params[:_auditor]}}) unless !params[:_auditor].present? || params[:_auditor].blank?
+      filter_bool_must_array.push( {term: {"store.state_code" => params[:_state]}}) if params[:_state].present?
 
       if query_bool_array_must.size > 1
         # If query_bool_array_must.size > 1 => there are other
@@ -101,7 +111,7 @@ module AuditSearchable
           range:{
             field: "score.total",
             ranges:[
-              {from: 20, to: 50},
+              {from: 20},
               {from: 10, to: 19},
               {from: 0, to: 9}              
             ]
@@ -111,27 +121,21 @@ module AuditSearchable
           terms:{
             field: "auditor_name.raw"
           }
-        }  
+        } 
       }
           
       
       
       return_value[:more_pages] = ((es_results.results.total.to_f / size.to_f) > page.to_f )
-      return_value[:results] = es_results.results.map { |item| item._source }
+      return_value[:results] = es_results.results.map { |item| item._source }      
+      return_value[:total] = es_results.results.total
+      return_value[:sort] = sort
 
       return_value[:aggs] = {}
 
-      return_value[:aggs][:score_ranges] = es_results.response['aggregations']['score_ranges']
-      return_value[:aggs][:auditors] = es_results.response['aggregations']['auditors']['buckets']#.map{ |item| {name: item['region_names']['buckets'].first['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  if es_results.response['aggregations']['auditors']['buckets'].size > 0
+      return_value[:aggs][:score_ranges] = es_results.response['aggregations']['score_ranges']['buckets'].map{|item| {name: item['key'].gsub(/\.0/,'').gsub(/\-\*$/,'+'), found: item['doc_count'].to_i, from: item['from'], to: item['to']}}.sort_by{ |i| i[:from]}.reverse
+      return_value[:aggs][:auditors] = es_results.response['aggregations']['auditors']['buckets'].map{ |item| {name: item['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  
 
-      
-#      if es_results.response['aggregations'].present?
-#        return_value[:aggs] = {}
-#        return_value[:aggs][:companies] = es_results.response['aggregations']['companies']['buckets'].map{ |item| {"company.id": item['key'], name: item['company_names']['buckets'].first['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  if es_results.response['aggregations']['companies']['buckets'].size > 0
-#      end
-      
-      return_value[:total] = es_results.results.total
-      return_value[:sort] = sort
 
       return_value[:search_string] = es_results.search.definition[:body] if !Rails.env.production?
       return_value[:params] = params if !Rails.env.production?
