@@ -132,7 +132,8 @@
 	<script type="text/javascript">
 	var URL = {
 		destroy_audit: '<%= audit_path(audit[:id], format: :json) -%>',
-		return_path: '<%= session['return_path'].present? ? URI.decode(session['return_path']): nil -%>'
+		return_path: '<%= session['return_path'].present? ? URI.decode(session['return_path']): nil -%>',
+		audits_path: '<%= audits_path -%>'
 	};
 
 	$(document).ready(function() {
@@ -166,8 +167,7 @@
 				url: URL.destroy_audit,
 				dataType: 'json',
 				success: function(data){
-					if(URL.return_path.length > 0 )
-						window.location = URL.return_path;
+					window.location = URL.audits_path;
 				},
 				error: function(xhr){
 					alert("Could not delete");
