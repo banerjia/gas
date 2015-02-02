@@ -347,7 +347,7 @@
 			<div class="panel panel-default">
 				<div class="panel-heading"><%= f.label :audit_comment, "Comments" -%></div>
 				<div class="panel-body">
-					<p>[Some description of how scoring is related to comments]</p>
+					<p>Comments are required for audits with a total score of 9 points and less. </p>
 					<%= f.fields_for :comments, include_id: false do |c| -%>
 
 					<%= c.text_area :content, class: "form-control", cols: 80, rows: 5 -%>
