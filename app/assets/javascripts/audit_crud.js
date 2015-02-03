@@ -170,17 +170,23 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 		})
 	}])
 	.controller('StoreSearchController', ['$scope', 'StoreExchange' ,'StoreSearch', 'GMaps', '$window', '$rootScope', function($scope, StoreExchange, StoreSearch, GMaps, $window, $rootScope){
-		$scope.stores = [];
+		$scope.stores = null;
 		$scope.more_pages = false;
 		$scope.current_page = 1;
 		$scope.query_string = null;
 		$scope.loading = false;
 		$scope.loading_message = null;
+		$scope.allow_next_page = false;
 
 		var saved_result_pages = [];
 		var total_stores_returned = 0;
 
+		$scope.init = function(initial_miles){
+			$scope.dist = initial_miles;
+		}
+
 		var preloadStores = function(){
+			$scope.allow_next_page = false;
 			StoreSearch.findStores( 
 							$scope.query_string, 
 							$scope.dist, 
@@ -188,6 +194,7 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 							($scope.locationPoint == 1 ? GMaps.getPosition($scope.ref_address).then(function(data) {return data;}, function(){return null;}) : null)
 			).then(function(payload){
 				saved_result_pages.push(payload.data.results);
+				$scope.allow_next_page = true;
 			}, function(){
 				// Need to handle error when page cannot
 				// be preloaded
@@ -200,22 +207,25 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 
 		$scope.getStores = function(page){
 			$scope.stores = [];	
+			$scope.allow_next_page = false;
 			if(page == null || page == 1)	$scope.more_pages = false;
 
-			if($scope.dist != null)
-			{
-				$scope.loading = true;
-				if($scope.locationPoint == 1)
-					$scope.loading_message = "Searching for stores ...";
-				else
-					$scope.loading_message = "Determining current location ... ";
-			}
+			$scope.loading = true;
+			$scope.loading_message = "Searching ... ";
 
 			var store_search_promise = StoreSearch.findStores( 
 				$scope.query_string, 
 				$scope.dist, 
 				page, 
-				($scope.locationPoint == 1 ? GMaps.getPosition($scope.ref_address).then(function(data) {return data;}, function(){return null;}) : null)
+				($scope.locationPoint == 1 ? GMaps.getPosition($scope.ref_address)
+					.then(
+						function(data) {						
+							return data;
+						}, 
+						function(){
+							return null;
+						}) 
+					: null)
 			);
 			store_search_promise
 				.then(
