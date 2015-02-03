@@ -28,6 +28,7 @@
 					date_range_last_week = {start_date: 1.week.ago.at_beginning_of_week.to_date, end_date: 1.week.ago.at_end_of_week.to_date}
 					date_range_today = {start_date: Date.today.to_date, end_date: Date.today.to_date}
 					date_range_this_month = {start_date: Date.today.at_beginning_of_month.to_date, end_date: Date.today.at_end_of_month.to_date}
+					date_range_last_month = {start_date: 1.month.ago.at_beginning_of_month.to_date, end_date: 1.month.ago.at_end_of_month.to_date}
 				-%>
 				<ul class="list-unstyled" style="padding-left: 0.7em">
 					<li>
@@ -53,6 +54,10 @@
 						
 						<%= link_to_unless date_from_search_scope == date_range_this_month, "This month", audit_search_path( date_range_this_month.merge(options_for_url)) -%>
 					</li>
+					<li>
+						
+						<%= link_to_unless date_from_search_scope == date_range_last_month, "Last month", audit_search_path( date_range_last_month.merge(options_for_url)) -%>
+					</li>
 				</ul>
 				<div>
 					<strong>Select dates:</strong> <br/>
@@ -72,6 +77,7 @@
 							
 							
 						</div>
+						<h3 class="h4">Filter Results</h3>
 						<div class="form-group">
 							<%= select_tag :_auditor, options_for_select(audits[:aggs][:auditors].collect{ |p| p[:name]}, options[:_auditor]), prompt: ( options[:_auditor].blank? ? "Refine by Auditor" : "Clear Auditor Selection"), class: "form-control input-sm" -%>
 						</div>
