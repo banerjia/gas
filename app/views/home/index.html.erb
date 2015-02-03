@@ -6,12 +6,7 @@
 		<div class="panel-body">
 			<div class="row">
 				<div class="col-md-12 col-sm-12 col-xs-12 table-responsive">
-					<%= render partial: 'audits/verbose_listing', locals: {audits: @recent_audits, caption: "Recent Audits", buttons: {viewAudits: true, newAudit: true}} -%>
-					<div class="form-buttons well well-sm text-right">
-						<%= link_to "New Audit", new_audit_path, class: "btn btn-sm btn-success" -%>
-						<%= link_to "View All Audits", audits_path, class: "btn btn-sm btn-primary" -%>
-					</div>
-					
+					<%= render partial: 'audits/verbose_listing', locals: {audits: @recent_audits, caption: "Recent Audits", buttons: {viewAudits: true, newAudit: true}} -%>					
 				</div>					
 			</div>
 			<div class="row">
