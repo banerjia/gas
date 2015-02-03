@@ -8,7 +8,9 @@
 	</ul>
 </div>
 <% end -%>
-
+<div id="page_loaded" class="col-md-12 col-sm-12 col-xs-12 text-center" style="margin: 1em auto">
+	<h2><i class="fa fa-circle-o-notch fa-spin"></i></h2>
+</div>
 <%= form_for audit, data: {"ng-app" => "audit"}, role: "form" do |f| -%>
 	<div class="row ng-cloak" style="margin-bottom: 0.5em" data-ng-hide="show_store_search">
 		<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary btn-wide", data: {"ng-disabled" => "audit_store_id == null || show_store_search"} -%>

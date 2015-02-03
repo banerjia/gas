@@ -9,11 +9,16 @@
 <tbody>
 <%- if audits.size > 0 -%>
 	<%- audits.each do |audit| -%>
-	<tr <%= audit[:has_unresolved_issues] ? 'class="danger"'.html_safe : nil -%>>
+	<tr>
 		<td><%= audit[:created_at].to_date.strftime( Date.today.year == audit[:created_at].to_date.year ? "%m/%d": "%m/%d/%Y" )-%></td>
 		<td><%= (audit[:store] || audit.store).full_name -%></td>
 		<td><%= audit[:auditor_name] -%></td>
-		<td class="text-center"><%= audit.score[:total] -%></td>
+		<td class="text-center">
+			<%= audit.score[:total] -%>
+			<%- if audit[:has_unresolved_issues] -%>
+				<i class="fa fa-warning text-danger" title="This audit has some unresolved issues"></i>
+			<% end -%>
+		</td>
 	</tr>
 	<% end -%>
 <%- else -%>

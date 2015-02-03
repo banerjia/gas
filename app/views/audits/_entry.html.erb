@@ -47,14 +47,14 @@
 	<div class="row ng-cloak" data-ng-show="show_store_search">
 		<div class="panel panel-default">
 			<div class="panel-heading"><strong>Store Search</strong></div>
-			<div class="panel-body" data-ng-controller="StoreSearchController">
+			<div class="panel-body" data-ng-controller="StoreSearchController" data-ng-init="dist='1mi'">
 				<div class="col-md-6 col-sm-12 col-xs-12">
 					<p>							 
 					<input type="text" data-ng-model="query_string" class="form-control" placeholder="Search for stores"/>
 					</p>
 					<p>
 						<label>Stores within</label> <br/>
-						<%= select_tag :store_range, options_for_select([['1 mile', '1mi'], ['5 miles', '5mi'], ['10 miles', '10mi']]), prompt: "Any distance", data: {"ng-model" => "dist"}, class: "form-control", style: "max-width: 15em; display: inline-block" -%>
+						<%= select_tag :store_range, options_for_select([['1 mile', '1mi'], ['5 miles', '5mi'], ['10 miles', '10mi']],'1mi'), prompt: "Any distance", data: {"ng-model" => "dist"}, class: "form-control", style: "max-width: 15em; display: inline-block" -%>
 					</p>
 					<p class="ng-cloak" data-ng-show="dist!= null && dist.length > 0">
 						<label>From</label><br/> 
@@ -72,21 +72,21 @@
 					<p class="ng-cloak text-info loading" data-ng-show="loading"><i class="fa fa-circle-o-notch fa-spin"></i> {{loading_message}}</p>
 				</div>			
 				<div class="col-md-5 col-md-offset-1 col-sm-12 col-xs-12" style="padding-right: 1em">	
-					<table class="ng-cloak table table-condensed" data-ng-show="stores.length > 0">
+					<table class="ng-cloak table table-condensed" data-ng-show="stores!=null && !loading">
 						<thead>
 							<tr>
 								<th scope="col" style="width: 60%">Store</th>
 								<td>
 								<div data-ng-show="current_page > 1 || more_pages" class="btn-toolbar pull-right" role="toolbar">
 									<div class="btn-group" role="group">			
-										<button type="button" data-ng-click="previousPage()" data-ng-disabled="current_page <= 1" class="ng-cloak btn btn-sm btn-default"> <i class="fa fa-chevron-left"></i> <span class="hidden-sm hidden-xs">Back</span></button> 					
-										<button type="button" data-ng-click="nextPage()" class="ng-cloak btn btn-sm btn-default" data-ng-disabled="!more_pages"><span class="hidden-sm hidden-xs">Next</span> <i class="fa fa-chevron-right"></i></button> 
+										<button type="button" data-ng-click="previousPage()" data-ng-disabled="current_page <= 1" class="ng-cloak btn btn-sm btn-primary"> <i class="fa fa-chevron-left"></i> <span class="hidden-sm hidden-xs">Back</span></button> 					
+										<button type="button" data-ng-click="nextPage()" class="ng-cloak btn btn-sm btn-primary" data-ng-disabled="!more_pages || !allow_next_page"><span class="hidden-sm hidden-xs">Next</span> <i class="fa fa-chevron-right"></i></button> 
 									</div>
 								</div>
 								</td>
 							</tr>
 						</thead>
-						<tbody>
+						<tbody data-ng-show="stores.length > 0">
 							<tr data-ng-repeat="store in stores">
 								<td >
 									<span style="text-transform:uppercase">{{store.full_name}}</span>
@@ -96,6 +96,13 @@
 								</td>
 								<td>
 									<button type="button" data-ng-click="selectStore(store); store_search=false;" class="btn btn-success pull-right">Select</button>
+								</td>
+							</tr>
+						</tbody>
+						<tbody data-ng-show="stores.length == 0">
+							<tr>
+								<td colspan="2" class="text-center">
+									<em>No stores found matching the search criteria</em>
 								</td>
 							</tr>
 						</tbody>
@@ -131,7 +138,8 @@
 				{
 					base: <%= a_m.object[:base]  || 0-%>,
 					bonus: <%= a_m.object[:bonus]  || 0-%>,
-					loss: <%= a_m.object[:loss]  || 0-%>
+					loss: <%= a_m.object[:loss]  || 0-%>,
+					resolved: <%= a_m.object[:resolved].to_s -%>
 				})
 		">
 		<div style="display:none">
@@ -189,7 +197,7 @@
 							<div class="col-md-4 col-sm-12 col-xs-12">
 								<div class="input-group">
 									<span class="input-group-addon">
-										<%= a_m.radio_button assigned_score_field, a_m_r.object.metric_option[:points], data: {"ng-model" => "score",		"ng-init" => "score = #{a_m.object[assigned_score_field]}", "ng-change" => "calculateScore()"} -%>
+										<%= a_m.radio_button assigned_score_field, a_m_r.object.metric_option[:points], data: {"ng-model" => "score", "ng-init" => "score = #{a_m.object[assigned_score_field]}", "ng-change" => "calculateScore()"} -%>
 									</span>
 									<%= a_m.label assigned_score_field, a_m_r.object.metric_option[:label], value: a_m_r.object.metric_option[:points], class: "form-control" -%>
 								</div>
@@ -278,7 +286,7 @@
 
 				
 				<p data-ng-show="needsResolution && computedLossScore < 0" style="margin-top: 1em" class="col-md-12 col-sm-12 col-xs-12 alert alert-warning alert-sm ng-cloak">
-					<%= a_m.check_box :resolved, data: {"ng-checked" => "!needsResolution ||computedLossScore >= 0"} -%>
+					<%= a_m.check_box :resolved, data: {"ng-checked" => "!needsResolution || computedLossScore >= 0 || resolved"} -%>
 					<%= a_m.label :resolved, "Check here if this issue has been resolved" -%>
 				</p>
 
@@ -331,11 +339,14 @@
 									<%= img.hidden_field :content_url, data: {"ng-value" => "files.first"} -%>
 								</div>
 								<% end -%>
-								<div 
-									s3-upload 
-									bucket="'<%= ENV['aws_s3_bucket_upload'] -%>'" 
-									ng-model="files.first"
-									s3-upload-options="{getOptionsUri: '<%= api_v1_s3_access_token_path( ENV['aws_s3_bucket_upload'] ) -%>', folder: 'graeters/direct_uploads/'}"></div>			
+								<div class="col-md-12 col-sm-12 col-xs-12">
+									<div 
+										s3-upload 
+										bucket="'<%= ENV['aws_s3_bucket_upload'] -%>'" 
+										ng-model="files.first"
+										s3-upload-options="{getOptionsUri: '<%= api_v1_s3_access_token_path( ENV['aws_s3_bucket_upload'] ) -%>', folder: 'graeters/direct_uploads/'}"></div>
+									
+								</div>			
 							</div>
 						</div>
 					</div>
@@ -408,6 +419,7 @@ $(document).ready(function(){
 			    autoclose: true,
 			    todayHighlight: true
 			});
+	$("div#page_loaded").hide();
 })
 </script>
 <%- end -%>
