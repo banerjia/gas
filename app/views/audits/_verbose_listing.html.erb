@@ -52,14 +52,22 @@
 	<caption class="h3"><%= caption -%></caption>
 <% end -%>
 	<thead>
+		<%- if defined?(buttons) -%>
 		<tr>
-			<th scope="col" style="width: 15%"><span style="visibility: hidden">Options</span></th>
-			<th scope="col" style="width: 10%">
+			<td colspan="5">
+				<%= link_to "New Audit", new_audit_path, class: "btn btn-success btn-sm" -%>
+				<%= link_to "All Audits", audit_search_path, class: "btn btn-primary btn-sm" -%>
+			</td>
+		</tr>
+		<% end -%>
+		<tr>
+			<th scope="col" style="border-top: 2px solid #000;width: 15%"><span style="visibility: hidden">Options</span></th>
+			<th scope="col" style="border-top: 2px solid #000;width: 10%">
 				Date
 			</th>
-			<th scope="col" style="width: 35%">Store</th>
-			<th scope="col" class="hidden-sm hidden-xs">Auditor</th>
-			<th scope="col" style="width: 10%" class="text-center">Score</th>
+			<th scope="col" style="border-top: 2px solid #000;width: 35%">Store</th>
+			<th scope="col" class="hidden-sm hidden-xs" style="border-top: 2px solid #000;">Auditor</th>
+			<th scope="col" style="border-top: 2px solid #000;width: 10%" class="text-center">Score</th>
 		</tr>
 	</thead>
 	<%- if audits_list.size > 0 -%>
@@ -70,7 +78,7 @@
 					<li class="col-md-2 col-sm-12 col-xs-12"><strong>Icon Legend</strong>:</li>
 					<li class="col-md-2 col-sm-12 col-xs-12">
 						<i class="fa fa-folder-open"></i> 
-						- Open audit
+						- View audit
 					</li>
 					<li class="col-md-2 col-sm-12 col-xs-12">
 						<i class="fa fa-file-image-o"></i>
