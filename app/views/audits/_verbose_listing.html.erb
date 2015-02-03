@@ -53,51 +53,79 @@
 <% end -%>
 	<thead>
 		<tr>
-			<th scope="col" style="width: 10%"><span style="visibility: hidden">Options</span></th>
+			<th scope="col" style="width: 15%"><span style="visibility: hidden">Options</span></th>
 			<th scope="col" style="width: 10%">
 				Date
 			</th>
 			<th scope="col" style="width: 35%">Store</th>
-			<th scope="col">Auditor</th>
+			<th scope="col" class="hidden-sm hidden-xs">Auditor</th>
 			<th scope="col" style="width: 10%" class="text-center">Score</th>
 		</tr>
 	</thead>
-	<tbody>
 	<%- if audits_list.size > 0 -%>
+	<tfoot>
+		<tr class="active">
+			<td colspan="5" style="border-top:1px solid #ccc; padding: 0.7em">
+				<ul class="list-unstyled list-inline">
+					<li class="col-md-2 col-sm-12 col-xs-12"><strong>Icon Legend</strong>:</li>
+					<li class="col-md-2 col-sm-12 col-xs-12">
+						<i class="fa fa-folder-open"></i> 
+						- Open audit
+					</li>
+					<li class="col-md-2 col-sm-12 col-xs-12">
+						<i class="fa fa-file-image-o"></i>
+						- Image attached
+					</li>
+					<li class="col-md-2 col-sm-12 col-xs-12">
+						<i class="fa fa-comment"></i>
+						- Has comment
+					</li>
+					<li class="col-md-3 col-sm-12 col-xs-12">
+						<i class="fa fa-warning text-danger"></i>
+						- Audit has unresolved issues
+					</li>
+				</ul>
+			</td>
+		</tr>
+	</tfoot>
+	<tbody>	
 	<%- audits_list.each do |audit| -%>
 	<%-
 		# This is done to accomodate for search from either the 
 		# database or from ES
 		audit_store = audit[:store] || audit.store
-
-		# row_class - is used to add a visual clue for audits with unresolved issues
-		row_class = (audit[:has_unresolved_issues] ? 'class="danger"' : "")
 	-%>
-		<tr <%= row_class.html_safe -%>>
+		<tr>
 			<td>
 				<ul class="list-unstyled list-inline">
-					<li>
+					<li class="col-md-3 col-sm-12 col-xs-12">
 						<%= link_to audit_path(audit[:id]), title: "View"  do -%>
 							<i class="fa fa-folder-open"></i>
 						<% end -%>
 					</li>
+
 					<%- if audit.images.size > 0 -%>
-					<li>
-						<i class="fa fa-file-image-o"></i>
+					<li class="col-md-3 col-sm-12 col-xs-12">
+						<i class="fa fa-file-image-o" title="This audit has images"></i>
 					</li>
 					<% end -%>
 					<%- if audit.comments.size > 0 -%>
-					<li>
-						<i class="fa fa-comment"></i>
+					<li class="col-md-3 col-sm-12 col-xs-12">
+						<i class="fa fa-comment" title="There is a comment for this audit"></i>
 					</li>
 					<% end -%>
 
 				</ul>				
 			</td>
 			<td><%= audit[:created_at].to_date.strftime("%b %d" + (audit[:created_at].to_date.year != Date.today.year ? ", %Y" : "")) -%></td>
-			<td><%= link_to audit_store.full_name, store_path( audit_store[:id] ) -%></td>
-			<td><%= audit[:auditor_name] -%></td>
-			<td class="text-center"><%= audit.score[:total]-%></td>
+			<td><%= link_to audit_store.full_name, audit_path( audit[:id] ) -%></td>
+			<td class="hidden-sm hidden-xs"><%= audit[:auditor_name] -%></td>
+			<td class="text-center">
+				<%= audit.score[:total]-%>
+				<%- if audit[:has_unresolved_issues] -%>
+					<i class="fa fa-warning text-danger" title="This audit has some unresolved issues"></i>
+				<% end -%>
+			</td>
 		</tr>
 	<% end -%>
 	<%- else -%>

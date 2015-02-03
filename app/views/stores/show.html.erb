@@ -68,10 +68,15 @@
 					</thead>
 					<tbody>
 					<%- store.audits.sort{ |b,a| a[:created_at] <=> b[:created_at]}.each do |audit| -%>
-						<tr class="<%= audit[:has_unresolved_issues] ? 'danger' : nil -%>">
+						<tr>
 							<td><%= link_to audit[:created_at].strftime((audit[:created_at].year != Date.today.year ? "%m/%d/%Y" : "%m/%d")), 								audit_path(audit) -%></td>
 							<td class="visible-lg visible-md"><%= audit[:auditor_name].titlecase -%></td>
-							<td class="text-center"><%= audit.total_score -%></td>
+							<td class="text-center">
+								<%= audit.total_score -%>
+								<%- if audit[:has_unresolved_issues] -%>
+									<i class="fa fa-warning text-danger" title="This audit has some unresolved issues"></i>
+								<% end -%>
+							</td>
 						</tr>
 					<%- end -%>
 					</tbody>

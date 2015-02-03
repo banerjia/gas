@@ -131,7 +131,8 @@
 				{
 					base: <%= a_m.object[:base]  || 0-%>,
 					bonus: <%= a_m.object[:bonus]  || 0-%>,
-					loss: <%= a_m.object[:loss]  || 0-%>
+					loss: <%= a_m.object[:loss]  || 0-%>,
+					resolved: <%= a_m.object[:resolved].to_s -%>
 				})
 		">
 		<div style="display:none">
@@ -278,7 +279,7 @@
 
 				
 				<p data-ng-show="needsResolution && computedLossScore < 0" style="margin-top: 1em" class="col-md-12 col-sm-12 col-xs-12 alert alert-warning alert-sm ng-cloak">
-					<%= a_m.check_box :resolved, data: {"ng-checked" => "!needsResolution ||computedLossScore >= 0"} -%>
+					<%= a_m.check_box :resolved, data: {"ng-checked" => "!needsResolution || computedLossScore >= 0 || resolved"} -%>
 					<%= a_m.label :resolved, "Check here if this issue has been resolved" -%>
 				</p>
 
