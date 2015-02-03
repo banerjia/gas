@@ -61,7 +61,7 @@
 		</tr>
 		<% end -%>
 		<tr>
-			<th scope="col" style="border-top: 2px solid #000;width: 15%"><span style="visibility: hidden">Options</span></th>
+			<th scope="col" style="border-top: 2px solid #000;width: 5%"><span style="visibility: hidden">Options</span></th>
 			<th scope="col" style="border-top: 2px solid #000;width: 10%">
 				Date
 			</th>
@@ -80,15 +80,7 @@
 						<i class="fa fa-folder-open"></i> 
 						- View audit
 					</li>
-					<li class="col-md-2 col-sm-12 col-xs-12">
-						<i class="fa fa-file-image-o"></i>
-						- Image attached
-					</li>
-					<li class="col-md-2 col-sm-12 col-xs-12">
-						<i class="fa fa-comment"></i>
-						- Has comment
-					</li>
-					<li class="col-md-3 col-sm-12 col-xs-12">
+					<li class="col-md-5 col-sm-12 col-xs-12">
 						<i class="fa fa-warning text-danger"></i>
 						- Audit has unresolved issues
 					</li>
@@ -111,18 +103,6 @@
 							<i class="fa fa-folder-open"></i>
 						<% end -%>
 					</li>
-
-					<%- if audit.images.size > 0 -%>
-					<li class="col-md-3 col-sm-12 col-xs-12">
-						<i class="fa fa-file-image-o" title="This audit has images"></i>
-					</li>
-					<% end -%>
-					<%- if audit.comments.size > 0 -%>
-					<li class="col-md-3 col-sm-12 col-xs-12">
-						<i class="fa fa-comment" title="There is a comment for this audit"></i>
-					</li>
-					<% end -%>
-
 				</ul>				
 			</td>
 			<td><%= audit[:created_at].to_date.strftime("%b %d" + (audit[:created_at].to_date.year != Date.today.year ? ", %Y" : "")) -%></td>
