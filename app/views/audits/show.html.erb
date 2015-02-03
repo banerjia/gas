@@ -1,8 +1,8 @@
 
 <div class="row form-group">
 	<%= link_to "Edit", edit_audit_path(audit), class: "btn btn-primary" -%>
-	<button class="btn btn-default btn-wide" type="button" onclick="closeButton()">Close</button>
 	<button class="btn btn-danger" type="button" onclick="deleteAudit()">Delete</button>
+	<%=link_to "All Audits", audits_path, class: "btn btn-default" -%>
 </div>
 <div class="row well well-sm">
 	<div class="col-md-6 col-sm-12 col-xs-12 container">
