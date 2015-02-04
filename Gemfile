@@ -24,6 +24,7 @@ group :development do
   gem 'binding_of_caller'
   gem 'capistrano'
   gem 'capistrano-bundler'
+  gem 'capistrano-rvm'
   gem 'meta_request'
   gem 'byebug'
 end 
