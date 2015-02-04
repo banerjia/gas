@@ -29,7 +29,7 @@
 					class="btn btn-sm btn-default" 
 					type="button"
 					<%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
-					<%= page > 1 ? 'onclick="window.location = "' + audit_search_path(options_without_page.merge({page: page-1})) +'"'.html_safe : nil -%>>
+					onclick="window.location = '<%= page > 1 ? audit_search_path(options_without_page.merge({page: page-1})) : nil -%>'">
 					<i class="fa fa-chevron-left"></i>
 					<span class="hidden-sm hidden-xs">Back</span>					
 				</button>
@@ -37,7 +37,7 @@
 					class="btn btn-sm btn-default" 
 					type="button"
 					<%= !more_pages ? 'disabled="disabled"'.html_safe : nil -%>
-					<%= more_pages ? 'onclick="window.location = "' + audit_search_path(options_without_page.merge({page: page+1})) +'"'.html_safe : nil -%>>
+					onclick="window.location = '<%= more_pages ? audit_search_path(options_without_page.merge({page: page+1})) : nil -%>'">
 					<span class="hidden-sm hidden-xs">Next</span>
 					<i class="fa fa-chevron-right"></i>					
 				</button>
