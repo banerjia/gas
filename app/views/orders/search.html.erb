@@ -1,4 +1,16 @@
+<%-
+  page = 1
+  per_page = 10
+  more_pages = false unless defined?(more_pages)
 
+  options_without_page = options.clone
+  options_without_page.delete(:page)
+
+  page = options[:page] if defined?(options) && options[:page].present?
+  per_page = options[:per_page] if defined?(options) && options[:per_page].present?
+
+
+-%>
 <div class="row">
   <div class="col-md-3 hidden-sm hidden-xs">
     <h2 class="h3">Find Orders by Date</h2>
@@ -10,7 +22,7 @@
       <%- end -%>
     </ul>
     <h2 class="h3">Filtering Options</h2>
-
+    <%- if aggs && aggs[:states].present? -%>
     <h3 class="h4">By State</h3>
     
     <ul class="list-unstyled">
@@ -27,7 +39,9 @@
       </li>
     <% end -%>
     </ul>
+    <% end -%>
 
+    <%- if aggs && aggs[:companies].present? -%>
     <h3 class="h4">By Company</h3>
     <ul class="list-unstyled">
     <%-
@@ -43,7 +57,9 @@
       </li>
     <% end -%>
     </ul>
+    <% end -%>
 
+    <%- if aggs && aggs[:routes].present? -%>
     <h3 class="h4">By Route</h3>
     <ul class="list-unstyled">
     <%-
@@ -60,6 +76,7 @@
       </li>
     <% end -%>
     </ul>
+    <% end -%>
   </div>
   <div class="col-md-9 col-sm-12 col-xs-12">
     <form id="order_list_form" onsubmit="return false" method="get">
@@ -76,12 +93,44 @@
             <th scope="col">Email Status</th>
           </tr>
           <tr class="toolbar">
-            <td colspan="5" class="well well-sm">
+            <td colspan="5" class="well well-sm" style="visibility: hidden">
               <input type="button" class="btn btn-primary" rel="div#email_order" id="a_email_order" value="Email Order"/>
               <input type="button" class="btn btn-danger" value="Delete" id="delete_orders"/>
             </td>    
           </tr>
         </thead>
+        <tfoot>
+          <tr>
+            <td colspan="5" class="text-center">
+              <%- if page > 1 || more_pages -%>
+              <div class="row" style="margin-bottom: 1em">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                  <div class="btn-toolbar pull-right" role="toolbar">
+                    <div class="btn-group" role="group">      
+                      <button 
+                        class="btn btn-sm btn-default" 
+                        type="button"
+                        <%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
+                        onclick="window.location = '<%= page > 1 ? orders_search_path(options_without_page.merge({page: page-1})) : nil -%>'">
+                        <i class="fa fa-chevron-left"></i>
+                        <span class="hidden-sm hidden-xs">Back</span>         
+                      </button>
+                      <button 
+                        class="btn btn-sm btn-default" 
+                        type="button"
+                        <%= !more_pages ? 'disabled="disabled"'.html_safe : nil -%>
+                        onclick="window.location = '<%= more_pages ? orders_search_path(options_without_page.merge({page: page+1})) : nil -%>'">
+                        <span class="hidden-sm hidden-xs">Next</span>
+                        <i class="fa fa-chevron-right"></i>         
+                      </button>
+                    </div>
+                  </div>
+                </div>    
+              </div>
+              <% end -%>
+            </td>
+          </tr>
+        </tfoot>
         <tbody>
         <%- orders.each do |order| -%>
           <tr>
