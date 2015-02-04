@@ -23,19 +23,18 @@ class OrdersController < ApplicationController
   end
   
   def new
-    @store = Store.find(params[:store_id])
-    @order = @store.orders.build 
+    store = Store.find(params[:store_id])
+    @order = store.orders.build 
     @order.product_orders.build
-    @page_title = "New Order for #{@store[:name]}"
+    @page_title = "New Order for #{store.full_name}"
   end
   
   def create
-    params[:order][:store_id] = params[:store_id]
     @order = Order.new(order_params)
-    if @order.save
-      Order.tire.index.refresh
+    if @order.save      
       redirect_to orders_path
     else
+      @order.store.replace(Store.find(@order[:store_id]))
       render "new"
     end
   end

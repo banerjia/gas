@@ -3,16 +3,18 @@ class Order < ActiveRecord::Base
   include OrderImport
   
   # Associations
-  has_many :product_orders, :dependent => :destroy
-  has_many :products, :through => :product_orders
-  has_many :product_categories, -> { group :product_category_id },  :through => :products #, :group => :product_category_id
+  has_many :product_orders, dependent: :destroy
+  has_many :products, through: :product_orders
+  has_many :product_categories, -> { group :product_category_id },  through: :products #, group: :product_category_id
   belongs_to :route
   
-  belongs_to :store, :counter_cache => true
+  belongs_to :store, counter_cache: true
   
   # Validations
-  accepts_nested_attributes_for :product_orders, :allow_destroy => true, \
-                                :reject_if => proc { |po| po[:quantity].blank? || (!po[:quantity].blank? && po[:quantity].to_i.zero?) }
+  validates :product_orders, presence: true
+  validates :store, presence: true
+  accepts_nested_attributes_for :product_orders, allow_destroy: true, \
+                                reject_if: proc { |po| po[:quantity].blank? || po[:quantity].to_i.zero? }
   
 
   # Callbacks  
@@ -28,7 +30,7 @@ class Order < ActiveRecord::Base
     end
 
     # Clean out Product_Orders table to avoid duplication
-    ProductOrder.delete_all({:order_id => order[:id]})
+    ProductOrder.delete_all({order_id: order[:id]})
     
     # Aggregate duplications coming in from the entry/update form
     # Basic logic - store the index of products within the orders hash in the existing_products hash
@@ -67,7 +69,7 @@ class Order < ActiveRecord::Base
   end
 
   def filename
-    "OrderforPO_" + (self[:invoice_number].blank? ? 'id_' + self[:id].to_s : self[:invoice_number]).to_s + ".xlsx"
+    "Order_" + (self[:invoice_number].blank? ? 'id_' + self[:id].to_s : self[:invoice_number]).to_s + ".xlsx"
   end
 
   def organize_products_by_category
@@ -76,7 +78,7 @@ class Order < ActiveRecord::Base
     product_category_ids = productOrders.map{ |product_order| product_order.product[:product_category_id]}.uniq
     
     # Camel case used for productCategories to distinguish it from product_categories association
-    productCategories = ProductCategory.find( product_category_ids, :order => :display_order )
+    productCategories = ProductCategory.find( product_category_ids, order: :display_order )
     
     productCategories.each do | category |
       element_to_push = Hash.new

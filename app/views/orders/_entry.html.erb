@@ -1,90 +1,95 @@
 <div style="display:none">
-	<%= hidden_field_tag :store_id, @store[:id] -%>
+	<%= f.hidden_field :store_id -%>
 </div>
-<div id="order_basics">
-	<div class="entry_row">
-		<div class="entry_label">
-			<strong>Store</strong>
+
+<div class="row" id="order_basics">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h2 class="h4">Order</h2>
 		</div>
-		<div class="entry_value">
-			<%= @store.full_name -%><br/>
-			<%= @store.address -%>			
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			<%= f.label :invoice_number, "PO" -%>
-		</div>
-		<div class="entry_value">
-			<%= f.text_field :invoice_number, :style => "text-align : right" -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			<%= f.label :route_id, "Route" -%>
-		</div>
-		<div class="entry_value">
-			<%= f.collection_select :route_id,
-			Route.all, :id, :name -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			<%= f.label :delivery_dow, "Deliver By" -%>
-		</div>
-		<div class="entry_value">
-			<%= f.select :delivery_dow, [["No delivery day selected",""]]+Date::DAYS_INTO_WEEK.to_a.map{|d,dow| [d.to_s.capitalize!, dow]} -%>
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">
+					<label for="">Store</label>
+				</div>
+				<div class="col-md-3 col-sm-12 col-xs-12">
+					<%= f.object.store.full_name -%>
+					<address><%= f.object.store.address -%></address>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">
+					<%= f.label :invoice_number, "PO" -%>
+				</div>
+				<div class="col-md-3 col-sm-12 col-xs-12">
+					<%= f.text_field :invoice_number, class: "form-control text-right input-sm" -%>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">
+					<%= f.label :route, "Route" -%>
+				</div>
+				<div class="col-md-3 col-sm-12 col-xs-12">
+					<%= f.collection_select :route_id, Route.all, :id, :name, class: "form-control" -%>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">
+					<%= f.label :delivery_dow, "Deliver By" -%>
+				</div>
+				<div class="col-md-3 col-sm-12 col-xs-12">
+					<%= f.select :delivery_dow, [["No delivery day selected",""]]+Date::DAYS_INTO_WEEK.to_a.map{|d,dow| [d.to_s.capitalize!, dow]}, class: "form-control" -%>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label"></div>
+				<div class="col-md-5 col-sm-12 col-xs-12"></div>
+			</div>
 		</div>
 	</div>
 </div>
-<table id="products" class="listing">
-	<thead>
-		<tr>
-			<th>Product</th>
-			<th>Quantity</th>
-			<th>&nbsp;</th>
-		</tr>
-	</thead>
-	<tfoot>
-		<tr>
-			<td colspan="3" class="table_more_cell"><%= link_to_add_fields "Add Product", f, :product_orders %></td>
-		</tr>
-	</tfoot>
-	<tbody>
-		<%= f.fields_for :product_orders, :include_id => false do |product_order_form| -%>
-		<%= render :partial => "product_orders/product_order_fields", :locals => {:f => product_order_form} -%>
-		<%- end -%>
-	</tbody>
-</table>
-<div class="spacer">
-	
+<div class="row">
+	<h2 class="h4">Products</h2>
+	<table id="products" class="table table-condensed table-striped">
+		<thead>
+			<tr>
+				<th scope="col">Product</th>
+				<th scope="col">Quantity</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tfoot>
+			<tr>
+				<td colspan="3" class="well well-sm"><%= link_to_add_fields "Add Product", f, :product_orders %></td>
+			</tr>
+		</tfoot>
+		<tbody>
+			<%= f.fields_for :product_orders, :include_id => false do |product_order_form| -%>
+			<%= render :partial => "product_orders/product_order_fields", :locals => {:f => product_order_form} -%>
+			<%- end -%>
+		</tbody>
+	</table>
 </div>
+
 
 <% content_for :head do -%>
 <style type="text/css" media="screen">
-	table#products{
-		border: 2px solid #ddd;
-		margin-left: 47%;
-		width: 53%;
+	@media screen and (min-width: 48em){
+		div#order_basics div.form-label { 
+			text-align: right;
+		}
 	}
-	table#products input[type=text] { text-align: right; width: 30px }
-	div#order_basics{
-		border: 2px solid #ddd;
-		float:left;
-		margin-left: 0;
-		width: 45%;
+
+	div#order_basics div.panel-body > div.row {
+		margin: 0.5em auto;
 	}
-	
-	div.buttons{
-		background-color: #eee;
-		border: 2px solid #ddd;
-		display: block;
-	}
+
 </style>	
 <% end -%>
 
 <% content_for :page_js do -%>
 <script type="text/javascript">
+
 function remove_product( handle ){
 	$(handle).closest("tr").remove();
 }
