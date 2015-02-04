@@ -25,6 +25,7 @@ group :development do
   gem 'capistrano'
   gem 'capistrano-bundler'
   gem 'capistrano-rvm'
+  gem 'capistrano-passenger'
   gem 'meta_request'
   gem 'byebug'
 end 
