@@ -1,8 +1,7 @@
 <%= form_for @product do |f| -%>
+	<div class="form-buttons">
+		<button class="btn btn-success">Save</button>
+		<button type="button" class="btn btn-default">Cancel</button>
+	</div>
 <%= render :partial => 'entry', :locals => {:f => f} -%>
-<div class="buttons">
-	<%= f.submit "Save and Add Another", :class => "button" -%>
-	<%= f.submit "Save", :class => "button" -%>	
-	<input type="button" value="Cancel" onclick='window.location = "<%= products_path -%>"' class="button" />
-</div>
 <%- end -%>

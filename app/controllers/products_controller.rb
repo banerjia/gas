@@ -1,9 +1,20 @@
 class ProductsController < ApplicationController
   def index
     @page_title = "Products"
-    @products_listing_by_category = ProductCategory.find(:all, :include => [:products])
+    @product_categories = ProductCategory.all.order(:name)
   end
   
+
+  def products_by_category
+    products = Product.where(["product_category_id = ?", params[:product_category_id].to_i]).order(:sort_order_for_order_sheet)
+
+    if products.size > 0 
+      render(partial: "list", collection: products)
+    else 
+      '<tr><td colspan="4" class="text-center"><em>No products found</em></td></tr>'.html_safe
+    end
+  end
+
   def show
     
   end
@@ -57,6 +68,15 @@ class ProductsController < ApplicationController
   
 private
   def product_params
-    params.require(:product).permit(:name, :code, :product_category_id, :available_from, :available_till, :sort_order_for_order_sheet, :active)
+    params
+      .require(:product)
+      .permit(
+        :name, 
+        :code, 
+        :product_category_id, 
+        :available_from, 
+        :available_till, 
+        :sort_order_for_order_sheet, 
+        :active)
   end
 end

@@ -36,6 +36,11 @@ Graeters::Application.routes.draw do
       
       resources :audits
       resources :resources, only: ["index"]
+
+      resources :product_categories do 
+        match "products" => "products#products_by_category", as: "products", via: [:get, :post]
+      end
+
       resources :products
       resources :people
       resources :sessions
