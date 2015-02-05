@@ -61,25 +61,19 @@
 		</tr>
 		<% end -%>
 		<tr>
-			<th scope="col" style="border-top: 2px solid #000;width: 5%"><span style="visibility: hidden">Options</span></th>
-			<th scope="col" style="border-top: 2px solid #000;width: 10%">
+			<th scope="col" style="border-top: 2px solid #000;width: 15%">
 				Date
 			</th>
 			<th scope="col" style="border-top: 2px solid #000;width: 35%">Store</th>
-			<th scope="col" class="hidden-sm hidden-xs" style="border-top: 2px solid #000;">Auditor</th>
+			<th scope="col" class="hidden-xs" style="border-top: 2px solid #000;">Auditor</th>
 			<th scope="col" style="border-top: 2px solid #000;width: 10%" class="text-center">Score</th>
 		</tr>
 	</thead>
 	<%- if audits_list.size > 0 -%>
 	<tfoot>
 		<tr class="active">
-			<td colspan="5" style="border-top:1px solid #ccc; padding: 0.7em">
+			<td colspan="4" style="border-top:1px solid #ccc; padding: 0.7em">
 				<ul class="list-unstyled list-inline">
-					<li class="col-md-2 col-sm-12 col-xs-12"><strong>Icon Legend</strong>:</li>
-					<li class="col-md-2 col-sm-12 col-xs-12">
-						<i class="fa fa-folder-open"></i> 
-						- View audit
-					</li>
 					<li class="col-md-5 col-sm-12 col-xs-12">
 						<i class="fa fa-warning text-danger"></i>
 						- Audit has unresolved issues
@@ -96,18 +90,9 @@
 		audit_store = audit[:store] || audit.store
 	-%>
 		<tr>
-			<td>
-				<ul class="list-unstyled list-inline">
-					<li class="col-md-3 col-sm-12 col-xs-12">
-						<%= link_to audit_path(audit[:id]), title: "View"  do -%>
-							<i class="fa fa-folder-open"></i>
-						<% end -%>
-					</li>
-				</ul>				
-			</td>
 			<td><%= audit[:created_at].to_date.strftime("%b %d" + (audit[:created_at].to_date.year != Date.today.year ? ", %Y" : "")) -%></td>
 			<td><%= link_to audit_store.full_name, audit_path( audit[:id] ) -%></td>
-			<td class="hidden-sm hidden-xs"><%= audit[:auditor_name] -%></td>
+			<td class="hidden-xs"><%= audit[:auditor_name] -%></td>
 			<td class="text-center">
 				<%= audit.score[:total]-%>
 				<%- if audit[:has_unresolved_issues] -%>
