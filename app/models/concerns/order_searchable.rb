@@ -61,8 +61,8 @@ module OrderSearchable
       query_bool_array_must.push( {term: {"store.state_code" => params[:shipping_state]}}) if params[:shipping_state].present?
       query_bool_array_must.push( {term: {"route.id" => params[:route]}}) if params[:route].present?
       query_bool_array_must.push( {term: {"email_sent" => params[:email_sent]}}) if params[:email_sent].present?
-      query_bool_array_must.push( {range: {created_at: {gte: params[:start_date]}}}) unless params[:start_date].nil?
-      query_bool_array_must.push( {range: {created_at: {lte: params[:end_date]}}}) unless params[:end_date].nil?
+      query_bool_array_must.push( {range: {created_at: {gte: params[:start_date]}}}) unless !params[:start_date].present?
+      query_bool_array_must.push( {range: {created_at: {lte: params[:end_date]}}}) unless !params[:end_date].present?
       query_bool_array_must.push( {query_string: {query: params[:q]}}) if params[:q].present? && !params[:q].blank?
       
       if query_bool_array_must.size > 1
@@ -88,7 +88,7 @@ module OrderSearchable
       
       # Sort
       sort_array = [
-        {created_at: {order:"asc"}}
+        {created_at: {order:"desc"}}
       ]
       if params[:sort].present?
         sort_array = []

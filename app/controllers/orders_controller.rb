@@ -93,47 +93,34 @@ class OrdersController < ApplicationController
     
     # Initialize both dates to nil so that in case the "else"
     # part is executed the missing date is always set to nil
-    start_date = end_date = nil
-    if !(params[:start_date].present? || params[:end_date].present?)
-        # If neither dates are specified then default to today
-        start_date = end_date = Date.today
-    else
-      # Otherwise assign the values if they are present. 
-      start_date = params[:start_date] if params[:start_date].present?
-      end_date = params[:end_date] if params[:end_date].present?
-    end 
+    # start_date = end_date = nil
+    # if !(params[:start_date].present? || params[:end_date].present?)
+    #     # If neither dates are specified then default to today
+    #     start_date = end_date = Date.today
+    # else
+    #   # Otherwise assign the values if they are present. 
+    #   start_date = params[:start_date] if params[:start_date].present?
+    #   end_date = params[:end_date] if params[:end_date].present?
+    # end 
 
-    params[:start_date] = start_date.to_date.beginning_of_day.to_time
-    params[:end_date] = end_date.to_date.end_of_day.to_time
+    params[:start_date] = Date.strptime(params[:start_date],"%m/%d/%Y").beginning_of_day.to_time if params[:start_date].present?
+    params[:end_date] = Date.strptime(params[:end_date], "%m/%d/%Y").end_of_day.to_time if params[:end_date].present?
 
     search_results = Order.search( params )   
-    
-    # The following code block is used to properly
-    # list the Find Order options and to mark of the one that is selected
-    today = Date.today.to_date
-    search_date_params = { :start_date => (params[:start_date] || today ).to_date, :end_date => (params[:end_date] || today ).to_date }
-
-    predefined_search_options = []
-    predefined_search_options.push(["Created today", \
-                                    {:start_date => today, :end_date => today}]  )                             
-    predefined_search_options.push(["Created this week", \
-                                    {:start_date => today.days_to_week_start.days.ago.to_date, :end_date => today }]) unless today.monday?
-                                    
-    predefined_search_options.push(["From last week", {:end_date => ((today.days_to_week_start).days.ago - 1.day).to_date, :start_date => ((today.days_to_week_start).days.ago.to_date - 1.week).to_date}])
-    
-    predefined_search_options.push(["Created this month", \
-                                      {:start_date => (today.day - 1).days.ago.to_date, :end_date => today}])
      
     # Make view responsible for tracking pages
     page = params[:page]
+
+    # Sanitizing the date to human readable format
+    params[:start_date] = params[:start_date].strftime("%m/%d/%Y") if params[:start_date].present?
+    params[:end_date] = params[:end_date].strftime("%m/%d/%Y") if params[:end_date].present?
 
     return_value = { \
       orders: search_results[:results], \
       total_results: search_results[:total], \
       aggs: search_results[:aggs], \
       more_pages: (search_results[:total].to_f/params[:per_page].to_f > page), \
-      options: params, \
-      predefined_search_criteria: predefined_search_options
+      options: params
 
     }
     respond_to do |format|

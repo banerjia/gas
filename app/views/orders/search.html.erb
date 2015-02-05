@@ -9,99 +9,35 @@
   page = options[:page] if defined?(options) && options[:page].present?
   per_page = options[:per_page] if defined?(options) && options[:per_page].present?
 
-
+  sanitized_options = options.clone
+  [:page, :per_page, :sort].each { |key| sanitized_options.delete(key)}
 -%>
+
+<!-- NEW DESIGN -->
 <div class="row">
-  <div class="col-md-3 hidden-sm hidden-xs">
-    <h2 class="h3">Find Orders by Date</h2>
-    <ul class="list-unstyled">
-      <%- predefined_search_criteria.each do |search_specs| -%>   
-        <li>
-        <%= link_to_if (search_specs[1][:start_date].to_date != options[:start_date].to_date || search_specs[1][:end_date].to_date != options[:end_date].to_date), search_specs[0], orders_search_path(search_specs[1]) -%>
-        </li>
-      <%- end -%>
-    </ul>
-    <h2 class="h3">Filtering Options</h2>
-    <%- if aggs && aggs[:states].present? -%>
-    <h3 class="h4">By State</h3>
-    
-    <ul class="list-unstyled">
-    <%-
-          options_without_state = options.clone
-          options_without_state.delete(:_shipping_state)
-    -%>
-    <%- if options[:_shipping_state].present? then -%>
-      <li><%= link_to "All States", orders_search_path(options_without_state) -%></li>
-    <% end -%>
-    <%- aggs[:states].each do |state| -%>
-      <li>
-        <%= link_to_if aggs[:states].size > 1 && state[:state_code] != options[:_shipping_state], state[:name],orders_search_path(options_without_state.merge({_shipping_state: state[:state_code]})) -%>
-      </li>
-    <% end -%>
-    </ul>
-    <% end -%>
-
-    <%- if aggs && aggs[:companies].present? -%>
-    <h3 class="h4">By Company</h3>
-    <ul class="list-unstyled">
-    <%-
-          options_without_company = options.clone
-          options_without_company.delete(:_company_id)
-    -%>
-    <%- if options[:_company_id].present? then -%>
-      <li><%= link_to "All Companies", orders_search_path(options_without_company) -%></li>
-    <% end -%>
-    <%- aggs[:companies].each do |company| -%>
-      <li>
-        <%= link_to_if (aggs[:companies].size > 1 && company[:id].to_i != options[:_company_id].to_i), company[:name],orders_search_path(options_without_company.merge({_company_id: company[:id]})) -%>
-      </li>
-    <% end -%>
-    </ul>
-    <% end -%>
-
-    <%- if aggs && aggs[:routes].present? -%>
-    <h3 class="h4">By Route</h3>
-    <ul class="list-unstyled">
-    <%-
-          options_without_route = options.clone
-          options_without_route.delete(:_route)
-    -%>
-    <%- if options[:_route].present? then -%>
-      <li><%= link_to "All Routes", orders_search_path(options_without_route) -%></li>
-    <% end -%>
-    <%- aggs[:routes].each do |route| -%>
-
-      <li>
-        <%= link_to_if (aggs[:routes].size > 1 && route[:id].to_i != options[:_route].to_i), route[:name],orders_search_path(options_without_route.merge({_route: route[:id]})) -%>
-      </li>
-    <% end -%>
-    </ul>
-    <% end -%>
-  </div>
-  <div class="col-md-9 col-sm-12 col-xs-12">
-    <form id="order_list_form" onsubmit="return false" method="get">
-      <table class="table table-condensed" id="order_list">
-        <thead>
-          <tr>
-            <th scope="col" style="width: 5%">
-              <%= check_box_tag :select_all if !defined?(orders) || (defined?(orders) && orders.size > 0) -%>
-            </th>
-            <th scope="col" style="width: 10%">Date</th>
-            <th scope="col">Store</th>
-            <th scope="col" style="width: 15%" class="text-center">Deliver By</th>
-            <th scope="col" class="text-center" style="width: 10%">Email</th>
-          </tr>
-          <tr class="toolbar">
-            <td colspan="5" class="well well-sm" style="visibility: hidden">
-              <input type="button" class="btn btn-primary" rel="div#email_order" id="a_email_order" value="Email Order"/>
-              <input type="button" class="btn btn-danger" value="Delete" id="delete_orders"/>
-            </td>    
-          </tr>
-        </thead>
-        <tfoot>
-          <tr>
-            <td colspan="5" class="text-center">
-              <%- if page > 1 || more_pages -%>
+  <div class="col-md-10 col-md-push-2 col-sm-9 col-sm-push-3 col-xs-12">
+  <form id="order_list_form" onsubmit="return false" method="get">
+    <table class="table table-condensed table-striped" id="order_list">
+      <thead>
+        <tr>
+          <th scope="col" style="width: 5%">
+            <%= check_box_tag :select_all if !defined?(orders) || (defined?(orders) && orders.size > 0) -%>
+          </th>
+          <th scope="col" style="width: 10%">Date</th>
+          <th scope="col">Store</th>
+          <th scope="col" style="width: 15%" class="text-center">Deliver By</th>
+          <th scope="col" class="text-center" style="width: 10%">Email</th>
+        </tr>
+      </thead>
+      <tfoot>
+        <tr>
+          <td colspan="5">
+            <div class="col-md-6 col-sm-6 col-xs-6">
+              <input type="button" class="btn btn-primary btn-sm" rel="div#email_order" id="a_email_order" value="Email Order Sheet"/>
+              <!-- <input type="button" class="btn btn-danger btn-sm" value="Delete" id="delete_orders"/> -->
+            </div>
+            <%- if page > 1 || more_pages -%>            
+            <div class="col-md-6 col-sm-6 col-xs-6">
               <div class="row" style="margin-bottom: 1em">
                 <div class="col-md-12 col-sm-12 col-xs-12">
                   <div class="btn-toolbar pull-right" role="toolbar">
@@ -125,54 +61,141 @@
                     </div>
                   </div>
                 </div>    
+              </div>            
+            </div>
+            <% end -%>
+          </td>
+        </tr>
+      </tfoot>
+      <tbody>
+      <%- orders.each do |order| -%>
+        <tr>
+          <td><%= check_box_tag :order, order[:id] -%></td>
+          <td><%= order[:created_at].to_date.strftime(Date.today.year != order[:created_at].to_date.year ? "%b %d, %Y" : "%b %d") -%></td>
+          <td><%= link_to order[:store].full_name, order_path(order[:id]) -%></td>
+          <td class="text-center"><%= order[:delivery_day_of_the_week]  -%></td>
+          <td class="text-center">
+            <%- if order[:email_sent] -%>
+              <i class="fa fa-check"></i>
+            <%- end -%>
+          </td>
+        </tr>
+      <%- end -%>
+      </tbody>
+    </table>
+  </form>
+  <div id="email_order">
+    <form id="email_order_form" onsubmit="return false;" method="get">
+      <div id="email_order-header">
+        <h3>Email Order(s)</h3>
+        <a class="modal_close modal_close_positioning btn btn-default" style="min-width: 1px" href="#"><i class="fa fa-1x fa-close"></i></a>
+      </div>
+      <div class="entry_row" style="display:none">
+        <label for="email_addresses">Email Address(es)</label><br/>
+                          <%= email_field_tag :email_addresses, ENV['order_email'], :multiple => true -%>
+      </div>
+      <div class="entry_row">
+        <label for="email_body">Message</label> - <em>optional</em><br/>
+        <%= text_area_tag :email_body, nil, :rows => 5, :cols => 65 -%>
+      </div>
+      
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <button type="button" class="btn btn-primary" id="send_email">Send</button>
+        <button class="btn btn-default modal_close">Cancel</button>
+      </div>
+    </form> 
+  </div>  
+  </div>
+  <div class="col-md-pull-10 col-md-2 col-sm-pull-9 col-sm-3 col-xs-12 well well-sm">
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <h3 class="h3">Find Audits</h3>
+        <%-
+          options_for_url = sanitized_options.clone
+          [:start_date, :end_date, :_auditor, :_score_range, :page, :page_size].each {|key| options_for_url.delete(key)}
+
+          # link_to_if compares against this Hash to determine which 
+          # search option was selected
+          date_from_search_scope = { \
+            start_date: ( sanitized_options[:start_date].nil? ? nil: sanitized_options[:start_date].to_date), \
+            end_date: ( sanitized_options[:end_date].nil? ? nil: sanitized_options[:end_date].to_date) \
+          }
+          date_range_all = {start_date: nil, end_date: nil}
+          date_range_yesterday = {start_date: 1.day.ago.to_date, end_date: 1.day.ago.to_date}
+          date_range_this_week = {start_date: Date.today.at_beginning_of_week.to_date.to_date, end_date: Date.today.at_end_of_week.to_date}
+          date_range_last_week = {start_date: 1.week.ago.at_beginning_of_week.to_date, end_date: 1.week.ago.at_end_of_week.to_date}
+          date_range_today = {start_date: Date.today.to_date, end_date: Date.today.to_date}
+          date_range_this_month = {start_date: Date.today.at_beginning_of_month.to_date, end_date: Date.today.at_end_of_month.to_date}
+          date_range_last_month = {start_date: 1.month.ago.at_beginning_of_month.to_date, end_date: 1.month.ago.at_end_of_month.to_date}
+        -%>
+        <ul class="list-unstyled" style="padding-left: 0.7em">
+          <li>
+            <%= link_to_unless date_from_search_scope == date_range_all, "All Orders", orders_search_path(options_for_url) -%>
+            
+          </li>
+          <li>
+            <%= link_to_unless date_from_search_scope == date_range_today, "Today", orders_search_path( date_range_today.merge(options_for_url)) -%>
+            
+          </li>
+          <li>
+            <%= link_to_unless date_from_search_scope == date_range_yesterday, "Yesterday", orders_search_path(date_range_yesterday.merge(options_for_url)) -%>
+          </li>
+          <li>
+            
+            <%= link_to_unless date_from_search_scope == date_range_this_week, "This week", orders_search_path( date_range_this_week.merge(options_for_url)) -%>
+          </li>
+          <li>
+            
+            <%= link_to_unless date_from_search_scope == date_range_last_week, "Last week", orders_search_path( date_range_last_week.merge(options_for_url)) -%>
+          </li>
+          <li>
+            
+            <%= link_to_unless date_from_search_scope == date_range_this_month, "This month", orders_search_path( date_range_this_month.merge(options_for_url)) -%>
+          </li>
+          <li>
+            
+            <%= link_to_unless date_from_search_scope == date_range_last_month, "Last month", orders_search_path( date_range_last_month.merge(options_for_url)) -%>
+          </li>
+        </ul>
+        <div>
+          <strong>Select dates:</strong> <br/>
+          <form method="GET" action="<%= orders_search_path -%>">
+            <div class="form-group">
+              <label for="start_date">From</label>
+              <div class="input-group date">
+                <input type="text" id="start_date" name="start_date" class="form-control date-picker input-sm" value="<%= options[:start_date].to_date.strftime("%m/%d/%Y") if options[:start_date].present?-%>"><span class="input-group-addon input-sm"><i class="fa fa-calendar"></i></span>
               </div>
-              <% end -%>
-            </td>
-          </tr>
-        </tfoot>
-        <tbody>
-        <%- orders.each do |order| -%>
-          <tr>
-            <td><%= check_box_tag :order, order[:id] -%></td>
-            <td><%= order[:created_at].to_date.strftime(Date.today.year != order[:created_at].to_date.year ? "%b %d, %Y" : "%b %d") -%></td>
-            <td><%= link_to order[:store].full_name, order_path(order[:id]) -%></td>
-            <td class="text-center"><%= order[:delivery_day_of_the_week]  -%></td>
-            <td class="text-center">
-              <%- if order[:email_sent] -%>
-                <i class="fa fa-check"></i>
-              <%- end -%>
-            </td>
-          </tr>
-        <%- end -%>
-        </tbody>
-      </table>
-    </form>
-    <div id="email_order">
-      <form id="email_order_form" onsubmit="return false;" method="get">
-        <div id="email_order-header">
-          <h3>Email Order(s)</h3>
-          <a class="modal_close modal_close_positioning btn btn-default" style="min-width: 1px" href="#"><i class="fa fa-1x fa-close"></i></a>
-        </div>
-        <div class="entry_row" style="display:none">
-          <label for="email_addresses">Email Address(es)</label><br/>
-                            <%= email_field_tag :email_addresses, ENV['order_email'], :multiple => true -%>
-        </div>
-        <div class="entry_row">
-          <label for="email_body">Message</label> - <em>optional</em><br/>
-          <%= text_area_tag :email_body, nil, :rows => 5, :cols => 65 -%>
-        </div>
-        
-        <div class="col-md-12 col-sm-12 col-xs-12">
-          <button type="button" class="btn btn-primary" id="send_email">Send</button>
-          <button class="btn btn-default modal_close">Cancel</button>
-        </div>
-      </form> 
+              
+            </div>
+            <div class="form-group">
+              <label for="end_date">To</label>
+              <div class="input-group date">
+                <input type="text" id="end_date" name="end_date" class="form-control date-picker input-sm" value="<%= options[:end_date].to_date.strftime("%m/%d/%Y") if options[:end_date].present?-%>"><span class="input-group-addon input-sm"><i class="fa fa-calendar"></i></span>
+              </div>
+              <h3 class="h4">Filter Results</h3>
+              <div class="form-group">
+               <%= select_tag :_route, options_for_select(aggs[:routes].collect{ |p| [p[:name], p[:id]]}, options[:_route]), prompt: (options[:_route].present? && options[:_route].blank? ? "Refine by Route" : "Clear Route Selection"), class: "form-control input-sm" -%>
+              </div>
+              <div class="form-group">
+               <%= select_tag :_shipping_state, options_for_select(aggs[:states].collect{ |p| [p[:state_name],p[:state_code]]}, options[:_shipping_state]), prompt: (options[:_shipping_state].present? &&  options[:_shipping_state].blank? ? "Refine by Shipping State" : "Clear Shipping Selection"), class: "form-control input-sm" -%>
+              </div>
+              <div class="form-group">
+               <%= select_tag :_company_id, options_for_select(aggs[:companies].collect{ |p| [p[:name],p[:id]]}, options[:_company_id]), prompt: (options[:_company_id].present? &&  options[:_company_id].blank? ? "Refine by Chain" : "Clear Chain Selection"), class: "form-control input-sm" -%>
+              </div>             
+              
+            </div>
+
+            <div class="form-buttons">
+              <button class="btn btn-sm btn-primary">Find Orders</button>
+            </div>
+          </form>
+        </div>      
+      </div>
     </div>
   </div>
 </div>
 
-<%- content_for :head do -%>
-<% end -%>
+
 <%- content_for :page_js do -%>
 
 <%= javascript_include_tag "jquery.leanModal.min.js" -%>
@@ -185,5 +208,17 @@
     OrderList.init();     
   });  
 </script>
-
+<%= javascript_include_tag "bootstrap-datepicker.js" -%>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.input-group.date')
+           .datepicker({
+              format: 'mm/dd/yyyy',
+            todayBtn: "linked",
+            clearBtn: true,
+            autoclose: true,
+            todayHighlight: true
+        });
+  })
+</script>
 <% end -%>
