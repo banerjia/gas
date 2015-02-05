@@ -31,6 +31,7 @@ class OrdersController < ApplicationController
   
   def create
     @order = Order.new(order_params)
+    byebug
     if @order.save      
       redirect_to orders_path
     else
@@ -95,15 +96,15 @@ class OrdersController < ApplicationController
     start_date = end_date = nil
     if !(params[:start_date].present? || params[:end_date].present?)
         # If neither dates are specified then default to today
-        start_date = end_date = Date.today.to_date
+        start_date = end_date = Date.today
     else
       # Otherwise assign the values if they are present. 
       start_date = params[:start_date] if params[:start_date].present?
       end_date = params[:end_date] if params[:end_date].present?
     end 
 
-    params[:start_date] = start_date
-    params[:end_date] = end_date
+    params[:start_date] = start_date.to_date.beginning_of_day.to_time
+    params[:end_date] = end_date.to_date.end_of_day.to_time
 
     search_results = Order.search( params )   
     
@@ -124,7 +125,7 @@ class OrdersController < ApplicationController
                                       {:start_date => (today.day - 1).days.ago.to_date, :end_date => today}])
      
     # Make view responsible for tracking pages
-    page = params.delete(:page)  
+    page = params[:page]
 
     return_value = { \
       orders: search_results[:results], \
@@ -152,6 +153,6 @@ class OrdersController < ApplicationController
 
 private
 	def order_params
-		params.require(:order).permit(:store_id, :invoice_number, :route_id, :delivery_dow, :created_at, :email_sent, :product_orders_attributes => [:product_id,:quantity])
+		params.require(:order).permit(:store_id, :invoice_number, :route_id, :delivery_dow, :created_at, :email_sent, product_orders_attributes: [:product_id,:quantity])
 	end
 end

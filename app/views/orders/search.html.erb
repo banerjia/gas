@@ -83,14 +83,13 @@
       <table class="table table-condensed" id="order_list">
         <thead>
           <tr>
-            <th scope="col">
-              Select All<br/>
+            <th scope="col" style="width: 5%">
               <%= check_box_tag :select_all if !defined?(orders) || (defined?(orders) && orders.size > 0) -%>
             </th>
-            <th scope="col">Created On</th>
+            <th scope="col" style="width: 10%">Date</th>
             <th scope="col">Store</th>
-            <th scope="col">Deliver By</th>
-            <th scope="col">Email Status</th>
+            <th scope="col" style="width: 15%" class="text-center">Deliver By</th>
+            <th scope="col" class="text-center" style="width: 10%">Email</th>
           </tr>
           <tr class="toolbar">
             <td colspan="5" class="well well-sm" style="visibility: hidden">
@@ -135,12 +134,12 @@
         <%- orders.each do |order| -%>
           <tr>
             <td><%= check_box_tag :order, order[:id] -%></td>
-            <td><%= link_to order[:created_at].to_date.strftime("%b %d, %Y") , order_path(order[:id]), target: "_blank" -%></td>
-            <td><%= order[:store][:full_name] -%></td>
-            <td><%= order[:delivery_day_of_the_week]  -%></td>
+            <td><%= order[:created_at].to_date.strftime(Date.today.year != order[:created_at].to_date.year ? "%b %d, %Y" : "%b %d") -%></td>
+            <td><%= link_to order[:store].full_name, order_path(order[:id]) -%></td>
+            <td class="text-center"><%= order[:delivery_day_of_the_week]  -%></td>
             <td class="text-center">
               <%- if order[:email_sent] -%>
-                <span class="label label-success">Sent</span>
+                <i class="fa fa-check"></i>
               <%- end -%>
             </td>
           </tr>
@@ -173,7 +172,6 @@
 </div>
 
 <%- content_for :head do -%>
-  <%= stylesheet_link_tag :order_list -%>
 <% end -%>
 <%- content_for :page_js do -%>
 

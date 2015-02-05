@@ -18,6 +18,7 @@ class Order < ActiveRecord::Base
   
 
   # Callbacks  
+
   before_save do |order|
     # Setting the order sent date
     if email_sent_changed? || email_sent_date_changed?

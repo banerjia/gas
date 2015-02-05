@@ -163,6 +163,4 @@ module OrderSearchable
 
   	end
   end
-
-
 end
