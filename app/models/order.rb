@@ -79,7 +79,7 @@ class Order < ActiveRecord::Base
     product_category_ids = productOrders.map{ |product_order| product_order.product[:product_category_id]}.uniq
     
     # Camel case used for productCategories to distinguish it from product_categories association
-    productCategories = ProductCategory.find( product_category_ids, order: :display_order )
+    productCategories = ProductCategory.order(:display_order ).find( product_category_ids)
     
     productCategories.each do | category |
       element_to_push = Hash.new

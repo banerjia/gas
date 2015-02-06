@@ -8,12 +8,12 @@ class OrdersController < ApplicationController
   
   def show
     # This approach has been taken to reduce the number of SELECT statements
-    @order = Order.find( params[:id], :include => {:product_orders => [:product]})
-    @store = Store.find( @order[:store_id] )
+    @order = Order.includes([:store, {:product_orders => [:product]}]).find( params[:id])
+    @store = @order.store
     
     
-    @page_title = "Order Sheet for PO: " + @order[:invoice_number]
-    @browser_title = "Invoice: " + @order[:invoice_number]
+    @page_title = "Order Sheet: #{@order[:id]}"
+    @browser_title = "Order: #{@order[:id]}"
     respond_to do |format|
       format.html { render :locals => {:order => @order} }
       format.xlsx do 
@@ -58,28 +58,28 @@ class OrdersController < ApplicationController
   end
   
   def destroy
-    orders_to_delete = params[:id].split(/\D+/).map{ |id| id.to_i }
-    orders_to_delete.each do | order_id |
-      Order.find( order_id ).destroy
-    end
-    Order.tire.index.refresh
-    redirect_to :action => "dashboard"
+    orders_to_delete = params[:orders].map{ |id| id.to_i }      
+    Order.find( order_id ).destroy
+    redirect_to orders_search_path
   end
   
   def send_email
-    send_to = params[:email]
-    optional_message = params[:email_body]
-    order_id = params[:id].split(/\D+/).map{ |id| id.to_i }
+    send_to = params[:email] || ENV['order_email']
+    optional_message = params[:email_body] unless !params[:email_body].present?
 
-    order = Order.find( order_id, :include => [{:product_orders => [:product, :volume_unit]}, :store])
+    # order_id = params[:orders].map{ |id| id.to_i }
+
+    # order = Order.includes([{product_orders: [:product, :volume_unit]}, :store]).find( order_id )
     
-    email = OrderMailer.email_order( send_to, order, optional_message )
-    email.deliver
-    render :nothing => true
+    # email = OrderMailer.email_order( send_to, order, optional_message )
+    # email.deliver
+    # render :nothing => true
+    render status: 200, json: {sucess: true}.to_json
   end
   
   def search 
     params = (request.params || {}).clone
+    params = params.reject{|k,v| v.blank? || v.empty?} #unless params.nil?
     # sort_condition = params[:sort] || 0
     # sort_direction = params[:dir] || "desc"
 
@@ -90,7 +90,7 @@ class OrdersController < ApplicationController
     # subsequent pages pulled using AJAX in most
     # cases.
     params[:page] = (params[:page] || 1 ).to_i
-    params[:per_page] = (params[:per_page] || $per_page).to_i    
+    params[:per_page] = (params[:per_page] || 10).to_i    
     
     # Initialize both dates to nil so that in case the "else"
     # part is executed the missing date is always set to nil
@@ -104,18 +104,13 @@ class OrdersController < ApplicationController
     #   end_date = params[:end_date] if params[:end_date].present?
     # end 
 
-    params[:start_date] = Date.strptime(params[:start_date], '%m/%d/%Y') if params[:start_date].present? && !params[:start_date].blank? && /^\d{4}\-\d{2}\-\d{2}/.match(params[:start_date]).nil?
-    params[:end_date] = Date.strptime(params[:end_date], '%m/%d/%Y') if params[:end_date].present? && !params[:end_date].blank? && /^\d{4}\-\d{2}\-\d{2}/.match(params[:end_date]).nil?
-
-    params = params.reject{|k,v| v.blank?} unless params.nil?
+    params[:start_date] = Date.strptime(params[:start_date], '%m/%d/%Y') if params[:start_date].present? && /^\d{4}\-\d{2}\-\d{2}/.match(params[:start_date]).nil?
+    params[:end_date] = Date.strptime(params[:end_date], '%m/%d/%Y') if params[:end_date].present? && /^\d{4}\-\d{2}\-\d{2}/.match(params[:end_date]).nil?
 
     search_results = Order.search( params )   
      
     # Make view responsible for tracking pages
     page = params[:page]
-
-    params[:start_date] = request.params[:start_date] if !request.params.nil? && request.params[:start_date].present?
-    params[:end_date] = request.params[:end_date] if !request.params.nil? && request.params[:end_date].present?
 
     return_value = { \
       orders: search_results[:results], \
@@ -123,7 +118,6 @@ class OrdersController < ApplicationController
       aggs: search_results[:aggs], \
       more_pages: (search_results[:total].to_f/params[:per_page].to_f > page), \
       options: params
-
     }
     respond_to do |format|
       format.html do

@@ -66,8 +66,8 @@ module OrderSearchable
       query_bool_array_must.push( {term: {"store.state_code" => search_params[:shipping_state]}}) if search_params[:shipping_state].present?
       query_bool_array_must.push( {term: {"route.id" => search_params[:route]}}) if search_params[:route].present?
       query_bool_array_must.push( {term: {"email_sent" => search_params[:email_sent]}}) if search_params[:email_sent].present?
-      query_bool_array_must.push( {range: {created_at: {gte: search_params[:start_date]}}}) unless start_date.nil?
-      query_bool_array_must.push( {range: {created_at: {lte: search_params[:end_date]}}}) unless end_date.nil?
+      query_bool_array_must.push( {range: {created_at: {gte: start_date}}}) unless start_date.nil?
+      query_bool_array_must.push( {range: {created_at: {lte: end_date}}}) unless end_date.nil?
       query_bool_array_must.push( {query_string: {query: search_params[:q]}}) if search_params[:q].present? && !search_params[:q].blank?
       
       if query_bool_array_must.size > 1

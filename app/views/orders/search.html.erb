@@ -1,113 +1,122 @@
 <%-
-  page = 1
-  per_page = 10
   more_pages = false unless defined?(more_pages)
 
   options_without_page = options.clone
   options_without_page.delete(:page)
 
-  options[:start_date] = options[:start_date].to_date.strftime("%m/%d/%Y") if options[:start_date].present?
-  options[:end_date] = options[:end_date].to_date.strftime("%m/%d/%Y") if options[:end_date].present?
-
   page = options[:page] if defined?(options) && options[:page].present?
   per_page = options[:per_page] if defined?(options) && options[:per_page].present?
+  total_results = total_results.to_i
+
+
+  total_pages = (total_results/per_page).to_i + (total_results % per_page > 0 ? 1 : 0)
 
   sanitized_options = options.clone
   [:page, :per_page, :sort].each { |key| sanitized_options.delete(key)}
+  sanitized_options = sanitized_options.reject {|k,v| k.to_s.index("_") == 0}
+
+
 -%>
 
 <!-- NEW DESIGN -->
 <div class="row">
   <div class="col-md-10 col-md-push-2 col-sm-9 col-sm-push-3 col-xs-12">
-  <form id="order_list_form" onsubmit="return false" method="get">
-    <table class="table table-condensed table-striped" id="order_list">
-      <thead>
-        <tr>
-          <th scope="col" style="width: 5%">
-            <%= check_box_tag :select_all if !defined?(orders) || (defined?(orders) && orders.size > 0) -%>
-          </th>
-          <th scope="col" style="width: 10%">Date</th>
-          <th scope="col">Store</th>
-          <th scope="col" style="width: 15%" class="text-center">Deliver By</th>
-          <th scope="col" class="text-center" style="width: 10%">Email</th>
-        </tr>
-      </thead>
-      <tfoot>
-        <tr>
-          <td colspan="5">
-            <div class="col-md-6 col-sm-6 col-xs-6">
-              <input type="button" class="btn btn-primary btn-sm" rel="div#email_order" id="a_email_order" value="Email Order Sheet"/>
-              <!-- <input type="button" class="btn btn-danger btn-sm" value="Delete" id="delete_orders"/> -->
-            </div>
-            <%- if page > 1 || more_pages -%>            
-            <div class="col-md-6 col-sm-6 col-xs-6">
-              <div class="row" style="margin-bottom: 1em">
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                  <div class="btn-toolbar pull-right" role="toolbar">
-                    <div class="btn-group" role="group">      
-                      <button 
-                        class="btn btn-sm btn-default" 
-                        type="button"
-                        <%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
-                        onclick="window.location = '<%= page > 1 ? orders_search_path(options_without_page.merge({page: page-1})) : nil -%>'">
-                        <i class="fa fa-chevron-left"></i>
-                        <span class="hidden-sm hidden-xs">Back</span>         
-                      </button>
-                      <button 
-                        class="btn btn-sm btn-default" 
-                        type="button"
-                        <%= !more_pages ? 'disabled="disabled"'.html_safe : nil -%>
-                        onclick="window.location = '<%= more_pages ? orders_search_path(options_without_page.merge({page: page+1})) : nil -%>'">
-                        <span class="hidden-sm hidden-xs">Next</span>
-                        <i class="fa fa-chevron-right"></i>         
-                      </button>
+    <%= form_tag email_order_path, id: "order_list_form", method: :post, remote: true do -%>
+    <!-- <form id="order_list_form" onsubmit="return false" method="get"> -->
+      <table class="table table-striped" id="order_list">
+        <thead>
+          <tr>
+            <th scope="col" style="width: 5%" class="hidden-xs">
+              <%= check_box_tag nil, nil, false, onchange: "toggleCheckboxes(this)", class: "select-all-ckb" if !defined?(orders) || (defined?(orders) && orders.size > 0) -%>
+            </th>
+            <th scope="col" style="width: 10%">Date</th>
+            <th scope="col">Store</th>
+            <th scope="col" style="width: 15%" class="text-center">Deliver By</th>
+            <th scope="col" class="text-center" style="width: 10%">Email</th>
+          </tr>
+        </thead>
+        <%- if orders.size > 0  -%> 
+        <tfoot>
+          <tr>
+            <td colspan="5">
+              <div class="col-md-3 hidden-sm hidden-xs">
+                <button id="btn_email_order" class="btn btn-sm btn-primary" data-disable-with="Sending..." disabled="disabled" >Email Order(s)</button>
+                <!-- <input type="submit" class="btn btn-primary btn-sm" id="btn_email_order" value="Email Order(s)" disabled="disabled" data-disable_with="Sending..." disabled="disabled"/> -->
+                <!-- <input type="button" class="btn btn-danger btn-sm" value="Delete" id="delete_orders"/> -->
+              </div>   
+              <%- if page > 1 || more_pages -%>                    
+              <div class="col-md-9 col-sm-12 col-xs-12 pull-right">
+                <div class="row" style="margin-bottom: 1em">
+                  <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="btn-toolbar pull-right" role="toolbar">
+                      <div class="btn-group" role="group"> 
+                        <button 
+                          type="button" 
+                          class="btn btn-default"
+                          <%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
+                          onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: 1}))-%>'">
+                          I<i class="fa fa-chevron-left"></i><span class="hidden-sm hidden-xs"> First</span>
+                        </button>     
+                        <button 
+                          class="btn btn-default" 
+                          type="button"
+                          <%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
+                          onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: page-1})) -%>'">
+                          <i class="fa fa-chevron-left"></i>
+                          <span class="hidden-sm hidden-xs"> Back</span>         
+                        </button>
+                        <button 
+                          class="btn btn-default" 
+                          type="button"
+                          <%= !more_pages ? 'disabled="disabled"'.html_safe : nil -%>
+                          onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: page+1})) -%>'">
+                          <span class="hidden-sm hidden-xs">Next </span>
+                          <i class="fa fa-chevron-right"></i>         
+                        </button>
+                        <button 
+                          type="button" 
+                          class="btn btn-default"
+                          <%= page == total_pages ? 'disabled="disabled"'.html_safe : nil -%>
+                          onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: total_pages})) -%>'">
+                          <span class="hidden-sm hidden-xs">Last </span><i class="fa fa-chevron-right"></i>I
+                        </button>     
+
+                      </div>
                     </div>
-                  </div>
-                </div>    
-              </div>            
-            </div>
-            <% end -%>
-          </td>
-        </tr>
-      </tfoot>
-      <tbody>
-      <%- orders.each do |order| -%>
-        <tr>
-          <td><%= check_box_tag :order, order[:id] -%></td>
-          <td><%= order[:created_at].to_date.strftime(Date.today.year != order[:created_at].to_date.year ? "%b %d, %Y" : "%b %d") -%></td>
-          <td><%= link_to order[:store].full_name, order_path(order[:id]) -%></td>
-          <td class="text-center"><%= order[:delivery_day_of_the_week]  -%></td>
-          <td class="text-center">
-            <%- if order[:email_sent] -%>
-              <i class="fa fa-check"></i>
-            <%- end -%>
-          </td>
-        </tr>
-      <%- end -%>
-      </tbody>
-    </table>
-  </form>
-  <div id="email_order">
-    <form id="email_order_form" onsubmit="return false;" method="get">
-      <div id="email_order-header">
-        <h3>Email Order(s)</h3>
-        <a class="modal_close modal_close_positioning btn btn-default" style="min-width: 1px" href="#"><i class="fa fa-1x fa-close"></i></a>
-      </div>
-      <div class="entry_row" style="display:none">
-        <label for="email_addresses">Email Address(es)</label><br/>
-                          <%= email_field_tag :email_addresses, ENV['order_email'], :multiple => true -%>
-      </div>
-      <div class="entry_row">
-        <label for="email_body">Message</label> - <em>optional</em><br/>
-        <%= text_area_tag :email_body, nil, :rows => 5, :cols => 65 -%>
-      </div>
-      
-      <div class="col-md-12 col-sm-12 col-xs-12">
-        <button type="button" class="btn btn-primary" id="send_email">Send</button>
-        <button class="btn btn-default modal_close">Cancel</button>
-      </div>
-    </form> 
-  </div>  
+                  </div>    
+                </div>            
+              </div>
+              <% end -%>
+            </td>
+          </tr>
+        </tfoot>
+        <% end -%>
+        <tbody id="orders">
+        <%- if orders.size > 0 -%>
+          <%- orders.each do |order| -%>
+            <tr>
+              <td class="hidden-xs"><%= check_box_tag "order[]", order[:id], false, onchange:  "tallyCheckboxes()", class: "send-email" -%></td>
+              <td><%= order[:created_at].to_date.strftime(Date.today.year != order[:created_at].to_date.year ? "%b %d, %Y" : "%b %d") -%></td>
+              <td><%= link_to order[:store].full_name, order_path(order[:id]) -%></td>
+              <td class="text-center"><%= order[:delivery_day_of_the_week]  -%></td>
+              <td class="email-status text-center">
+                <%- if order[:email_sent] -%>
+                  <i class="fa fa-check"></i>
+                <%- end -%>
+              </td>
+            </tr>
+          <%- end -%>
+        <%- else -%>
+          <tr>
+            <td colspan="5" class="text-center">
+              <p><em>No orders found</em></p>
+            </td>
+          </tr>
+        <% end -%>
+        </tbody>
+      </table>
+    <!-- </form> -->
+    <% end -%>
   </div>
   <div class="col-md-pull-10 col-md-2 col-sm-pull-9 col-sm-3 col-xs-12 well well-sm">
     <div class="row">
@@ -166,29 +175,32 @@
             <div class="form-group">
               <label for="start_date">From</label>
               <div class="input-group date">
-                <input type="text" id="start_date" name="start_date" class="form-control date-picker input-sm" value="<%= options[:start_date] if options[:start_date].present?-%>"><span class="input-group-addon input-sm"><i class="fa fa-calendar"></i></span>
+                <input type="text" id="start_date" name="start_date" class="form-control date-picker input-sm" value="<%= options[:start_date].to_date.strftime("%m/%d/%Y") if options[:start_date].present?-%>"><span class="input-group-addon input-sm"><i class="fa fa-calendar"></i></span>
               </div>
               
             </div>
             <div class="form-group">
               <label for="end_date">To</label>
               <div class="input-group date">
-                <input type="text" id="end_date" name="end_date" class="form-control date-picker input-sm" value="<%= options[:end_date] if options[:end_date].present?-%>"><span class="input-group-addon input-sm"><i class="fa fa-calendar"></i></span>
+                <input type="text" id="end_date" name="end_date" class="form-control date-picker input-sm" value="<%= options[:end_date].to_date.strftime("%m/%d/%Y") if options[:end_date].present?-%>"><span class="input-group-addon input-sm"><i class="fa fa-calendar"></i></span>
               </div>
               <h3 class="h4">Filter Results</h3>
               <%- if aggs[:routes] -%>
               <div class="form-group">
-               <%= select_tag :_route, options_for_select(aggs[:routes].collect{ |p| [p[:name], p[:id]]}, options[:_route]), prompt: (options[:_route].present? && options[:_route].blank? ? "Refine by Route" : "Clear Route Selection"), class: "form-control input-sm" -%>
+               <%= select_tag :_route, options_for_select(aggs[:routes].collect{ |p| [p[:name], p[:id]]}, options[:_route]), prompt: (!options[:_route].present? || options[:_route].blank? ? "Refine by Route" : "Clear Route Selection"), class: "form-control input-sm" if aggs[:routes].size > 1-%>
+               <%= "<p><strong>Route</strong> <br/> #{aggs[:routes].first[:name]}</p>".html_safe unless aggs[:routes].size > 1 -%>
               </div>
               <% end -%>
               <%- if aggs[:states] -%>
               <div class="form-group">
-               <%= select_tag :_shipping_state, options_for_select(aggs[:states].collect{ |p| [p[:state_name],p[:state_code]]}, options[:_shipping_state]), prompt: (options[:_shipping_state].present? &&  options[:_shipping_state].blank? ? "Refine by Shipping State" : "Clear Shipping Selection"), class: "form-control input-sm" -%>
+               <%= select_tag :_shipping_state, options_for_select(aggs[:states].collect{ |p| [p[:name],p[:state_code]]}, options[:_shipping_state]), prompt: (!options[:_shipping_state].present? ||  options[:_shipping_state].blank? ? "Refine by Shipping State" : "Clear Shipping Selection"), class: "form-control input-sm"  if aggs[:states].size > 1-%>
+                <%= "<p><strong>Shipping State</strong> <br/> #{aggs[:states].first[:name]}</p>".html_safe unless aggs[:states].size > 1 -%>
               </div>
               <% end -%>
               <%- if aggs[:companies] -%>
               <div class="form-group">
-               <%= select_tag :_company_id, options_for_select(aggs[:companies].collect{ |p| [p[:name],p[:id]]}, options[:_company_id]), prompt: (options[:_company_id].present? &&  options[:_company_id].blank? ? "Refine by Chain" : "Clear Chain Selection"), class: "form-control input-sm" -%>
+               <%= select_tag :_company_id, options_for_select(aggs[:companies].collect{ |p| [p[:name],p[:id]]}, options[:_company_id]), prompt: (!options[:_company_id].present? || options[:_company_id].blank? ? "Refine by Chain" : "Clear Chain Selection"), class: "form-control input-sm"  if aggs[:companies].size > 1-%>
+                <%= "<p><strong>Chain</strong> <br/> #{aggs[:companies].first[:name]}</p>".html_safe unless aggs[:companies].size > 1 -%>
               </div>    
               <% end -%>         
               
@@ -206,19 +218,22 @@
 
 
 <%- content_for :page_js do -%>
-
-<%= javascript_include_tag "jquery.leanModal.min.js" -%>
-<%= javascript_include_tag :orders_list -%>
-<script type="text/javascript">
-  window.order_path = '<%= orders_path -%>';
-  window.email_order_path = '<%= email_order_path -%>';
-  window.orders_search_path = '<%= orders_search_path -%>';
-  $( document ).ready( function(){
-    OrderList.init();     
-  });  
-</script>
+<%= javascript_include_tag :jquery_ujs -%>
 <%= javascript_include_tag "bootstrap-datepicker.js" -%>
 <script type="text/javascript">
+  window.email_order_path = '<%= email_order_path -%>'; 
+  window.order_list_form = null;
+  window.email_button = null;
+  var num_ckbs = 0;
+
+/*
+$(document).ready ->
+  $("#new_article").on("ajax:success", (e, data, status, xhr) ->
+    $("#new_article").append xhr.responseText
+  ).on "ajax:error", (e, xhr, status, error) ->
+    $("#new_article").append "<p>ERROR</p>
+*/
+
   $(document).ready(function(){
     $('.input-group.date')
            .datepicker({
@@ -228,6 +243,59 @@
             autoclose: true,
             todayHighlight: true
         });
-  })
+    window.order_list_form = $("form#order_list_form");
+    window.email_button = $("button#btn_email_order", window.order_list_form);
+    window.select_all_ckb = $("input:checkbox.select-all-ckb:first", window.order_list_form);
+    num_ckbs = $("input:checkbox.send-email", window.order_list_form).length;
+    window.order_list_form
+      .on("ajax:success", function(e, data, xhr){
+        alert("Email sent");
+        var selected_ckbs = $("input.send-email:checked", window.order_list_form);
+        selected_ckbs.each(function(){
+          $("td.email-status:first", $(this).parents("tr:first")).html("<i class=\"fa fa-check\"></i>");
+        });
+
+      })
+      .on("ajax:error", function(e, xhr, status, error){
+        alert(error);
+      })
+  });
+
+  function tallyCheckboxes(){
+    // Get the number of checkboxes selected
+    var num_checked = $("input.send-email:checked", window.order_list_form).length;
+
+    // If all checkboxes on the page are selected then automatically 
+    // check the select all checkbox else turn it off.
+    window.select_all_ckb.prop("checked", (num_checked == num_ckbs));
+
+    // If number of selected checkboxes exceeds 1 then 
+    // don't worry about the status of the email button. 
+    // When the first checkbox is selected the status of the button
+    // is set at that time.
+    if( num_checked> 1) return;
+
+    // If the number of selected checkbox is just one then worry about 
+    // the status of the email button
+    if(num_checked > 0){
+      window.email_button.removeAttr("disabled");
+    }
+    else{
+      window.email_button.attr("disabled", "disabled");
+    }
+  }
+
+  function toggleCheckboxes(sender){
+    if($(sender).is(":checked")){
+      $("input.send-email", window.order_list_form).prop("checked", true);
+      window.email_button.removeAttr("disabled");
+    }
+    else{
+      $("input.send-email", window.order_list_form).prop("checked", false);
+      window.email_button.attr("disabled", "disabled");
+    }
+  }
+
+
 </script>
 <% end -%>
