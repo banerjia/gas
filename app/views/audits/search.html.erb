@@ -1,10 +1,13 @@
 <%-
-	sanitized_options = options.clone
-	[:page, :per_page, :sort].each { |key| sanitized_options.delete(key)}
+	sanitized_options_with_sort = options.clone
+	[:page, :per_page].each { |key| sanitized_options_with_sort.delete(key)}
+
+	sanitized_options = sanitized_options_with_sort.clone
+	sanitized_options.delete(:sort)
 -%>
 <div class="row">
 	<div class="col-md-9 col-md-push-3 col-sm-9 col-sm-push-3 col-xs-12">
-			<%= render partial: 'search_listing', locals: {audits: audits, options: sanitized_options, } -%>		
+			<%= render partial: 'search_listing', locals: {audits: audits, options: sanitized_options_with_sort } -%>		
 	</div>
 
 	<div class="col-md-pull-9 col-md-3 col-sm-pull-9 col-sm-3 col-xs-12 well well-sm">
