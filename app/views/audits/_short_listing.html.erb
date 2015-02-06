@@ -1,0 +1,67 @@
+<%-
+	audits_list = audits[:results]
+-%>
+
+<div class="table-responsive">
+<table class="table table-condensed table-striped">
+<%- if defined?(caption) -%>
+	<caption class="h3"><%= caption -%></caption>
+<% end -%>
+	<thead>
+		<tr>
+			<td colspan="5">
+				<%= link_to "New Audit", new_audit_path, class: "btn btn-success btn-sm" -%>
+				<%= link_to "All Audits", audit_search_path, class: "btn btn-primary btn-sm" -%>
+			</td>
+		</tr>
+		<tr>
+			<th scope="col" style="border-top: 2px solid #000;width: 15%">
+				Date
+			</th>
+			<th scope="col" style="border-top: 2px solid #000;width: 35%">
+				Store
+			</th>
+			<th scope="col" class="hidden-xs" style="border-top: 2px solid #000;width: 20%">Auditor</th>
+			<th scope="col" style="border-top: 2px solid #000;width: 25%" class="text-center">Score</th>
+		</tr>
+	</thead>
+	<%- if audits_list.size > 0 -%>
+	<tfoot>
+		<tr class="active">
+			<td colspan="4" style="border-top:1px solid #ccc; padding: 0.7em">
+				<ul class="list-unstyled list-inline">
+					<li class="col-md-5 col-sm-12 col-xs-12">
+						<i class="fa fa-warning text-danger"></i>
+						- Audit has unresolved issues
+					</li>
+				</ul>
+			</td>
+		</tr>
+	</tfoot>
+	<tbody>	
+	<%- audits_list.each do |audit| -%>
+		<tr>
+			<td><%= audit[:created_at].to_date.strftime("%b %d" + (audit[:created_at].to_date.year != Date.today.year ? ", %Y" : "")) -%></td>
+			<td><%= link_to audit[:store].full_name, audit_path( audit[:id] ) -%></td>
+			<td class="hidden-xs"><%= audit[:auditor_name] -%></td>
+			<td class="text-center">
+				<%= audit.score[:total]-%>
+				<%- if audit[:has_unresolved_issues] -%>
+					<i class="fa fa-warning text-danger" title="This audit has some unresolved issues"></i>
+				<% end -%>
+			</td>
+		</tr>
+	<% end -%>
+	<%- else -%>
+		<tr>
+			<td colspan="5" class="text-center">
+				<p><em>
+					<%= defined?(message_noRecords) ? message_noRecords : "No audits found" -%>
+				</em></p>
+			</td>
+		</tr>
+	<%- end -%>
+	</tbody>
+</table>
+</div>
+</form>

@@ -151,7 +151,7 @@ class AuditsController < ApplicationController
 		results = Audit.search(params) 
 
 		# Sanitize params
-		[:action, :controller, :format, :_score_lower, :_score_upper].each { |key| params.delete(key) }
+		[:action, :controller, :format, :_score_lower, :_score_upper, :utf8].each { |key| params.delete(key) }
 
 		respond_to do |format|
 			format.html do
