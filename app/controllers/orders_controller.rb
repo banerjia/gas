@@ -79,6 +79,7 @@ class OrdersController < ApplicationController
   end
   
   def search 
+    params = (request.params || {}).clone
     # sort_condition = params[:sort] || 0
     # sort_direction = params[:dir] || "desc"
 
@@ -103,17 +104,18 @@ class OrdersController < ApplicationController
     #   end_date = params[:end_date] if params[:end_date].present?
     # end 
 
-    params[:start_date] = Date.strptime(params[:start_date],"%m/%d/%Y").beginning_of_day.to_time if params[:start_date].present?
-    params[:end_date] = Date.strptime(params[:end_date], "%m/%d/%Y").end_of_day.to_time if params[:end_date].present?
+    params[:start_date] = Date.strptime(params[:start_date], '%m/%d/%Y') if params[:start_date].present? && !params[:start_date].blank? && /^\d{4}\-\d{2}\-\d{2}/.match(params[:start_date]).nil?
+    params[:end_date] = Date.strptime(params[:end_date], '%m/%d/%Y') if params[:end_date].present? && !params[:end_date].blank? && /^\d{4}\-\d{2}\-\d{2}/.match(params[:end_date]).nil?
+
+    params = params.reject{|k,v| v.blank?} unless params.nil?
 
     search_results = Order.search( params )   
      
     # Make view responsible for tracking pages
     page = params[:page]
 
-    # Sanitizing the date to human readable format
-    params[:start_date] = params[:start_date].strftime("%m/%d/%Y") if params[:start_date].present?
-    params[:end_date] = params[:end_date].strftime("%m/%d/%Y") if params[:end_date].present?
+    params[:start_date] = request.params[:start_date] if !request.params.nil? && request.params[:start_date].present?
+    params[:end_date] = request.params[:end_date] if !request.params.nil? && request.params[:end_date].present?
 
     return_value = { \
       orders: search_results[:results], \

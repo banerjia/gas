@@ -44,12 +44,13 @@ Graeters::Application.routes.draw do
       resources :products
       resources :people
       resources :sessions
+      
+      resources :orders
 
 
     end
     post "order/email" => "orders#send_email", as: "email_order"
     get "orders/search" => "orders#search", as: "orders_search"
     get 'audits/search' => 'audits#search', as: 'audit_search'
-    resources :orders
   end
 end

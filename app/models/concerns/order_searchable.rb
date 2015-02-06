@@ -36,12 +36,17 @@ module OrderSearchable
       end
     end
     
-  	def self.search( params )
+  	def self.search( search_params = {})
   		return_value = Hash.new
       
-      page = params[:page] || 1      
-      size = params[:per_page] || 10
-      offset = (page - 1) * size      
+      page = search_params[:page] || 1      
+      size = search_params[:per_page] || 10
+      offset = (page - 1) * size  
+
+      # Including time in dates for proper search 
+      start_date = end_date = nil
+      start_date = search_params[:start_date].to_date.beginning_of_day.to_time if search_params[:start_date].present?    
+      end_date = search_params[:end_date].to_date.end_of_day.to_time if search_params[:end_date].present?    
 
       # TO DO: Implement functionality to have only certain fields returned in the query set. 
       fields = {}      
@@ -56,14 +61,14 @@ module OrderSearchable
       # array then this item is popped off the array. 
       query_bool_array_must.push({constant_score: {filter: { match_all:{}}}})
 
-      query_bool_array_must.push( {term: {"store.company.id" => params[:company_id]}}) if params[:company_id].present?
-      query_bool_array_must.push( {term: {"store.id" => params[:store_id]}}) if params[:store_id].present?
-      query_bool_array_must.push( {term: {"store.state_code" => params[:shipping_state]}}) if params[:shipping_state].present?
-      query_bool_array_must.push( {term: {"route.id" => params[:route]}}) if params[:route].present?
-      query_bool_array_must.push( {term: {"email_sent" => params[:email_sent]}}) if params[:email_sent].present?
-      query_bool_array_must.push( {range: {created_at: {gte: params[:start_date]}}}) unless !params[:start_date].present?
-      query_bool_array_must.push( {range: {created_at: {lte: params[:end_date]}}}) unless !params[:end_date].present?
-      query_bool_array_must.push( {query_string: {query: params[:q]}}) if params[:q].present? && !params[:q].blank?
+      query_bool_array_must.push( {term: {"store.company.id" => search_params[:company_id]}}) if search_params[:company_id].present?
+      query_bool_array_must.push( {term: {"store.id" => search_params[:store_id]}}) if search_params[:store_id].present?
+      query_bool_array_must.push( {term: {"store.state_code" => search_params[:shipping_state]}}) if search_params[:shipping_state].present?
+      query_bool_array_must.push( {term: {"route.id" => search_params[:route]}}) if search_params[:route].present?
+      query_bool_array_must.push( {term: {"email_sent" => search_params[:email_sent]}}) if search_params[:email_sent].present?
+      query_bool_array_must.push( {range: {created_at: {gte: search_params[:start_date]}}}) unless start_date.nil?
+      query_bool_array_must.push( {range: {created_at: {lte: search_params[:end_date]}}}) unless end_date.nil?
+      query_bool_array_must.push( {query_string: {query: search_params[:q]}}) if search_params[:q].present? && !search_params[:q].blank?
       
       if query_bool_array_must.size > 1
         # If query_bool_array_must.size > 1 => there are other
@@ -80,19 +85,19 @@ module OrderSearchable
       # Filter
       filter_bool_array_must = []
 
-      filter_bool_array_must.push( {term: {"store.company.id" => params[:_company_id]}}) if params[:_company_id].present?
-      filter_bool_array_must.push( {term: {"store.id" => params[:_store_id]}}) if params[:_store_id].present?
-      filter_bool_array_must.push( {term: {"store.state_code" => params[:_shipping_state]}}) if params[:_shipping_state].present?
-      filter_bool_array_must.push({term: {"route.id" => params[:_route]}}) if params[:_route].present?
-      filter_bool_array_must.push({term: {"email_sent" => params[:_email_sent]}}) if params[:_email_sent].present?
+      filter_bool_array_must.push( {term: {"store.company.id" => search_params[:_company_id]}}) if search_params[:_company_id].present?
+      filter_bool_array_must.push( {term: {"store.id" => search_params[:_store_id]}}) if search_params[:_store_id].present?
+      filter_bool_array_must.push( {term: {"store.state_code" => search_params[:_shipping_state]}}) if search_params[:_shipping_state].present?
+      filter_bool_array_must.push({term: {"route.id" => search_params[:_route]}}) if search_params[:_route].present?
+      filter_bool_array_must.push({term: {"email_sent" => search_params[:_email_sent]}}) if search_params[:_email_sent].present?
       
       # Sort
       sort_array = [
         {created_at: {order:"desc"}}
       ]
-      if params[:sort].present?
+      if search_params[:sort].present?
         sort_array = []
-        params[:sort].split(',').each do |sort_spec|
+        search_params[:sort].split(',').each do |sort_spec|
           default_order = "asc"
           sort_spec_parts = /([^-]+)\-?(.*)/.match(sort_spec)
           sort_array.push({sort_spec_parts[1].to_sym => {order: (sort_spec_parts[2].blank? ? default_order : sort_spec_parts[2])}})
@@ -154,7 +159,7 @@ module OrderSearchable
       return_value[:aggs][:routes] = es_results.response['aggregations']['routes']['buckets'].map{ |item| {id: item['key'], name: item['route_names']['buckets'].first['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  if es_results.response['aggregations']['routes']['buckets'].size > 0      
       
       return_value[:total] = es_results.results.total
-      return_value[:dates] = [params[:start_date], params[:end_date]]
+      return_value[:dates] = [search_params[:start_date], search_params[:end_date]]
       return_value[:sort] = sort_array
 
       return_value[:search_string] = es_results.search.definition[:body] if !Rails.env.production?
