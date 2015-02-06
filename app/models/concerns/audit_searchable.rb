@@ -74,6 +74,7 @@ module AuditSearchable
       query_bool_array_must.push( {term: {"store.company.id" => params[:company_id]}}) if params[:company_id].present?
       query_bool_array_must.push( {range: {created_at: {gte: params[:start_date]}}}) unless params[:start_date].nil? || params[:start_date].blank?
       query_bool_array_must.push( {range: {created_at: {lte: params[:end_date]}}}) unless params[:end_date].nil? || params[:end_date].blank?
+      query_bool_array_must.push( {term: {has_unresolved_issues: params[:has_issues]}}) if params[:has_issues].present?
     
       query_bool_array_must.push( { query_string: {query: params[:q]}} ) if params[:q].present?
       

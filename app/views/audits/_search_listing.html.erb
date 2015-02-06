@@ -5,15 +5,19 @@
 	more_pages ||= false
 	total_audits ||= 0
 	page = (defined?(options) && options[:page].present? ? options[:page] : 1).to_i
+	per_page = (options[:per_page] || 10).to_i
+
 
 	if audits.is_a?(ActiveRecord::Base) || audits.is_a?(ActiveRecord::Relation)
 		audits_list = audits
 		total_audits = audits.size
 	else
 		audits_list = audits[:results]
-		total_audits = audits[:total]
+		total_audits = audits[:total].to_i
 		more_pages = audits[:more_pages]
 	end
+
+	last_page = (total_audits/per_page) + (total_audits % per_page ? 1 : 0)
 
 	if defined?(options)
 		options_without_page = options.clone
@@ -29,7 +33,15 @@
 					class="btn btn-sm btn-default" 
 					type="button"
 					<%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
-					onclick="window.location = '<%= page > 1 ? audit_search_path(options_without_page.merge({page: page-1})) : nil -%>'">
+					onclick="window.location = '<%= audit_search_path(options_without_page.merge({page: 1})) -%>'">
+					I<i class="fa fa-chevron-left"></i>
+					<span class="hidden-sm hidden-xs">First</span>					
+				</button>
+				<button 
+					class="btn btn-sm btn-default" 
+					type="button"
+					<%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
+					onclick="window.location = '<%= audit_search_path(options_without_page.merge({page: page-1})) -%>'">
 					<i class="fa fa-chevron-left"></i>
 					<span class="hidden-sm hidden-xs">Back</span>					
 				</button>
@@ -37,14 +49,26 @@
 					class="btn btn-sm btn-default" 
 					type="button"
 					<%= !more_pages ? 'disabled="disabled"'.html_safe : nil -%>
-					onclick="window.location = '<%= more_pages ? audit_search_path(options_without_page.merge({page: page+1})) : nil -%>'">
+					onclick="window.location = '<%= audit_search_path(options_without_page.merge({page: page+1})) -%>'">
 					<span class="hidden-sm hidden-xs">Next</span>
 					<i class="fa fa-chevron-right"></i>					
+				</button>
+				<button 
+					class="btn btn-sm btn-default" 
+					type="button"
+					<%= !more_pages ? 'disabled="disabled"'.html_safe : nil -%>
+					onclick="window.location = '<%= audit_search_path(options_without_page.merge({page: last_page})) -%>'">
+					<span class="hidden-sm hidden-xs">Last </span>
+					<i class="fa fa-chevron-right"></i>I				
 				</button>
 			</div>
 		</div>
 	</div>		
 </div>
+<% end -%>
+<%= form_tag audit_search_path, method: :get -%>
+<%- options.reject{ |k,v| k.to_s.index("_") == 0 }.each do |k,v| -%>
+	<%= hidden_field_tag k, v -%>
 <% end -%>
 <div class="table-responsive">
 <table class="table table-condensed table-striped">
@@ -64,9 +88,15 @@
 			<th scope="col" style="border-top: 2px solid #000;width: 15%">
 				Date
 			</th>
-			<th scope="col" style="border-top: 2px solid #000;width: 35%">Store</th>
-			<th scope="col" class="hidden-xs" style="border-top: 2px solid #000;">Auditor</th>
-			<th scope="col" style="border-top: 2px solid #000;width: 10%" class="text-center">Score</th>
+			<th scope="col" style="border-top: 2px solid #000;width: 35%">
+				Store
+			</th>
+			<th scope="col" class="hidden-xs" style="border-top: 2px solid #000;width: 20%">
+				<%= select_tag :_auditor, options_for_select(audits[:aggs][:auditors].collect{ |p| p[:name]}, options[:_auditor]), prompt: "All Auditors", class: "form-control input-sm", onchange: "this.form.submit()" -%>
+			</th>
+			<th scope="col" style="border-top: 2px solid #000;width: 25%" class="text-center">
+				<%= select_tag :_score_range, options_for_select(audits[:aggs][:score_ranges].collect{ |p| [p[:name], [p[:from], p[:to]]]}, options[:_score_range]), prompt: "All Scores", class: "form-control input-sm", onchange: "this.form.submit()" -%>
+			</th>
 		</tr>
 	</thead>
 	<%- if audits_list.size > 0 -%>
@@ -113,3 +143,4 @@
 	</tbody>
 </table>
 </div>
+</form>
