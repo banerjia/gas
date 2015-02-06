@@ -81,7 +81,7 @@
 						
 						<div class="form-group">
 							<div class="input-group">
-							<span class="input-group-addon input-sm"><input type="checkbox" id="has_issues" name="has_issues" value="1" <%= options[:has_issues].present? && options[:has_issues].to_i == 1 ? "checked" : nil -%>/></span>
+							<span class="input-group-addon input-sm"><input type="checkbox" id="has_issues" name="has_issues"  <%= "checked=\"checked\"".html_safe if options[:has_issues].present? && options[:has_issues] -%>/></span>
 							  <label for="has_issues" class="form-control">Audits with issues</label>
 							</div>
 						</div>
