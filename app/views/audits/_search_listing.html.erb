@@ -1,21 +1,14 @@
 <%-
 	show_store ||= true
 
-	audits_list = []
-	more_pages ||= false
+	more_pages = false unless defined?(more_pages)
 	total_audits ||= 0
 	page = (defined?(options) && options[:page].present? ? options[:page] : 1).to_i
 	per_page = (options[:per_page] || 10).to_i
 
-
-	if audits.is_a?(ActiveRecord::Base) || audits.is_a?(ActiveRecord::Relation)
-		audits_list = audits
-		total_audits = audits.size
-	else
-		audits_list = audits[:results]
-		total_audits = audits[:total].to_i
-		more_pages = audits[:more_pages]
-	end
+	audits_list = audits[:results]
+	total_audits = audits[:total].to_i
+	more_pages = audits[:more_pages]
 
 	last_page = (total_audits/per_page) + (total_audits % per_page ? 1 : 0)
 
@@ -23,6 +16,13 @@
 		options_without_page = options.clone
 		options_without_page.delete(:page)
 	end
+
+	# Determining sort link
+	new_sort = "created_at-desc" # Default
+	new_sort = "created_at-asc" if options[:sort].present? && options[:sort] == "created_at-desc"
+
+	options_without_sort = options.reject{|k,v| k.to_s == 'sort'}
+
 -%>
 <%- if page > 1 || more_pages -%>
 <div class="row" style="margin-bottom: 1em">
@@ -76,17 +76,12 @@
 	<caption class="h3"><%= caption -%></caption>
 <% end -%>
 	<thead>
-		<%- if defined?(buttons) -%>
-		<tr>
-			<td colspan="5">
-				<%= link_to "New Audit", new_audit_path, class: "btn btn-success btn-sm" -%>
-				<%= link_to "All Audits", audit_search_path, class: "btn btn-primary btn-sm" -%>
-			</td>
-		</tr>
-		<% end -%>
 		<tr>
 			<th scope="col" style="border-top: 2px solid #000;width: 15%">
-				Date
+				<%= link_to audit_search_path(options_without_sort.merge({sort: new_sort})) do -%>
+					Date <i class="fa fa-caret-<%= (!options[:sort].present? || options[:sort].index("-asc").nil? ? "down" : "up") %>"></i>
+				<% end -%>
+
 			</th>
 			<th scope="col" style="border-top: 2px solid #000;width: 35%">
 				Store
