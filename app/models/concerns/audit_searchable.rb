@@ -112,9 +112,9 @@ module AuditSearchable
           range:{
             field: "score.total",
             ranges:[
-              {from: 20},
-              {from: 10, to: 19},
-              {from: 0, to: 9}              
+              {from: 10},
+              {from: 8, to: 9},
+              {from: 0, to: 7}              
             ]
           }
         },

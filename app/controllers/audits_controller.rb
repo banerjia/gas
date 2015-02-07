@@ -6,6 +6,8 @@ class AuditsController < ApplicationController
 	def new
 		new_audit = Audit.new({created_at: Date.today})
 
+		new_audit[:auditor_name] = session[:auditor] if session[:auditor].present?
+
 		if(params[:store_id].present?)
 			store_id = params[:store_id] 
 			store = Store.find(store_id)
@@ -47,10 +49,10 @@ class AuditsController < ApplicationController
 
 		if audit.save
 			flash[:notice] = 'New audit saved'
-			redirect_to store_path(audit[:store_id])
+			session[:auditor] = audit[:auditor_name]
+			redirect_to action: :index
 		else
 			flash[:warning] = 'Error processing audit'
-
 			
 			audit[:created_at] = audit[:created_at].strftime("%m/%d/%Y") unless audit[:created_at].nil? || audit[:created_at].blank?
 			audit.comments.build() unless audit.comments.size > 0
@@ -103,6 +105,29 @@ class AuditsController < ApplicationController
 			@page_title = "Edit Store"
 			
 			audit[:created_at] = audit[:created_at].strftime("%m/%d/%Y") unless audit[:created_at].nil? || audit[:created_at].blank?
+
+			# Given the nature of the association between audit and audit_metrics
+			# after an update operation there are double the number of audit_metrics
+			# as before. This is caused because a successful update operation would have
+			# deleted the older audit_metrics and inserted the current entry as fresh records
+			# However, for an unsuccessful update attempt it does not remove the older records
+			# and appends the updated entries as newer records to the existing set. To get around 
+			# that problem, the array containing the existing entries is cleared from the AR object
+			# and the array is rebuilt using the values received in the params
+
+
+			audit.audit_metrics.each { |item| item.audit_metric_responses.clear } 
+			audit.audit_metrics.clear
+
+			audit_params[:audit_metrics_attributes].each do |k, v| 
+				audit_params_amrs = v[:audit_metric_responses_attributes].map{ |k, v| v}
+				v.delete(:audit_metric_responses_attributes)
+				am = audit.audit_metrics.build(v)
+				am.audit_metric_responses.build( audit_params_amrs )
+			end
+
+			audit.comments.build() unless audit.comments.size > 0
+			audit.images.build() unless audit.images.size > 0
 
 			render :edit, locals: { audit: audit}
 		end
@@ -178,7 +203,7 @@ class AuditsController < ApplicationController
 	def audit_params
 		# The following line corrects the date input as received from the view
 		# into something that Rails 4 TimeZone parser can understand. 
-		params[:audit][:created_at] = Date.strptime(params[:audit][:created_at], '%m/%d/%Y').to_date unless params[:audit][:created_at].blank?
+		# params[:audit][:created_at] = Date.strptime(params[:audit][:created_at], '%m/%d/%Y').to_date unless params[:audit][:created_at].blank?
 		ams = params[:audit][:audit_metrics_attributes].map{ |k| {loss: k.second[:loss], resolved: k.second[:resolved]}}
 		params[:audit][:has_unresolved_issues] = (ams.select{ |i| !i[:loss].nil? && i[:loss].to_i != 0 && i[:resolved].to_i.zero?}.size > 0)
 		params

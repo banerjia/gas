@@ -14,6 +14,7 @@
 		
 		<div class="row">
 			<div class="col-md-12 col-sm-12 col-xs-12">
+				<%= link_to "New Audit", new_audit_path, class:"btn btn-primary" -%>
 				<h3 class="h3">Find Audits</h3>
 				<%-
 					options_for_url = sanitized_options.clone
@@ -81,7 +82,7 @@
 						
 						<div class="form-group">
 							<div class="input-group">
-							<span class="input-group-addon input-sm"><input type="checkbox" id="has_issues" name="has_issues" value="1" <%= options[:has_issues].present? && options[:has_issues].to_i == 1 ? "checked" : nil -%>/></span>
+							<span class="input-group-addon input-sm"><input type="checkbox" id="has_issues" name="has_issues"  <%= "checked=\"checked\"".html_safe if options[:has_issues].present? && options[:has_issues] -%>/></span>
 							  <label for="has_issues" class="form-control">Audits with issues</label>
 							</div>
 						</div>
