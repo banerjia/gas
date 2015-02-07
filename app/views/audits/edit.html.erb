@@ -1,13 +1,20 @@
 <%- if audit.errors.count > 0 -%>
 <div id="error_explanation">
-	<h2><%= pluralize(audit.errors.count, "error") %> prohibited this store from being saved:</h2>
-	<ul>
-		<% audit.errors.full_messages.each do |msg| %>
-		<li><%= msg %></li>
-		<% end %>
-	</ul>
+	<div class="panel panel-danger">
+		<div class="panel-heading"><span class="h3">Attention</span></div>
+		<div class="panel-body">
+			<ul>
+				<% audit.errors.messages.each do |key, msgs| 
+					msgs.each do |msg_text| -%>
+						<li><%= msg_text -%></li>
+				 <%-end 
+				 end -%>
+			</ul>
+		</div>
+	</div>
 </div>
 <% end -%>
+
 <div id="page_loaded" class="col-md-12 col-sm-12 col-xs-12 text-center" style="margin: 1em auto">
 	<h2><i class="fa fa-circle-o-notch fa-spin"></i></h2>
 </div>
@@ -15,10 +22,14 @@
 	<div class="row ng-cloak" style="margin-bottom: 0.5em" data-ng-hide="show_store_search">
 		<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary btn-wide", data: {"ng-disabled" => "audit_store_id == null || show_store_search"} -%>
 		
-		<button class="btn btn-default btn-wide" type="button" onclick="history.go(-1)">Cancel</button>
+		<%= link_to "Cancel", audit_path(audit), class: "btn btn-default" -%>
 	</div>
 
 	<%= render :partial => "entry", :locals => {audit: audit, f: f} -%>
 
 <%- end -%>
+
+<%- content_for :page_js do -%>
+	<%= javascript_include_tag :jquery_ujs, :cache => true %>
+<% end -%>
 

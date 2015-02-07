@@ -134,7 +134,7 @@
 	var URL = {
 		destroy_audit: '<%= audit_path(audit[:id], format: :json) -%>',
 		return_path: '<%= session['return_path'].present? ? URI.decode(session['return_path']): nil -%>',
-		audits_path: '<%= audits_path -%>'
+		audits_path: '<%= audit_search_path({cache_buster: Date.today.to_date}) -%>'
 	};
 
 	$(document).ready(function() {
