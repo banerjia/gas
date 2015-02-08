@@ -9,14 +9,10 @@ class StoresController < ApplicationController
 
     store = Store.includes([:store_contacts, :company, :region ]).find(store_id)
 
-    store.audits.replace( Audit.where({store_id: store_id}).order({created_at: :desc}).limit(5))
-
-    store.orders.replace( Order.where({store_id: store_id}).order({created_at: :desc}).limit(5))
-
     @page_title = "Store Dashboard"
 
     respond_to do |format|
-      format.html { render locals: {store: store}}
+      format.html { render locals: {store: store, recent_audits: store.audits.order(created_at: :desc).limit(5), recent_orders: store.orders.order(created_at: :desc).limit(5)}}
     end
 
   end
