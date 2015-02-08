@@ -4,11 +4,13 @@
 <html lang="en">
   <head>
     <style type="text/css">
+
+    @import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic);
       body, html, table {
         background-color: #fff;
         display: block;
-        font-family: Arial, Sans-serif;
-		font-size: 11pt;
+        font-family: Lato, MuseoSans, Lucida Grande,Lucida Sans Unicode,Verdana;
+		    font-size: 14pt;
         text-align: center;
         margin: 0;
         padding-top: 0;
@@ -17,41 +19,38 @@
     </style>
   </head>    
   <body>
-    <table border="0" cellspacing="1" cellpadding="4" style="background-color:#fff;margin: 0 auto; text-align: left;width: 100%">
+    <table border="0" cellspacing="1" cellpadding="4" style="border-collapse: collapse; background-color:#fff;margin: 0 auto; text-align: left;width: 100%">
       <tr>
-        <td bgcolor="#990000" height="24px"><h1 style="color:#fff">Orders</h1></td>
+        <td bgcolor="#2c3e50" height="20px"><h1 style="color:#fff">Graeter's Cloud Apps</h1></td>
       </tr>
       <tr>
         <td>
           <p>The following <%= pluralize( orders.size, "order" ) -%> are attached with this message.</p>
           <table cellspacing="1" cellpadding="3" width="100%" style="border: 2px solid #333;text-align:left">
             <tr>
-              <td style="background-color:#5f6b61;color:#fff;text-align:center;width:30%"><strong>PO</strong></td>
-              <td style="background-color:#5f6b61;color:#fff"><strong>Store</strong></td>
-              <td style="background-color:#5f6b61;color:#fff;text-align:left;width:30%"><strong>Links</strong></td>
+              <td style="border-bottom:2px solid #000000;text-align:center;width:10%"><strong>Date</strong></td>
+              <td style="border-bottom:2px solid #000000;text-align:center;width:10%"><strong>Order#</strong></td>
+              <td style="border-bottom:2px solid #000000;color:#fff"><strong>Store</strong></td>
+              <td style="border-bottom:2px solid #000000;color:#fff;text-align:left;width:30%"><strong>Links</strong></td>
             </tr>
             <%- 
 				orders.each do |order| 
 					bgcolor = cycle( '#ffffff', '#eeeeee')
 			-%>
               <tr>
-                <td align="center" bgcolor="<%=bgcolor-%>"><%= order[:invoice_number] -%></td>
+                <td align="center" bgcolor="<%=bgcolor-%>"><%= order[:created_at].strftime("%b %d, %Y") -%></td>
+                <td align="center" bgcolor="<%=bgcolor-%>"><%= order[:id] -%></td>
                 <td bgcolor="<%=bgcolor-%>">
-                  <%= order.store[:name] -%><br/>
+                  <%= order.store.full_name -%><br/>
                   <%= order.store.address -%>
                 </td>
                 <td align="left" bgcolor="<%=bgcolor-%>">
                   <%= link_to "HTML", order_url( order ) -%> | 
-                  <%= link_to "Download Excel Spreadsheet", order_url( order, :format => :xlsx ) -%>
+                  <%= link_to "Download", order_url( order, :format => :xlsx ) -%>
                 </td>
               </tr>
             <%- end -%>
           </table>
-
-          <%- if defined? optional_message -%>
-			<h2>Additional Message</h2>
-            <p><%= optional_message -%></p>
-          <%- end -%>
         </td>
       </tr>
     </table>

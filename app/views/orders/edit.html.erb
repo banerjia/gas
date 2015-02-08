@@ -1,18 +1,28 @@
-<% content_for :body do -%>
-<%= form_for @order, :url => order_path(@order) do |f| -%>
-<div class="buttons">	
-	<%= f.submit "Save", :class=>"button" -%>
-	<input type="button" value="Cancel" onclick="history.back()" class="button" />
-</div>
-<%= render :partial => 'entry', :locals => {:f => f} -%>
-<div class="spacer"></div>
-<%- end -%>
+<%= form_for order, data: {"ng-app" => "order"}, role: "form" do |f| -%>
+	<div class="well well-sm ng-cloak form-buttons" style="margin-bottom: 0.5em" data-ng-hide="show_store_search">
+		<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary", data: {"ng-disabled" => "order_store_id == null || show_store_search"} -%>
+		<button class="btn btn-default" type="button" onclick="history.go(-1)">Cancel</button>
+	</div>
+	<%- if order.errors.count > 0 -%>
+	<div class="row">
+		<div class="panel panel-danger">
+			<div class="panel-heading"><span class="h3">Attention</span></div>
+			<div class="panel-body">
+				<ul>
+					<% order.errors.messages.each do |key, msgs| 
+						msgs.each do |msg_text| -%>
+							<li><%= msg_text -%></li>
+					 <%-end 
+					 end -%>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<% end -%>
+	<%= render :partial => "entry", :locals => {f: f} -%>
+
 <%- end -%>
 
-<%- content_for :head do -%>
-	<%= stylesheet_link_tag :forms -%>
-	<%= stylesheet_link_tag :table -%>
-	<style type="text/css" media="screen">
-		div#left_column, div#right_column {display:none}
-	</style>
-<%- end -%>
+<%- content_for :page_js do -%>
+	<%= javascript_include_tag :jquery_ujs, :cache => true %>
+<% end -%>

@@ -1,53 +1,66 @@
+<div id="product_entry">
+	<div class="row">
+		<div class="col-md-3 col-sm-12 col-xs-12">
+			<%= f.label :name, "Name" -%>
+		</div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<%= f.text_field :name, class: "form-control" -%>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-3 col-sm-12 col-xs-12">
+			<%= f.label :code, "Code" -%>
+		</div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<%= f.text_field :code, class: "form-control", max_length: 10, style: "text-transform:uppercase" -%>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-3 col-sm-12 col-xs-12">
+			<%= f.label :product_category_id, "Product Category" -%>
+		</div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<input type="radio" name="category_type" value="existing" checked/>
+			Select: <%= f.collection_select :product_category_id, ProductCategory.all, :id, :proper_name, class: "form-control" -%><br/> 
+			<input type="radio" name="category_type" value="new"/>
+			Create a new category: <input type="text" name="new_category" class="form-control"/>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-3 col-sm-12 col-xs-12">
+			<%= f.label :available_from, "Available" -%>
+		</div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<%= f.text_field :available_from, max_length: 10, placeholder: 'From', class: "form-control" -%>
+			<%= f.text_field :available_till, max_length: 10, placeholder: 'Till', class: "form-control" -%>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-3 col-sm-12 col-xs-12">
+			<label for="">Active</label>
+		</div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<%= f.check_box :active -%>
+			<%= f.label :active, "This product is actively used." -%>
+		</div>
+	</div>
+</div>
 
-<div class="entry_row">
-	<div class="entry_label">
-		<%= f.label :name, "Name" -%>
-	</div>
-	<div class="entry_value">
-		<%= f.text_field :name -%>
-	</div>	
-</div>
-<div class="entry_row">
-	<div class="entry_label">
-		<%= f.label :code, "Code" -%>
-	</div>
-	<div class="entry_value">
-		<%= f.text_field :code, :max_length => 10, :style => "text-transform:uppercase" -%>
-	</div>
-</div>
-<div class="entry_row">
-	<div class="entry_label">
-		<%= f.label :product_category_id, "Product Category" -%>
-	</div>
-	<div class="entry_value">
-		<input type="radio" name="category_type" value="existing" checked/>
-		Select: <%= f.collection_select :product_category_id, ProductCategory.all, :id, :proper_name -%><br/> 
-		<input type="radio" name="category_type" value="new"/>
-		Create a new category: <input type="text" name="new_category"/>
-	</div>
-</div>
-<div class="entry_row">
-	<div class="entry_label">
-		<%= f.label :available_from, "Available" -%>
-	</div>
-	<div class="entry_value">
-		<%= f.text_field :available_from, :max_length => 10, :placeholder => 'From' -%>
-		-
-		<%= f.text_field :available_till, :max_length => 10, :placeholder => 'Till' -%>
-	</div>
-</div>
-<div class="entry_row">
-	<div class="entry_label">
-		<%= f.label :active, "Active" -%>
-	</div>
-	<div class="entry_value">
-		<%= f.check_box :active -%>
-		<%= f.label :active, "This product is actively used." -%>
-	</div>
-</div>
+<%- content_for :head do -%>
+<style type="text/css" media="screen">
+	@media screen and (min-width: 48em){
+		div#product_entry > div.row > div:first-child { 
+			text-align: right;
+		}
+	}
 
-<% content_for :head do -%>
-	<%= stylesheet_link_tag :forms -%>
+	div#product_entry{
+		margin: 1em auto;
+	}
+	div#product_entry > div.row {
+		margin-bottom: 0.5em;
+	}
+</style>
 <% end -%>
 
 <% content_for :page_js do -%>

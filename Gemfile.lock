@@ -269,6 +269,7 @@ PLATFORMS
 
 DEPENDENCIES
   asset_sync
+  axlsx (~> 2.0)
   axlsx_rails
   bcrypt-ruby
   better_errors

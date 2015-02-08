@@ -1,14 +1,13 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
-   "http://www.w3.org/TR/html4/strict.dtd">
-
 <html lang="en">
 <head>
+   <meta name="viewport" content="width=480,initial-scale=1,user-scalable=yes">
   <style type="text/css">
-    body, html, table {
-      background-color: #eee;
+  	@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic);
+    body, html {
+      background-color: #ffffff;
       display: block;
-      font-family: Arial, Sans-serif;
-		font-size: 11pt;
+      font-family: Lato, MuseoSans, Lucida Grande,Lucida Sans Unicode,Verdana;
+		font-size: 14pt;
       text-align: center;
       margin: 0;
       padding-top: 0;
@@ -17,38 +16,72 @@
   </style>
 </head>
 <body>
-<table border="0" cellspacing="1" cellpadding="4" width="100%">
-	<tr>
-		<td bgcolor="#993333" colspan="2">
-			<h1 style="color:#ffffff">Order Created for PO <%= order[:invoice_number] -%></h1>
+<div style="width:80%; margin:0 auto; text-align: left">
+	
+	<table cellspacing="2" cellpadding="4" width="99%" style="border-color: #fff; text-align: left">
+		<tr>
+			<td colspan="2" style="color: #fff; background-color: #2c3e50; padding: 10px">
+				<h1 style="line-height: 1">
+					Graeter's Cloud Apps: Order Sheet
+				</h1>
+			</td>
 		</td>
-	</tr>
-	<tr>
-		<td bgcolor="#CCCCCC" width="20%"><strong>PO:</strong></td>
-		<td bgcolor="#EEEEEE"><%= order[:invoice_number] -%></td>
-	</tr>
-	<tr>
-		<td bgcolor="#CCCCCC"><strong>Order Date:</strong></td>
-		<td bgcolor="#EEEEEE"><%= order[:created_at] -%></td>
-	<tr>
-		<td bgcolor="#CCCCCC"><strong>Deliver By:</strong></td>
-		<td bgcolor="#EEEEEE"><%= order[:delivery_date] -%></td>
-	</tr>
-	<tr>
-		<td bgcolor="#CCCCCC"><strong>Links</strong></td>
-		<td bgcolor="#EEEEEE">
-			<a href="<%= order_url(order[:id] ) -%>" target="_blank">HTML</a> |
-			<a href="<%= order_url(order[:id], :format => :xlsx ) -%>">Download Excel Spreadsheet</a>
-		</td>
-	</tr>
-	<%- if defined? optional_message -%>
-	<tr>
-		<td bgcolor="#ffffff" colspan="2">          
-			<h2>Additional Message</h2>
-            <p><%= optional_message -%></p> 
-		</td>
-	</tr>
-    <%- end -%>
-</table>
+		<tr>
+			<th scope="row" style="color: #000000; background-color: #CCCCCC; text-align: right; width: 20%; v-align: top">Order#</th>
+			<td style="border-bottom: 1px solid #000000"><%= order[:id] -%></td>
+		</tr>
+		<tr>
+			<th scope="row" style="color: #000000; background-color: #CCCCCC; text-align: right; width: 20%; v-align: top">PO</th>
+			<td style="border-bottom: 1px solid #000000"><%= order[:invoice_number] -%>&nbsp;</td>
+		</tr>
+		<tr>
+			<th scope="row" style="color: #000000; background-color: #CCCCCC; text-align: right; width: 20%; v-align: top">Customer</th>
+			<td style="border-bottom: 1px solid #000000"><%= order.store.full_name -%></td>
+		</tr>
+		<tr>
+			<th scope="row" style="color: #000000; background-color: #CCCCCC; text-align: right; width: 20%; v-align: top">Date</th>
+			<td style="border-bottom: 1px solid #000000"><%= order[:created_at].strftime("%b %d, %Y") -%></td>
+		</tr>
+		<tr>
+			<th scope="row" style="color: #000000; background-color: #CCCCCC; text-align: right; width: 20%; v-align: top">Links</th>
+			<td style="border-bottom: 1px solid #000000">
+				For up-to-date information about this order visit the following links: <br/>
+				<a href="<%= order_url(order[:id] ) -%>" target="_blank">HTML</a> |
+				<a href="<%= order_url(order[:id], :format => :xlsx ) -%>">Download </a>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+
+				<table style="border-collapse:collapse" cellpadding="4" width="99%">
+					<thead>
+						<tr>
+							<th scope="col" style="background-color: #CCCCCC; width: 50%; text-align:left">Product</th>
+							<th scope="col" style="background-color: #CCCCCC; width: 25%"><abbr title="Quantity">Qty</abbr></th>
+							<th scope="col" style="background-color: #CCCCCC; width: 25%">Sleeve(s)</th>
+						</tr>
+					</thead>
+					<%- order.organize_products_by_category.each do |product_category| -%>
+						<tbody>
+							<tr>
+								<td colspan="3" style="background-color:#eeeeee; padding: 5px; text-transform:uppercase"><%= product_category[:name] -%></td>
+							</tr>
+						
+							<%- product_category[:products].each do |product_order| -%>
+							<tr>
+								<td style="padding-left: 2em"><%= product_order.product[:name] -%></td>
+								<td style="text-align: center"><%= product_order[:quantity].to_s + ' ' + product_order.volume_unit[:name] -%></td>
+								<td style="text-align: center"><%= pluralize( product_order.sleeves, "sleeve" ) -%></td>
+							</tr>
+							<%- end -%>
+						</tbody>
+					<%- end -%>
+
+				</table>
+
+			</td>
+		</tr>
+	</table>
+</div>
 </body>
 </html>

@@ -1,139 +1,138 @@
-<% content_for :body do -%>
-<div class="toolbar">
-	<input type="button" class="icon_buttons" value="Edit" onclick="window.location='<%=edit_order_path(@order)-%>'" />
-	<input type="button" class="icon_buttons" value="Download" onclick="window.location='<%=order_path(@order, :format => :xlsx)-%>'" />
-	<input type="button" class="icon_buttons" value="Cancel" onclick="window.history.go(-1)"/>
-</div>
-<div id="order_basics">
-	<div class="entry_row">
-		<div class="entry_label">
-			<strong>Store</strong>
-		</div>
-		<div class="entry_value">
-			<%= link_to @store.full_name, store_path(@store) -%><br/>
-			<%= @store.address -%>			
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Order Created On
-		</div>
-		<div class="entry_value">
-			<%= @order[:created_at].to_date.strftime("%b %d, %Y") -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Email Sent
-		</div>
-		<div class="entry_value">
-			<%- if @order[:email_sent] -%>
-				Yes<br/>
-				<%= @order[:email_sent_date].to_date.strftime("%b %d, %Y") -%>
-			<%- else -%>
-				No
-			<%- end -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			PO
-		</div>
-		<div class="entry_value">
-			<%= !@order[:invoice_number].blank? ? @order[:invoice_number] : raw("N/A") -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Route
-		</div>
-		<div class="entry_value">
-			<%= @order.route[:name] -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			Deliver By
-		</div>
-		<div class="entry_value">
-			<%= @order.delivery_day_of_the_week || 'No delivery day entered'  -%>
-		</div>
-	</div>
-</div>
+<div class="well well-sm form-buttons">
+	<%= link_to edit_order_path(order), class: "btn btn-primary" do -%>
+		<i class="fa fa-pencil visible-sm visible-xs"></i><span class="hidden-sm hidden-xs">Edit</span>
+	<% end -%>
+	<button type="button" class="btn btn-info" onclick="window.location='<%=order_path(order, :format => :xlsx)-%>'">
+		<i class="fa fa-cloud-download visible-sm visible-xs"></i><span class="hidden-sm hidden-xs">Download</span>
+	</button>
+	<button class="btn btn-danger" type="button" onclick="deleteOrder()">
+		<i class="fa fa-trash-o visible-sm visible-xs"></i><span class="hidden-sm hidden-xs">Delete</span>
+	</button>
+	<%= link_to orders_search_path, class: "btn btn-default" do -%>
+		<i class="fa fa-mail-reply visible-sm visible-xs"></i><span class="hidden-sm hidden-xs">Cancel</span>
+	<% end -%>
 
-<div id="product_listing">
-	<table id="products" class="listing">
-		<thead>
-			<tr>
-				<th>Product</th>
-				<th>Quantity</th>
-				<th>Sleeve(s)</th>
-			</tr>
-		</thead>
-		<% @order.organize_products_by_category.each do |product_category| -%>
-			<tbody>
-				<tr class="category_heading">
-					<td colspan="3" style="text-align:left"><%= product_category[:name] -%></td>
-				</tr>
-			
-				<% product_category[:products].each do |product_order| -%>
-				<tr class="<%= cycle('regular','alternate')-%>">
-					<td><%= product_order.product[:name] -%></td>
-					<td><%= product_order[:quantity].to_s + ' ' + product_order.volume_unit[:name] -%></td>
-					<td><%= pluralize( product_order.sleeves, "sleeve" ) -%></td>
-				</tr>
-				<%- end -%>
-			</tbody>
-		<%- end -%>
-	</table>
 </div>
-<%- end -%>
+<div class="row">
+	<div class="col-md-5 col-sm-12 col-xs-12">
+		<div class="panel panel-default">
+			<div class="panel-heading"><span class="h3">Basic Information</span></div>
+			<div class="panel-body" id="order_basics">
+				<div class="row">
+					<div class="col-md-4 col-sm-12 col-xs-12 form-label">
+						<label>Store</label>							
+					</div>
+					<div class="col-md-8 col-sm-12 col-xs-12">
+						<span style="text-transform:uppercase"><%= order.store.full_name -%></span> 
+						<address style="margin-bottom: 0.1em"><%= order.store.address -%></address>								
+					</div>						
+				</div>	
+				<div class="row">
+					<div class="col-md-4 col-sm-12 col-xs-12 form-label">
+						<label>PO</label>
+					</div>
+					<div class="col-md-8 col-sm-12 col-xs-12">
+						<%= !order[:invoice_number].blank? ? order[:invoice_number] : raw("N/A") -%>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4 col-sm-12 col-xs-12 form-label">
+						<label>Route</label>
+					</div>
+					<div class="col-md-8 col-sm-12 col-xs-12">
+						<%= order.route[:name] -%>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4 col-sm-12 col-xs-12 form-label">
+						<label>Deliver By</label>
+					</div>
+					<div class="col-md-8 col-sm-12 col-xs-12">
+						<%= order.delivery_day_of_the_week || 'No delivery day entered'  -%>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-7 col-sm-12 col-xs-12">
+		<div class="panel panel-default">
+			<div class="panel-heading"><span class="h3">Products</span></div>
+			<div class="panel-body table-responsive">
+				<table class="table table-condensed table-striped">
+					<thead>
+						<tr>
+							<th scope="col">Product</th>
+							<th scope="col">Quantity</th>
+							<th scope="col">Sleeve(s)</th>							
+						</tr>
+					</thead>
+					<%- order.organize_products_by_category.each do |product_category| -%>
+						<tbody>
+							<tr class="active">
+								<td colspan="3" class="h4"><%= product_category[:name] -%></td>
+							</tr>
+						
+							<%- product_category[:products].each do |product_order| -%>
+							<tr>
+								<td style="padding-left: 2em"><%= product_order.product[:name] -%></td>
+								<td><%= product_order[:quantity].to_s + ' ' + product_order.volume_unit[:name] -%></td>
+								<td><%= pluralize( product_order.sleeves, "sleeve" ) -%></td>
+							</tr>
+							<%- end -%>
+						</tbody>
+					<%- end -%>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
 
 <%- content_for :head do -%>
-	<%= stylesheet_link_tag :forms -%>
-	<%= stylesheet_link_tag :table -%>
+	<%= stylesheet_link_tag "sweet-alert.css" -%>
 	<style type="text/css" media="screen">
-		div#right_column, div#left_column { display:none}
-		div#product_listing{
-			border: 2px solid #ddd;
-			margin-left: 31%;
-			margin-right: 0;
-			width: auto;
-		}
-		tr.category_heading td{
-			background-color: #FEF1B5;
-			border-top: 1px solid #CCC;
-			border-bottom: 1px solid #CCC;
-			font-weight: bold;
-			text-align: left;
-		}
-		table#products {width:100%}
-		table#products input[type=text] { text-align: right; width: 30px }
-		div#order_basics{
-			border: 2px solid #ddd;
-			float:left;
-			margin-left: 0;
-			width: 30%;
+		@media screen and (min-width: 48em){
+			div#order_basics div.form-label { 
+				text-align: right;
+			}
 		}
 
-		div.buttons{
-			background-color: #eee;
-			border: 2px solid #ddd;
-			display: block;
-		}
-		div.entry_row {background-color:transparent}
-		div.entry_label, div.entry_value{
-			display: block;
-			float: none;
-			margin: 0;
-			width:auto
-		}
-		div.entry_label {
-			background-color: #5f6b61;
-			border: 2px solid #ccc; 
-			border-left:none; 
-			border-right: none;
-			color: #fff;
+		div#order_basics > div.row {
+			margin-bottom: 0.5em;
 		}
 	</style>
-<%- end -%>
+<% end -%>
+<%- content_for :page_js do -%>
+	<%= javascript_include_tag "sweet-alert.min.js" -%>
+	<script type="text/javascript">
+
+		var URL = {
+			destroy_order: '<%= order_path(order[:id], format: :json) -%>',
+			orders_path: '<%= orders_search_path() -%>'
+		};
+
+		function deleteOrder(){
+			swal({
+				title: "Are you sure?",
+				text: "You will not be able to recover this audit",
+				type: "warning",
+				showCancelButton: true,
+				confirmButtonText: "Yes",
+				closeOnConfirm: true
+			},
+			function(){
+				$.ajax({
+					type: "DELETE",
+					url: URL.destroy_order,
+					dataType: 'json',
+					success: function(data){
+						window.location = URL.orders_path;
+					},
+					error: function(xhr){
+						alert("Could not delete");
+					}
+				});			
+			});
+
+		}
+	</script>
+<% end -%>
