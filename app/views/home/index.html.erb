@@ -6,14 +6,14 @@
 		<div class="panel-body">
 			<div class="row">
 				<div class="col-md-12 col-sm-12 col-xs-12 table-responsive">
-					<%= render partial: 'audits/short_listing', locals: {audits: @recent_audits, caption: "Recent Audits", buttons: {viewAudits: true, newAudit: true}} -%>
+					<%= render partial: 'audits/short_listing', locals: {audits: @recent_audits, caption: "Recent Audits"} -%>
 					
 				</div>					
 			</div>
 			<div class="row">
 				<div class="col-md-12 col-sm-12 col-xs-12 table-responsive">
-					<table class="table table-condensed">
-						<%= render partial: 'orders/list', locals: {orders: @recent_orders, noRecordsMessage: "No recent orders found", caption: "Recent Orders"} -%>
+					<table class="table table-condensed table-striped">
+						<%= render partial: 'orders/list', locals: {orders: @recent_orders, noRecordsMessage: "No recent orders found", caption: "Recent Orders", show_buttons: true} -%>
 					</table>
 				</div>
 				
