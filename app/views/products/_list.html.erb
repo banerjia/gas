@@ -1,0 +1,18 @@
+<tr>
+	<td>
+		<%= link_to edit_product_path(list[:id]) do -%>
+			<i class="fa fa-pencil"></i>
+		<% end -%>
+	</td>
+	<td style="text-transform: uppercase"><%=list[:code] -%></td>
+	<td><%= list[:name] -%></td>
+	<td>
+	<%- if !list[:active] -%>
+			Not in circulation
+	<%- 
+		else
+	-%>
+			Not available at this time
+	<%- end -%>
+	</td>
+</tr>

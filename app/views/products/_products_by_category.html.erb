@@ -1,0 +1,17 @@
+<%-
+	show_expired_items_link = false unless defined?(show_expired_items_link)
+-%>
+
+<table class="table table-condensed table-striped">
+	<thead>
+		<tr>
+			<th style="width:5%"></th>
+			<th scope="col" style="width:10%">Code</th>
+			<th scope="col">Name</th>
+			<th scope="col" style="width:20%">Status</th>
+		</tr>
+	</thead>
+	<tbody class="_product_list">
+		<%= render(partial: "list", collection: product_list) || '<tr><td colspan="4" class="text-center"><em>No products found</em></td></tr>'.html_safe -%>
+	</tbody>
+</table>
