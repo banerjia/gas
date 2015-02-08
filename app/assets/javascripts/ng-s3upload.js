@@ -279,22 +279,22 @@ angular.module('ngS3upload')
 
   $templateCache.put('theme/bootstrap3.html',
     "\n" +
-    "<div class=\"\">\n" +
-    "   <div class=\"text-center\" ng-show=\"filename!=null && filename.length > 0 \">\n"+
+    "<div>\n" +
+    "   <div class=\"row text-center\" ng-show=\"filename!=null && filename.length > 0 \">\n"+
     "       <img data-ng-src=\"{{ filename }}\" style=\"max-width: 150px; max-height: 150px\"/>\n" +
     "   </div>\n" +
-    "   <div class=\"\">\n" +
+    "   <div class=\"row\">\n" +
     "       <div class=\"col-md-6 col-sm-6 col-xs-6\">\n" +
-    "           <button class=\"btn btn-primary\" type=\"button\" id=\"ngs3_btn_Upload\"><span ng-if=\"!filename\">Upload a picture</span><span ng-if=\"filename\">Replace</span></button>\n" +
+    "           <button class=\"col-md-12 col-sm-12 col-xs-12 btn btn-sm btn-primary\" type=\"button\" id=\"ngs3_btn_Upload\"><span ng-if=\"!filename\">Upload</span><span ng-if=\"filename\">Replace</span></button>\n" +
     "           <input type=\"file\" style=\"display: none\"/>\n" +
     "       </div>\n" +
     "       <div class=\"col-md-6 col-sm-6 col-xs-6\">\n" +
-    "           <button class=\"col-md-12 col-sm-12 col-xs-12 btn btn-danger\" type=\"button\" ng-click=\"filename=null; files.first=null\" ng-show=\"filename!=null && filename.length > 0\">Remove</button>\n" +
+    "           <button class=\"col-md-12 col-sm-12 col-xs-12 btn btn-sm btn-danger\" type=\"button\" ng-click=\"filename=null; files.first=null; progress = 0\" ng-show=\"filename!=null && filename.length > 0\">Remove</button>\n" +
     "       </div>\n" +
     "   </div>\n" +
-    "   <div class=\"\">\n" +
-    "       <div class=\"progress\" ng-show=\"uploading\" >\n" +
-    "           <div class=\"progress-bar progress-bar-success progress-bar-striped\" ng-class=\"{active: uploading}\" role=\"progressbar\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: {{ progress }}%;\" ng-class=\"barClass()\">\n" +
+    "   <div class=\"row\" style=\"margin-top: 0.5em\" ng-show=\"uploading\" >\n" +
+    "       <div class=\"progress\" >\n" +
+    "           <div class=\"progress-bar progress-bar-info progress-bar-striped\" ng-class=\"{active: uploading}\" role=\"progressbar\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: {{ progress }}%;\" ng-class=\"barClass()\">\n" +
     "               <span class=\"sr-only\">{{progress}}% Complete</span>\n" +
     "           </div>\n" +
     "       </div>\n" +

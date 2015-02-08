@@ -1,8 +1,8 @@
 
 <div class="row form-group">
 	<%= link_to "Edit", edit_audit_path(audit), class: "btn btn-primary" -%>
-	<button class="btn btn-default btn-wide" type="button" onclick="closeButton()">Close</button>
 	<button class="btn btn-danger" type="button" onclick="deleteAudit()">Delete</button>
+	<%=link_to "All Audits", audits_path, class: "btn btn-default" -%>
 </div>
 <div class="row well well-sm">
 	<div class="col-md-6 col-sm-12 col-xs-12 container">
@@ -78,17 +78,18 @@
 						<strong><%= audit_metric.metric[:title].html_safe -%></strong>
 					</div>
 					<div class="col-md-2 col-sm-2 col-xs-2 text-right">
+					<%- 
+						if audit_metric.metric[:track_resolution] && !audit_metric[:loss].zero?
+							html_class= (audit_metric[:resolved] ? "success" : "danger")
+							icon = (audit_metric[:resolved] ? "check" : "warning")
+							text = (audit_metric[:resolved] ? "Issue resolved" : "This issue has not been resolved")
+					-%>
+						<span class="label"><i class="fa fa-<%= icon -%> text-<%= html_class -%>" title="<%= text -%>"></i></span>
+					<%- end -%>
 						<%= "<span class='label label-success'>#{audit_metric[:base]}</span>".html_safe unless audit_metric[:base].zero? -%> 
 						<%= "<span class='label label-danger'>#{audit_metric[:loss].abs}</span>".html_safe unless audit_metric[:loss].zero? -%>
 						<%= "<span class='label label-primary'>#{audit_metric[:bonus]}</span>".html_safe unless audit_metric[:bonus].zero? -%>
-						<%- 
-							if audit_metric.metric[:track_resolution] && !audit_metric[:loss].zero?
-								html_class= (audit_metric[:resolved] ? "success" : "warning")
-								icon = (audit_metric[:resolved] ? "check" : "exclamation-triangle")
-								text = (audit_metric[:resolved] ? "Issue resolved" : "This issue has not been resolved")
-						-%>
-							<span class="label label-<%= html_class -%>"><i class="fa fa-<%= icon -%>" title="<%= text -%>"></i></span>
-						<%- end -%>
+
 					</div>
 				</div>
 			</div>
@@ -133,7 +134,7 @@
 	var URL = {
 		destroy_audit: '<%= audit_path(audit[:id], format: :json) -%>',
 		return_path: '<%= session['return_path'].present? ? URI.decode(session['return_path']): nil -%>',
-		audits_path: '<%= audits_path -%>'
+		audits_path: '<%= audit_search_path({cache_buster: Date.today.to_date}) -%>'
 	};
 
 	$(document).ready(function() {

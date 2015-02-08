@@ -19,10 +19,10 @@ class Audit < ActiveRecord::Base
 
   # Validations
   validates_associated :audit_metrics
-  validates_presence_of :auditor_name, message: "Please provide a valid auditor name"
-  validates_presence_of :created_at, message: "Please provide a valid audit date"
-  validates :store, presence: true #, message: "Please select a store"
-  validates :comments, presence: true, unless: Proc.new { |audit| audit.total_score > 9 } #, message: "Audits with scores below 10 require comments to be provided"
+  validates_presence_of :auditor_name, message: "Please enter the name of the Graeter's staff member filling out the audit"
+  validates_presence_of :created_at, message: "Please select a valid date for this audit"
+  validates :store, presence: { message: "Please select a store" }
+  validates :comments, presence: {message: "Audits with scores of 7 and below require comments"}, unless: Proc.new { |audit| audit.total_score > 7 } 
   
   # Callbacks
 
@@ -34,7 +34,6 @@ class Audit < ActiveRecord::Base
 
   after_commit do
     store.__elasticsearch__.index_document
-    __elasticsearch__.update_document
   end
 
   before_destroy do |a|
