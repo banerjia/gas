@@ -1,5 +1,5 @@
 class OrderMailer < ActionMailer::Base
-  default from: "Graeters Orders <market.banerji@gmail.com>"
+  default from: "Graeters Orders <tagoretownapps@gmail.com>"
 
   def email_order( mailto, order_list, add_message)
     view_context = ActionView::Base.new(ActionController::Base.view_paths, {})
