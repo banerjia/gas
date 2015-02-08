@@ -67,10 +67,10 @@
 						</tr>
 					</thead>
 					<tbody>
-					<%- store.audits.sort{ |b,a| a[:created_at] <=> b[:created_at]}.each do |audit| -%>
+					<%- recent_audits.sort{ |b,a| a[:created_at] <=> b[:created_at]}.each do |audit| -%>
 						<tr>
 							<td><%= link_to audit[:created_at].strftime((audit[:created_at].year != Date.today.year ? "%m/%d/%Y" : "%m/%d")), 								audit_path(audit) -%></td>
-							<td class="visible-lg visible-md"><%= audit[:auditor_name].titlecase -%></td>
+							<td class="visible-lg visible-md"><%= audit[:auditor_name].order(created_at: :desc).limit(5)-%></td>
 							<td class="text-center">
 								<%= audit.total_score -%>
 								<%- if audit[:has_unresolved_issues] -%>
@@ -93,26 +93,36 @@
 				<div class="row">
 					<div class="col-md-6 col-sm-6 col-xs-6"><h2 class="h2">Orders</h2></div>
 					<div class="col-md-6 col-sm-6 col-xs-6 text-right">
-							<%= link_to "Create Order", store_new_order_path(store), class: "btn btn-sm btn-success" -%>	
+							<%= link_to "New Order", store_new_order_path(store), class: "btn btn-sm btn-success" -%>	
 							<%= link_to "View All", audit_search_path({store_id: store[:id]}), class: "btn btn-sm btn-default" if store.orders.size > 0 -%>
 			
 					</div>
 				</div>
 			</div>
-			<div class="panel-body">
+			<div class="panel-body table-responsive">
 				<%- if store.orders.size > 0 -%>
 				<table class="table table-striped table-condensed">
 					<thead>
 						<tr>
 							<th scope="col">Date</th>
-							<th scope="col">Deliver By</th>
+							<th scope="col">Order#</th>
+							<th scope="col" class="hidden-sm hidden-xs">Route</th>
+							<th scope="col" class="hidden-sm hidden-xs">Deliver By</th>
+							<th scope="col">Email</th>
 						</tr>
 					</thead>
 					<tbody>
-					<%- store.orders.each do |order| -%>
-						<tr class="<%= !order[:email_sent] ? 'warning' : nil -%>">
-							<td><%= link_to order[:created_at].strftime((order[:created_at].year != Date.today.year ? "%m/%d/%Y" : "%m/%d")), order_path(order) -%></td>
-							<td><%= order[:delivery_dow].titlecase -%></td>
+					<%- recent_orders.each do |order| -%>
+						<tr>
+							<td><%= order[:created_at].strftime((order[:created_at].year != Date.today.year ? "%m/%d/%Y" : "%m/%d")) -%></td>
+							<td><%= link_to order[:id], order_path(order) -%></td>
+							<td class="hidden-sm hidden-xs"><%= order.route[:name] -%></td>
+							<td class="hidden-sm hidden-xs"><%= order.delivery_day_of_the_week.titlecase -%></td>
+							<td>
+								<%- if order[:email_sent] -%>
+								  <i class="fa fa-check"></i>
+								<%- end -%>
+							</td>
 						</tr>
 					<%- end -%>
 					</tbody>
