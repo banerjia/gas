@@ -8,71 +8,92 @@ class OrdersController < ApplicationController
   
   def show
     # This approach has been taken to reduce the number of SELECT statements
-    @order = Order.includes([:store, {:product_orders => [:product]}]).find( params[:id])
-    @store = @order.store
+    order = Order.includes([:store, {:product_orders => [:product]}]).find( params[:id])
     
     
-    @page_title = "Order Sheet: #{@order[:id]}"
-    @browser_title = "Order: #{@order[:id]}"
+    
+    @page_title = "Order Sheet: #{order[:id]}"
+    @browser_title = "Order: #{order[:id]}"
     respond_to do |format|
-      format.html { render :locals => {:order => @order} }
+      format.html { render :locals => {:order => order} }
       format.xlsx do 
-        send_data render_to_string(:action => 'show_order', :handlers => [:axlsx], :locals => {:order => @order}), :filename => @order.filename, :type => "application/vnd.openxmlformates-officedocument.spreadsheetml.sheet"
+        send_data render_to_string(:action => 'show_order', :handlers => [:axlsx], :locals => {:order => order}), :filename => order.filename, :type => "application/vnd.openxmlformates-officedocument.spreadsheetml.sheet"
       end
     end
   end
   
   def new
-    store = Store.find(params[:store_id])
-    @order = store.orders.build 
-    @order.product_orders.build
-    @page_title = "New Order for #{store.full_name}"
+    # Initializing the object within the scope of the action
+    order = nil 
+
+    @page_title = "New Order"
+
+    # Doesn't matter if the store_id is present in the params hash
+    # this statement will still work
+    order = Order.new({store_id: params[:store_id]})
+    # order[:created_at] = Date.today.strftime("%m/%d/%Y")
+
+    # Creating at least one product_order associated with the order
+    order.product_orders.build
+
+    @page_title = @page_title + " for #{order.store.full_name}" if params[:store_id].present?
+    @browser_title = "New Order"
+    render locals: {order: order}
   end
   
   def create
-    @order = Order.new(order_params)
-    byebug
-    if @order.save      
+    sanitized_params = agg_n_remove_dups(order_params)
+
+    order = Order.new(sanitized_params)
+
+    if order.save      
       redirect_to orders_path
     else
-      @order.store.replace(Store.find(@order[:store_id]))
-      render "new"
+      order.store.replace(Store.find(order[:store_id])) if order_params[:store_id].present? && !order_params[:store_id].blank?
+      render "new", locals: {order: order}
     end
   end
   
   def edit
-    @order = Order.find(params[:id])
-    @store = Store.find(@order[:store_id])
-    @page_title = "Update Order: #{@order[:invoice_number]}"
+    order = Order.includes([:store, {:product_orders => [:product]}]).find(params[:id])
+    @page_title = "Edit Order: #{order[:id]}"
+
+    render locals: {order: order}
   end
   
   def update
-    @order = Order.find( params[:id] )
-    store = Store.find( @order[:store_id] )
-    if @order.update_attributes!( order_params )
+    order = Order.find( params[:id] )
+
+    sanitized_params = agg_n_remove_dups( order_params )
+
+    if order.update( sanitized_params )
       redirect_to orders_path
     else
-      @store = store
-      render "edit"
+      render "edit", locals: {order: order}
     end
   end
   
   def destroy
-    orders_to_delete = params[:orders].map{ |id| id.to_i }      
-    Order.find( order_id ).destroy
-    redirect_to orders_search_path
+    orders_to_delete = []
+    if params[:id].present?
+      orders_to_delete.push( params[:id])
+    else
+      orders_to_delete = params[:orders].map{ |id| id.to_i }  
+    end    
+    Order.where({ id: orders_to_delete }).destroy_all
+    render status: 200, json: {sucess: true}.to_json
   end
   
   def send_email
     send_to = params[:email] || ENV['order_email']
     optional_message = params[:email_body] unless !params[:email_body].present?
 
-    # order_id = params[:orders].map{ |id| id.to_i }
+    order_id = params[:order].map{ |id| id.to_i }
 
-    # order = Order.includes([{product_orders: [:product, :volume_unit]}, :store]).find( order_id )
+    order = Order.includes([{product_orders: [:product, :volume_unit]}, :store]).find( order_id )
     
-    # email = OrderMailer.email_order( send_to, order, optional_message )
-    # email.deliver
+    email = OrderMailer.email_order( send_to, order, optional_message )
+    email.deliver
     # render :nothing => true
     render status: 200, json: {sucess: true}.to_json
   end
@@ -128,7 +149,7 @@ class OrdersController < ApplicationController
       end
       
       format.json do
-        #[:aggs, :predefined_search_criteria].each { |key| return_value.delete(key)}
+        [:aggs].each { |key| return_value.delete(key)}
         render :json => return_value.to_json
       end
     end
@@ -136,6 +157,40 @@ class OrdersController < ApplicationController
 
 private
 	def order_params
-		params.require(:order).permit(:store_id, :invoice_number, :route_id, :delivery_dow, :created_at, :email_sent, product_orders_attributes: [:product_id,:quantity])
+		params.require(:order).permit(
+      :store_id, 
+      :invoice_number, 
+      :route_id, 
+      :delivery_dow, 
+      :created_at, 
+      :email_sent, 
+      product_orders_attributes: [
+        :product_id,
+        :quantity
+      ])
 	end
+
+  def agg_n_remove_dups( order_attr)
+    return order_attr if order_attr[:product_orders_attributes].nil?
+    return_value = order_attr.dup
+    keys_to_delete = []
+    unique_pos = {}
+    return_value[:product_orders_attributes].each do |po_attr|
+      # po_attr = [<index_value>, {product_id => xxx, quantity => xxx}]
+      po_key = po_attr.first
+      po = po_attr.last
+      key = "po_#{po[:product_id]}"
+      if unique_pos.has_key?(key)
+        keys_to_delete.push( po_key )
+        original_po_key = unique_pos[key]
+        return_value[:product_orders_attributes][original_po_key][:quantity] = return_value[:product_orders_attributes][original_po_key][:quantity].to_i + po[:quantity].to_i
+      else
+        unique_pos = unique_pos.merge({key => po_key})
+      end
+    end
+
+    keys_to_delete.each { |key| return_value[:product_orders_attributes].delete(key)}
+
+    return return_value
+  end
 end

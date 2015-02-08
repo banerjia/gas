@@ -1,7 +1,7 @@
 <%-
   more_pages = false unless defined?(more_pages)
 
-  options_without_page = options.clone
+  options_without_page = options.dup
   options_without_page.delete(:page)
 
   page = options[:page] if defined?(options) && options[:page].present?
@@ -11,38 +11,54 @@
 
   total_pages = (total_results/per_page).to_i + (total_results % per_page > 0 ? 1 : 0)
 
-  sanitized_options = options.clone
+  sanitized_options = options.dup
   [:page, :per_page, :sort].each { |key| sanitized_options.delete(key)}
   sanitized_options = sanitized_options.reject {|k,v| k.to_s.index("_") == 0}
 
+  # Determining sort link
+  new_sort = "created_at-desc" # Default
+  new_sort = "created_at-asc" if !options[:sort].present? || options[:sort] == "created_at-desc"
 
 -%>
 
 <!-- NEW DESIGN -->
 <div class="row">
-  <div class="col-md-10 col-md-push-2 col-sm-9 col-sm-push-3 col-xs-12">
+  <div class="col-md-10 col-md-push-2 col-sm-9 col-sm-push-3 col-xs-12 table-responsive">
     <%= form_tag email_order_path, id: "order_list_form", method: :post, remote: true do -%>
-    <!-- <form id="order_list_form" onsubmit="return false" method="get"> -->
       <table class="table table-striped" id="order_list">
         <thead>
           <tr>
             <th scope="col" style="width: 5%" class="hidden-xs">
               <%= check_box_tag nil, nil, false, onchange: "toggleCheckboxes(this)", class: "select-all-ckb" if !defined?(orders) || (defined?(orders) && orders.size > 0) -%>
             </th>
-            <th scope="col" style="width: 10%">Date</th>
+            <th scope="col" style="width: 10%">
+              <%= link_to orders_search_path(options_without_page.merge({sort: new_sort})) do -%>
+                Date <i class="fa fa-caret-<%= (!options[:sort].present? || options[:sort].index("-asc").nil? ? "down" : "up") %>"></i>
+              <% end -%>
+            </th>
+            <th scope="col" class="hidden-sm hidden-xs">Order#</th>
             <th scope="col">Store</th>
-            <th scope="col" style="width: 15%" class="text-center">Deliver By</th>
-            <th scope="col" class="text-center" style="width: 10%">Email</th>
+            <th scope="col" style="width: 20%" class="text-center hidden-sm hidden-xs">Deliver By</th>
+            <th scope="col" class="text-center" style="width: 20%">
+              <%= select_tag "", options_for_select([ \
+                    ["Email Status: All", options_without_page.merge({_email_sent: nil}).to_param], \
+                    ["Email Status: Sent", (options_without_page.merge({_email_sent: true})).to_param], \
+                    ["Email Status: Not Sent", (options_without_page.merge({_email_sent: false})).to_param], \
+                    ], options_without_page.to_param), \
+                    class: "form-control input-sm hidden-xs hidden-sm", \
+                    onchange: "window.location = '#{orders_search_path}?' + $(this).val()" -%>
+
+              <i class="fa fa-envelope visible-sm visible-xs"></i>
+            </th>
           </tr>
         </thead>
         <%- if orders.size > 0  -%> 
         <tfoot>
           <tr>
-            <td colspan="5">
+            <td colspan="6">
               <div class="col-md-3 hidden-sm hidden-xs">
-                <button id="btn_email_order" class="btn btn-sm btn-primary" data-disable-with="Sending..." disabled="disabled" >Email Order(s)</button>
-                <!-- <input type="submit" class="btn btn-primary btn-sm" id="btn_email_order" value="Email Order(s)" disabled="disabled" data-disable_with="Sending..." disabled="disabled"/> -->
-                <!-- <input type="button" class="btn btn-danger btn-sm" value="Delete" id="delete_orders"/> -->
+                <button id="btn_email_order" class="btn btn-info" data-disable-with="Sending..." disabled="disabled" onclick="$('span#emal_response').text('').removeClass('text-danger').removeClass('text-success')" >Email Order(s)</button>
+                <span id="email_response" class="visible-md visible-lg" style="display: inline-block"></span>
               </div>   
               <%- if page > 1 || more_pages -%>                    
               <div class="col-md-9 col-sm-12 col-xs-12 pull-right">
@@ -97,8 +113,15 @@
             <tr>
               <td class="hidden-xs"><%= check_box_tag "order[]", order[:id], false, onchange:  "tallyCheckboxes()", class: "send-email" -%></td>
               <td><%= order[:created_at].to_date.strftime(Date.today.year != order[:created_at].to_date.year ? "%b %d, %Y" : "%b %d") -%></td>
-              <td><%= link_to order[:store].full_name, order_path(order[:id]) -%></td>
-              <td class="text-center"><%= order[:delivery_day_of_the_week]  -%></td>
+              <td class="hidden-sm hidden-xs"><%= order[:id] -%></td>
+              <td>
+                <%= link_to order[:store].full_name, order_path(order[:id]) -%>
+                <span class="visible-sm visible-xs">
+                <br/>
+                Order#: <%= order[:id] -%>
+                </span>
+              </td>
+              <td class="text-center hidden-sm hidden-xs"><%= order[:delivery_day_of_the_week]  -%></td>
               <td class="email-status text-center">
                 <%- if order[:email_sent] -%>
                   <i class="fa fa-check"></i>
@@ -121,10 +144,11 @@
   <div class="col-md-pull-10 col-md-2 col-sm-pull-9 col-sm-3 col-xs-12 well well-sm">
     <div class="row">
       <div class="col-md-12 col-sm-12 col-xs-12">
-        <h3 class="h3">Find Audits</h3>
+        <%= link_to "New Order", new_order_path, class:"btn btn-primary" -%>
+        <h3 class="h3">Find Orders</h3>
         <%-
           options_for_url = sanitized_options.clone
-          [:start_date, :end_date, :_auditor, :_score_range, :page, :page_size].each {|key| options_for_url.delete(key)}
+          [:start_date, :end_date].each {|key| options_for_url.delete(key)}
 
           # link_to_if compares against this Hash to determine which 
           # search option was selected
@@ -249,7 +273,7 @@ $(document).ready ->
     num_ckbs = $("input:checkbox.send-email", window.order_list_form).length;
     window.order_list_form
       .on("ajax:success", function(e, data, xhr){
-        alert("Email sent");
+        $("span#email_response").removeClass("text-danger").addClass("text-success").text("Email Sent!");
         var selected_ckbs = $("input.send-email:checked", window.order_list_form);
         selected_ckbs.each(function(){
           $("td.email-status:first", $(this).parents("tr:first")).html("<i class=\"fa fa-check\"></i>");
@@ -257,7 +281,7 @@ $(document).ready ->
 
       })
       .on("ajax:error", function(e, xhr, status, error){
-        alert(error);
+        $("span#email_response").removeClass("text-success").addClass("text-danger").text("Unable to send email");
       })
   });
 

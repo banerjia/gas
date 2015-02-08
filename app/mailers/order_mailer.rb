@@ -8,9 +8,9 @@ class OrderMailer < ActionMailer::Base
         mime_type: Mime::XLSX,
 	      :body => view_context.render( :template => 'orders/show_order', :formats => [:xlsx], :handlers => [:axlsx], :locals => {:order => order} )
       }  
-      order[:email_sent] = true
-      order[:email_sent_date] = Date.today
-      order.save
+
+      order.update_columns({email_sent: true, email_sent_date: Date.today})
+      order.__elasticsearch__.update_document
     end
 
     if order_list.size > 1

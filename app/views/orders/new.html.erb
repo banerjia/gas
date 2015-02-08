@@ -1,12 +1,32 @@
-<% content_for :body do -%>
-<%= form_for @order, :url => orders_path do |f| -%>
-<div class="form-buttons">	
-	<%= f.submit "Save", :class=>"btn btn-success" -%>
-	<button type="button" class="btn btn-default" value="Cancel" onclick="window.location = '<%= orders_path -%>'">Cancel</button>
-</div>
-<%= render :partial => 'entry', :locals => {:f => f} -%>
-<div class="spacer"></div>
+
+
+<%= form_for order, data: {"ng-app" => "order"}, role: "form" do |f| -%>
+	<div class="well well-sm ng-cloak form-buttons" style="margin-bottom: 0.5em" data-ng-hide="show_store_search">
+		<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary", data: {"ng-disabled" => "order_store_id == null || show_store_search"} -%>
+		
+		<%= link_to "Cancel", orders_search_path, class: "btn btn-default" -%>
+	</div>
+	<%- if order.errors.count > 0 -%>
+	<div class="row">
+		<div class="panel panel-danger">
+			<div class="panel-heading"><span class="h3">Attention</span></div>
+			<div class="panel-body">
+				<ul>
+					<% order.errors.messages.each do |key, msgs| 
+						msgs.each do |msg_text| -%>
+							<li><%= msg_text -%></li>
+					 <%-end 
+					 end -%>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<% end -%>
+	<%= render :partial => "entry", :locals => {f: f} -%>
+
 <%- end -%>
-	
+
+<%- content_for :page_js do -%>
+	<%= javascript_include_tag :jquery_ujs, :cache => true %>
 <% end -%>
 
