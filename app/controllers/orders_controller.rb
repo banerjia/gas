@@ -49,7 +49,6 @@ class OrdersController < ApplicationController
     if order.save      
       redirect_to orders_path
     else
-      order.store.replace(Store.find(order[:store_id])) if order_params[:store_id].present? && !order_params[:store_id].blank?
       render "new", locals: {order: order}
     end
   end
