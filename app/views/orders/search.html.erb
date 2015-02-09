@@ -113,12 +113,12 @@
             <tr>
               <td class="hidden-xs"><%= check_box_tag "order[]", order[:id], false, onchange:  "tallyCheckboxes()", class: "send-email" -%></td>
               <td><%= order[:created_at].to_date.strftime(Date.today.year != order[:created_at].to_date.year ? "%b %d, %Y" : "%b %d") -%></td>
-              <td class="hidden-sm hidden-xs"><%= order[:id] -%></td>
+              <td class="hidden-sm hidden-xs"><%= link_to order[:id], order_path(order[:id]) -%></td>
               <td>
-                <%= link_to order[:store].full_name, order_path(order[:id]) -%>
+                <%= order[:store].full_name -%>
                 <span class="visible-sm visible-xs">
                 <br/>
-                Order#: <%= order[:id] -%>
+                Order#: <%= link_to order[:id], order_path(order[:id]) -%>
                 </span>
               </td>
               <td class="text-center hidden-sm hidden-xs"><%= order[:delivery_day_of_the_week]  -%></td>

@@ -2,11 +2,20 @@
 <caption class="h3"><%=caption-%></caption>
 <% end -%>
 <thead>
+	<%- if defined?(show_buttons) && show_buttons -%>
 	<tr>
-		<th scope="col" style="width: 10%">Date</th>
+		<td colspan="5">
+			<%= link_to "New Order", new_order_path, class: "btn btn-success btn-sm" -%>
+			<%= link_to "All Orders", orders_search_path, class: "btn btn-primary btn-sm" -%>
+		</td>
+	</tr>
+	<% end -%>
+	<tr>
+		<th scope="col" style="width: 5%">Date</th>
+		<th scope="col" style="width: 10%" class="text-center">Order#</th>
 		<th scope="col" style="width: 30%">Store</th>
-		<th scope="col">Route</th>
-		<th scope="col" class="text-center">Deliver By</th>
+		<th scope="col" class="text-center visible-md visible-lg">Route</th>
+		<th scope="col" class="text-center visible-md visible-lg">Deliver By</th>
 	</tr>
 </thead>
 <tbody>
@@ -14,14 +23,15 @@
 	<%- orders.each do |order| -%>
 	<tr>
 		<td><%= order[:created_at].to_date.strftime( Date.today.year == order[:created_at].to_date.year ? "%m/%d": "%m/%d/%Y" )-%></td>
+		<td class="text-center"><%= link_to order[:id], order_path(order) -%></td>
 		<td><%= (order[:store] || order.store).full_name -%></td>
-		<td><%= order.route[:name]-%></td>
-		<td class="text-center"><%= order.delivery_day_of_the_week -%></td>
+		<td class="text-center visible-md visible-lg"><%= order.route[:name]-%></td>
+		<td class="text-center visible-md visible-lg"><%= order.delivery_day_of_the_week -%></td>
 	</tr>
 	<% end -%>
 <%- else -%>
 	<tr>
-		<td colspan="4" class="text-center">
+		<td colspan="5" class="text-center">
 			<p><em><%= (defined?(noRecordsMessage) ? noRecordsMessage : "No orders found").html_safe -%></em></p>
 		</td>
 	</tr>
