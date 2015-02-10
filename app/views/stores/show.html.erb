@@ -69,8 +69,8 @@
 					<tbody>
 					<%- recent_audits.sort{ |b,a| a[:created_at] <=> b[:created_at]}.each do |audit| -%>
 						<tr>
-							<td><%= link_to audit[:created_at].strftime((audit[:created_at].year != Date.today.year ? "%m/%d/%Y" : "%m/%d")), 								audit_path(audit) -%></td>
-							<td class="visible-lg visible-md"><%= audit[:auditor_name].order(created_at: :desc).limit(5)-%></td>
+							<td><%= link_to audit[:created_at].strftime((audit[:created_at].year != Date.today.year ? "%m/%d/%Y" : "%m/%d")), audit_path(audit) -%></td>
+							<td class="visible-lg visible-md"><%= audit[:auditor_name]-%></td>
 							<td class="text-center">
 								<%= audit.total_score -%>
 								<%- if audit[:has_unresolved_issues] -%>
