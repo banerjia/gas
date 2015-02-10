@@ -4,6 +4,8 @@ class AuditsController < ApplicationController
 	end
 
 	def new
+		session[:last_page] = request.env['HTTP_REFERER'] || nil
+
 		new_audit = Audit.new({created_at: Date.today})
 
 		new_audit[:auditor_name] = session[:auditor] if session[:auditor].present?
@@ -50,7 +52,7 @@ class AuditsController < ApplicationController
 		if audit.save
 			flash[:notice] = 'New audit saved'
 			session[:auditor] = audit[:auditor_name]
-			redirect_to action: :index
+			redirect_to audit_path(audit)
 		else
 			flash[:warning] = 'Error processing audit'
 			
@@ -134,7 +136,7 @@ class AuditsController < ApplicationController
 				
 	end
 
-	def show
+	def show		
 
 		id = params[:id]
 
@@ -142,7 +144,11 @@ class AuditsController < ApplicationController
 		
 		@page_title = "Audit for #{audit.store.full_name}"
 
-		session['return_path'] = request.referer
+		session[:last_page] = request.env['HTTP_REFERER'] || nil \
+				unless \
+					request.env['HTTP_REFERER'] == new_audit_url \
+					|| request.env['HTTP_REFERER'] == store_new_audit_url(audit.store) \
+					|| request.env['HTTP_REFERER'] == edit_audit_url(audit)
 
 		render :show, locals: {audit: audit}	
 	end
@@ -151,7 +157,7 @@ class AuditsController < ApplicationController
 		Audit.find(params[:id]).destroy
 		respond_to do |format|
 			format.json do
-				render json: {success: true}.to_json
+				render json: {success: true, redirect_url: session[:last_page] || audit_search_path}.to_json
 			end
 		end		
 	end
