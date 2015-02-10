@@ -2,7 +2,7 @@
 <div class="row form-group">
 	<%= link_to "Edit", edit_audit_path(audit), class: "btn btn-primary" -%>
 	<button class="btn btn-danger" type="button" onclick="deleteAudit()">Delete</button>
-	<%=link_to "All Audits", audits_path, class: "btn btn-default" -%>
+	<%=link_to "Close", session[:last_page] || audit_search_path, class: "btn btn-default" -%>
 </div>
 <div class="row well well-sm">
 	<div class="col-md-6 col-sm-12 col-xs-12 container">
@@ -133,7 +133,6 @@
 	<script type="text/javascript">
 	var URL = {
 		destroy_audit: '<%= audit_path(audit[:id], format: :json) -%>',
-		return_path: '<%= session['return_path'].present? ? URI.decode(session['return_path']): nil -%>',
 		audits_path: '<%= audit_search_path({cache_buster: Date.today.to_date}) -%>'
 	};
 
@@ -168,7 +167,7 @@
 				url: URL.destroy_audit,
 				dataType: 'json',
 				success: function(data){
-					window.location = URL.audits_path;
+					window.location = '<%= session[:last_page] || audit_search_path -%>';
 				},
 				error: function(xhr){
 					alert("Could not delete");
