@@ -8,6 +8,8 @@ class HomeController < ApplicationController
 
 		@recent_audits = Audit.search({start_date: 2.weeks.ago, end_date: Date.today, page: 1, per_page: 5, sort: "created_at-desc" })
 
+		session[:last_page] = root_url
+
 	end
 
 end
