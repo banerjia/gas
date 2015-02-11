@@ -76,6 +76,7 @@ class Store < ActiveRecord::Base
       }
     }    
     
+    
     if !possible_dups.results.size.zero? 
       self.possible_duplicates = possible_dups.results.map{ |item| item[:_source]} 
       errors[:base] << "Possible duplicate entry"

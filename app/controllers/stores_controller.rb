@@ -26,7 +26,7 @@ class StoresController < ApplicationController
 		if params[:company_id]
 			company_values = Company.where( {id: params[:company_id]} ).pluck(:id, :name).first
       company_id, company_name = company_values
-			@page_title += " for #{company_name}"
+			
       new_store[:company_id] = company_id
 		end
     
@@ -40,11 +40,9 @@ class StoresController < ApplicationController
     new_store = Store.create(store)
     if new_store.valid?
       flash[:message] = "New store for #{new_store.company[:name]} successfully created"
-      redirect_to action: "show", id: new_store.id
+      redirect_to store_path(new_store)
     else
-      @page_title = "Add a Store"
-      @page_title +=" for #{Company.find(new_store[:company_id])[:name]}" unless new_store[:company_id].nil?
-      
+      @page_title = "Add a Store"      
       render action: "new", locals: {store: new_store}
     end
 	end
@@ -70,7 +68,7 @@ class StoresController < ApplicationController
     store_to_update.update_attributes( store_params )
     if store_to_update.valid?
       flash[:notice] = "Store information updated."
-      redirect_to action: "show", id: selected_store_id
+      redirect_to store_path(store_to_update)
     else      
       render action: "edit", locals: {store: store_to_update}     
     end    
