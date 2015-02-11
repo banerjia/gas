@@ -1,7 +1,40 @@
-<%- 
-content_for :body do 
-	render :partial => "entry", :locals => {:store => store}
-end
--%>
+<%= form_for store do |f| %>
+<!-- Errors -->
+<%- if store.errors.any? -%>
+<div class="panel panel-sm panel-danger">
+	<div class="panel-heading"><span class="h3">Attention</span></div>
+	<div class="panel-body">
+	<p>Unfortunately the store information could not be saved. Please review the highlighted entries below and 
+			try again. </p>
+	
+	<%- if !store.possible_duplicates.nil?-%>
+		<p>It is possible that this store is already in the system. Do any of the following look familiar?</p>
+		<ul>
+			<%- store.possible_duplicates.each do |item| -%>
+			<li>
+				<div>
+					<span class="store_name"><%= item[:full_name] -%></span>
+					<address><%= item[:address] -%></address>
+				</div>
+				<div><%= link_to "Edit", edit_store_path(item[:id])-%></div>
+			</li>
+			<%- end -%>
+		</ul>
 
+		<p>
+			<%= f.check_box :not_a_duplicate -%> 
+			<%= f.label :not_a_duplicate, "This store is a separate establishment from the other stores listed above." -%>
+		</p>
+	<%- end -%>	
+	</div>
 
+</div>
+<%- end -%>
+
+<div class="well well-sm">
+	<%= f.submit "Save", class: "btn btn-primary" -%>
+	<button class="btn btn-default" onclick="history.go(-1)">Cancel</button>
+</div>
+<%= render :partial => "entry", :locals => {f: f} -%>
+
+<%- end -%>

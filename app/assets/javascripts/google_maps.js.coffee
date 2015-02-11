@@ -25,10 +25,10 @@ class @GoogleMapsAutoComplete
 			return
 			
 		google.maps.event.addListener autocomplete, 'place_changed', () ->
-			@fillInAddress()
+			gmaps.fillInAddress()			
 			return
 		return
-	
+
 	fillInAddress: ->
 		place = autocomplete.getPlace()
 		for component in Object.keys(componentForm)

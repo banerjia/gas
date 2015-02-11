@@ -1,10 +1,10 @@
 <%- 
-	store.build_region unless store.region 
+	f.object.build_region unless f.object.region 
 	available_regions = []
-	available_regions = Region.where(:company_id => store[:company_id]).select([:name, :id])  unless store[:company_id].nil? 
+	available_regions = Region.where(company_id: f.object[:company_id]).select([:name, :id])  unless f.object[:company_id].nil? 
 -%>
 
-<%= form_for store do |f| %>
+
 
 <!-- Hidden Fields -->
 <div style="display:none">
@@ -17,91 +17,72 @@
 	<%= f.hidden_field :country -%>
 </div>	
 
-<%-	
-available_regions = []
-available_regions = Region.where(company_id: f.object[:company_id]).select([:name, :id])  unless f.object[:company_id].nil? 
--%>
 
-<div class="row" style="margin-bottom: 0.7em">
-	<%= f.submit "Save", class: "btn btn-primary" -%>
-	<a href="#" class="btn btn-default" onclick="history.go(-1)">Cancel</a>
-</div>
 
-<%- if store.errors.any? -%>
-<div class="panel panel-danger row">
-	<div class="panel-heading">Attention Needed</div>
-	<div class="panel-body">
-		Unfortunately the store information could not be saved. Please review the highlighted entries below.
-	</div> 
-</div>
-<%- end -%>
+<!-- Begin Content -->
+<div id="storeEntry">
+	<div class="row form-group">
+		<div class="col-md-2 col-sm-12 col-xs-12 form-label"><%= f.label :company_id, class: (f.object.errors.any? && !f.object.errors[:company_id].blank? ? "text-danger": "") -%></div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<%= f.select :company_id, options_from_collection_for_select(Company.list_for_dropdown, :id, :name, f.object[:company_id]), {prompt: "-- Select --"}, {onchange: "store.getRegionsByCompany(this.value, $('select[id$=region_id]'))", class: "form-control"}%>
+			<%= "<p class='text-danger'>#{f.object.errors.full_messages_for(:company_id).first}</p>".html_safe if f.object.errors.any? && !f.object.errors[:company_id].blank? -%>
+		</div>
+	</div>
+	<div class="row form-group">
+		<div class="col-md-2 col-sm-12 col-xs-12 form-label">
+			<%= f.label :region_id, "Region", class: (f.object.errors.any? && !f.object.errors[:region_attributes].blank? ? "text-danger": "") -%>
+		</div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<%= f.select :region_id, options_from_collection_for_select(  available_regions, "id", "name"), {prompt: "-- Select --"}, {disabled: !available_regions.any?, onchange: 'resetNewRegion()', class: 'form-control'} -%>
 
-<div class="row">
-	<div class="well well-sm">
-		<div class="container" id="storeEntry">		
-			<div class="row form-group">
-				<div class="col-md-2 col-sm-12 col-xs-12 form-label"><%= f.label :company_id, class: (store.errors.any? && !store.errors[:company_id].blank? ? "text-danger": "") -%></div>
-				<div class="col-md-5 col-sm-12 col-xs-12">
-					<%= f.select :company_id, options_from_collection_for_select(Company.list_for_dropdown, :id, :name, f.object[:company_id]), {prompt: "-- Select --"}, {onchange: "store.getRegionsByCompany(this.value, $('select[id$=region_id]'))", class: "form-control input-sm"}%>
-					<%= "<p class='text-danger'>#{store.errors.full_messages_for(:company_id).first}</p>".html_safe if store.errors.any? && !store.errors[:company_id].blank? -%>
-				</div>
-			</div>
-			<div class="row form-group">
-				<div class="col-md-2 col-sm-12 col-xs-12 form-label">
-					<%= f.label :region_id, "Region", class: (store.errors.any? && !store.errors[:region_attributes].blank? ? "text-danger": "") -%>
-				</div>
-				<div class="col-md-5 col-sm-12 col-xs-12">
-					<%= f.select :region_id, options_from_collection_for_select(  available_regions, "id", "name"), {prompt: "-- Select --"}, {disabled: !available_regions.any?, onchange: 'resetNewRegion()', class: 'form-control input-sm'} -%>
-
-					<div>
-						<%= f.fields_for :region do |rf| -%>					
-						<%= rf.label :name, 'Or create a new region: ' -%> 
-						<%= rf.text_field :name, class: 'form-control input-sm', placeholder: 'Name of region', onchange: 'matchAgainstDropDown()' -%>
-						<%= "<p class='text-danger'>#{store.region.errors.full_messages_for(:name).first}</p>".html_safe if store.region.errors.any? && !store.region.errors[:name].blank? -%>
-						<%- end -%>	
-					</div>
-				</div>
-			</div>
-			<div class="row form-group">
-				<div class="col-md-2 col-sm-12 col-xs-12 form-label">
-					<%= f.label :name, "Name of Store", class: (store.errors.any? && !store.errors[:name].blank? ? "text-danger": "") -%>
-				</div>
-				<div class="col-md-5 col-sm-12 col-xs-12">
-					<%= f.text_field :name, class: 'form-control input-sm', placeholder: 'Name of store' -%>
-					<%= "<p class='text-danger'>#{store.errors.full_messages_for(:name).first}</p>".html_safe if store.errors.any? && !store.errors[:name].blank? -%>
-				</div>
-			</div>
-			<div class="row form-group">
-				<div class="col-md-2 col-sm-12 col-xs-12 form-label">
-					<%= f.label :store_number, "Store#" -%>
-				</div>
-				<div class="col-md-5 col-sm-12 col-xs-12">
-					<%= f.text_field :store_number, class: 'form-control input-sm', placeholder: 'Store number' -%>
-				</div>
-			</div>
-			<div class="row form-group">
-				<div class="col-md-2 col-sm-12 col-xs-12 form-label">
-					<label for="addressSearch">Address</label>
-				</div>
-				<div class="col-md-5 col-sm-12 col-xs-12">
-					<input type="text" id="addressSearch" size="100" value="<%= f.object.address unless f.object[:street_address].nil? -%>" onblur="store.checkForEmpty(this)" class="form-control input-sm"/>
-					<%= "<p class='text-danger'>There was a problem with this address.</p>".html_safe if store.errors.any? && !(store.errors[:street_address].blank? && store.errors[:city].blank? && store.errors[:zip].blank?)%>
-				</div>
-			</div>
-			<div class="row form-group">
-				<div class="col-md-2 col-sm-12 col-xs-12 form-label"><%= f.label :locality, "Locality" -%></div>
-				<div class="col-md-5 col-sm-12 col-xs-12"><%= f.text_field :locality, class: 'form-control input-sm', placeholder: 'Locality' -%></div>
-			</div>
-			<div class="row form-group">
-				<div class="col-md-2 col-sm-12 col-xs-12 form-label"><%= f.label :phone, "Phone" -%></div>
-				<div class="col-md-5 col-sm-12 col-xs-12">
-					<%= f.telephone_field :phone, class: "input-sm form-control", placeholder: 'Phone' -%>
-				</div>
+			<div>
+				<%= f.fields_for :region do |rf| -%>					
+				<%= rf.label :name, 'Or create a new region: ' -%> 
+				<%= rf.text_field :name, class: 'form-control', placeholder: 'Name of region', onchange: 'matchAgainstDropDown()' -%>
+				<%= "<p class='text-danger'>#{f.object.region.errors.full_messages_for(:name).first}</p>".html_safe if f.object.region.errors.any? && !f.object.region.errors[:name].blank? -%>
+				<%- end -%>	
 			</div>
 		</div>
-	</div>	
+	</div>
+	<div class="row form-group">
+		<div class="col-md-2 col-sm-12 col-xs-12 form-label">
+			<%= f.label :name, "Name of Store", class: (f.object.errors.any? && !f.object.errors[:name].blank? ? "text-danger": "") -%>
+		</div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<%= f.text_field :name, class: 'form-control', placeholder: 'Name of store' -%>
+			<%= "<p class='text-danger'>#{f.object.errors.full_messages_for(:name).first}</p>".html_safe if f.object.errors.any? && !f.object.errors[:name].blank? -%>
+		</div>
+	</div>
+	<div class="row form-group">
+		<div class="col-md-2 col-sm-12 col-xs-12 form-label">
+			<%= f.label :store_number, "Store#" -%>
+		</div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<%= f.text_field :store_number, class: 'form-control', placeholder: 'Store number' -%>
+		</div>
+	</div>
+	<div class="row form-group">
+		<div class="col-md-2 col-sm-12 col-xs-12 form-label">
+			<label for="addressSearch">Address</label>
+		</div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<input type="text" id="addressSearch" size="100" value="<%= f.object.address unless f.object[:street_address].nil? -%>" onblur="" class="form-control"/>
+			<%= "<p class='text-danger'>There was a problem with this address.</p>".html_safe if f.object.errors.any? && !(f.object.errors[:street_address].blank? && f.object.errors[:city].blank? && f.object.errors[:zip].blank?)%>
+		</div>
+	</div>
+	<div class="row form-group">
+		<div class="col-md-2 col-sm-12 col-xs-12 form-label"><%= f.label :locality, "Locality" -%></div>
+		<div class="col-md-5 col-sm-12 col-xs-12"><%= f.text_field :locality, class: 'form-control', placeholder: 'Locality' -%></div>
+	</div>
+	<div class="row form-group">
+		<div class="col-md-2 col-sm-12 col-xs-12 form-label"><%= f.label :phone, "Phone" -%></div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<%= f.telephone_field :phone, class: "input-sm form-control", placeholder: 'Phone' -%>
+		</div>
+	</div>
 </div>
-<%- end -%>
+<!-- End Content -->
+
 
 <% content_for :head do -%>
 	<style>
@@ -115,14 +96,33 @@ available_regions = Region.where(company_id: f.object[:company_id]).select([:nam
 <% end -%>
 
 <% content_for :page_js do -%>
+
 	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=<%= ENV["google_maps_api_key"] -%>"></script>
 	<%= javascript_include_tag :google_maps, :store_new_edit -%>
 
 	<script type="text/javascript">
-	GoogleMapsAutoComplete();
+	var gmaps = null;
 	var api_path = '<%= api_v1_regions_path(format: :json) -%>';
 
-	var store = new Store({url: api_path});
+	var store = null;
+
+	$(document).ready(function(){
+		store = new Store({url: api_path});
+		gmaps = new GoogleMapsAutoComplete();
+	});
+
+	function remove_contact( handle ){	
+		if($("table#contacts tbody tr").length == 1)
+			$("table#contacts tbody tr input").val("");
+		else
+			$(handle).closest("tr").remove();
+	}
+
+	function add_fields(link, association, content) {
+		var new_id = new Date().getTime();
+		var regexp = new RegExp("new_" + association, "g")
+		$("table#contacts tbody").append(content.replace(regexp, new_id));
+	}
 
 	function resetNewRegionName(){
 		$("input.region-name").val("");
