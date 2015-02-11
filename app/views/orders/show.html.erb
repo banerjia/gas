@@ -8,8 +8,8 @@
 	<button class="btn btn-danger" type="button" onclick="deleteOrder()">
 		<i class="fa fa-trash-o visible-sm visible-xs"></i><span class="hidden-sm hidden-xs">Delete</span>
 	</button>
-	<%= link_to orders_search_path, class: "btn btn-default" do -%>
-		<i class="fa fa-mail-reply visible-sm visible-xs"></i><span class="hidden-sm hidden-xs">Cancel</span>
+	<%= link_to session[:last_page] || orders_search_path, class: "btn btn-default" do -%>
+		<i class="fa fa-mail-reply visible-sm visible-xs"></i><span class="hidden-sm hidden-xs">Close</span>
 	<% end -%>
 
 </div>
