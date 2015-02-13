@@ -9,7 +9,12 @@ class OrdersController < ApplicationController
   def show
     # This approach has been taken to reduce the number of SELECT statements
     order = Order.includes([:store, {:product_orders => [:product]}]).find( params[:id])
-    
+
+    session[:last_page] = request.env['HTTP_REFERER'] || nil \
+        unless \
+          request.env['HTTP_REFERER'] == new_order_url \
+          || request.env['HTTP_REFERER'] == store_new_order_url(order.store) \
+          || request.env['HTTP_REFERER'] == edit_order_url(order)
     
     
     @page_title = "Order Sheet: #{order[:id]}"
@@ -23,6 +28,9 @@ class OrdersController < ApplicationController
   end
   
   def new
+
+    session[:last_page] = request.env['HTTP_REFERER'] || nil
+
     # Initializing the object within the scope of the action
     order = nil 
 
@@ -80,7 +88,7 @@ class OrdersController < ApplicationController
       orders_to_delete = params[:orders].map{ |id| id.to_i }  
     end    
     Order.where({ id: orders_to_delete }).destroy_all
-    render status: 200, json: {sucess: true}.to_json
+    render status: 200, json: {sucess: true, redirect_url: session[:last_page] || orders_search_path}.to_json
   end
   
   def send_email

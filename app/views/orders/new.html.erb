@@ -3,8 +3,7 @@
 <%= form_for order, data: {"ng-app" => "order"}, role: "form" do |f| -%>
 	<div class="well well-sm ng-cloak form-buttons" style="margin-bottom: 0.5em" data-ng-hide="show_store_search">
 		<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary", data: {"ng-disabled" => "order_store_id == null || show_store_search"} -%>
-		
-		<%= link_to "Cancel", orders_search_path, class: "btn btn-default" -%>
+		<%= link_to "Cancel", session[:last_page] || orders_search_path, class: "btn btn-default" -%>
 	</div>
 	<%- if order.errors.count > 0 -%>
 	<div class="row">
