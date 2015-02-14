@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150129000730) do
+ActiveRecord::Schema.define(version: 20150214163922) do
 
   create_table "audit_journals", primary_key: "audit_id", force: true do |t|
     t.string    "title",      limit: 50
@@ -172,8 +172,8 @@ ActiveRecord::Schema.define(version: 20150129000730) do
     t.string   "name",                       limit: 250,                null: false
     t.string   "code",                       limit: 10,                 null: false
     t.integer  "product_category_id",                    default: 1,    null: false
-    t.string   "available_from",             limit: 10
-    t.string   "available_till",             limit: 10
+    t.datetime "from"
+    t.datetime "till"
     t.integer  "sort_order_for_order_sheet", limit: 2,   default: 0,    null: false
     t.boolean  "active",                                 default: true, null: false
     t.datetime "created_at",                                            null: false
