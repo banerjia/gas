@@ -1,7 +1,7 @@
 <tr>
 	<td style="text-transform: uppercase"><%=list[:code] -%></td>
 	<td><%= link_to list[:name], product_path(list[:id])  -%></td>
-	<td class="text-center"><%= list[:active] ? "No" : "Yes" -%></td>
+	<td class="text-center"><%= list[:active] ? "In Circulation" : "Discontinued" -%></td>
 	<td class="visible-md visible-lg text-center"><%= list[:from].strftime("%m/%d/%y") unless list[:from].nil? || list[:from].blank? -%>&nbsp;</td>
 	<td class="visible-md visible-lg text-center"><%= list[:till].strftime("%m/%d/%y") unless list[:till].nil? || list[:till].blank? -%>&nbsp;</td>
 </tr>

@@ -3,8 +3,13 @@ class ProductsController < ApplicationController
     @page_title = "Products"
     @product_categories = ProductCategory.all.order(:name)
 
-    if request.params && request.params[:product_category].present?
-      @products = Product.where(["product_category_id = ?", request.params[:product_category].to_i]).order(:sort_order_for_order_sheet)
+    if request.params 
+      sort = :sort_order_for_order_sheet
+      conditions = {}
+      conditions = conditions.merge({product_category_id: request.params[:product_category]}) if request.params[:product_category].present?
+      conditions = conditions.merge({active: (request.params[:status] == "true")}) if request.params[:status].present?
+      sort = request.params[:sort].to_sym if request.params[:sort].present?
+      @products = Product.where(conditions).order(sort)
     end
   end
   
@@ -58,7 +63,8 @@ class ProductsController < ApplicationController
   def edit
     product = Product.find( params[:id] )
     @page_title = "Edit Product: #{product[:name]}"
-
+    product[:from] = product[:from].to_date.strftime("%m/%d/%Y") unless product[:from].nil?
+    product[:till] = product[:till].to_date.strftime("%m/%d/%Y") unless product[:till].nil?
     render locals: {product: product}
   end
   
@@ -82,7 +88,10 @@ class ProductsController < ApplicationController
   
 private
   def product_params
-    # params[:product][:active] = (params[:product][:active] == "true" || params[:product][:active].to_s == "1")
+    params[:product][:active] = (params[:product][:active].to_s == "true" )
+    params[:product][:from] = Date.strptime(params[:product][:from], "%m/%d/%Y") unless params[:product][:from].blank? || params[:product][:from].nil?
+    params[:product][:till] = Date.strptime(params[:product][:till], "%m/%d/%Y") unless params[:product][:till].blank? || params[:product][:till].nil?
+    
     params
       .require(:product)
       .permit(

@@ -8,7 +8,7 @@ class Product < ActiveRecord::Base
   before_save do |product|
     product.attributes.each  do |attr_name,attr_value| 
       product[attr_name].strip! if Product.columns_hash[attr_name].type == :string && !product[attr_name].nil?
-      product[attr_name] = nil if attr_value.blank?
+      product[attr_name] = nil if attr_value.blank?  && Product.columns_hash[attr_name].type != :boolean
     end
     product[:code].upcase!
   end

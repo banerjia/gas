@@ -41,14 +41,14 @@
 				<%= product.product_category[:name] -%>
 			</div>
 		</div>
-		<%- if !(product[:available_from].nil? || product[:available_till].nil?) -%>
+		<%- if !(product[:from].nil? && product[:till].nil?) -%>
 		<div class="row">
 			<div class="col-md-2 col-sm-12 col-xs-12 form-label">
 				Availability
 			</div>
 			<div class="col-md-3 col-sm-12 col-xs-12">
-				<%= "From: #{product[:available_from].strftime('%m/%d/%y')} <br/>".html_safe unless product[:available_from].nil? || product[:available_from].blank? -%>
-				<%= "Till: #{product[:available_till].strftime('%m/%d/%y')} <br/>".html_safe unless product[:available_till].nil? || product[:available_till].blank? -%>
+				<%= "From: #{product[:from].strftime('%m/%d/%y')} <br/>".html_safe unless product[:from].nil? || product[:from].blank? -%>
+				<%= "Till: #{product[:till].strftime('%m/%d/%y')} <br/>".html_safe unless product[:till].nil? || product[:till].blank? -%>
 				
 			</div>
 		</div>

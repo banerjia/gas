@@ -13,14 +13,14 @@ class ProductCategory < ActiveRecord::Base
 
   def self.for_select
   	product_categories_with_current_products = Product.where(\
-  		["active = 1 AND (from IS NULL OR from <= :today) AND (till IS NULL OR till >= :today)", {today: Date.today.to_date}] \
+  		["`active` = 1 AND (`from` IS NULL OR `from` <= :today) AND (`till` IS NULL OR `till` >= :today)", {today: Date.today.to_date}] \
   	).pluck(:product_category_id)
   	self.order(:sort_order_for_order_sheet).find(product_categories_with_current_products)
   end
 
   def current_products
   	products.where(\
-  		["active = 1 AND (from IS NULL OR from <= :today) AND (till IS NULL OR till >= :today)", {today: Date.today.to_date}] \
+  		["`active` = 1 AND (`from` IS NULL OR `from` <= :today) AND (`till` IS NULL OR `till` >= :today)", {today: Date.today.to_date}] \
   	).order(:sort_order_for_order_sheet)
   end
 end
