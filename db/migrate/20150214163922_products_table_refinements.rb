@@ -2,10 +2,10 @@ class ProductsTableRefinements < ActiveRecord::Migration
   def change
   	reversible do |dir|
   		dir.up do 
-        # add_column :products, :from, :datetime, after: :available_from
-        # add_column :products, :till, :datetime, after: :available_till
+         add_column :products, :from, :datetime, after: :available_from
+         add_column :products, :till, :datetime, after: :available_till
 
-        # change_column :products, :active, :boolean, null: false, default: true
+         change_column :products, :active, :boolean, null: false, default: true
 
         Product.where("`available_from` IS NOT NULL && LENGTH(`available_from`) > 5").each do |product|
           product[:from] = Date.strptime(product[:available_from], "%m/%d/%Y")
