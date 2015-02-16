@@ -1,7 +1,9 @@
-<%= form_for @product do |f| -%>
-	<div class="form-buttons">
+<%= form_for product do |f| -%>
+	<div class="form-buttons well well-sm">
 		<button class="btn btn-success">Save</button>
-		<button type="button" class="btn btn-default">Cancel</button>
+		<%= link_to session[:last_page] || product_path, class: "btn btn-default" do -%>
+			<i class="fa fa-mail-reply visible-sm visible-xs"></i><span class="visible-md visible-lg">Cancel</span>
+		<% end -%>
 	</div>
 <%= render :partial => 'entry', :locals => {:f => f} -%>
 <%- end -%>

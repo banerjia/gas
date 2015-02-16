@@ -1,47 +1,54 @@
 <div id="product_entry">
 	<div class="row">
+		<div class="col-md-2 col-sm-12 col-xs-12">			
+			<label for="">Discontinued</label>
+		</div>
 		<div class="col-md-3 col-sm-12 col-xs-12">
+			<%= f.radio_button :active, false -%>
+			<%= f.label :active, "Yes", value: false -%>
+			<%= f.radio_button :active, true -%>
+			<%= f.label :active, "No", value: true -%>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-2 col-sm-12 col-xs-12">
 			<%= f.label :name, "Name" -%>
 		</div>
-		<div class="col-md-5 col-sm-12 col-xs-12">
+		<div class="col-md-3 col-sm-12 col-xs-12">
 			<%= f.text_field :name, class: "form-control" -%>
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-3 col-sm-12 col-xs-12">
+		<div class="col-md-2 col-sm-12 col-xs-12">
 			<%= f.label :code, "Code" -%>
 		</div>
-		<div class="col-md-5 col-sm-12 col-xs-12">
+		<div class="col-md-3 col-sm-12 col-xs-12">
 			<%= f.text_field :code, class: "form-control", max_length: 10, style: "text-transform:uppercase" -%>
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-3 col-sm-12 col-xs-12">
+		<div class="col-md-2 col-sm-12 col-xs-12">
 			<%= f.label :product_category_id, "Product Category" -%>
 		</div>
-		<div class="col-md-5 col-sm-12 col-xs-12">
-			<input type="radio" name="category_type" value="existing" checked/>
-			Select: <%= f.collection_select :product_category_id, ProductCategory.all, :id, :proper_name, class: "form-control" -%><br/> 
-			<input type="radio" name="category_type" value="new"/>
-			Create a new category: <input type="text" name="new_category" class="form-control"/>
+		<div class="col-md-3 col-sm-12 col-xs-12">
+			<%= f.collection_select :product_category_id, ProductCategory.all.order(:display_order), :id, :proper_name, {}, {class: "form-control"} -%>
 		</div>
 	</div>
 	<div class="row">
+		<div class="col-md-2 col-sm-12 col-xs-12">
+			<%= f.label :from, "Availability" -%>
+		</div>
 		<div class="col-md-3 col-sm-12 col-xs-12">
-			<%= f.label :available_from, "Available" -%>
-		</div>
-		<div class="col-md-5 col-sm-12 col-xs-12">
-			<%= f.text_field :available_from, max_length: 10, placeholder: 'From', class: "form-control" -%>
-			<%= f.text_field :available_till, max_length: 10, placeholder: 'Till', class: "form-control" -%>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-3 col-sm-12 col-xs-12">
-			<label for="">Active</label>
-		</div>
-		<div class="col-md-5 col-sm-12 col-xs-12">
-			<%= f.check_box :active -%>
-			<%= f.label :active, "This product is actively used." -%>
+			<div>
+				<div class="input-group date">
+				  <%= f.text_field :from, placeholder: "From", class: 'form-control' -%><span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+				</div>
+			</div>
+			<div>
+				<div class="input-group date">
+				  <%= f.text_field :till, placeholder: "Till", class: 'form-control' -%><span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -64,9 +71,18 @@
 <% end -%>
 
 <% content_for :page_js do -%>
+<%= javascript_include_tag "bootstrap-datepicker" -%>
 <script type="text/javascript">
 	$(document).ready( function(){
 		$("input#product_name").focus();
+		$('.input-group.date')
+		       .datepicker({
+		       		format: 'mm/dd/yyyy',
+				    todayBtn: "linked",
+				    clearBtn: true,
+				    autoclose: true,
+				    todayHighlight: true
+				});
 	})
 </script>
 <% end -%>
