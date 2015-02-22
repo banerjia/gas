@@ -44,7 +44,7 @@ class Order < ActiveRecord::Base
   end
 
   def filename
-    "TEST_Order_" + (self[:invoice_number].blank? ? 'id_' + self[:id].to_s : self[:invoice_number]).to_s + ".xlsx"
+    "Order_" + (self[:invoice_number].blank? ? 'id_' + self[:id].to_s : self[:invoice_number]).to_s + ".xlsx"
   end
 
   def organize_products_by_category
