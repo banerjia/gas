@@ -28,7 +28,7 @@
       <table class="table table-striped" id="order_list">
         <thead>
           <tr>
-            <th scope="col" style="width: 5%" class="hidden-xs">
+            <th scope="col" style="width: 5%">
               <%= check_box_tag nil, nil, false, onchange: "toggleCheckboxes(this)", class: "select-all-ckb" if !defined?(orders) || (defined?(orders) && orders.size > 0) -%>
             </th>
             <th scope="col" style="width: 10%">
@@ -56,25 +56,28 @@
         <tfoot>
           <tr>
             <td colspan="6">
-              <div class="col-md-3 hidden-sm hidden-xs">
-                <button id="btn_email_order" class="btn btn-info" data-disable-with="Sending..." disabled="disabled" onclick="$('span#emal_response').text('').removeClass('text-danger').removeClass('text-success')" >Email Order(s)</button>
+              <div class="col-md-3 col-sm-2 col-xs-2">
+                <button id="btn_email_order" class="btn btn-info btn-sm" data-disable-with="Sending..." disabled="disabled" onclick="$('span#emal_response').text('').removeClass('text-danger').removeClass('text-success')" >
+                  <i class="fa fa-envelope-o hidden-md hidden-lg"></i>
+                  <span class="hidden-xs hidden-sm">Email Order(s)</span>
+                </button>
                 <span id="email_response" class="visible-md visible-lg" style="display: inline-block"></span>
               </div>   
               <%- if page > 1 || more_pages -%>                    
-              <div class="col-md-9 col-sm-12 col-xs-12 pull-right">
+              <div class="col-md-9 col-sm-10 col-xs-10">
                 <div class="row" style="margin-bottom: 1em">
                   <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="btn-toolbar pull-right" role="toolbar">
                       <div class="btn-group" role="group"> 
                         <button 
                           type="button" 
-                          class="btn btn-default"
+                          class="btn btn-sm btn-default"
                           <%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
                           onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: 1}))-%>'">
                           I<i class="fa fa-chevron-left"></i><span class="hidden-sm hidden-xs"> First</span>
                         </button>     
                         <button 
-                          class="btn btn-default" 
+                          class="btn btn-sm btn-default" 
                           type="button"
                           <%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
                           onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: page-1})) -%>'">
@@ -82,7 +85,7 @@
                           <span class="hidden-sm hidden-xs"> Back</span>         
                         </button>
                         <button 
-                          class="btn btn-default" 
+                          class="btn btn-sm btn-default" 
                           type="button"
                           <%= !more_pages ? 'disabled="disabled"'.html_safe : nil -%>
                           onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: page+1})) -%>'">
@@ -91,7 +94,7 @@
                         </button>
                         <button 
                           type="button" 
-                          class="btn btn-default"
+                          class="btn btn-sm btn-default"
                           <%= page == total_pages ? 'disabled="disabled"'.html_safe : nil -%>
                           onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: total_pages})) -%>'">
                           <span class="hidden-sm hidden-xs">Last </span><i class="fa fa-chevron-right"></i>I
@@ -111,7 +114,7 @@
         <%- if orders.size > 0 -%>
           <%- orders.each do |order| -%>
             <tr>
-              <td class="hidden-xs"><%= check_box_tag "order[]", order[:id], false, onchange:  "tallyCheckboxes()", class: "send-email" -%></td>
+              <td><%= check_box_tag "order[]", order[:id], false, onchange:  "tallyCheckboxes()", class: "send-email" -%></td>
               <td><%= order[:created_at].to_date.strftime(Date.today.year != order[:created_at].to_date.year ? "%b %d, %Y" : "%b %d") -%></td>
               <td class="hidden-sm hidden-xs"><%= link_to order[:id], order_path(order[:id]) -%></td>
               <td>
