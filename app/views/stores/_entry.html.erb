@@ -33,15 +33,7 @@
 			<%= f.label :region_id, "Region", class: (f.object.errors.any? && !f.object.errors[:region_attributes].blank? ? "text-danger": "") -%>
 		</div>
 		<div class="col-md-5 col-sm-12 col-xs-12">
-			<%= f.select :region_id, options_from_collection_for_select(  available_regions, "id", "name"), {prompt: "-- Select --"}, {disabled: !available_regions.any?, onchange: 'resetNewRegion()', class: 'form-control'} -%>
-
-			<div>
-				<%= f.fields_for :region do |rf| -%>					
-				<%= rf.label :name, 'Or create a new region: ' -%> 
-				<%= rf.text_field :name, class: 'form-control', placeholder: 'Name of region', onchange: 'matchAgainstDropDown()' -%>
-				<%= "<p class='text-danger'>#{f.object.region.errors.full_messages_for(:name).first}</p>".html_safe if f.object.region.errors.any? && !f.object.region.errors[:name].blank? -%>
-				<%- end -%>	
-			</div>
+			<%= f.select :region_id, options_from_collection_for_select(  available_regions, "id", "name", f.object[:region_id].to_s), {include_blank: '-- Select --'}, {disabled: !available_regions.any?, class: 'form-control'} -%>
 		</div>
 	</div>
 	<div class="row form-group">
