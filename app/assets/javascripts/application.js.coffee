@@ -5,7 +5,7 @@
 # the compiled file.
 #
 # require jquery
-# require jquery_ujs
+#= require jquery_ujs
 
 String.prototype.toTitleCase=() ->
 	this.replace /\w\S*/g, (txt) ->

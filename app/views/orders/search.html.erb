@@ -55,29 +55,22 @@
         <%- if orders.size > 0  -%> 
         <tfoot>
           <tr>
-            <td colspan="6">
-              <div class="col-md-3 col-sm-2 col-xs-2">
-                <button id="btn_email_order" class="btn btn-info btn-sm" data-disable-with="Sending..." disabled="disabled" onclick="$('span#emal_response').text('').removeClass('text-danger').removeClass('text-success')" >
-                  <i class="fa fa-envelope-o hidden-md hidden-lg"></i>
-                  <span class="hidden-xs hidden-sm">Email Order(s)</span>
-                </button>
-                <span id="email_response" class="visible-md visible-lg" style="display: inline-block"></span>
-              </div>   
+            <td colspan="6">                
               <%- if page > 1 || more_pages -%>                    
-              <div class="col-md-9 col-sm-10 col-xs-10">
+              <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="row" style="margin-bottom: 1em">
                   <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="btn-toolbar pull-right" role="toolbar">
                       <div class="btn-group" role="group"> 
                         <button 
                           type="button" 
-                          class="btn btn-sm btn-default"
+                          class="btn btn-default"
                           <%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
                           onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: 1}))-%>'">
                           I<i class="fa fa-chevron-left"></i><span class="hidden-sm hidden-xs"> First</span>
                         </button>     
                         <button 
-                          class="btn btn-sm btn-default" 
+                          class="btn btn-default" 
                           type="button"
                           <%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
                           onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: page-1})) -%>'">
@@ -85,7 +78,7 @@
                           <span class="hidden-sm hidden-xs"> Back</span>         
                         </button>
                         <button 
-                          class="btn btn-sm btn-default" 
+                          class="btn btn-default" 
                           type="button"
                           <%= !more_pages ? 'disabled="disabled"'.html_safe : nil -%>
                           onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: page+1})) -%>'">
@@ -94,7 +87,7 @@
                         </button>
                         <button 
                           type="button" 
-                          class="btn btn-sm btn-default"
+                          class="btn btn-default"
                           <%= page == total_pages ? 'disabled="disabled"'.html_safe : nil -%>
                           onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: total_pages})) -%>'">
                           <span class="hidden-sm hidden-xs">Last </span><i class="fa fa-chevron-right"></i>I
@@ -106,6 +99,24 @@
                 </div>            
               </div>
               <% end -%>
+            </td>
+          </tr>
+          <tr>  
+            <td colspan="6" style="border:none">           
+              <div id="email_comments">
+                <label for="email_body">Comments</label><br/>
+                <%= text_area_tag "email_body", nil, rows: 5, class: 'form-control' -%>
+                <div class="row">
+                  <div class="col-md-5 col-sm-5 col-xs-5">
+                    <span id="email_response" style="display: inline-block"></span>
+                  </div>
+                  <div class="col-md-7 col-sm-7 col-xs-7">
+                    <button id="btn_email_order" class="btn btn-info pull-right" data-disable-with="Sending..." disabled="disabled" onclick="$('span#email_response').text('').removeClass('text-danger').removeClass('text-success')" >
+                      Email Order(s)
+                    </button>
+                  </div>
+                </div>
+              </div>
             </td>
           </tr>
         </tfoot>
@@ -141,7 +152,6 @@
         <% end -%>
         </tbody>
       </table>
-    <!-- </form> -->
     <% end -%>
   </div>
   <div class="col-md-pull-10 col-md-2 col-sm-pull-9 col-sm-3 col-xs-12 well well-sm">
@@ -250,6 +260,7 @@
   window.email_order_path = '<%= email_order_path -%>'; 
   window.order_list_form = null;
   window.email_button = null;
+  window.email_comments = null;
   var num_ckbs = 0;
 
 /*
@@ -272,6 +283,7 @@ $(document).ready ->
     window.order_list_form = $("form#order_list_form");
     window.email_button = $("button#btn_email_order", window.order_list_form);
     window.select_all_ckb = $("input:checkbox.select-all-ckb:first", window.order_list_form);
+    window.email_comments = $("div#email_comments");
     num_ckbs = $("input:checkbox.send-email", window.order_list_form).length;
     window.order_list_form
       .on("ajax:success", function(e, data, xhr){
@@ -280,11 +292,13 @@ $(document).ready ->
         selected_ckbs.each(function(){
           $("td.email-status:first", $(this).parents("tr:first")).html("<i class=\"fa fa-check\"></i>");
         });
+        $("textarea", window.email_comments).val('');
 
       })
       .on("ajax:error", function(e, xhr, status, error){
         $("span#email_response").removeClass("text-success").addClass("text-danger").text("Unable to send email");
-      })
+      });
+    window.email_comments.hide();
   });
 
   function tallyCheckboxes(){
@@ -305,9 +319,11 @@ $(document).ready ->
     // the status of the email button
     if(num_checked > 0){
       window.email_button.removeAttr("disabled");
+      window.email_comments.show();
     }
     else{
       window.email_button.attr("disabled", "disabled");
+      window.email_comments.hide();
     }
   }
 
@@ -315,10 +331,12 @@ $(document).ready ->
     if($(sender).is(":checked")){
       $("input.send-email", window.order_list_form).prop("checked", true);
       window.email_button.removeAttr("disabled");
+      window.email_comments.show();
     }
     else{
       $("input.send-email", window.order_list_form).prop("checked", false);
       window.email_button.attr("disabled", "disabled");
+      window.email_comments.hide();
     }
   }
 

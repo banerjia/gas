@@ -17,7 +17,6 @@
 </head>
 <body>
 <div style="width:80%; margin:0 auto; text-align: left">
-	
 	<table cellspacing="2" cellpadding="4" width="99%" style="border-color: #fff; text-align: left">
 		<tr>
 			<td colspan="2" style="color: #fff; background-color: #2c3e50; padding: 10px">
@@ -42,6 +41,14 @@
 			<th scope="row" style="color: #000000; background-color: #CCCCCC; text-align: right; width: 20%; v-align: top">Date</th>
 			<td style="border-bottom: 1px solid #000000"><%= order[:created_at].strftime("%b %d, %Y") -%></td>
 		</tr>
+		<%- if defined?(optional_message) && !(optional_message.nil? || optional_message.blank?) -%>
+		<tr>
+			<th scope="row" style="color: #000000; background-color: #CCCCCC; text-align: right; width: 20%; v-align: top">Comments</th>
+			<td style="border-bottom: 1px solid #000000">
+				<%= optional_message -%>
+			</td>
+		</tr>
+		<% end -%>
 		<tr>
 			<th scope="row" style="color: #000000; background-color: #CCCCCC; text-align: right; width: 20%; v-align: top">Links</th>
 			<td style="border-bottom: 1px solid #000000">
