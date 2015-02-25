@@ -14,7 +14,7 @@ gem 'sorcery'
 gem 'bcrypt-ruby'
 gem 'axlsx', '~> 2.0'
 gem 'axlsx_rails'
-gem 'bourbon'
+gem 'jquery-rails'
 gem 'zip-zip'
 
 group :production do 
@@ -35,6 +35,5 @@ group :assets do
   gem 'sass-rails'
   gem 'uglifier'
   gem 'coffee-rails'
-  gem 'jquery-rails'
   gem 'jbuilder' 
 end
