@@ -25,6 +25,13 @@
       </tr>
       <tr>
         <td>
+          <%- if defined?(optional_message) && !(optional_message.nil? || optional_message.blank?) -%>
+          <p>
+            <strong>Comments</strong>
+            <br/>
+            <%= optional_message -%>
+          </p>
+          <% end -%>
           <p>The following <%= pluralize( orders.size, "order" ) -%> are attached with this message.</p>
           <table cellspacing="1" cellpadding="3" width="100%" style="border: 2px solid #333;text-align:left">
             <tr>
