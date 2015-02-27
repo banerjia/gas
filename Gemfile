@@ -12,24 +12,24 @@ gem 'elasticsearch-model'
 gem 'elasticsearch-rails'
 gem 'sorcery'
 gem 'bcrypt-ruby'
+gem 'axlsx', '~> 2.0'
 gem 'axlsx_rails'
-gem 'bourbon'
+gem 'jquery-rails'
 gem 'zip-zip'
 
-group :production do 
-  gem 'asset_sync'
-end
 group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
+  gem 'capistrano'
+  gem 'capistrano-bundler'
+  gem 'capistrano-rvm'
+  gem 'capistrano-passenger'
   gem 'meta_request'
-  gem 'byebug'
 end 
 
 group :assets do
   gem 'sass-rails'
   gem 'uglifier'
   gem 'coffee-rails'
-  gem 'jquery-rails'
   gem 'jbuilder' 
 end
