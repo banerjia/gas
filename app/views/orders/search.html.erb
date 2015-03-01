@@ -287,7 +287,14 @@ $(document).ready ->
     num_ckbs = $("input:checkbox.send-email", window.order_list_form).length;
     window.order_list_form
       .on("ajax:success", function(e, data, xhr){
-        $("span#email_response").removeClass("text-danger").addClass("text-success").text("Email Sent!");
+        $("span#email_response")
+          .removeClass("text-danger")
+          .addClass("text-success")
+          .text("Email Sent!")
+          .show()
+          .fadeOut(5000, function(){
+            $("span#email_response").text('');
+          });
         var selected_ckbs = $("input.send-email:checked", window.order_list_form);
         selected_ckbs.each(function(){
           $("td.email-status:first", $(this).parents("tr:first")).html("<i class=\"fa fa-check\"></i>");
@@ -296,7 +303,11 @@ $(document).ready ->
 
       })
       .on("ajax:error", function(e, xhr, status, error){
-        $("span#email_response").removeClass("text-success").addClass("text-danger").text("Unable to send email");
+        $("span#email_response")
+          .removeClass("text-success")
+          .addClass("text-danger")
+          .text("Unable to send emails at this time. Please try again later.")
+          .show();
       });
     window.email_comments.hide();
   });
