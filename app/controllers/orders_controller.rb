@@ -8,7 +8,7 @@ class OrdersController < ApplicationController
   
   def show
     # This approach has been taken to reduce the number of SELECT statements
-    order = Order.includes([:store, {:product_orders => [:product]}]).find( params[:id])
+    order = Order.includes([:store, {:product_orders => [:product, :volume_unit]}]).find( params[:id])
 
     session[:last_page] = request.env['HTTP_REFERER'] || nil \
         unless \

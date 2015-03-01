@@ -49,7 +49,7 @@ class Order < ActiveRecord::Base
 
   def organize_products_by_category
     products_by_category = Array.new
-    productOrders = self.product_orders
+    productOrders = self.product_orders.includes(:product)
     product_category_ids = productOrders.map{ |product_order| product_order.product[:product_category_id]}.uniq
     
     # Camel case used for productCategories to distinguish it from product_categories association
@@ -59,6 +59,7 @@ class Order < ActiveRecord::Base
       element_to_push = Hash.new
       element_to_push[:products] = \
           productOrders.map{ |product_order| product_order if product_order.product[:product_category_id] ==  category[:id] }.compact
+      element_to_push[:products] = element_to_push[:products].sort{ |a,b| a.product[:sort_order_for_order_sheet] <=> b.product[:sort_order_for_order_sheet]}
       element_to_push[:name] = category[:name]
       products_by_category.push( element_to_push )
     end

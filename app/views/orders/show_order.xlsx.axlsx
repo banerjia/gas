@@ -65,7 +65,7 @@ wb.styles do |s|
 		sleeve_total = 0
 		index = 0
 		
-		order.product_orders.sort{|x| x.product[:sort_order_for_order_sheet]}.each do |product_order|
+		order.product_orders.sort{|a,b| a.product[:sort_order_for_order_sheet] <=> b.product[:sort_order_for_order_sheet]}.each do |product_order|
 			row = sheet.add_row
 			row.add_cell product_order.product[:code]
 			row.add_cell product_order.product[:name]
