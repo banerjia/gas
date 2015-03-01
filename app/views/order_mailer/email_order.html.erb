@@ -57,37 +57,6 @@
 				<a href="<%= order_url(order[:id], :format => :xlsx ) -%>">Download </a>
 			</td>
 		</tr>
-		<tr>
-			<td colspan="2">
-
-				<table style="border-collapse:collapse" cellpadding="4" width="99%">
-					<thead>
-						<tr>
-							<th scope="col" style="background-color: #CCCCCC; width: 50%; text-align:left">Product</th>
-							<th scope="col" style="background-color: #CCCCCC; width: 25%"><abbr title="Quantity">Qty</abbr></th>
-							<th scope="col" style="background-color: #CCCCCC; width: 25%">Sleeve(s)</th>
-						</tr>
-					</thead>
-					<%- order.organize_products_by_category.each do |product_category| -%>
-						<tbody>
-							<tr>
-								<td colspan="3" style="background-color:#eeeeee; padding: 5px; text-transform:uppercase"><%= product_category[:name] -%></td>
-							</tr>
-						
-							<%- product_category[:products].each do |product_order| -%>
-							<tr>
-								<td style="padding-left: 2em"><%= product_order.product[:name] -%></td>
-								<td style="text-align: center"><%= product_order[:quantity].to_s + ' ' + product_order.volume_unit[:name] -%></td>
-								<td style="text-align: center"><%= pluralize( product_order.sleeves, "sleeve" ) -%></td>
-							</tr>
-							<%- end -%>
-						</tbody>
-					<%- end -%>
-
-				</table>
-
-			</td>
-		</tr>
 	</table>
 </div>
 </body>
