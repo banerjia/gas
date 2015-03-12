@@ -1,5 +1,7 @@
 class AuditsController < ApplicationController
 	def index
+		
+		session.delete(:last_page)
 		redirect_to action: :search
 	end
 

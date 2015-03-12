@@ -3,6 +3,8 @@ class OrdersController < ApplicationController
   $sort_fields = %w( `orders`.`created_at` `orders`.`deliver_by_date` `stores.name` )
   
   def index
+    
+    session.delete(:last_page)
     redirect_to :action => "search"
   end
   
@@ -149,7 +151,6 @@ class OrdersController < ApplicationController
     }
     respond_to do |format|
       format.html do
-        
         @page_title = "Orders"
         
         render locals: return_value
