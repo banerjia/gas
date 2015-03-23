@@ -78,6 +78,7 @@
 <% end -%>
 	<thead>
 		<tr>
+			<td style="border-top: 2px solid #000;border-bottom: 2px solid #000;width: 2%"></td>
 			<th scope="col" style="border-top: 2px solid #000;width: 15%">
 				<%= link_to audit_search_path(options_without_sort.merge({sort: new_sort})) do -%>
 					Date <i class="fa fa-caret-<%= (!options[:sort].present? || options[:sort].index("-asc").nil? ? "down" : "up") %>"></i>
@@ -90,7 +91,7 @@
 			<th scope="col" class="hidden-xs" style="border-top: 2px solid #000;width: 20%">
 				<%= select_tag :_auditor, options_for_select(audits[:aggs][:auditors].collect{ |p| p[:name]}, options[:_auditor]), prompt: "All Auditors", class: "form-control input-sm", onchange: "this.form.submit()" -%>
 			</th>
-			<th scope="col" style="border-top: 2px solid #000;width: 25%" class="text-center">
+			<th scope="col" style="border-top: 2px solid #000;width: 23%" class="text-center">
 				<%= select_tag :_score_range, options_for_select(audits[:aggs][:score_ranges].collect{ |p| [p[:name], [p[:from], p[:to]]]}, options[:_score_range]), prompt: "All Scores", class: "form-control input-sm", onchange: "this.form.submit()" -%>
 			</th>
 		</tr>
@@ -98,7 +99,7 @@
 	<%- if audits_list.size > 0 -%>
 	<tfoot>
 		<tr class="active">
-			<td colspan="4" style="border-top:1px solid #ccc; padding: 0.7em">
+			<td colspan="5" style="border-top:1px solid #ccc; padding: 0.7em">
 				<ul class="list-unstyled list-inline">
 					<li class="col-md-5 col-sm-12 col-xs-12">
 						<i class="fa fa-warning text-danger"></i>
@@ -116,8 +117,20 @@
 		audit_store = audit[:store] || audit.store
 	-%>
 		<tr>
+			<td>
+				<%- if audit.images.size > 0  -%>
+				<a href="<%= audit.images.first[:content_url] -%>" class="fancybox-thumb" rel="fancybox-thumb">
+					<i class="fa fa-sm fa-camera"></i>
+				</a>
+				<%- end -%>
+			</td>
 			<td><%= audit[:created_at].to_date.strftime("%b %d" + (audit[:created_at].to_date.year != Date.today.year ? ", %Y" : "")) -%></td>
-			<td><%= link_to audit_store.full_name, audit_path( audit[:id] ) -%></td>
+			<td>
+				<%= link_to audit_store.full_name, audit_path( audit[:id] ) -%>
+				<%- if audit.comments.size > 0  -%>
+					<br/><strong>Comments:</strong> <%= audit.comments.first[:content] -%>
+				<%- end -%>
+			</td>
 			<td class="hidden-xs"><%= audit[:auditor_name] -%></td>
 			<td class="text-center">
 				<%= audit.score[:total]-%>
@@ -140,3 +153,29 @@
 </table>
 </div>
 </form>
+<%- content_for :head do -%>
+	<%= stylesheet_link_tag "jquery.fancybox.css" -%>
+<%- end -%>
+
+<%- content_for :page_js do -%>
+	<%= javascript_include_tag "jquery.fancybox.js" -%>
+	<script type="text/javascript">
+
+	$(document).ready(function() {
+		$(".fancybox-thumb").fancybox({
+			prevEffect	: 'none',
+			nextEffect	: 'none',
+			helpers	: {
+				title	: {
+					type: 'outside'
+				},
+				thumbs	: {
+					width	: 50,
+					height	: 50
+				}
+			}
+		});
+	});
+	</script>
+
+<%- end -%>
