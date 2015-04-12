@@ -1,6 +1,6 @@
 <%-
 	sanitized_options_with_sort = options.clone
-	[:page, :per_page].each { |key| sanitized_options_with_sort.delete(key)}
+	[:per_page].each { |key| sanitized_options_with_sort.delete(key)}
 
 	sanitized_options = sanitized_options_with_sort.clone
 	sanitized_options.delete(:sort)

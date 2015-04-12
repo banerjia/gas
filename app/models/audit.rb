@@ -27,6 +27,7 @@ class Audit < ActiveRecord::Base
   # Callbacks
 
   before_save do
+    self[:auditor_name] = self[:auditor_name].strip.titlecase
     AuditMetric.where(audit_id: self[:id]).destroy_all
     Comment.delete_all({commentable_id: self[:id], commentable_type: 'Audit'})
     Image.delete_all({imageable_id: self[:id], imageable_type: 'Audit'})
