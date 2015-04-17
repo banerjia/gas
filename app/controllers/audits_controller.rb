@@ -167,7 +167,7 @@ class AuditsController < ApplicationController
 	def search
 		params = (request.params || {}).clone
 		params[:page] ||=  1 
-		params[:per_page] ||= $per_page
+		params[:per_page] ||= $audit_page_size
 		params = params.merge({sort: "created_at-desc"}) unless params[:sort].present?
 		if params[:_score_range].present?
 			matches = params[:_score_range].scan(/[\d\.]+/)
