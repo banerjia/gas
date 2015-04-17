@@ -63,7 +63,7 @@ module AuditSearchable
       end
       
       page = (params[:page] || 1).to_i   
-      size = (params[:per_page] || 10).to_i
+      size = (params[:per_page] || $audit_page_size).to_i
       offset = (page - 1) * size
       
       query_bool_array_must = []
