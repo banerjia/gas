@@ -4,7 +4,7 @@
 	more_pages = false unless defined?(more_pages)
 	total_audits ||= 0
 	page = (defined?(options) && options[:page].present? ? options[:page] : 1).to_i
-	per_page = (options[:per_page] || 10).to_i
+	per_page = (options[:per_page] || $audit_page_size).to_i
 
 	audits_list = audits[:results]
 	total_audits = audits[:total].to_i
