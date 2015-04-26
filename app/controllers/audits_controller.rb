@@ -168,6 +168,13 @@ class AuditsController < ApplicationController
 		params = (request.params || {}).clone
 		params[:page] ||=  1 
 		params[:per_page] ||= $audit_page_size
+
+		# Override the page specifications when attempting to download
+		if params[:format] == 'xlsx'
+			params[:per_page] = 10000 
+			params[:page] = 1
+		end
+
 		params = params.merge({sort: "created_at-desc"}) unless params[:sort].present?
 		if params[:_score_range].present?
 			matches = params[:_score_range].scan(/[\d\.]+/)
@@ -202,6 +209,10 @@ class AuditsController < ApplicationController
 
 			format.json do 
 				render json: results.to_json
+			end
+
+			format.xlsx do
+				render locals: {results: results[:results]}
 			end
 		end
 	end

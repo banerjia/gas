@@ -24,9 +24,15 @@
 	options_without_sort = options.reject{|k,v| k.to_s == 'sort'}
 
 -%>
-<%- if page > 1 || more_pages -%>
+
 <div class="row" style="margin-bottom: 1em">
-	<div class="col-md-12 col-sm-12 col-xs-12">
+	<div class="col-md-5 col-sm-2 col-xs-2">
+		<%= link_to audit_search_path(params: options, format: :xlsx), class: 'btn btn-sm btn-info' do -%>
+			<i class="hidden-lg hidden-md fa fa-download"></i><span class="hidden-sm hidden-xs"> Download</span>
+		<% end -%>
+	</div>
+	<div class="col-md-7 col-sm-10 col-xs-10">
+		<%- if page > 1 || more_pages -%>
 		<div class="btn-toolbar pull-right" role="toolbar">
 			<div class="btn-group" role="group">			
 				<button 
@@ -63,9 +69,10 @@
 				</button>
 			</div>
 		</div>
+		<% end -%>
 	</div>		
 </div>
-<% end -%>
+
 <%= form_tag audit_search_path, method: :get -%>
 <%- options_without_page.reject{ |k,v| k.to_s.index("_") == 0 }.each do |k,v| -%>
 <%- # HTML tags are used instead of hidden_field_tag so we can avoid the form helper from writing IDs that may coflict with other elements in the page -%>
@@ -127,9 +134,6 @@
 			<td><%= audit[:created_at].to_date.strftime("%b %d" + (audit[:created_at].to_date.year != Date.today.year ? ", %Y" : "")) -%></td>
 			<td>
 				<%= link_to audit_store.full_name, audit_path( audit[:id] ) -%>
-				<%- if audit.comments.size > 0  -%>
-					<br/><strong>Comments:</strong> <%= audit.comments.first[:content] -%>
-				<%- end -%>
 			</td>
 			<td class="hidden-xs"><%= audit[:auditor_name] -%></td>
 			<td class="text-center">
