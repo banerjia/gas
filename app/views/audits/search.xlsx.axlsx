@@ -1,0 +1,63 @@
+wb = xlsx_package.workbook
+wb.styles do |s|
+	head = s.add_style( {
+				:fg_color => "00", 
+				:b => true, 
+				:sz => 18
+	})
+	column_head = s.add_style( { 
+					:fg_color => "00",
+					:b => true, 
+					:border => {
+							:style => :thin,
+							:color => "00",
+							:edges => [:top, :bottom] 
+					}
+	})
+	label = s.add_style( {
+					:b => true
+	})
+	bottom_row_border = s.add_style :border => {:style => :thick, :color => "00", :edges => [:bottom] }
+	row_border = s.add_style :border => {:style => :thin, :color => "00", :edges => [:bottom] }
+	alternate_row = s.add_style({ 
+					:bg_color => 'EE',
+					:border => {:style => :thin, :color => "00", :edges => [:bottom] }
+	})
+	problem_row = s.add_style({ 
+					:bg_color => '2E',
+					:border => {:style => :thin, :color => "00", :edges => [:bottom] }
+	})
+	wb.add_worksheet( :name => 'Audits' ) do |sheet|
+		sheet.add_row %w(Date Store Score Has\ Issues Auditor Comments), :style => column_head, :height => 20
+		
+		index = 0
+		
+		results.each do |audit|
+			row = sheet.add_row
+			
+			row.add_cell audit[:created_at].to_date.strftime("%b %d" + (audit[:created_at].to_date.year != Date.today.year ? ", %Y" : ""))
+			row.add_cell audit[:store].full_name, hyperlink: audit_path(audit[:id])
+			row.add_cell audit.score[:total]
+			row.add_cell (audit[:has_unresolved_issues] ? 'Yes': '')
+			row.add_cell audit[:auditor_name]
+			if audit.comments.size > 0
+				row.add_cell audit.comments.first[:content] 
+			else
+				row.add_cell ''
+			end
+			
+			if (index%2) != 0
+				row.style = alternate_row
+			else
+				row.style = row_border
+			end
+			index = index + 1
+			sheet.add_hyperlink :location => 'http://graeterscloudapps.com' + audit_path(audit[:id]), :ref => row.cells.second
+		end
+
+		
+		sheet.column_widths 12, 25, 10, 10, 15
+		
+		sheet.rows.last.style = bottom_row_border				
+	end
+end
