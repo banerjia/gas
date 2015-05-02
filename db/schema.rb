@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150129000730) do
+ActiveRecord::Schema.define(version: 20150502183546) do
 
   create_table "audit_journals", primary_key: "audit_id", force: true do |t|
     t.string    "title",      limit: 50
@@ -23,15 +23,15 @@ ActiveRecord::Schema.define(version: 20150129000730) do
 
   create_table "audit_metric_responses", id: false, force: true do |t|
     t.integer "metric_option_id", limit: 3,    null: false
-    t.integer "metric_id"
-    t.integer "audit_id"
+    t.integer "audit_id",         limit: 8,    null: false
+    t.integer "metric_id",        limit: 3,    null: false
     t.boolean "selected"
     t.string  "entry_value",      limit: 1024, null: false
   end
 
   create_table "audit_metrics", id: false, force: true do |t|
-    t.integer "audit_id"
-    t.integer "metric_id"
+    t.integer "audit_id",   limit: 8,                   null: false
+    t.integer "metric_id",  limit: 3,                   null: false
     t.string  "score_type", limit: 15, default: "base", null: false
     t.integer "loss",       limit: 2,  default: 0,      null: false
     t.integer "bonus",      limit: 2,  default: 0,      null: false
@@ -54,7 +54,6 @@ ActiveRecord::Schema.define(version: 20150129000730) do
 
   add_index "audits", ["store_id", "created_at", "id"], name: "Store_Audit_History", using: :btree
   add_index "audits", ["store_id", "has_unresolved_issues"], name: "index_audits_on_store_id_and_has_unresolved_issues", using: :btree
-  add_index "audits", ["store_id"], name: "index_audits_on_store_id_and_person_id", using: :btree
 
   create_table "comments", id: false, force: true do |t|
     t.integer  "commentable_id",   limit: 8,  null: false
@@ -158,6 +157,15 @@ ActiveRecord::Schema.define(version: 20150129000730) do
     t.integer "display_order",        limit: 2,  default: 65535, null: false
   end
 
+  create_table "product_ordering", id: false, force: true do |t|
+    t.integer "Order"
+    t.integer "ID"
+    t.string  "Name"
+    t.string  "Type",   limit: 45
+    t.string  "Status", limit: 45
+    t.integer "cat_id"
+  end
+
   create_table "product_orders", id: false, force: true do |t|
     t.integer "order_id",                             null: false
     t.integer "product_id",                           null: false
@@ -173,8 +181,8 @@ ActiveRecord::Schema.define(version: 20150129000730) do
     t.string   "name",                       limit: 250,                null: false
     t.string   "code",                       limit: 10,                 null: false
     t.integer  "product_category_id",                    default: 1,    null: false
-    t.string   "available_from",             limit: 10
-    t.string   "available_till",             limit: 10
+    t.datetime "from"
+    t.datetime "till"
     t.integer  "sort_order_for_order_sheet", limit: 2,   default: 0,    null: false
     t.boolean  "active",                                 default: true, null: false
     t.datetime "created_at",                                            null: false
@@ -232,7 +240,37 @@ ActiveRecord::Schema.define(version: 20150129000730) do
     t.string    "county"
     t.string    "state_code",                                null: false
     t.string    "zip",            limit: 10
-    t.string    "country",                    default: "US", null: false
+    t.string    "country",        limit: 3,   default: "US", null: false
+    t.string    "store_number",   limit: 10
+    t.string    "phone",          limit: 15
+    t.integer   "orders_count",   limit: 3,   default: 0,    null: false
+    t.integer   "audits_count",   limit: 2,   default: 0,    null: false
+    t.float     "latitude",       limit: 24
+    t.float     "longitude",      limit: 24
+    t.boolean   "active",                     default: true, null: false
+    t.datetime  "created_at"
+    t.timestamp "updated_at",                                null: false
+  end
+
+  add_index "stores", ["active", "url_id"], name: "index_stores_on_active_and_url_id", using: :btree
+  add_index "stores", ["active"], name: "index_stores_on_active", using: :btree
+  add_index "stores", ["company_id", "country", "state_code"], name: "Stores_by_company_and_location", using: :btree
+  add_index "stores", ["company_id"], name: "CompanyID", using: :btree
+  add_index "stores", ["url_id"], name: "index_stores_on_url_id", unique: true, using: :btree
+
+  create_table "stores_lunds", force: true do |t|
+    t.string    "url_id"
+    t.integer   "company_id",     limit: 3,                  null: false
+    t.integer   "region_id",      limit: 3
+    t.string    "name",           limit: 150
+    t.string    "locality",       limit: 100
+    t.string    "street_address", limit: 200
+    t.string    "suite",          limit: 100
+    t.string    "city",           limit: 150
+    t.string    "county"
+    t.string    "state_code",                                null: false
+    t.string    "zip",            limit: 10
+    t.string    "country",        limit: 3,   default: "US", null: false
     t.string    "store_number",   limit: 10
     t.string    "phone",          limit: 15
     t.integer   "orders_count",   limit: 3,   default: 0,    null: false
@@ -244,11 +282,11 @@ ActiveRecord::Schema.define(version: 20150129000730) do
     t.timestamp "updated_at",                                null: false
   end
 
-  add_index "stores", ["active", "url_id"], name: "index_stores_on_active_and_url_id", using: :btree
-  add_index "stores", ["active"], name: "index_stores_on_active", using: :btree
-  add_index "stores", ["company_id", "country", "state_code"], name: "Stores_by_company_and_location", using: :btree
-  add_index "stores", ["company_id"], name: "CompanyID", using: :btree
-  add_index "stores", ["url_id"], name: "index_stores_on_url_id", unique: true, using: :btree
+  add_index "stores_lunds", ["active", "url_id"], name: "index_stores_on_active_and_url_id", using: :btree
+  add_index "stores_lunds", ["active"], name: "index_stores_on_active", using: :btree
+  add_index "stores_lunds", ["company_id", "country", "state_code"], name: "Stores_by_company_and_location", using: :btree
+  add_index "stores_lunds", ["company_id"], name: "CompanyID", using: :btree
+  add_index "stores_lunds", ["url_id"], name: "index_stores_on_url_id", unique: true, using: :btree
 
   create_table "volume_units", force: true do |t|
     t.string   "name",              limit: 20,                                        null: false

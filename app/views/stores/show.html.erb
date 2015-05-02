@@ -1,18 +1,24 @@
+<div class="row" style="margin-bottom: 0.5em">
+	<%= link_to "Edit", edit_store_path(store), class: "btn btn-primary"-%>
+	<button class="btn btn-danger" type="button" onclick="deleteStore()" <%= 'disabled="disabled"'.html_safe if !store[:active] -%>>Delete</button>
+	<%= link_to "Close", session[:last_page], class: "btn btn-default" -%>
+</div>
 <div class="row">
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			<div class="row">				
-				<div class="col-md-6 col-sm-6 col-xs-6">
-					<h2 class="h2">Basic Information</h2>
-				</div>
-				<div class="col-md-6 col-sm-6 col-xs-6 text-right">
-					<%- if true #current_user.is_admin -%>
-						<%= link_to "Edit", edit_store_path(store), class: "btn btn-default" -%>
-					<%- end -%>
-				</div>
-			</div>
+			<h2 class="h2">Basic Information</h2>
 		</div>
 		<div class="panel-body store-attributes">
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Status</div>
+				<div class="col-md-2 col-sm-12 col-xs-12">
+					<%- if !store[:active] -%>
+						<span class="label label-danger">No longer in use</span>
+					<%- else -%>
+						<span class="label label-success">Active</span>
+					<% end -%>
+				</div>
+			</div>
 			<div class="row">
 				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Name</div>
 				<div class="col-md-10 col-sm-12 col-xs-12"><%=store.full_name -%></div>
@@ -51,7 +57,7 @@
 				<div class="row">
 					<div class="col-md-6 col-sm-6 col-xs-6"><h2 class="h2">Audits</h2></div>
 					<div class="col-md-6 col-sm-6 col-xs-6 text-right">
-							<%= link_to "New Audit", store_new_audit_path(store), class: "btn btn-sm btn-success" -%>	
+							<%= link_to "New Audit", store_new_audit_path(store), class: "btn btn-sm btn-success" if store[:active] -%>	
 							<%= link_to "View All", audit_search_path({store_id: store[:id]}), class: "btn btn-sm btn-default" if store.audits.size > 0 -%>
 					</div>
 				</div>
@@ -94,7 +100,7 @@
 				<div class="row">
 					<div class="col-md-6 col-sm-6 col-xs-6"><h2 class="h2">Orders</h2></div>
 					<div class="col-md-6 col-sm-6 col-xs-6 text-right">
-							<%= link_to "New Order", store_new_order_path(store), class: "btn btn-sm btn-success" -%>	
+							<%= link_to "New Order", store_new_order_path(store), class: "btn btn-sm btn-success" if store[:active] -%>	
 							<%= link_to "View All", audit_search_path({store_id: store[:id]}), class: "btn btn-sm btn-default" if store.orders.size > 0 -%>
 			
 					</div>
@@ -170,5 +176,29 @@
 		}
 	</style>
 
+<% end -%>
+
+<% content_for :page_js do -%>
+<script type="text/javascript">
+	var URL = {
+		destroy_store: '<%= store_path(store, format: :json) -%>',
+		last_page: '<%= session[:last_page] -%>'
+	};
+
+	function deleteStore(){
+	  if(confirm('Are you sure you want to delete this store?'))
+	    $.ajax({
+	      type: "DELETE",
+	      url: URL.destroy_store,
+	      dataType: 'json',
+	      success: function(data){
+	        window.location = URL.last_page;
+	      },
+	      error: function(xhr){
+	        alert("Unable to remove this store at this time.");
+	      }
+	    }); 
+	}
+</script>
 <% end -%>
 
