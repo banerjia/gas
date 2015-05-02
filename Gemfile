@@ -17,9 +17,6 @@ gem 'axlsx_rails'
 gem 'jquery-rails'
 gem 'zip-zip'
 
-group :production do 
-  gem 'asset_sync'
-end
 group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
@@ -28,7 +25,6 @@ group :development do
   gem 'capistrano-rvm'
   gem 'capistrano-passenger'
   gem 'meta_request'
-  gem 'byebug'
 end 
 
 group :assets do

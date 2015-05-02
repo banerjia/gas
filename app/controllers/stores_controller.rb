@@ -5,11 +5,16 @@ class StoresController < ApplicationController
   end
 
   def show
+
     store_id = params[:id]
 
     store = Store.includes([:store_contacts, :company, :region ]).find(store_id)
+    session[:last_page] = request.env['HTTP_REFERER'] || nil \
+        unless \
+          request.env['HTTP_REFERER'] == new_store_url \
+          || request.env['HTTP_REFERER'] == edit_store_url(store)
 
-    @page_title = "Store Dashboard"
+    @page_title = "Store: #{store[:name]}"
 
     respond_to do |format|
       format.html { render locals: {store: store, recent_audits: store.audits.order(created_at: :desc).limit(5), recent_orders: store.orders.order(created_at: :desc).limit(5)}}
@@ -18,6 +23,8 @@ class StoresController < ApplicationController
   end
 
 	def new
+    session[:last_page] = request.env['HTTP_REFERER'] || nil
+
     new_store = nil
 		@page_title = "Add a Store"
     
@@ -72,6 +79,37 @@ class StoresController < ApplicationController
     else      
       render action: "edit", locals: {store: store_to_update}     
     end    
+  end
+
+  def destroy
+    selected_store_id = params[:id]
+    store_to_delete = Store.find( selected_store_id)
+
+    store_to_delete.update_columns({active: false})
+    
+    store_to_delete.__elasticsearch__.delete_document
+
+    #   ##############################################################
+    #   ## TO DO: 
+    #   ## - Remove related index enteries for Orders and Audits
+    #   ## - Streamline the delete process to delete stores that have no related entries
+    #   ##    If there are related entries in Orders and Audits table then mark the store inactive
+    #   ##############################################################
+    # if store_to_delete.audits.size > 0 || store_to_delete.orders.size > 0
+    #   store_to_delete[:active] = false
+    #   store_to_delete.save
+    #   store_to_delete.__elasticsearch__.delete_document
+    #   store_to_delete.orders.__elasticsearch__.delete_document # - this does not work
+    #   store_to_delete.audits.__elasticsearch__.delete_document # - this does not work
+    # else
+    #   store_to_delete.destroy
+    # end
+
+    respond_to do |format|
+      format.json do
+        render json: {success: true}.to_json
+      end
+    end 
   end
 
   def search

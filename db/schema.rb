@@ -157,6 +157,15 @@ ActiveRecord::Schema.define(version: 20150214163922) do
     t.integer "display_order",        limit: 2,  default: 65535, null: false
   end
 
+  create_table "product_ordering", id: false, force: true do |t|
+    t.integer "Order"
+    t.integer "ID"
+    t.string  "Name"
+    t.string  "Type",   limit: 45
+    t.string  "Status", limit: 45
+    t.integer "cat_id"
+  end
+
   create_table "product_orders", id: false, force: true do |t|
     t.integer "order_id",                             null: false
     t.integer "product_id",                           null: false
@@ -238,7 +247,7 @@ ActiveRecord::Schema.define(version: 20150214163922) do
     t.integer   "audits_count",   limit: 2,   default: 0,    null: false
     t.float     "latitude",       limit: 24
     t.float     "longitude",      limit: 24
-    t.integer   "active",         limit: 1,   default: 1,    null: false
+    t.boolean   "active",                     default: true, null: false
     t.datetime  "created_at"
     t.timestamp "updated_at",                                null: false
   end
@@ -248,6 +257,36 @@ ActiveRecord::Schema.define(version: 20150214163922) do
   add_index "stores", ["company_id", "country", "state_code"], name: "Stores_by_company_and_location", using: :btree
   add_index "stores", ["company_id"], name: "CompanyID", using: :btree
   add_index "stores", ["url_id"], name: "index_stores_on_url_id", unique: true, using: :btree
+
+  create_table "stores_lunds", force: true do |t|
+    t.string    "url_id"
+    t.integer   "company_id",     limit: 3,                  null: false
+    t.integer   "region_id",      limit: 3
+    t.string    "name",           limit: 150
+    t.string    "locality",       limit: 100
+    t.string    "street_address", limit: 200
+    t.string    "suite",          limit: 100
+    t.string    "city",           limit: 150
+    t.string    "county"
+    t.string    "state_code",                                null: false
+    t.string    "zip",            limit: 10
+    t.string    "country",        limit: 3,   default: "US", null: false
+    t.string    "store_number",   limit: 10
+    t.string    "phone",          limit: 15
+    t.integer   "orders_count",   limit: 3,   default: 0,    null: false
+    t.integer   "audits_count",   limit: 2,   default: 0,    null: false
+    t.float     "latitude",       limit: 24
+    t.float     "longitude",      limit: 24
+    t.integer   "active",         limit: 1,   default: 1,    null: false
+    t.datetime  "created_at"
+    t.timestamp "updated_at",                                null: false
+  end
+
+  add_index "stores_lunds", ["active", "url_id"], name: "index_stores_on_active_and_url_id", using: :btree
+  add_index "stores_lunds", ["active"], name: "index_stores_on_active", using: :btree
+  add_index "stores_lunds", ["company_id", "country", "state_code"], name: "Stores_by_company_and_location", using: :btree
+  add_index "stores_lunds", ["company_id"], name: "CompanyID", using: :btree
+  add_index "stores_lunds", ["url_id"], name: "index_stores_on_url_id", unique: true, using: :btree
 
   create_table "volume_units", force: true do |t|
     t.string   "name",              limit: 20,                                        null: false
