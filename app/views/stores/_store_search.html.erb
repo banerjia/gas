@@ -1,17 +1,22 @@
-<div class="well well-sm">	
-	<div class="row">
-		<form method="get" action="<%= stores_search_path(:format => :html)%>">
-			<%- if defined?(options) -%>
-			<div style="display:none">
-				<% if options[:company_id].present? -%>
-					<input type="hidden" name="company_id" value="<%=options[:company_id]%>"/>
-				<% end %>
-				<% if options[:state].present? -%>
-					<input type="hidden" name="state" value="<%=options[:state]%>"/>
-					<input type="hidden" name="country" value="<%=options[:country]%>"/>
-				<% end %>
-			</div>
+<div class="well well-sm">		
+	<form method="get" action="<%= stores_search_path(:format => :html)%>">
+		<%- if defined?(options) -%>
+		<div style="display:none">
+			<% if options[:company_id].present? -%>
+				<input type="hidden" name="company_id" value="<%=options[:company_id] %>"/>
 			<% end -%>
+			<% if options[:_company_id].present?  -%>
+				<input type="hidden" name="_company_id" value="<%=options[:_company_id] %>"/>
+			<% end %>
+			<% if options[:state].present? -%>
+				<input type="hidden" name="state" value="<%=options[:state] %>"/>
+			<% end -%>
+			<% if options[:_state].present?  -%>
+				<input type="hidden" name="_state" value="<%=options[:_state] %>"/>
+			<% end %>
+		</div>
+		<% end -%>
+		<div class="row">
 			<div class="col-md-10 col-sm-12 col-xs-12">
 				<input 
 					type="text" 
@@ -20,9 +25,9 @@
 					value="<%= defined?(options) && !options[:q].nil? ? options[:q] : nil -%>"
 					placeholder="Store Name, City or State"/>
 			</div>
-			<div class="col-md-1 col-sm-12 col-xs-12">
+			<div class="col-md-2 col-sm-12 col-xs-12">
 				<button type="submit" class="btn btn-primary col-md-12 col-sm-12 col-xs-12">Search</button>
-			</div>			
-		</form>
-	</div>
+			</div>	
+		</div>	
+	</form>
 </div>

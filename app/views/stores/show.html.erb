@@ -13,9 +13,9 @@
 				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Status</div>
 				<div class="col-md-2 col-sm-12 col-xs-12">
 					<%- if !store[:active] -%>
-						<span class="label label-danger">No longer in use</span>
+						<span class="label label-danger" style="text-transform:uppercase">No longer in use</span>
 					<%- else -%>
-						<span class="label label-success">Active</span>
+						<span class="label label-success" style="text-transform:uppercase">Active</span>
 					<% end -%>
 				</div>
 			</div>
@@ -25,7 +25,7 @@
 			</div>
 			<div class="row">
 				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Store Number</div>
-				<div class="col-md-10 col-sm-12 col-xs-12"><%= store[:store_number].blank? ? '<em>None specified</em>'.html_safe : store[:store_number] -%>&nbsp;</div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><%= store[:store_number].blank? ? '--'.html_safe : store[:store_number] -%>&nbsp;</div>
 			</div>
 			<div class="row">
 				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Address</div>
@@ -33,11 +33,11 @@
 			</div>
 			<div class="row">
 				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Locality</div>
-				<div class="col-md-10 col-sm-12 col-xs-12"><%= store[:locality].blank? ? '<em>Not available</em>'.html_safe : store[:locality] -%></div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><%= store[:locality].blank? ? '--'.html_safe : store[:locality] -%></div>
 			</div>			
 			<div class="row">
 				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Region</div>
-				<div class="col-md-10 col-sm-12 col-xs-12"><%=store.region.nil? ? '<em>Not associated with any region</em>'.html_safe : store.region[:name] -%></div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><%=store.region.nil? ? '--'.html_safe : store.region[:name] -%></div>
 			</div>
 			<div class="row">
 				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Company/Chain</div>
@@ -45,7 +45,7 @@
 			</div>
 			<div class="row">
 				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Phone</div>
-				<div class="col-md-10 col-sm-12 col-xs-12"><%= store[:phone].blank? ? '<em>None specified</em>'.html_safe : store[:phone] -%></div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><%= store[:phone].blank? ? '--'.html_safe : store[:phone] -%></div>
 			</div>
 		</div>
 	</div>
@@ -89,7 +89,7 @@
 					</tbody>
 				</table>
 				<%- else -%>
-					<p class="text-center">At this time there are no audits available for this store</p>
+					<p class="text-center">This store has not been audited as of yet. </p>
 				<% end -%>
 			</div>
 		</div>
@@ -135,7 +135,7 @@
 					</tbody>
 				</table>
 				<%- else -%>
-					<p class="text-center">At this time there are no audits available for this store</p>
+					<p class="text-center">No orders entered for this store at this time.</p>
 				<% end -%>
 			</div>
 		</div>

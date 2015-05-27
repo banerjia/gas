@@ -14,7 +14,7 @@ class StoresController < ApplicationController
           request.env['HTTP_REFERER'] == new_store_url \
           || request.env['HTTP_REFERER'] == edit_store_url(store)
 
-    @page_title = "Store: #{store[:name]}"
+    @page_title = "Store: #{store.full_name}"
 
     respond_to do |format|
       format.html { render locals: {store: store, recent_audits: store.audits.order(created_at: :desc).limit(5), recent_orders: store.orders.order(created_at: :desc).limit(5)}}
@@ -56,14 +56,14 @@ class StoresController < ApplicationController
 
   def edit
     selected_store_id = params[:id]
-    @page_title = "Update a Store"
 
     selected_store = Store.find( selected_store_id )
     states = State.all.select([:country, :state_code, :state_name]).order([:country,:state_name])
     companies = Company.all.order([:name]).sort { |a,b| a[:name].sub(/^(the|a|an)\s+/i, '') <=> b[:name].sub(/^(the|a|an)\s+/i, '' )}
 
     respond_to do |format|
-      format.html do           
+      format.html do 
+        @page_title = "Update Store: #{selected_store.full_name}"      
         render locals: {store: selected_store, states: states, companies: companies }
       end
     end
@@ -148,14 +148,10 @@ class StoresController < ApplicationController
         end
         # END HACK NOTE
         
-        
-        if stores_found[:results].size > 0	
-			      @page_title = "Store Listing"    
-            @page_title = "#{@page_title} for #{stores_found[:results].first.company.name}" if params[:company_id].present? 
-            @browser_title = "#{stores_found[:results].first.company.name} Stores" if params[:company_id].present?      		  
+        @page_title = "Stores"
+        if stores_found[:results].size > 0	     		  
             render "search_results", locals: {stores_found: stores_found[:results], total_results: stores_found[:total], aggs: stores_found[:aggs] , options: params}
         else
-		      @page_title = "Information Unavailable"
           render "search_results", locals: {options: params, stores_found: nil, total_results: 0, aggs: nil}			
         end
       end
@@ -169,6 +165,6 @@ private
     # else
     #   params[:store][:region_attributes] = nil
     # end
-    params.require(:store).permit(:not_a_duplicate, :company_id, :region_id, :name, :locality, :street_address, :city, :county, :state_code, :zip, :country, :store_number, :phone, store_contacts_attributes: [:name, :title, :phone, :email], region_attributes: [:name, :company_id])
+    params.require(:store).permit(:not_a_duplicate, :active, :company_id, :region_id, :name, :locality, :street_address, :city, :county, :state_code, :zip, :country, :store_number, :phone, store_contacts_attributes: [:name, :title, :phone, :email], region_attributes: [:name, :company_id])
   end
 end

@@ -25,7 +25,7 @@ class Store < ActiveRecord::Base
   # Validations  
   validates_presence_of [:company_id, :name, :street_address, :city, :state_code]
   validates_associated :region
-  validate  :nearby_stores , on: [:create, :update], unless: Proc.new { |store| !store.not_a_duplicate.nil? && !store.not_a_duplicate.to_i.zero? }
+  validate  :nearby_stores , on: [:create, :update], unless: Proc.new { |store| !store.not_a_duplicate.nil? && !store.not_a_duplicate.to_i.zero? }, if: :street_address_changed?
   
 
   # Callbacks
@@ -35,6 +35,15 @@ class Store < ActiveRecord::Base
   
   before_save  do |store|
     StoreContact.where(:store_id => store[:id]).destroy_all
+  end
+
+  after_commit do |store|
+    return if !:active_changed?
+    if !store[:active]
+      store.__elasticsearch__.delete_document 
+    else
+      store.__elasticsearch__.index_document
+    end
   end
   
   def nearby_stores

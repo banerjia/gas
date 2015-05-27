@@ -1,44 +1,67 @@
+
 <div class="row">
-	<div class="col-md-12 col-sm-12 col-xs-12">
-		<%= render :partial => 'store_search', :locals => {:options => options} %>
-	</div>
-</div>
-<div class="row">
-	<div class="col-md-2 hidden-sm hidden-xs" id="aggs">
-		<%- if options[:company_id].present? -%>
-		<h2 class="h4">Regions</h2>
-			<%- if !aggs.nil? && aggs[:regions].present? -%>
+	<div class="col-md-3 hidden-sm hidden-xs" id="aggs">
+	<div class="panel panel-default">
+		<div class="panel-heading">Refine Results</div>
+		<div class="panel-body">
+		<%- if stores_found.nil? || stores_found.size < 2 -%>
+			<p>There are no refinement options available for the current search results.</p>
+		<%- end -%>
+		<%- if !aggs.nil? && aggs[:companies].present? && aggs[:companies].size > 1 -%>
+		<%-
+			params_without_companies = options.reject{ |key,value| key.to_s == '_company_id' || key.to_s == "page" || key.to_s == "_region" }
+			path_prefix = stores_search_path
+			path_prefix += "?" + params_without_companies.to_param if params_without_companies
+		-%>
+		<h2 class="h4">Chains</h2>
+		<ul class="list-unstyled">
+
+			<%- if options[:_company_id] -%>
+				<li><strong><%= link_to "All Chains", path_prefix -%></strong></li>
+			<%- end -%>
+			<%- aggs[:companies].each do |company| -%>
 			<%-
-				params_without_region = options.reject{ |key,value| key.to_s == '_region' || key.to_s == "page" }
-				path_prefix = stores_search_path
-				path_prefix += "?" + params_without_region.to_param if params_without_region
+				url = path_prefix + "&" + {:_company_id => company[:id]}.to_param
 			-%>
-			<ul class="list-unstyled">
-
-				<%- if options[:_region] -%>
-					<li><strong><%= link_to "All Regions", path_prefix -%></strong></li>
-				<%- end -%>
-				<%- aggs[:regions].each do |region| -%>
-				<%-
-					url = path_prefix + "&" + {:_region => region[:id]}.to_param
-				-%>
-					<li <%= options[:_region].to_i ==  region[:id].to_i ? raw("class='active'"): "" -%>>
-						<%= link_to_if options[:_region].to_i !=  region[:id].to_i,  region[:name], url -%>
-					</li>
-				<% end -%>
-			</ul>
-			<%- else -%>
-				<p><em>No region filtering options are available for the current store listing.</em></p>
+				<li <%= options[:_company_id].to_i ==  company[:id].to_i ? raw("class='active'"): "" -%>>
+					<%= link_to_if options[:_company_id].to_i !=  company[:id].to_i,  company[:name], url -%>
+				</li>
 			<% end -%>
-		<% end -%>
+		</ul>
+		<%- end -%>
 
-		<h2 class="h4">States</h2>
+
+		<%- if (options[:_company_id].present? || options[:company_id].present?) && !aggs.nil? && aggs[:regions].present? && aggs[:regions].size > 1 -%>
+		<%-
+			params_without_region = options.reject{ |key,value| key.to_s == '_region' || key.to_s == "page" }
+			path_prefix = stores_search_path
+			path_prefix += "?" + params_without_region.to_param if params_without_region
+		-%>
+		<h2 class="h4">Regions</h2>
+		<ul class="list-unstyled">
+
+			<%- if options[:_region] -%>
+				<li><strong><%= link_to "All Regions", path_prefix -%></strong></li>
+			<%- end -%>
+			<%- aggs[:regions].each do |region| -%>
+			<%-
+				url = path_prefix + "&" + {:_region => region[:id]}.to_param
+			-%>
+				<li <%= options[:_region].to_i ==  region[:id].to_i ? raw("class='active'"): "" -%>>
+					<%= link_to_if options[:_region].to_i !=  region[:id].to_i,  region[:name], url -%>
+				</li>
+			<% end -%>
+		</ul>
+		<%- end -%>
+
+		
 		<%- if !aggs.nil? && aggs[:states].present? && aggs[:states].size > 1 -%>
 		<%-
 			params_without_state = options.reject{ |key,value| key.to_s == '_state' || key.to_s == "page" }
 			path_prefix = stores_search_path
 			path_prefix += "?" + params_without_state.to_param if params_without_state
 		-%>
+		<h2 class="h4">States</h2>
 		<ul class="list-unstyled">
 			<%- if options[:_state] -%>
 				<li><strong><%= link_to "All States", path_prefix -%></strong></li>
@@ -51,17 +74,23 @@
 				<%- if options[:_state] !=  state[:state_code] -%>
 					<i class="fa"></i><%= link_to   state[:name], url -%>
 				<%- else -%>
-					<i class="fa fa-chevron-right"><%= state[:name] -%></i>
+					<i class="fa fa-chevron-right"> <%= state[:name] -%></i>
 				<% end -%>
 				</li>
 			<% end -%>
 		</ul>
-		<%- else -%>
-			<p><em>No state filtering options are available for the current store listing.</em></p>
-		<% end -%>
+		<% end -%>			
+		</div>
 	</div>
-	<div class="col-md-9 col-md-offset-1 col-sm-12 col-xs-12" data-ng-app>
-		<%= render partial: "store_list", locals: {store_list: stores_found, more_pages: ((total_results.to_f/options[:per_page].to_f) > options[:page].to_f), options: options} -%>
+
+	</div>
+	<div class="col-md-9 col-sm-12 col-xs-12">
+		<div class="row">
+			<%= render :partial => 'store_search', :locals => {:options => options} %>
+		</div>
+		<div class="row">
+			<%= render partial: "store_list", locals: {store_list: stores_found, more_pages: ((total_results.to_f/options[:per_page].to_f) > options[:page].to_f), options: options} -%>
+		</div>			
 	</div>	
 </div>
 

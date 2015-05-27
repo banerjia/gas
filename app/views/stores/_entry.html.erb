@@ -29,13 +29,25 @@
 		</div>
 	</div>
 	<div class="row form-group">
+		<div class="col-md-2 col-sm-12 col-xs-12 form-label"><label>Status</label></div>
+		<div class="col-md-5 col-sm-12 col-xs-12">			
+			<%= f.radio_button :active, true -%>
+			<%= f.label :active, "Active", value: true, style: "font-weight: normal" -%>
+			<br/>
+			<%= f.radio_button :active, false -%>
+			<%= f.label :active, "Not in use", value: false, style: "font-weight: normal" -%>
+		</div>
+	</div>
+	<%- if available_regions.any? -%>
+	<div class="row form-group">
 		<div class="col-md-2 col-sm-12 col-xs-12 form-label">
 			<%= f.label :region_id, "Region", class: (f.object.errors.any? && !f.object.errors[:region_attributes].blank? ? "text-danger": "") -%>
 		</div>
 		<div class="col-md-5 col-sm-12 col-xs-12">
-			<%= f.select :region_id, options_from_collection_for_select(  available_regions, "id", "name", f.object[:region_id].to_s), {include_blank: '-- Select --'}, {disabled: !available_regions.any?, class: 'form-control'} -%>
+			<%= f.select :region_id, options_from_collection_for_select(  available_regions, "id", "name", f.object[:region_id].to_s), {include_blank: '-- Select --'}, {class: 'form-control'} -%>
 		</div>
 	</div>
+	<% end -%>
 	<div class="row form-group">
 		<div class="col-md-2 col-sm-12 col-xs-12 form-label">
 			<%= f.label :name, "Name of Store", class: (f.object.errors.any? && !f.object.errors[:name].blank? ? "text-danger": "") -%>
