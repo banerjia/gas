@@ -160,7 +160,19 @@ module StoreSearchable
               }
             }
           }
-        } 
+        },
+        companies: {
+          terms: {
+            field: "company.id"
+          },
+          aggs: {
+            company_names: {
+              terms: {
+                field: "company.name.raw"
+              }
+            }
+          }
+        }
       },
       sort: sort_array      
     
@@ -181,6 +193,7 @@ module StoreSearchable
         return_value[:aggs] = {}
         return_value[:aggs][:regions] = es_results.response['aggregations']['regions']['buckets'].map{ |item| {id: item['key'], name: item['region_names']['buckets'].first['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  if es_results.response['aggregations']['regions']['buckets'].size > 0
         return_value[:aggs][:states] = es_results.response['aggregations']['states']['buckets'].map{ |item| {state_code: item['key'], name: item['state_names']['buckets'].first['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  if es_results.response['aggregations']['states']['buckets'].size > 0
+        return_value[:aggs][:companies] = es_results.response['aggregations']['companies']['buckets'].map{ |item| {id: item['key'], name: item['company_names']['buckets'].first['key'], found: item['doc_count']}}.sort_by{ |item| item[:name]}  if es_results.response['aggregations']['companies']['buckets'].size > 0
       end
       return_value[:total] = es_results.results.total
       

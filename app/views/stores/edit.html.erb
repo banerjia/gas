@@ -33,7 +33,7 @@
 
 <div class="well well-sm">
 	<%= f.submit "Save", class: "btn btn-primary" -%>
-	<button class="btn btn-default" onclick="history.go(-1)">Cancel</button>
+	<%= link_to "Close", store_path(store), class: "btn btn-default" -%>
 </div>
 <%= render :partial => "entry", :locals => {f: f} -%>
 

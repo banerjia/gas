@@ -1,14 +1,40 @@
-
-<ul class="col-md-12 col-sm-12 col-xs-12 well well-sm list-inline">
-	<li><strong>Icon Legend: </strong></li>
-	<li style="margin-bottom: 0.1em"><i class="btn btn-primary fa fa-pencil" style="min-width: 1px; cursor: default"></i> - Edit store</li>
-	<li style="margin-bottom: 0.1em"><i class="btn btn-success fa fa-check-square-o" style="min-width: 1px; cursor: default"></i> - New audit</li>
-	<li style="margin-bottom: 0.1em"><i class="btn btn-success fa fa-truck" style="min-width: 1px; cursor: default"></i> - New order</li>
-</ul>
 <%- 
 	options_without_page = options 
 	current_page = options_without_page.delete(:page)
 -%>
+
+
+
+<table class="table table-condensed" data-ng-app="StoreListing">
+	<thead>
+		<tr>
+			<th scope="col" style="width: 50%">Name</th>
+			<th scope="col" class="text-center">Last Audit</th>
+		</tr>
+	</thead>
+	<tbody>
+		<%- if store_list.nil? || store_list.size == 0 -%>
+		<tr data-ng-show="stores == null || stores.length == 0">
+			<td class="text-center" colspan="2"><em>No stores could be located that meet the search criteria. Please try again with a different criteria.</em></td>
+		</tr>
+		<% else -%>
+			<%- store_list.each do |store| -%>
+			<tr>
+				<td>
+					<%= link_to store[:full_name], store_path(store[:id]) -%>
+					<address><%= store[:address] -%></address>
+				</td>
+				<td class="text-center">
+					<%- if store.last_audit.present? -%>
+						<%= link_to store.last_audit.score[:total].to_i, audit_path( store.last_audit[:id]) -%>
+					<%- end -%>
+					&nbsp;
+				</td>
+			</tr>
+			<%- end -%>
+		<%- end -%>
+	</tbody>
+</table>
 
 <%- if current_page > 1 || more_pages -%>
 <div class="col-md-12 col-sm-12 col-xs-12 pull-right">
@@ -32,45 +58,3 @@
 	</div>
 </div>
 <% end -%>
-
-<table class="table table-condensed" data-ng-app="StoreListing">
-	<thead>
-		<th scope="col" style="width: 50%">Name</th>
-		<th scope="col" class="text-center">Last Audit</th>
-		<th scope="col" class="text-center">Tools</th>
-	</thead>
-	<tbody data-ng-controller="StoresController">
-		<%- if store_list.size == 0 -%>
-		<tr data-ng-show="stores == null || stores.length == 0">
-			<td class="text-center" colspan="3"><em>No stores could be located that meet the search criteria. Please try again with a different criteria.</em></td>
-		</tr>
-		<% end -%>
-		<%- store_list.each do |store| -%>
-		<tr>
-			<td>
-				<%= link_to store[:full_name], store_path(store[:id]) -%>
-				<address><%= store[:address] -%></address>
-			</td>
-			<td class="text-center">
-				<%- if store.last_audit.present? -%>
-					<%= link_to store.last_audit.score[:total].to_i, audit_path( store.last_audit[:id]) -%>
-				<%- end -%>
-				&nbsp;
-			</td>
-			<td class="text-center">
-				<%= link_to edit_store_path(store[:id]), class: "btn btn-primary", style: "min-width: 1px; margin-bottom:0.1em", title: "Edit" do -%>
-					<i class="fa fa-pencil"></i>
-				<%- end -%>
-				<%= link_to store_new_audit_path(store[:id]), class: "btn btn-success", style: "min-width: 1px; margin-bottom:0.1em", title: "New Audit" do -%>
-					<i class="fa fa-check-square-o"></i>
-				<%- end -%>
-				<%= link_to store_new_order_path(store[:id]), class: "btn btn-success", style: "min-width: 1px; margin-bottom:0.1em", title: "New Order" do -%>
-					<i class="fa fa-truck"></i>
-				<%- end -%>
-			</td>
-		</tr>
-		<%- end -%>
-	</tbody>
-</table>
-
-
