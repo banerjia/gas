@@ -42,7 +42,7 @@ class StoresController < ApplicationController
 
 	def create
     store = store_params
-    store[:region_attributes][:company_id] = store[:company_id]
+    store[:region_attributes][:company_id] = store[:company_id] unless store[:region_attributes].nil?
     
     new_store = Store.create(store)
     if new_store.valid?
