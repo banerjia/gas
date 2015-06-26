@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150502183546) do
+ActiveRecord::Schema.define(version: 20150626035746) do
 
   create_table "audit_journals", primary_key: "audit_id", force: true do |t|
     t.string    "title",      limit: 50
@@ -66,13 +66,13 @@ ActiveRecord::Schema.define(version: 20150502183546) do
   add_index "comments", ["commentable_id", "commentable_type"], name: "index_comments_on_commentable_id_and_commentable_type", using: :btree
 
   create_table "companies", force: true do |t|
-    t.string    "name",          limit: 150,             null: false
+    t.string    "name",          limit: 150,                null: false
     t.string    "url_part"
-    t.integer   "stores_count",  limit: 3,   default: 0, null: false
-    t.integer   "regions_count", limit: 2,   default: 0, null: false
-    t.integer   "active",        limit: 1,   default: 1, null: false
-    t.timestamp "created_at",                            null: false
-    t.timestamp "updated_at",                            null: false
+    t.integer   "stores_count",  limit: 3,   default: 0,    null: false
+    t.integer   "regions_count", limit: 2,   default: 0,    null: false
+    t.boolean   "active",                    default: true, null: false
+    t.timestamp "created_at",                               null: false
+    t.timestamp "updated_at",                               null: false
   end
 
   add_index "companies", ["active", "url_part"], name: "index_companies_on_active_and_url_part", using: :btree
@@ -115,6 +115,18 @@ ActiveRecord::Schema.define(version: 20150502183546) do
     t.integer   "metric_options_count",  limit: 1,  default: 0,      null: false
     t.timestamp "created_at",                                        null: false
     t.timestamp "updated_at",                                        null: false
+  end
+
+  create_table "new_stores", id: false, force: true do |t|
+    t.string "ROW_ID",         limit: 20
+    t.string "name"
+    t.string "street_address", limit: 1000
+    t.string "suite"
+    t.string "city"
+    t.string "state_code",     limit: 45
+    t.string "zip",            limit: 45
+    t.float  "latitude",       limit: 24
+    t.float  "longitude",      limit: 24
   end
 
   create_table "orders", force: true do |t|
@@ -257,36 +269,6 @@ ActiveRecord::Schema.define(version: 20150502183546) do
   add_index "stores", ["company_id", "country", "state_code"], name: "Stores_by_company_and_location", using: :btree
   add_index "stores", ["company_id"], name: "CompanyID", using: :btree
   add_index "stores", ["url_id"], name: "index_stores_on_url_id", unique: true, using: :btree
-
-  create_table "stores_lunds", force: true do |t|
-    t.string    "url_id"
-    t.integer   "company_id",     limit: 3,                  null: false
-    t.integer   "region_id",      limit: 3
-    t.string    "name",           limit: 150
-    t.string    "locality",       limit: 100
-    t.string    "street_address", limit: 200
-    t.string    "suite",          limit: 100
-    t.string    "city",           limit: 150
-    t.string    "county"
-    t.string    "state_code",                                null: false
-    t.string    "zip",            limit: 10
-    t.string    "country",        limit: 3,   default: "US", null: false
-    t.string    "store_number",   limit: 10
-    t.string    "phone",          limit: 15
-    t.integer   "orders_count",   limit: 3,   default: 0,    null: false
-    t.integer   "audits_count",   limit: 2,   default: 0,    null: false
-    t.float     "latitude",       limit: 24
-    t.float     "longitude",      limit: 24
-    t.integer   "active",         limit: 1,   default: 1,    null: false
-    t.datetime  "created_at"
-    t.timestamp "updated_at",                                null: false
-  end
-
-  add_index "stores_lunds", ["active", "url_id"], name: "index_stores_on_active_and_url_id", using: :btree
-  add_index "stores_lunds", ["active"], name: "index_stores_on_active", using: :btree
-  add_index "stores_lunds", ["company_id", "country", "state_code"], name: "Stores_by_company_and_location", using: :btree
-  add_index "stores_lunds", ["company_id"], name: "CompanyID", using: :btree
-  add_index "stores_lunds", ["url_id"], name: "index_stores_on_url_id", unique: true, using: :btree
 
   create_table "volume_units", force: true do |t|
     t.string   "name",              limit: 20,                                        null: false

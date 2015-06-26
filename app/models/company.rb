@@ -1,4 +1,9 @@
 class Company < ActiveRecord::Base
+
+  # Included to use store indexing features from within
+  # the after_commit callback
+  include StoreImport
+
   has_many :stores
   has_many :states, -> { uniq } , :through => :stores
   
@@ -10,6 +15,26 @@ class Company < ActiveRecord::Base
   HUMANIZED_ATTRIBUTES = {
     :name => "Company name"
   }
+
+  after_update do
+    if :active_changed?
+      if !self[:active]
+        Store.__elasticsearch__.client.delete_by_query index: Store.index_name, body: {query: {term: {"company.id" => self[:id]}}}
+        # TO DO - update ElasticSearch indices
+        # Clean up audits - ask client if this is desired
+        # Clean up orders - ask client if this is desired
+      else
+        stores = Store.where(company_id: self[:id])
+        Store.__elasticsearch__.client.bulk({
+          index: Store.__elasticsearch__.index_name,
+          type: Store.__elasticsearch__.document_type,
+          body: StoreImport.prepare_records(stores)
+        })
+      end
+
+    end
+
+  end
   
   def self.human_attribute_name(attr, options = {})
     HUMANIZED_ATTRIBUTES[attr.to_sym] || super

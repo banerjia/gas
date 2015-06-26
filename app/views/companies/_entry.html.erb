@@ -1,0 +1,30 @@
+<div id="companyEntry">
+	<div class="row form-group">
+		<div class="col-md-2 col-sm-12 col-xs-12 form-label">
+			<%= f.label :name, "Name", class: (f.object.errors.any? && !f.object.errors[:name].blank? ? "text-danger": "") %>
+		</div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<%= f.text_field :name, class: "form-control" %>
+		</div>
+	</div>
+	<div class="row form-group">
+		<div class="col-md-2 col-sm-12 col-xs-12 form-label">
+			<label>Status</label>
+		</div>
+		<div class="col-md-5 col-sm-12 col-xs-12">
+			<%= f.check_box :active -%>
+			<%= f.label :active, "Active" -%>
+		</div>
+	</div>
+</div>
+
+<% content_for :head do -%>
+	<style>
+		@media screen and (min-width: 48em){
+			div#companyEntry div.form-label { 
+				text-align: right;
+			}
+		}
+	</style>
+
+<% end -%>

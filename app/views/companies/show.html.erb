@@ -1,88 +1,69 @@
-<% content_for :head do %>
-	<%= stylesheet_link_tag "table", :media => "screen"%>
-	<%= stylesheet_link_tag "forms", :media => "screen"%>
-	<%= stylesheet_link_tag "show_company", :media => "screen" %>
-	<style type="text/css" media="screen">
-		div.ajax_issue{ background-image: url(<%= image_path("error_24x24.png")%>) }
-		li.loading{ background-image: url( <%= image_path("ajax-loader-fb.gif")%> ) }
-		table.listing, div#ajax_message_container { display:none }
+<div class="row" style="margin-bottom: 0.5em">
+	<%= link_to "Edit", edit_company_path(company), class: "btn btn-primary"-%>
+	<%= link_to "Close", session[:last_page], class: "btn btn-default" -%>
+</div>
+<div class="row">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h2 class="h2">Basic Information</h2>
+		</div>
+		<div class="panel-body company-attributes">
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Chain</div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><%=company[:name]-%></div>
+			</div>
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Stores</div>
+				<div class="col-md-10 col-sm-12 col-xs-12">
+					<%= link_to number_with_delimiter(company.stores.size), company_stores_path(company)%>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Date Added</div>
+				<div class="col-md-10 col-sm-12 col-xs-12"><%= company[:created_at].strftime("%b %d, %Y") unless company[:created_at].blank?%>&nbsp;</div>
+			</div>
+			<div class="row">
+				<div class="col-md-2 col-sm-12 col-xs-12 form-label">Last Updated</div>
+				<div class="col-md-10 col-sm-12 col-xs-12">
+					<%= company[:updated_at].strftime("%b %d, %Y") unless company[:updated_at].blank?%>&nbsp;
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<% content_for :head do -%>
+	<style type="text/css">
+		@media screen and (min-width: 48em){
+			div.form-label { 
+				text-align: right;
+			}
+
+			div.flush-left{
+				padding-left: 0;
+				margin-left: 0;
+			}			
+			div.flush-right{
+				padding-right: 0;
+				margin-right: 0;
+			}
+		}
+		
+		address {
+			margin: 0 auto;
+		}
+		div.company-attributes > div.row{
+			margin: 0.7em auto;
+		}
+
+		.form-label {
+			font-weight: bold;
+		}
+
+		.h2{
+			padding: 0.5em auto;
+			margin: 0 auto;
+		}
 	</style>
-<% end %>
-<% content_for :page_js  do %>
-	<script type="text/javascript">	
-		// These variables hold the links to the AJAX calls made within the get_listing function
-		var ajax_link_states = "<%= company_states_path(company,:format => :json)%>";
-		var link_prefix_state = "<%= company_stores_path(company)%>";
 
-		jQuery(document).ready(function(){
-			state_listing = jQuery("table#state_listing");
-			division_listing = jQuery("table#division_listing");
-
-			// Hide all listings on first load
-			// Listings are shown when the corresponding
-			// links are clicked on the page. 
-			jQuery("ul.nav_items li").click(function(){
-				switch_sections( jQuery(this) );
-			});
-			current_section = jQuery("ul.nav_items li.current")[0];
-			ajax_message_container = jQuery("div#ajax_message_container");
-			ajax_message = jQuery("span#ajax_message",ajax_message_container);
-			jQuery(ajax_message_container).hide();
-			
-			var max_width = 0;
-			$("input.icon_buttons").each(function(){
-				max_width = Math.max( $(this).width(), max_width);
-			})
-			$("input.icon_buttons").width( max_width );
-		})
-	</script>	
-	<%= javascript_include_tag "show_company" %>
-<% end %>
-<% content_for :left_column  do %>
-	<h2>Links</h2> 
-	<ul class="nav_items">
-		<li class="current" id="div_chain_information">Chain Information</li>
-		<li id="table_state_listing" onclick="get_listing(this, 'state')">States with Stores</li>
-	</ul>
-<% end %>
-<div id="chain_information">
-	<div class="toolbar">
-		<input type="button" value="Edit" onclick="window.location='<%=edit_company_path(company)%>'" class="icon_buttons"/>
-		<input type="button" value="New Store" onclick="window.location='<%= company_new_store_path( company) -%>'" class="icon_buttons"/>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">Chain</div>
-		<div class="entry_value" >
-			<%= company[:name]%>
-			
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">Stores</div>
-		<div class="entry_value">
-			<%= link_to number_with_delimiter(company.stores.size), company_stores_path(company)%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">Date Added</div>
-		<div class="entry_value"><%= company[:created_at].strftime("%b %d, %Y") unless company[:created_at].blank?%>&nbsp;</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">Last Updated</div>
-		<div class="entry_value"><%= company[:updated_at].strftime("%b %d, %Y") unless company[:updated_at].blank?%>&nbsp;</div>
-	</div>
-	<div class="spacer"></div>
-</div>
-
-<div id="ajax_message_container">
-	<span id="ajax_message">Getting information ..</span>
-</div>
-<table id="state_listing" class="listing">
-	<thead>
-		<tr>
-			<th scope="col">State</th>
-			<th scope="col">Stores</th>
-		</tr>
-	</thead>
-	<tbody/>
-</table>
+<% end -%>

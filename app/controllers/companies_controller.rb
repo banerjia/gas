@@ -63,7 +63,7 @@ class CompaniesController < ApplicationController
   def update
     company_id = params[:id]
     company = Company.find(company_id)
-    if company.update_attributes(params[:company])
+    if company.update_attributes(company_params)
       flash[:notice] = "The information for " + company[:name] + " has been updated."
       redirect_to :action => "show", :id => company_id
     else

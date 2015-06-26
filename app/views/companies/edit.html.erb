@@ -1,80 +1,20 @@
-<% content_for :head do %>
-	<%= stylesheet_link_tag "forms" %>
-	<%= stylesheet_link_tag "table" %>
-	<style type="text/css" media="screen">
-		div#left_column {display:none;}
-		div#right_column{
-			float: none;
-			display: block;
-			margin-left: 0;
-			width: auto;
-		}
-		table#division_listing thead tr th { background-color: #bbb; color: #000}
-		table#division_listing thead tr th:first-child{ width: 10%;}
-		table#division_listing thead tr th:first-child + th, table#division_listing tbody tr td:first-child + td {text-align:left;width:50%;}
-		table#division_listing thead tr th:last-child {text-align:center;}
-		div#right_column > h2, 
-		div#right_column > form > h2,
-		table#division_listing caption {
-			background-color: #1b4376;
-			color: #fff;
-			font-family:'Nobile',Sans-serif;
-			font-size:12pt;
-			font-weight:bold;
-			margin-top:1.5em;
-			margin-bottom: 0;
-			padding: 0.3em;
-		}
-	</style>
-<% end %>
+<%= form_for company do |f| %>
+<!-- Errors -->
+<%- if company.errors.any? -%>
+<div class="panel panel-sm panel-danger">
+	<div class="panel-heading"><span class="h3">Attention</span></div>
+	<div class="panel-body">
+	<p>Unfortunately the store information could not be saved. Please review the highlighted <%= pluralize(company.errors.count, "entry") %> below and 
+			try again. </p>
+	</div>
 
-<% content_for :page_js do %>
-	<script type="text/javascript">
-		jQuery(document).ready(function(){
-			jQuery("div#left_column").remove();
-			jQuery("input#company_name").focus();
-		});
-	</script>
-	<%= javascript_include_tag "edit_company" %>
+</div>
+<%- end -%>
 
-<% end %>
+<div class="well well-sm">
+	<%= f.submit "Save", class: "btn btn-primary" -%>
+	<%= link_to "Close", company_path(company), class: "btn btn-default" -%>
+</div>
+<%= render :partial => "entry", :locals => {f: f} -%>
 
-<%= form_for company, :url => company_path(company) do |f| %>
-	<div class="toolbar">
-		<%= f.submit "Save Changes", :class=> "icon_buttons"%>
-		<input type="button" onclick="window.location='<%=company_path%>'" value="Cancel" class="icon_buttons"/>
-		<% if !company[:updated_at].blank? %>
-		<span style="color:#000;float:right;line-height:2">
-			<strong>Last updated on:</strong> <%= company[:updated_at].strftime("%b %d, %Y") %>
-		</span>	
-		<% end %>	
-	</div>
-	<% if company.errors.any? %>
-	<div class="form_errors">
-		<h2>Please review some of the entries</h2>
-		<ul>
-		<% company.errors.each do |attr_name, message|%>
-			<li><%= message %></li>
-		<% end %>
-		</ul>
-	</div>
-	<% end %>
-	<h2>Basic Company Information</h2>
-	<div class="entry_row">
-		<div class="entry_label"><%= f.label :name %></div>
-		<div class="entry_value">
-			<%= f.text_field :name, :class => (company.errors.any? && !company.errors[:name].blank? ? "error_field": "") %>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">Status</div>
-		<div class="entry_value">
-			<%= f.check_box :active -%>
-			<%= f.label :active, "This chain actively sells Graeters products" -%>
-		</div>
-	</div>
-	<div class="toolbar">
-		<%= f.submit "Save Changes", :class=> "icon_buttons"%>
-		<input type="button" onclick="window.location='<%=company_path%>'" value="Cancel" class="icon_buttons"/>
-	</div>			
-<% end %>
+<%- end -%>
