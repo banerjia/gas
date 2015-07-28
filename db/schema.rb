@@ -117,16 +117,9 @@ ActiveRecord::Schema.define(version: 20150626035746) do
     t.timestamp "updated_at",                                        null: false
   end
 
-  create_table "new_stores", id: false, force: true do |t|
-    t.string "ROW_ID",         limit: 20
-    t.string "name"
-    t.string "street_address", limit: 1000
-    t.string "suite"
-    t.string "city"
-    t.string "state_code",     limit: 45
-    t.string "zip",            limit: 45
-    t.float  "latitude",       limit: 24
-    t.float  "longitude",      limit: 24
+  create_table "new_sort_order", id: false, force: true do |t|
+    t.string  "product_code", limit: 20, null: false
+    t.integer "sort_order",              null: false
   end
 
   create_table "orders", force: true do |t|
@@ -167,15 +160,6 @@ ActiveRecord::Schema.define(version: 20150626035746) do
     t.integer "volume_unit_id",       limit: 2,  default: 1
     t.boolean "limited_availability",            default: false, null: false
     t.integer "display_order",        limit: 2,  default: 65535, null: false
-  end
-
-  create_table "product_ordering", id: false, force: true do |t|
-    t.integer "Order"
-    t.integer "ID"
-    t.string  "Name"
-    t.string  "Type",   limit: 45
-    t.string  "Status", limit: 45
-    t.integer "cat_id"
   end
 
   create_table "product_orders", id: false, force: true do |t|
