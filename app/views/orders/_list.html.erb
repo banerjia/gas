@@ -23,7 +23,7 @@
 	<%- orders.each do |order| -%>
 	<tr>
 		<td><%= order[:created_at].to_date.strftime( Date.today.year == order[:created_at].to_date.year ? "%m/%d": "%m/%d/%Y" )-%></td>
-		<td class="text-center"><%= link_to order[:id], order_path(order) -%></td>
+		<td class="text-center"><%= link_to order[:id], order_path(order[:id]) -%></td>
 		<td><%= (order[:store] || order.store).full_name -%></td>
 		<td class="text-center visible-md visible-lg"><%= order.route[:name]-%></td>
 		<td class="text-center visible-md visible-lg"><%= order.delivery_day_of_the_week -%></td>
