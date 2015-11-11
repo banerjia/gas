@@ -16,6 +16,7 @@ gem 'axlsx', '~> 2.0'
 gem 'axlsx_rails'
 gem 'jquery-rails'
 gem 'zip-zip'
+gem 'responders', '~> 2.0'
 
 group :development do
   gem 'better_errors'
