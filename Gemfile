@@ -5,7 +5,7 @@ source 'http://rubygems.org'
 gem 'rails', '4.2.4'
 
 
-gem 'mysql2'
+gem 'mysql2', '~> 0.3.18'
 gem 'composite_primary_keys'
 gem 'geocoder'
 gem 'elasticsearch-model'

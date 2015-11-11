@@ -124,7 +124,7 @@ GEM
     minitest (5.8.2)
     multi_json (1.11.2)
     multipart-post (2.0.0)
-    mysql2 (0.4.1)
+    mysql2 (0.3.20)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (3.0.1)
@@ -211,7 +211,7 @@ DEPENDENCIES
   jbuilder
   jquery-rails
   meta_request
-  mysql2
+  mysql2 (~> 0.3.18)
   rails (= 4.2.4)
   sass-rails
   uglifier
