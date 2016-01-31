@@ -28,7 +28,11 @@
 	</div>
 
 	<%= render :partial => "entry", :locals => {audit: audit, f: f} -%>
-
+	<div class="row ng-cloak form-buttons" style="margin-bottom: 0.5em" data-ng-hide="show_store_search">
+		<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary", data: {"ng-disabled" => "audit_store_id == null || show_store_search"} -%>
+		
+		<%= link_to "Cancel", session[:last_page] || audit_search_path, class: "btn btn-default" -%>
+	</div>
 
 <%- end -%>
 
