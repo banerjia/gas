@@ -2,7 +2,7 @@ source 'http://rubygems.org'
 
 
 
-gem 'rails', '4.2.5'
+gem 'rails', '4.2.4'
 
 
 gem 'mysql2', '~> 0.3.18'
@@ -17,6 +17,7 @@ gem 'axlsx_rails'
 gem 'jquery-rails'
 gem 'zip-zip'
 gem 'responders', '~> 2.0'
+gem 'sprockets-rails', '2.3.3'
 
 group :development do
   gem 'binding_of_caller'
