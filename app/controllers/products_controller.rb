@@ -51,7 +51,7 @@ class ProductsController < ApplicationController
     #   params[:product][:product_category_id] = product_category[:id]
     # end
     
-    product = Product.new(params[:product])
+    product = Product.new(product_params)
     if product.save
       redirect_to product_path( product )
     else
