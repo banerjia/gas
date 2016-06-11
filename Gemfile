@@ -2,7 +2,7 @@ source 'http://rubygems.org'
 
 
 
-gem 'rails', '4.2.4'
+gem 'rails', '4.2.6'
 
 
 gem 'mysql2', '~> 0.3.18'
@@ -21,10 +21,8 @@ gem 'sprockets-rails', '2.3.3'
 
 group :development do
   gem 'binding_of_caller'
-  gem 'capistrano'
-  gem 'capistrano-bundler'
-  gem 'capistrano-rvm'
-  gem 'capistrano-passenger'
+  gem 'capistrano', '~> 3.1'
+  gem 'capistrano-rails', '~> 1.1'
   gem 'meta_request'
 end 
 
