@@ -49,7 +49,7 @@ Graeters::Application.configure do
 
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
-  # config.action_controller.asset_host = "http://assets.graeterscloudapps.com"
+  config.action_controller.asset_host = "https://assets.graeterscloudapps.com"
 
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
