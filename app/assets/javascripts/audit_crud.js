@@ -256,7 +256,6 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 						$scope.loading_message = null;
 
 						$scope.more_pages = false;
-						console.log( errorPayLoad);
 					}
 				);
 		}

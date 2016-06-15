@@ -1,11 +1,8 @@
 source 'http://rubygems.org'
 
+gem 'rails', '4.2.6'
 
-
-gem 'rails', '4.2.4'
-
-
-gem 'mysql2'
+gem 'mysql2', '~> 0.3.18'
 gem 'composite_primary_keys'
 gem 'geocoder'
 gem 'elasticsearch-model'
@@ -16,6 +13,8 @@ gem 'axlsx', '~> 2.0'
 gem 'axlsx_rails'
 gem 'jquery-rails'
 gem 'zip-zip'
+
+gem 'responders', '~> 2.0'
 
 group :development do
   gem 'better_errors'
@@ -28,6 +27,7 @@ group :development do
 end 
 
 group :assets do
+  gem 'sprockets-rails', '2.3.3'
   gem 'sass-rails'
   gem 'uglifier'
   gem 'coffee-rails'
