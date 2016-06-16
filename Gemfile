@@ -12,12 +12,17 @@ gem 'elasticsearch-model'
 gem 'elasticsearch-rails'
 gem 'sorcery'
 gem 'bcrypt-ruby'
-gem 'axlsx', '~> 2.0'
-gem 'axlsx_rails'
 gem 'jquery-rails'
 gem 'zip-zip'
-gem 'responders', '~> 2.0'
-gem 'sprockets-rails', '2.3.3'
+
+# Sprockets
+gem 'sprockets-rails' , '~> 2.3.3'
+
+# AXLSX
+
+gem 'rubyzip', '= 1.0.0'
+gem 'axlsx', '= 2.0.1'
+gem 'axlsx_rails'
 
 group :development do
   gem 'binding_of_caller'
