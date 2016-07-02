@@ -324,46 +324,46 @@
 							</div>
 						</li>
 					</ul>
-					<div 
-						class="col-md-12 col-sm-12 col-xs-12 ng-cloak" 
-						data-ng-controller="AuditImageController" 
-						<%- if !f.object.images.first[:content_url].blank? -%>
-						data-ng-init="files.first = '<%= f.object.images.first[:content_url] -%>'"
-						<%- end -%>
-						data-ng-hide="show_store_search">
-						<div class="panel panel-default">
-							<div class="panel-heading">Attach Picture</div>
-							<div class="panel-body">
-								<%= f.fields_for :images, include_id: false do |img| -%>
-								<div style="display:none">
-									<%= img.hidden_field :content_url, data: {"ng-value" => "files.first"} -%>
-								</div>
-								<% end -%>
-								<div class="col-md-12 col-sm-12 col-xs-12">
-									<div 
-										s3-upload 
-										bucket="'<%= ENV['aws_s3_bucket_upload'] -%>'" 
-										ng-model="files.first"
-										s3-upload-options="{getOptionsUri: '<%= api_v1_s3_access_token_path( ENV['aws_s3_bucket_upload'] ) -%>', folder: 'graeters/direct_uploads/'}"></div>
-									
-								</div>			
-							</div>
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>
 
 		<div class="col-md-8 col-md-pull-3 col-sm-12 col-xs-12" style="padding: 0">
-			<div class="panel panel-default">
-				<div class="panel-heading"><%= f.label :audit_comment, "Comments" -%></div>
-				<div class="panel-body">
-					<p>Comments are required for audits with a total score of 7 points and less. </p>
-					<%= f.fields_for :comments, include_id: false do |c| -%>
+			<div class="row">
+				<div class="panel panel-default">
+					<div class="panel-heading"><%= f.label :audit_comment, "Comments" -%></div>
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-md-12 col-lg-12 col-sm-12">
+								<p>Comments are required for audits with a total score of 7 points and less. </p>
+								<%= f.fields_for :comments, include_id: false do |c| -%>
 
-					<%= c.text_area :content, class: "form-control", cols: 80, rows: 5 -%>
-					<%- end -%>
-				</div>
+								<%= c.text_area :content, class: "form-control", cols: 80, rows: 5 -%>
+								<%- end -%>
+							</div>
+						</div>
+						<div class="row" style="margin-top: 0.5em">
+							<div 
+								class="col-md-4 col-lg-4 col-sm-12 col-xs-12 ng-cloak" 
+								data-ng-controller="AuditImageController" 
+								<%- if !f.object.images.first[:content_url].blank? -%>
+								data-ng-init="files.first = '<%= f.object.images.first[:content_url] -%>'"
+								<%- end -%>
+								data-ng-hide="show_store_search">
+								<%= f.fields_for :images, include_id: false do |img| -%>
+								<div style="display:none">
+									<%= img.hidden_field :content_url, data: {"ng-value" => "files.first"} -%>
+								</div>
+								<% end -%>
+								<div 
+									s3-upload 
+									bucket="'<%= ENV['aws_s3_bucket_upload'] -%>'" 
+									ng-model="files.first"
+									s3-upload-options="{getOptionsUri: '<%= api_v1_s3_access_token_path( ENV['aws_s3_bucket_upload'] ) -%>', folder: 'graeters/direct_uploads/'}"></div>
+							</div>
+						</div>
+					</div>
+				</div>				
 			</div>
 		</div>
 	</div>
@@ -405,6 +405,7 @@
 <%= javascript_include_tag "bootstrap-datepicker" -%>
 <%= javascript_include_tag "ng-s3upload.js" -%>
 <%= javascript_include_tag "audit_crud.js" -%>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.4.4.min.js"></script>
 <script type="text/javascript">
 window.api_v1_stores_search_path = '<%= api_v1_stores_search_path -%>';
 window.show_store_search = <%= (audit[:store_id].nil? || audit[:store_id].zero?).to_s -%>;

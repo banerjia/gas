@@ -285,7 +285,7 @@ angular.module('ngS3upload')
     "   </div>\n" +
     "   <div class=\"row\">\n" +
     "       <div class=\"col-md-6 col-sm-6 col-xs-6\">\n" +
-    "           <button class=\"col-md-12 col-sm-12 col-xs-12 btn btn-sm btn-primary\" type=\"button\" id=\"ngs3_btn_Upload\"><span ng-if=\"!filename\">Upload</span><span ng-if=\"filename\">Replace</span></button>\n" +
+    "           <button class=\"col-md-12 col-sm-12 col-xs-12 btn btn-sm btn-primary\" type=\"button\" id=\"ngs3_btn_Upload\"><span ng-if=\"!filename\">Add Picture</span><span ng-if=\"filename\">Replace</span></button>\n" +
     "           <input type=\"file\" style=\"display: none\"/>\n" +
     "       </div>\n" +
     "       <div class=\"col-md-6 col-sm-6 col-xs-6\">\n" +
