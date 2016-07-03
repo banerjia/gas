@@ -405,7 +405,7 @@
 <%= javascript_include_tag "bootstrap-datepicker" -%>
 <%= javascript_include_tag "ng-s3upload.js" -%>
 <%= javascript_include_tag "audit_crud.js" -%>
-<script src="https://sdk.amazonaws.com/js/aws-sdk-2.4.4.min.js"></script>
+
 <script type="text/javascript">
 window.api_v1_stores_search_path = '<%= api_v1_stores_search_path -%>';
 window.show_store_search = <%= (audit[:store_id].nil? || audit[:store_id].zero?).to_s -%>;
