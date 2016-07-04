@@ -23,6 +23,7 @@ class AuditsController < ApplicationController
 		new_audit[:created_at] = Date.today.strftime("%m/%d/%Y")
 		new_audit.comments.build()
 		new_audit.images.build()
+		new_audit.images.build()
 
 		metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 		

@@ -3,6 +3,26 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 		$rootScope.show_store_search = $window.show_store_search;
 		$rootScope.audit_store_id = $window.audit_store_id;
 	}])
+	.service("AWSAccessToken", ['$http', '$q', '$window', function($http, $q, $window){
+		var accessTokenUrl = $window.api_v1_s3_access_token_path;
+
+		return{
+			url: function(){
+				return accessTokenUrl;
+			},
+			getSignature: function(){
+				var deferred_accessToken = $q.defer();
+				$http.get(accessTokenUrl)
+					.then(function(result){
+							deferred_accessToken.resolve(result.data);
+						}, 
+						function(){ alert("Service Error");});
+
+				return deferred_accessToken.promise;
+
+			}
+		};
+	}])
 	.service( "StoreSearch", ['$http', '$q', '$window', function($http, $q, $window){
 		var storeSearchUrl = $window.api_v1_stores_search_path;
 		var save_location = null;
@@ -311,9 +331,64 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 			$scope.bonusScore = auditScore.bonus;
 		})
 	}])
-	.controller('AuditImageController', ['$scope', function($scope){
-		$scope.files = {};
+	.controller('AuditImageController', ['$scope', '$http', "AWSAccessToken", function($scope, $http, AWSAccessToken){
+		$scope.s3Files = [];
+		var accessToken = null;
 
+        var guid = function() {
+          function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+              .toString(16)
+              .substring(1);
+          }
+          return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+        }
+
+		var sendFileToS3 = function(accessToken, filesToUpload){
+				var bucketUrl = "https://tagoretown-awstest.s3.amazonaws.com/";
+				for(var fileLoop = 0; fileLoop < filesToUpload.length; fileLoop++)
+            	{
+	                (function(){
+	                    var s3FileName = filesToUpload[fileLoop].name;
+	                    var imageIndex = fileLoop;
+	                    s3FileName = s3FileName.replace(/.*\\|\..*$/g, '') 
+	                                    + "-" 
+	                                    + guid() 
+	                                    + "."
+	                                    + s3FileName.split(".").pop();
+	                    
+	                    var fd = new FormData();
+	                    fd.append('key', "aFolder/" + s3FileName);
+	                    fd.append('Content-Type', filesToUpload[fileLoop].type);
+	                    fd.append('AWSAccessKeyId', accessToken.key);
+	                    fd.append('acl', "public-read");
+	                    fd.append('policy', accessToken.policy);
+	                    fd.append('signature', accessToken.signature);
+	                    fd.append("file", filesToUpload[fileLoop]);
+ 
+						var xhr = new XMLHttpRequest();
+						//xhr.upload.addEventListener("progress", function(e) {uploadProgress( e, imageIndex); }, false);
+						//xhr.addEventListener("load", function(e) {uploadComplete( e, imageIndex); }, false);
+						//xhr.addEventListener("error", function(e) {uploadFailed( e, imageIndex); }, false);
+						xhr.open('POST', bucketUrl, true);
+						xhr.setRequestHeader( 'x-amz-storage-class', 'REDUCED_REDUNDANCY');
+						xhr.send(fd); 
+	                }()); 
+	            }
+        }
+
+		$scope.init = function(){
+			
+		}
+
+		$scope.imageChange = function(files){
+			AWSAccessToken.getSignature()
+				.then(function(data){
+					sendFileToS3(data, files)
+				});
+			return;
+		}
 	}])
 	.controller('AuditMetricController', ['$scope', 'totalScore', 'StoreExchange', function($scope, totalScore, StoreExchange) {
 		$scope.comparisonType = null;

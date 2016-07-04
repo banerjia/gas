@@ -346,20 +346,17 @@
 							<div 
 								class="col-md-4 col-lg-4 col-sm-12 col-xs-12 ng-cloak" 
 								data-ng-controller="AuditImageController" 
-								<%- if !f.object.images.first[:content_url].blank? -%>
-								data-ng-init="files.first = '<%= f.object.images.first[:content_url] -%>'"
-								<%- end -%>
+								data-ng-init="init()"
 								data-ng-hide="show_store_search">
-								<%= f.fields_for :images, include_id: false do |img| -%>
 								<div style="display:none">
-									<%= img.hidden_field :content_url, data: {"ng-value" => "files.first"} -%>
+								<%- audit.images.each.with_index do |image, index| -%>
+									<%= f.fields_for :images, image, include_id: false do |img| -%>
+										<%= img.text_field :content_url, data: {"ng-model" => "s3Files[#{index}]", "ng-init" => "s3Files[#{index}] = '#{image[:content_url]}'"} -%>
+									<% end -%>
+								<%- end -%>
 								</div>
-								<% end -%>
-								<div 
-									s3-upload 
-									bucket="'<%= ENV['aws_s3_bucket_upload'] -%>'" 
-									ng-model="files.first"
-									s3-upload-options="{getOptionsUri: '<%= api_v1_s3_access_token_path( ENV['aws_s3_bucket_upload'] ) -%>', folder: 'graeters/direct_uploads/'}"></div>
+
+								<input type="file" id="auditImage" accept="image/*" multiple="multiple" data-ng-model="auditImage" onchange="angular.element(this).scope().imageChange(this.files)"/>
 							</div>
 						</div>
 					</div>
@@ -408,8 +405,10 @@
 
 <script type="text/javascript">
 window.api_v1_stores_search_path = '<%= api_v1_stores_search_path -%>';
+window.api_v1_s3_access_token_path = '<%=api_v1_s3_access_token_path({bucket: ENV['aws_s3_bucket_upload'],format: "json"})-%>';
 window.show_store_search = <%= (audit[:store_id].nil? || audit[:store_id].zero?).to_s -%>;
 window.audit_store_id = <%= audit[:store_id] || 'null' -%>;
+
 
 $(document).ready(function(){
 	$('.input-group.date')
