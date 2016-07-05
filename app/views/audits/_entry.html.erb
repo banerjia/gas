@@ -342,12 +342,14 @@
 								<%- end -%>
 							</div>
 						</div>
-						<div class="row" style="margin-top: 0.5em">
-							<div 
-								class="col-md-4 col-lg-4 col-sm-12 col-xs-12 ng-cloak" 
+						<div class="row ng-cloak" 
+								style="margin-top: 0.5em" 
 								data-ng-controller="AuditImageController" 
 								data-ng-init="init()"
 								data-ng-hide="show_store_search">
+							<div 
+								class="col-md-4 col-lg-4 col-sm-12 col-xs-12" 
+								>
 								<div style="display:none">
 								<%- audit.images.each.with_index do |image, index| -%>
 									<%= f.fields_for :images, image, include_id: false do |img| -%>
@@ -357,6 +359,22 @@
 								</div>
 
 								<input type="file" id="auditImage" accept="image/*" multiple="multiple" data-ng-model="auditImage" onchange="angular.element(this).scope().imageChange(this.files)"/>
+							</div>
+							<div class="col-md-8 col-lg-8 col-sm-12 col-xs-12">
+								<ul class="list-group" data-ng-repeat="file in filesBeingUploaded">
+									<li class="list-group-item" ng-show="!file.complete">
+										<div class="row">
+											<div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
+												{{file.name}}
+											</div>
+											<div class="col-md-4 col-lg-4 col-sm-11 col-xs-11">
+												<div class="progress">
+													<div class="progress-bar progress-bar-info progress-bar-stripedt text-center" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: {{file.progress}}%"><span class="sr-only">{{file.progress}}%</span></div>
+												</div>
+											</div>									
+										</div>
+									</li>
+								</ul>
 							</div>
 						</div>
 					</div>

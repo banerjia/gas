@@ -333,6 +333,9 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 	}])
 	.controller('AuditImageController', ['$scope', '$http', "AWSAccessToken", function($scope, $http, AWSAccessToken){
 		$scope.s3Files = [];
+		$scope.filesBeingUploaded = [];
+		var imageCounter = 0;
+
 		var accessToken = null;
 
         var guid = function() {
@@ -347,11 +350,13 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 
 		var sendFileToS3 = function(accessToken, filesToUpload){
 				var bucketUrl = "https://tagoretown-awstest.s3.amazonaws.com/";
-				for(var fileLoop = 0; fileLoop < filesToUpload.length; fileLoop++)
+				for(var fileLoop = 0; fileLoop < filesToUpload.length; fileLoop++, imageCounter++)
             	{
 	                (function(){
+	                	$scope.filesBeingUploaded.push({name:filesToUpload[fileLoop].name, progress: 0, complete:false});
+	                	
 	                    var s3FileName = filesToUpload[fileLoop].name;
-	                    var imageIndex = fileLoop;
+	                    var imageIndex = imageCounter;
 	                    s3FileName = s3FileName.replace(/.*\\|\..*$/g, '') 
 	                                    + "-" 
 	                                    + guid() 
@@ -368,14 +373,29 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 	                    fd.append("file", filesToUpload[fileLoop]);
  
 						var xhr = new XMLHttpRequest();
-						//xhr.upload.addEventListener("progress", function(e) {uploadProgress( e, imageIndex); }, false);
-						//xhr.addEventListener("load", function(e) {uploadComplete( e, imageIndex); }, false);
+						xhr.upload.addEventListener("progress", function(e) {uploadProgress( e, imageIndex); }, false);
+						xhr.addEventListener("load", function(e) {uploadComplete( e, imageIndex); }, false);
 						//xhr.addEventListener("error", function(e) {uploadFailed( e, imageIndex); }, false);
 						xhr.open('POST', bucketUrl, true);
 						xhr.setRequestHeader( 'x-amz-storage-class', 'REDUCED_REDUNDANCY');
 						xhr.send(fd); 
 	                }()); 
 	            }
+	            //$scope.filesBeingUploaded = [];
+	            $scope.auditImage = null;
+        }
+
+        var uploadProgress = function( e, imageIndex){
+        	if(e.lengthComputable){
+        		$scope.filesBeingUploaded[imageIndex].progress = Math.round(e.loaded * 100 / e.total);
+        		$scope.$apply();
+        	}
+        }
+
+        var uploadComplete = function( e, imageIndex){
+        	$scope.filesBeingUploaded[imageIndex].complete = true;
+        	$scope.$apply();
+
         }
 
 		$scope.init = function(){
