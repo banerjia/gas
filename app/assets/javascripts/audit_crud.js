@@ -333,8 +333,9 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 	}])
 	.controller('AuditImageController', ['$scope', '$http', "AWSAccessToken", function($scope, $http, AWSAccessToken){
 		$scope.s3Files = [];
-		$scope.filesBeingUploaded = [];
-		var imageCounter = 0;
+		var s3BucketUrl = "https://tagoretown-awstest.s3.amazonaws.com/";
+		var s3ImageFolder = "aFolder/";
+		var s3ImageFolderUrl = s3BucketUrl + s3ImageFolder;
 
 		var accessToken = null;
 
@@ -349,65 +350,90 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
         }
 
 		var sendFileToS3 = function(accessToken, filesToUpload){
-				var bucketUrl = "https://tagoretown-awstest.s3.amazonaws.com/";
-				for(var fileLoop = 0; fileLoop < filesToUpload.length; fileLoop++, imageCounter++)
+				var imageCounter = $scope.s3Files.length;
+				for(var fileLoop = 0; fileLoop < filesToUpload.length; fileLoop++)
             	{
 	                (function(){
-	                	$scope.filesBeingUploaded.push({name:filesToUpload[fileLoop].name, progress: 0, complete:false});
 	                	
+	                    var imageIndex = imageCounter + fileLoop;	                	
 	                    var s3FileName = filesToUpload[fileLoop].name;
-	                    var imageIndex = imageCounter;
+
+
 	                    s3FileName = s3FileName.replace(/.*\\|\..*$/g, '') 
 	                                    + "-" 
 	                                    + guid() 
 	                                    + "."
 	                                    + s3FileName.split(".").pop();
-	                    
+	                    $scope.s3Files[imageIndex] = {
+	                    	name:filesToUpload[fileLoop].name, 
+	                    	computedName: s3FileName,
+	                    	progress: 0, 
+	                    	complete:false,
+	                    	confirm_on_delete: false
+	                    };
 	                    var fd = new FormData();
-	                    fd.append('key', "aFolder/" + s3FileName);
+	                    fd.append('key', s3ImageFolder + s3FileName);
 	                    fd.append('Content-Type', filesToUpload[fileLoop].type);
 	                    fd.append('AWSAccessKeyId', accessToken.key);
 	                    fd.append('acl', "public-read");
 	                    fd.append('policy', accessToken.policy);
 	                    fd.append('signature', accessToken.signature);
 	                    fd.append("file", filesToUpload[fileLoop]);
+
+			        	var reader = new FileReader();  
+			        	reader.onload = function(et) {
+			        		var thumbnail_imageIndex = imageIndex;
+			        		$scope.s3Files[thumbnail_imageIndex].src_data = et.target.result;
+			        		$scope.$apply();
+			        	}
+			        	reader.readAsDataURL(filesToUpload[fileLoop]);
  
 						var xhr = new XMLHttpRequest();
 						xhr.upload.addEventListener("progress", function(e) {uploadProgress( e, imageIndex); }, false);
 						xhr.addEventListener("load", function(e) {uploadComplete( e, imageIndex); }, false);
 						//xhr.addEventListener("error", function(e) {uploadFailed( e, imageIndex); }, false);
-						xhr.open('POST', bucketUrl, true);
+						xhr.open('POST', s3BucketUrl, true);
 						xhr.setRequestHeader( 'x-amz-storage-class', 'REDUCED_REDUNDANCY');
 						xhr.send(fd); 
 	                }()); 
 	            }
-	            //$scope.filesBeingUploaded = [];
-	            $scope.auditImage = null;
+	            
+	            document.getElementById("auditImage").value = "";
         }
 
         var uploadProgress = function( e, imageIndex){
         	if(e.lengthComputable){
-        		$scope.filesBeingUploaded[imageIndex].progress = Math.round(e.loaded * 100 / e.total);
+        		$scope.s3Files[imageIndex].progress = Math.round(e.loaded * 100 / e.total);
         		$scope.$apply();
         	}
         }
 
         var uploadComplete = function( e, imageIndex){
-        	$scope.filesBeingUploaded[imageIndex].complete = true;
+        	$scope.s3Files[imageIndex].complete = true;
+        	$scope.s3Files[imageIndex].content_url = s3ImageFolderUrl + $scope.s3Files[imageIndex].computedName;
         	$scope.$apply();
-
         }
 
-		$scope.init = function(){
-			
+		$scope.init = function( entriesFromDb){
+			$scope.s3Files = entriesFromDb;
+			for(var i = 0; i < $scope.s3Files.length; i++)
+			{
+				$scope.s3Files[i].complete = true;
+				$scope.s3Files[i].confirm_on_delete = true;
+			}			
 		}
 
 		$scope.imageChange = function(files){
+
 			AWSAccessToken.getSignature()
 				.then(function(data){
 					sendFileToS3(data, files)
 				});
 			return;
+		}
+
+		$scope.removeImage = function(imageIndex){
+			$scope.s3Files.splice(imageIndex, 1);
 		}
 	}])
 	.controller('AuditMetricController', ['$scope', 'totalScore', 'StoreExchange', function($scope, totalScore, StoreExchange) {

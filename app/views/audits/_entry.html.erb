@@ -343,39 +343,30 @@
 							</div>
 						</div>
 						<div class="row ng-cloak" 
-								style="margin-top: 0.5em" 
-								data-ng-controller="AuditImageController" 
-								data-ng-init="init()"
-								data-ng-hide="show_store_search">
-							<div 
-								class="col-md-4 col-lg-4 col-sm-12 col-xs-12" 
-								>
-								<div style="display:none">
-								<%- audit.images.each.with_index do |image, index| -%>
-									<%= f.fields_for :images, image, include_id: false do |img| -%>
-										<%= img.text_field :content_url, data: {"ng-model" => "s3Files[#{index}]", "ng-init" => "s3Files[#{index}] = '#{image[:content_url]}'"} -%>
-									<% end -%>
-								<%- end -%>
+							style="margin-top: 0.5em" 
+							data-ng-controller="AuditImageController" 
+							data-ng-init='init(<%= raw audit.images.to_json %>)'
+							data-ng-hide="show_store_search">
+								<div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">					
+									<ul class="list-group list-inline">
+										<li class="list-group-item text-center" data-ng-repeat="s3File in s3Files track by $index" style="min-width: 160px; text-align: center">
+											<input type="hidden" name="audit[images_attributes][{{$index}}][content_url]" value="{{s3File.content_url}}"/>
+											<img class="img-thumbnail thumbnail" data-ng-src="{{s3File.src_data ||  s3File.content_url}}"  />
+											<button type="button" class="btn btn-danger" data-ng-show = "s3File.complete" data-ng-click="removeImage($index)">
+																								
+												Remove
+											</button>
+
+											<div class="progress" data-ng-show="!s3File.complete">
+												<div class="progress-bar progress-bar-info progress-bar-striped text-center" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: {{s3File.progress}}%">
+													<span class="sr-only">{{s3File.progress}}%</span>
+												</div>
+											</div>
+										</li>
+									</ul>	
 								</div>
 
-								<input type="file" id="auditImage" accept="image/*" multiple="multiple" data-ng-model="auditImage" onchange="angular.element(this).scope().imageChange(this.files)"/>
-							</div>
-							<div class="col-md-8 col-lg-8 col-sm-12 col-xs-12">
-								<ul class="list-group" data-ng-repeat="file in filesBeingUploaded">
-									<li class="list-group-item" ng-show="!file.complete">
-										<div class="row">
-											<div class="col-md-4 col-lg-4 col-sm-12 col-xs-12">
-												{{file.name}}
-											</div>
-											<div class="col-md-4 col-lg-4 col-sm-11 col-xs-11">
-												<div class="progress">
-													<div class="progress-bar progress-bar-info progress-bar-stripedt text-center" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: {{file.progress}}%"><span class="sr-only">{{file.progress}}%</span></div>
-												</div>
-											</div>									
-										</div>
-									</li>
-								</ul>
-							</div>
+								<input type="file" id="auditImage" accept="image/*" multiple="multiple" onchange="angular.element(this).scope().imageChange(this.files)"/>
 						</div>
 					</div>
 				</div>				
@@ -414,6 +405,137 @@
 </style>
 <% end -%>
 
+<%- content_for :head do -%>
+<style type="text/css">
+	/*==========  Mobile First Method  ==========*/
+
+	/* Custom, iPhone Retina */ 
+	@media only screen and (min-width : 320px) {
+		li.list-group-item:has(img.thumbnail){
+			min-width: 90px;
+		}
+
+	    img.thumbnail{
+	    	max-width: 80px;
+	    	max-height: 80px;
+	    }
+	}
+
+	/* Extra Small Devices, Phones */ 
+	@media only screen and (min-width : 480px) {
+		li.list-group-item:has(img.thumbnail){
+			min-width: 90px;
+		}
+	    img.thumbnail{
+	    	max-width: 80px;
+	    	max-height: 80px;
+	    }
+
+	}
+
+	/* Small Devices, Tablets */
+	@media only screen and (min-width : 768px) {
+		li.list-group-item:has(img.thumbnail){
+			min-width: 110px;
+		}
+	    img.thumbnail{
+	    	max-width: 100px;
+	    	max-height: 100px;
+	    }
+
+	}
+
+	/* Medium Devices, Desktops */
+	@media only screen and (min-width : 992px) {
+		li.list-group-item:has(img.thumbnail){
+			min-width: 110px;
+		}
+	    img.thumbnail{
+	    	max-width: 100px;
+	    	max-height: 100px;
+	    }
+
+	}
+
+	/* Large Devices, Wide Screens */
+	@media only screen and (min-width : 1200px) {
+		li.list-group-item:has(img.thumbnail){
+			min-width: 160px;
+		}
+	    img.thumbnail{
+	    	max-width: 150px;
+	    	max-height: 150px;
+	    }
+
+	}
+
+
+
+	/*==========  Non-Mobile First Method  ==========*/
+
+	/* Large Devices, Wide Screens */
+	@media only screen and (max-width : 1200px) {
+		li.list-group-item:has(img.thumbnail){
+			min-width: 160px;
+		}
+	    img.thumbnail{
+	    	max-width: 150px;
+	    	max-height: 150px;
+	    }
+
+	}
+
+	/* Medium Devices, Desktops */
+	@media only screen and (max-width : 992px) {
+		li.list-group-item:has(img.thumbnail){
+			min-width: 160px;
+		}
+	    img.thumbnail{
+	    	max-width: 150px;
+	    	max-height: 150px;
+	    }
+
+	}
+
+	/* Small Devices, Tablets */
+	@media only screen and (max-width : 768px) {
+		li.list-group-item:has(img.thumbnail){
+			min-width: 110px;
+		}
+	    img.thumbnail{
+	    	max-width: 100px;
+	    	max-height: 100px;
+	    }
+
+	}
+
+	/* Extra Small Devices, Phones */ 
+	@media only screen and (max-width : 480px) {
+		li.list-group-item:has(img.thumbnail){
+			min-width: 90px;
+		}
+	    img.thumbnail{
+	    	max-width: 80px;
+	    	max-height: 80px;
+	    }
+
+	}
+
+	/* Custom, iPhone Retina */ 
+	@media only screen and (max-width : 320px) {
+		li.list-group-item:has(img.thumbnail){
+			min-width: 90px;
+		}
+	    img.thumbnail{
+	    	max-width: 80px;
+	    	max-height: 80px;
+	    }
+	    
+	}
+</style>
+<% end -%>
+
+
 <%- content_for :page_js do -%>
 <%= javascript_include_tag "angular.min.js" -%>
 <%= javascript_include_tag "angular-sanitize.min.js" -%>
@@ -427,7 +549,6 @@ window.api_v1_s3_access_token_path = '<%=api_v1_s3_access_token_path({bucket: EN
 window.show_store_search = <%= (audit[:store_id].nil? || audit[:store_id].zero?).to_s -%>;
 window.audit_store_id = <%= audit[:store_id] || 'null' -%>;
 
-
 $(document).ready(function(){
 	$('.input-group.date')
 	       .datepicker({
@@ -438,6 +559,6 @@ $(document).ready(function(){
 			    todayHighlight: true
 			});
 	$("div#page_loaded").hide();
-})
+});
 </script>
 <%- end -%>
