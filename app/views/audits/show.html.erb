@@ -1,8 +1,8 @@
 
 <div class="row form-group">
-	<%= link_to "Edit", edit_audit_path(audit), class: "btn btn-primary" -%>
-	<button class="btn btn-danger" type="button" onclick="deleteAudit()">Delete</button>
-	<%=link_to "Close", session[:last_page] || audit_search_path, class: "btn btn-default" -%>
+	<%= link_to "Edit", edit_audit_path(audit), class: "btn btn-standard btn-primary" -%>
+	<button class="btn btn-standard btn-danger" type="button" onclick="deleteAudit()">Delete</button>
+	<%=link_to "Close", session[:last_page] || audit_search_path, class: "btn btn-standard btn-default" -%>
 </div>
 <div class="row well well-sm">
 	<div class="col-md-6 col-sm-12 col-xs-12 container">
@@ -45,11 +45,19 @@
 		<div class="row" style="margin-bottom: 0.7em">
 			<div class="col-md-2 col-sm-12 col-xs-12"><label>Attached Picture</label></div>
 			<div class="col-md-10 col-sm-12 col-xs-12">
-			<%- audit.images.each do |image| -%>
-				<a href="<%= image[:content_url] -%>" class="fancybox-thumb" rel="fancybox-thumb">
-					<img src="<%= image[:content_url] -%>" style="max-width: 200px; max-height: 100px" />
-				</a>
-			<% end -%>
+				<div class="row demo-gallery">
+					<%- audit.images.each do |image| -%>
+					<div class="col-md-2 col-lg-2 col-sm-hidden col-xs-hidden">
+						<img src="<%=image[:content_url]-%>" 
+							data-original-src="<%=image[:content_url]-%>" 
+							data-original-src-width="<%=image[:width]-%>"
+							data-original-src-height="<%=image[:height]-%>"
+							class="img-thumbnail"
+							style="max-width:100px; max-height: 100px">
+						</img>
+					</div>
+					<%- end -%>					
+	     		</div>
 			</div>
 		</div>
 		<%- end -%>
@@ -123,13 +131,15 @@
 <% end -%>
 
 <%- content_for :head do -%>
-	<%= stylesheet_link_tag "jquery.fancybox.css" -%>
 	<%= stylesheet_link_tag "sweet-alert.css" -%>
+	<%= stylesheet_link_tag "photoswipe.css" -%>
+	<%= stylesheet_link_tag "default-skin/photoswipe_default_ui.css" -%>
 <%- end -%>
 
 <%- content_for :page_js do -%>
-	<%= javascript_include_tag "jquery.fancybox.js" -%>
 	<%= javascript_include_tag "sweet-alert.min.js" -%>
+	<%= javascript_include_tag "jquery.photoswipe.min.js" -%>
+
 	<script type="text/javascript">
 	var URL = {
 		destroy_audit: '<%= audit_path(audit[:id], format: :json) -%>',
@@ -137,19 +147,7 @@
 	};
 
 	$(document).ready(function() {
-		$(".fancybox-thumb").fancybox({
-			prevEffect	: 'none',
-			nextEffect	: 'none',
-			helpers	: {
-				title	: {
-					type: 'outside'
-				},
-				thumbs	: {
-					width	: 50,
-					height	: 50
-				}
-			}
-		});
+		$(".demo-gallery").photoSwipe();
 	});
 
 	function deleteAudit(){

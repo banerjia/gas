@@ -20,8 +20,8 @@
 				
 				</p>
 				<p>
-					<button type="button" class="btn btn-primary" data-ng-click="getStores()">Search</button>
-					<button type="button" class="btn btn-default" data-ng-show="order_store_id != null" data-ng-click="cancel()">Cancel</button>
+					<button type="button" class="btn btn-standard btn-primary" data-ng-click="getStores()">Search</button>
+					<button type="button" class="btn btn-standard btn-default" data-ng-show="order_store_id != null" data-ng-click="cancel()">Cancel</button>
 				</p>
 				<p class="ng-cloak text-info loading" data-ng-show="loading"><i class="fa fa-circle-o-notch fa-spin"></i> {{loading_message}}</p>
 			</div>			
@@ -49,7 +49,7 @@
 								
 							</td>
 							<td>
-								<button type="button" data-ng-click="selectStore(store); store_search=false;" class="btn btn-success pull-right">Select</button>
+								<button type="button" data-ng-click="selectStore(store); store_search=false;" class="btn btn-standard btn-success pull-right">Select</button>
 							</td>
 						</tr>
 					</tbody>
@@ -133,7 +133,7 @@
 							<td colspan="3">
 								<%= link_to_add_fields "Add Product", f, :product_orders %>
 								
-								<button id="btn_RemoveAll" type="button" class="btn btn-danger" onclick="remove_all(this)">
+								<button id="btn_RemoveAll" type="button" class="btn btn-standard btn-danger" onclick="remove_all(this)">
 									<i class="fa fa-trash-o visible-sm visible-xs"></i>
 									<span class="hidden-sm hidden-xs">Remove All</span>
 								</button>

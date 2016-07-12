@@ -22,8 +22,6 @@ class AuditsController < ApplicationController
 
 		new_audit[:created_at] = Date.today.strftime("%m/%d/%Y")
 		new_audit.comments.build()
-		new_audit.images.build({content_url: 'https://i.vimeocdn.com/portrait/58832_300x300'})
-		new_audit.images.build({content_url: 'https://i.vimeocdn.com/portrait/58832_300x300'})
 
 		metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 		
@@ -256,7 +254,9 @@ class AuditsController < ApplicationController
 					:content
 				],
 				images_attributes:[
-					:content_url
+					:content_url,
+					:width,
+					:height
 				]
 			)
 	end

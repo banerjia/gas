@@ -369,7 +369,10 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 	                    	computedName: s3FileName,
 	                    	progress: 0, 
 	                    	complete:false,
-	                    	confirm_on_delete: false
+	                    	confirm_on_delete: false,
+							content_url: null,
+							width: null, 
+							height: null
 	                    };
 	                    var fd = new FormData();
 	                    fd.append('key', s3ImageFolder + s3FileName);
@@ -382,8 +385,12 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 
 			        	var reader = new FileReader();  
 			        	reader.onload = function(et) {
+							var img = new Image();
+							img.src = et.target.result;
 			        		var thumbnail_imageIndex = imageIndex;
 			        		$scope.s3Files[thumbnail_imageIndex].src_data = et.target.result;
+			        		$scope.s3Files[thumbnail_imageIndex].width = img.width;
+			        		$scope.s3Files[thumbnail_imageIndex].height = img.height;
 			        		$scope.$apply();
 			        	}
 			        	reader.readAsDataURL(filesToUpload[fileLoop]);

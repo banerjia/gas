@@ -14,6 +14,7 @@ gem 'sorcery'
 gem 'bcrypt-ruby'
 gem 'jquery-rails'
 gem 'zip-zip'
+gem 'fastimage'
 
 # Sprockets
 gem 'sprockets-rails' , '~> 2.3.3'

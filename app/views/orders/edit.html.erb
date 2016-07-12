@@ -1,7 +1,7 @@
 <%= form_for order, data: {"ng-app" => "order"}, role: "form" do |f| -%>
 	<div class="well well-sm ng-cloak form-buttons" style="margin-bottom: 0.5em" data-ng-hide="show_store_search">
-		<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-primary", data: {"ng-disabled" => "order_store_id == null || show_store_search"} -%>
-		<button class="btn btn-default" type="button" onclick="history.go(-1)">Cancel</button>
+		<%= f.submit "Save", :disable_with => 'Saving...', class: "btn btn-standard btn-primary", data: {"ng-disabled" => "order_store_id == null || show_store_search"} -%>
+		<button class="btn btn-standard btn-default" type="button" onclick="history.go(-1)">Cancel</button>
 	</div>
 	<%- if order.errors.count > 0 -%>
 	<div class="row">

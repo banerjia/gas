@@ -66,8 +66,8 @@
 					
 					</p>
 					<p>
-						<button type="button" class="btn btn-primary" data-ng-click="getStores()">Search</button>
-						<button type="button" class="btn btn-default" data-ng-show="audit_store_id != null" data-ng-click="cancel()">Cancel</button>
+						<button type="button" class="btn btn-standard btn-primary" data-ng-click="getStores()">Search</button>
+						<button type="button" class="btn btn-standard btn-default" data-ng-show="audit_store_id != null" data-ng-click="cancel()">Cancel</button>
 					</p>
 					<p class="ng-cloak text-info loading" data-ng-show="loading"><i class="fa fa-circle-o-notch fa-spin"></i> {{loading_message}}</p>
 				</div>			
@@ -95,7 +95,7 @@
 									
 								</td>
 								<td>
-									<button type="button" data-ng-click="selectStore(store); store_search=false;" class="btn btn-success pull-right">Select</button>
+									<button type="button" data-ng-click="selectStore(store); store_search=false;" class="btn btn-standard btn-success pull-right">Select</button>
 								</td>
 							</tr>
 						</tbody>
@@ -349,12 +349,16 @@
 							data-ng-hide="show_store_search">
 								<div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">					
 									<ul class="list-group list-inline">
-										<li class="list-group-item text-center" data-ng-repeat="s3File in s3Files track by $index" style="min-width: 160px; text-align: center">
+										<li class="list-group-item text-center" data-ng-repeat="s3File in s3Files track by $index" style="min-width: 160px; text-align: center;position:relative">
 											<input type="hidden" name="audit[images_attributes][{{$index}}][content_url]" value="{{s3File.content_url}}"/>
+											<input type="hidden" name="audit[images_attributes][{{$index}}][width]" value="{{s3File.width}}"/>
+											<input type="hidden" name="audit[images_attributes][{{$index}}][height]" value="{{s3File.height}}"/>
 											<img class="img-thumbnail thumbnail" data-ng-src="{{s3File.src_data ||  s3File.content_url}}"  />
-											<button type="button" class="btn btn-danger" data-ng-show = "s3File.complete" data-ng-click="removeImage($index)">
-																								
-												Remove
+											<button type="button" 
+													class="btn btn-sm btn-danger" 
+													style="position:absolute; top: 5px; right:5px; width:30px"
+													data-ng-show = "s3File.complete" data-ng-click="removeImage($index)">
+												<i class="fa fa-times"></i>
 											</button>
 
 											<div class="progress" data-ng-show="!s3File.complete">

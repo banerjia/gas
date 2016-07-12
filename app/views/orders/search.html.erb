@@ -64,13 +64,13 @@
                       <div class="btn-group" role="group"> 
                         <button 
                           type="button" 
-                          class="btn btn-default"
+                          class="btn btn-standard btn-default"
                           <%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
                           onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: 1}))-%>'">
                           I<i class="fa fa-chevron-left"></i><span class="hidden-sm hidden-xs"> First</span>
                         </button>     
                         <button 
-                          class="btn btn-default" 
+                          class="btn btn-standard btn-default" 
                           type="button"
                           <%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
                           onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: page-1})) -%>'">
@@ -78,7 +78,7 @@
                           <span class="hidden-sm hidden-xs"> Back</span>         
                         </button>
                         <button 
-                          class="btn btn-default" 
+                          class="btn btn-standard btn-default" 
                           type="button"
                           <%= !more_pages ? 'disabled="disabled"'.html_safe : nil -%>
                           onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: page+1})) -%>'">
@@ -87,7 +87,7 @@
                         </button>
                         <button 
                           type="button" 
-                          class="btn btn-default"
+                          class="btn btn-standard btn-default"
                           <%= page == total_pages ? 'disabled="disabled"'.html_safe : nil -%>
                           onclick="window.location = '<%= orders_search_path(options_without_page.merge({page: total_pages})) -%>'">
                           <span class="hidden-sm hidden-xs">Last </span><i class="fa fa-chevron-right"></i>I
@@ -111,7 +111,7 @@
                     <span id="email_response" style="display: inline-block"></span>
                   </div>
                   <div class="col-md-7 col-sm-7 col-xs-7">
-                    <button id="btn_email_order" class="btn btn-info pull-right" data-disable-with="Sending..." disabled="disabled" onclick="$('span#email_response').text('').removeClass('text-danger').removeClass('text-success')" >
+                    <button id="btn_email_order" class="btn btn-standard btn-info pull-right" data-disable-with="Sending..." disabled="disabled" onclick="$('span#email_response').text('').removeClass('text-danger').removeClass('text-success')" >
                       Email Order(s)
                     </button>
                   </div>
@@ -244,7 +244,7 @@
             </div>
 
             <div class="form-buttons">
-              <button class="btn btn-sm btn-primary">Find Orders</button>
+              <button class="btn btn-standard btn-sm btn-primary">Find Orders</button>
             </div>
           </form>
         </div>      

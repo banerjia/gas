@@ -1,7 +1,7 @@
 <div class="row" style="margin-bottom: 0.5em">
-	<%= link_to "Edit", edit_store_path(store), class: "btn btn-primary"-%>
-	<button class="btn btn-danger" type="button" onclick="deleteStore()" <%= 'disabled="disabled"'.html_safe if !store[:active] -%>>Delete</button>
-	<%= link_to "Close", session[:last_page], class: "btn btn-default" -%>
+	<%= link_to "Edit", edit_store_path(store), class: "btn btn-standard btn-primary"-%>
+	<button class="btn btn-standard btn-danger" type="button" onclick="deleteStore()" <%= 'disabled="disabled"'.html_safe if !store[:active] -%>>Delete</button>
+	<%= link_to "Close", session[:last_page], class: "btn btn-standard btn-default" -%>
 </div>
 <div class="row">
 	<div class="panel panel-default">
@@ -57,8 +57,8 @@
 				<div class="row">
 					<div class="col-md-6 col-sm-6 col-xs-6"><h2 class="h2">Audits</h2></div>
 					<div class="col-md-6 col-sm-6 col-xs-6 text-right">
-							<%= link_to "New Audit", store_new_audit_path(store), class: "btn btn-sm btn-success" if store[:active] -%>	
-							<%= link_to "View All", audit_search_path({store_id: store[:id]}), class: "btn btn-sm btn-default" if store.audits.size > 0 -%>
+							<%= link_to "New Audit", store_new_audit_path(store), class: "btn btn-standard btn-sm btn-success" if store[:active] -%>	
+							<%= link_to "View All", audit_search_path({store_id: store[:id]}), class: "btn btn-standard btn-sm btn-default" if store.audits.size > 0 -%>
 					</div>
 				</div>
 			</div>
@@ -99,8 +99,8 @@
 				<div class="row">
 					<div class="col-md-6 col-sm-6 col-xs-6"><h2 class="h2">Orders</h2></div>
 					<div class="col-md-6 col-sm-6 col-xs-6 text-right">
-							<%= link_to "New Order", store_new_order_path(store), class: "btn btn-sm btn-success" if store[:active] -%>	
-							<%= link_to "View All", audit_search_path({store_id: store[:id]}), class: "btn btn-sm btn-default" if store.orders.size > 0 -%>
+							<%= link_to "New Order", store_new_order_path(store), class: "btn btn-standard btn-sm btn-success" if store[:active] -%>	
+							<%= link_to "View All", audit_search_path({store_id: store[:id]}), class: "btn btn-standard btn-sm btn-default" if store.orders.size > 0 -%>
 			
 					</div>
 				</div>

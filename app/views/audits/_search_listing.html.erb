@@ -36,7 +36,7 @@
 		<div class="btn-toolbar pull-right" role="toolbar">
 			<div class="btn-group" role="group">			
 				<button 
-					class="btn btn-sm btn-default" 
+					class="btn btn-standard btn-sm btn-default" 
 					type="button"
 					<%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
 					onclick="window.location = '<%= audit_search_path(options_without_page.merge({page: 1})) -%>'">
@@ -44,7 +44,7 @@
 					<span class="hidden-sm hidden-xs">First</span>					
 				</button>
 				<button 
-					class="btn btn-sm btn-default" 
+					class="btn btn-standard btn-sm btn-default" 
 					type="button"
 					<%= page <= 1 ? 'disabled="disabled"'.html_safe : nil -%>
 					onclick="window.location = '<%= audit_search_path(options_without_page.merge({page: page-1})) -%>'">
@@ -52,7 +52,7 @@
 					<span class="hidden-sm hidden-xs">Back</span>					
 				</button>
 				<button 
-					class="btn btn-sm btn-default" 
+					class="btn btn-standard btn-sm btn-default" 
 					type="button"
 					<%= !more_pages ? 'disabled="disabled"'.html_safe : nil -%>
 					onclick="window.location = '<%= audit_search_path(options_without_page.merge({page: page+1})) -%>'">
@@ -60,7 +60,7 @@
 					<i class="fa fa-chevron-right"></i>					
 				</button>
 				<button 
-					class="btn btn-sm btn-default" 
+					class="btn btn-standard btn-sm btn-default" 
 					type="button"
 					<%= !more_pages ? 'disabled="disabled"'.html_safe : nil -%>
 					onclick="window.location = '<%= audit_search_path(options_without_page.merge({page: last_page})) -%>'">

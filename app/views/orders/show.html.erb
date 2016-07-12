@@ -1,14 +1,14 @@
 <div class="well well-sm form-buttons">
-	<%= link_to edit_order_path(order), class: "btn btn-primary" do -%>
+	<%= link_to edit_order_path(order), class: "btn btn-standard btn-primary" do -%>
 		<i class="fa fa-pencil visible-sm visible-xs"></i><span class="hidden-sm hidden-xs">Edit</span>
 	<% end -%>
-	<button type="button" class="btn btn-info" onclick="window.location='<%=order_path(order, :format => :xlsx)-%>'">
+	<button type="button" class="btn btn-standard btn-info" onclick="window.location='<%=order_path(order, :format => :xlsx)-%>'">
 		<i class="fa fa-cloud-download visible-sm visible-xs"></i><span class="hidden-sm hidden-xs">Download</span>
 	</button>
-	<button class="btn btn-danger" type="button" onclick="deleteOrder()">
+	<button class="btn btn-standard btn-danger" type="button" onclick="deleteOrder()">
 		<i class="fa fa-trash-o visible-sm visible-xs"></i><span class="hidden-sm hidden-xs">Delete</span>
 	</button>
-	<%= link_to session[:last_page] || orders_search_path, class: "btn btn-default" do -%>
+	<%= link_to session[:last_page] || orders_search_path, class: "btn btn-standard btn-default" do -%>
 		<i class="fa fa-mail-reply visible-sm visible-xs"></i><span class="hidden-sm hidden-xs">Close</span>
 	<% end -%>
 
