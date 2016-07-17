@@ -25,6 +25,9 @@ gem 'rubyzip', '= 1.0.0'
 gem 'axlsx', '= 2.0.1'
 gem 'axlsx_rails'
 
+# Font-awesome
+gem "font-awesome-rails"
+
 group :development do
   gem 'binding_of_caller'
   gem 'capistrano', '~> 3.1'
