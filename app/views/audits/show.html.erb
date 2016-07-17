@@ -47,13 +47,13 @@
 			<div class="col-md-10 col-sm-12 col-xs-12">
 				<div class="row audit-image-gallery" >
 					<%- audit.images.each_with_index do |image, index| -%>
-						<div class="col-md-3 col-lg-4 col-sm-6 col-xs-12">
-							<a href="<%=image[:content_url]-%>" data-size="<%="#{image[:width].to_i}x#{image[:height].to_i}"-%>">
-								<img src="<%=image[:content_url]-%>" class="img-thumbnail" style="max-width:200px; max-height:200px" />							
-							</a>						
-						
-						</div>
-					
+							<a href="<%=image[:content_url]-%>" data-size="<%="#{image[:width].to_i}x#{image[:height].to_i}"-%>"  
+								class="col-md-3 col-lg-4 col-sm-6 col-xs-12">
+								<img src="<%=image[:content_url]-%>" class="img-thumbnail" style="max-width:200px; max-height:200px" />	
+								<figcaption style="display: none">
+									Pictures of audit from <%= audit[:created_at].strftime('%m/%d/%Y') -%> for <%= audit.store.full_name -%>
+								</figcaption>						
+							</a>
 					<%- end -%>				
 	     		</div>
 			</div>
@@ -373,6 +373,9 @@
 			    if(disableAnimation) {
 			        options.showAnimationDuration = 0;
 			    }
+			    options.shareButtons = [
+    				{id:'download', label:'Download image', url:'{{raw_image_url}}', download:true}];
+
 			    // Pass data to PhotoSwipe and initialize it
 			    gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options);
 			    // see: http://photoswipe.com/documentation/responsive-images.html
@@ -429,7 +432,7 @@
 				openPhotoSwipe( hashData.pid,  galleryElements[ hashData.gid - 1 ], true, true );
 			}
 		};
-		initPhotoSwipeFromDOM('.audit-image-gallery > div');
+		initPhotoSwipeFromDOM('.audit-image-gallery');
 	})();
 
 	function deleteAudit(){
