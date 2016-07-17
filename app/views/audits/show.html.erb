@@ -46,15 +46,12 @@
 			<div class="col-md-2 col-sm-12 col-xs-12"><label>Attached Picture</label></div>
 			<div class="col-md-10 col-sm-12 col-xs-12">
 				<div class="row audit-image-gallery" >
-					<%- audit.images.each_with_index do |image, index| -%>
-							<a href="<%=image[:content_url]-%>" data-size="<%="#{image[:width].to_i}x#{image[:height].to_i}"-%>"  
-								class="col-md-3 col-lg-4 col-sm-6 col-xs-12">
-								<img src="<%=image[:content_url]-%>" class="img-thumbnail" style="max-width:200px; max-height:200px" />	
-								<figcaption style="display: none">
-									Pictures of audit from <%= audit[:created_at].strftime('%m/%d/%Y') -%> for <%= audit.store.full_name -%>
-								</figcaption>						
-							</a>
-					<%- end -%>				
+				<%- audit.images.each_with_index do |image, index| -%>		
+					<a href="<%=image[:content_url]-%>" data-size="<%="#{image[:width].to_i}x#{image[:height].to_i}"-%>"  
+						class="col-md-3 col-lg-4 col-sm-6 col-xs-12">
+						<img src="<%=image[:content_url]-%>" class="img-thumbnail" style="max-width:200px; max-height:200px" alt="Pictures of audit from <%= audit[:created_at].strftime('%m/%d/%Y') -%> for <%= audit.store.full_name -%>"/>
+					</a>	
+				<%- end -%>				
 	     			</div>
 			</div>
 		</div>
@@ -127,6 +124,7 @@
 		</div>
 	</div>
 <% end -%>
+
 <div id="gallery" class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="pswp__bg"></div>
 
@@ -408,7 +406,7 @@
 				    imageSrcWillChange = false;
 				});
 				gallery.listen('gettingData', function(index, item) {
-				    if( useLargeImages ) {
+				    if( true || useLargeImages ) {
 				        item.src = item.o.src;
 				        item.w = item.o.w;
 				        item.h = item.o.h;
