@@ -31,6 +31,19 @@ class Audit < ActiveRecord::Base
     AuditMetric.where(audit_id: self[:id]).destroy_all
     Comment.delete_all({commentable_id: self[:id], commentable_type: 'Audit'})
     Image.delete_all({imageable_id: self[:id], imageable_type: 'Audit'})
+    self.images.each do |audit_image|
+      if audit_image[:width].nil? \
+          || audit_image[:width] == 0 \
+          || audit_image[:height].nil? \
+          || audit_image[:height] == 0
+          content_url = audit_image[:content_url]
+          content_url = "https:#{content_url}" unless content_url.index("http") == 0
+          image_dimensions = FastImage.size(content_url)
+          audit_image[:width]  = image_dimensions[0]
+          audit_image[:height]  = image_dimensions[1]
+      end
+    end
+
   end
 
   after_commit do

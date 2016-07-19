@@ -333,10 +333,10 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 	}])
 	.controller('AuditImageController', ['$scope', '$http', "AWSAccessToken", function($scope, $http, AWSAccessToken){
 		$scope.s3Files = [];
-		var s3BucketUrl = "https://tagoretown-webuploads.s3.amazonaws.com/";
-		var s3ImageFolder = "graeters/direct_uploads/";
+		var s3BucketUrl = "https://<%= ENV['aws_s3_bucket_upload'] %>.s3.amazonaws.com/";
+		var s3ImageFolder = "<%= ENV['aws_s3_upload_folder'] %>";
 		var s3ImageFolderUrl = s3BucketUrl + s3ImageFolder;
-		var cloudFrontUrl = 'https://images.graeterscloudapps.com/';
+		var cloudFrontUrl = "<%=ENV['aws_s3_image_url']%>";
 
 		var accessToken = null;
 
