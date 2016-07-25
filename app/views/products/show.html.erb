@@ -1,8 +1,8 @@
 <div class="form-buttons well well-sm">
-	<%= link_to edit_product_path(product), class: "btn btn-primary" do -%>
+	<%= link_to edit_product_path(product), class: "btn btn-standard btn-primary" do -%>
 		<i class="fa fa-pencil visible-sm visible-xs"></i><span class="visible-md visible-lg">Edit</span>
 	<% end -%>
-	<%= link_to session[:last_page] || product_path, class: "btn btn-default" do -%>
+	<%= link_to session[:last_page] || product_path, class: "btn btn-standard btn-default" do -%>
 		<i class="fa fa-mail-reply visible-sm visible-xs"></i><span class="visible-md visible-lg">Close</span>
 	<% end -%>
 </div>

@@ -1,5 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=Asap:400,700);
-@import "font-awesome.css";
+@import url("//fonts.googleapis.com/css?family=Asap:400,700");
 
 $errors_msg_shading: #FF8600;
 $wrapper-width: 1024px;
@@ -75,7 +74,6 @@ html {
 }
 
 div {
-	position: relative;
 	
 	&.spacer {
 		clear: both;

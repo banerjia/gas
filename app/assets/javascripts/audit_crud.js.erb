@@ -3,6 +3,26 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 		$rootScope.show_store_search = $window.show_store_search;
 		$rootScope.audit_store_id = $window.audit_store_id;
 	}])
+	.service("AWSAccessToken", ['$http', '$q', '$window', function($http, $q, $window){
+		var accessTokenUrl = $window.api_v1_s3_access_token_path;
+
+		return{
+			url: function(){
+				return accessTokenUrl;
+			},
+			getSignature: function(){
+				var deferred_accessToken = $q.defer();
+				$http.get(accessTokenUrl)
+					.then(function(result){
+							deferred_accessToken.resolve(result.data);
+						}, 
+						function(){ alert("Service Error");});
+
+				return deferred_accessToken.promise;
+
+			}
+		};
+	}])
 	.service( "StoreSearch", ['$http', '$q', '$window', function($http, $q, $window){
 		var storeSearchUrl = $window.api_v1_stores_search_path;
 		var save_location = null;
@@ -311,9 +331,118 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 			$scope.bonusScore = auditScore.bonus;
 		})
 	}])
-	.controller('AuditImageController', ['$scope', function($scope){
-		$scope.files = {};
+	.controller('AuditImageController', ['$scope', '$http', "AWSAccessToken", function($scope, $http, AWSAccessToken){
+		$scope.s3Files = [];
+		var s3BucketUrl = "https://<%= ENV['aws_s3_bucket_upload'] %>.s3.amazonaws.com/";
+		var s3ImageFolder = "<%= ENV['aws_s3_upload_folder'] %>";
+		var s3ImageFolderUrl = s3BucketUrl + s3ImageFolder;
+		var cloudFrontUrl = "<%=ENV['aws_s3_image_url']%>";
 
+		var accessToken = null;
+
+        var guid = function() {
+          function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+              .toString(16)
+              .substring(1);
+          }
+          return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+        }
+
+		var sendFileToS3 = function(accessToken, filesToUpload){
+				var imageCounter = $scope.s3Files.length;
+				for(var fileLoop = 0; fileLoop < filesToUpload.length; fileLoop++)
+            	{
+	                (function(){
+	                	
+	                    var imageIndex = imageCounter + fileLoop;	                	
+	                    var s3FileName = filesToUpload[fileLoop].name;
+
+
+	                    s3FileName = s3FileName.replace(/.*\\|\..*$/g, '') 
+	                                    + "-" 
+	                                    + guid() 
+	                                    + "."
+	                                    + s3FileName.split(".").pop();
+	                    $scope.s3Files[imageIndex] = {
+	                    	name:filesToUpload[fileLoop].name, 
+	                    	computedName: s3FileName,
+	                    	progress: 0, 
+	                    	complete:false,
+	                    	confirm_on_delete: false,
+							content_url: null,
+							width: null, 
+							height: null
+	                    };
+	                    var fd = new FormData();
+	                    fd.append('key', s3ImageFolder + s3FileName);
+	                    fd.append('Content-Type', filesToUpload[fileLoop].type);
+	                    fd.append('AWSAccessKeyId', accessToken.key);
+	                    fd.append('acl', "public-read");
+	                    fd.append('policy', accessToken.policy);
+	                    fd.append('signature', accessToken.signature);
+	                    fd.append("file", filesToUpload[fileLoop]);
+
+			        	var reader = new FileReader();  
+			        	reader.onload = function(et) {
+							var img = new Image();
+							img.src = et.target.result;
+			        		var thumbnail_imageIndex = imageIndex;
+			        		$scope.s3Files[thumbnail_imageIndex].src_data = et.target.result;
+			        		$scope.s3Files[thumbnail_imageIndex].width = img.width;
+			        		$scope.s3Files[thumbnail_imageIndex].height = img.height;
+			        		$scope.$apply();
+			        	}
+			        	reader.readAsDataURL(filesToUpload[fileLoop]);
+ 
+						var xhr = new XMLHttpRequest();
+						xhr.upload.addEventListener("progress", function(e) {uploadProgress( e, imageIndex); }, false);
+						xhr.addEventListener("load", function(e) {uploadComplete( e, imageIndex); }, false);
+						//xhr.addEventListener("error", function(e) {uploadFailed( e, imageIndex); }, false);
+						xhr.open('POST', s3BucketUrl, true);
+						xhr.setRequestHeader( 'x-amz-storage-class', 'REDUCED_REDUNDANCY');
+						xhr.send(fd); 
+	                }()); 
+	            }
+	            
+	            document.getElementById("auditImage").value = "";
+        }
+
+        var uploadProgress = function( e, imageIndex){
+        	if(e.lengthComputable){
+        		$scope.s3Files[imageIndex].progress = Math.round(e.loaded * 100 / e.total);
+        		$scope.$apply();
+        	}
+        }
+
+        var uploadComplete = function( e, imageIndex){
+        	$scope.s3Files[imageIndex].complete = true;
+        	$scope.s3Files[imageIndex].content_url = cloudFrontUrl + $scope.s3Files[imageIndex].computedName;
+        	$scope.$apply();
+        }
+
+		$scope.init = function( entriesFromDb){
+			$scope.s3Files = entriesFromDb;
+			for(var i = 0; i < $scope.s3Files.length; i++)
+			{
+				$scope.s3Files[i].complete = true;
+				$scope.s3Files[i].confirm_on_delete = true;
+			}			
+		}
+
+		$scope.imageChange = function(files){
+
+			AWSAccessToken.getSignature()
+				.then(function(data){
+					sendFileToS3(data, files)
+				});
+			return;
+		}
+
+		$scope.removeImage = function(imageIndex){
+			$scope.s3Files.splice(imageIndex, 1);
+		}
 	}])
 	.controller('AuditMetricController', ['$scope', 'totalScore', 'StoreExchange', function($scope, totalScore, StoreExchange) {
 		$scope.comparisonType = null;

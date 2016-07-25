@@ -5,7 +5,7 @@ module Api
 			  render json: {
 			    policy:    s3_upload_policy(params[:bucket]),
 			    signature: s3_upload_signature(params[:bucket]),
-			    key:       ENV['aws_access_key_id']
+			    key:       ENV['aws_s3_access_key_id']
 			  }
 			end
 
@@ -30,7 +30,7 @@ module Api
 			  end
 
 			  def s3_upload_signature(bucket = nil)
-			    Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), ENV['aws_secret_access_key'], s3_upload_policy(bucket))).gsub("\n","")
+			    Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), ENV['aws_s3_secret_access_key'], s3_upload_policy(bucket))).gsub("\n","")
 			  end
 		end
 	end

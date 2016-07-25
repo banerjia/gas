@@ -14,7 +14,7 @@
 	<%= stylesheet_link_tag "application" %>
 	<style type="text/css">
 		@media screen and (min-width: 48em){
-			.btn{
+			.btn-standard{
 				min-width: 5em;
 			}
 		}
@@ -92,6 +92,7 @@
 			<p>&copy; Copyright reserved <%= Date.today.year -%>.</p>
 		</footer>
 	</div>
+	
 	<div style="display:none">
 		<%- if RAILS_ENV == 'production' -%>
 		<script>

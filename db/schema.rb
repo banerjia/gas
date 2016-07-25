@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150502183546) do
+ActiveRecord::Schema.define(version: 20160709184830) do
 
   create_table "audit_journals", primary_key: "audit_id", force: :cascade do |t|
     t.string   "title",      limit: 50
@@ -66,13 +66,13 @@ ActiveRecord::Schema.define(version: 20150502183546) do
   add_index "comments", ["commentable_id", "commentable_type"], name: "index_comments_on_commentable_id_and_commentable_type", using: :btree
 
   create_table "companies", force: :cascade do |t|
-    t.string   "name",          limit: 150,             null: false
+    t.string   "name",          limit: 150,                null: false
     t.string   "url_part",      limit: 255
-    t.integer  "stores_count",  limit: 3,   default: 0, null: false
-    t.integer  "regions_count", limit: 2,   default: 0, null: false
-    t.integer  "active",        limit: 1,   default: 1, null: false
-    t.datetime "created_at",                            null: false
-    t.datetime "updated_at",                            null: false
+    t.integer  "stores_count",  limit: 3,   default: 0,    null: false
+    t.integer  "regions_count", limit: 2,   default: 0,    null: false
+    t.boolean  "active",                    default: true, null: false
+    t.datetime "created_at",                               null: false
+    t.datetime "updated_at",                               null: false
   end
 
   add_index "companies", ["active", "url_part"], name: "index_companies_on_active_and_url_part", using: :btree
@@ -80,11 +80,13 @@ ActiveRecord::Schema.define(version: 20150502183546) do
   add_index "companies", ["url_part"], name: "index_companies_on_url_part", unique: true, using: :btree
 
   create_table "images", id: false, force: :cascade do |t|
-    t.integer  "imageable_id",   limit: 8,                    null: false
+    t.integer  "imageable_id",   limit: 8,                                            null: false
     t.string   "imageable_type", limit: 255
     t.string   "content_type",   limit: 150
     t.string   "content_url",    limit: 1024
-    t.boolean  "processed",                   default: false, null: false
+    t.decimal  "width",                       precision: 6, scale: 2
+    t.decimal  "height",                      precision: 6, scale: 2
+    t.boolean  "processed",                                           default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -115,6 +117,11 @@ ActiveRecord::Schema.define(version: 20150502183546) do
     t.integer  "metric_options_count",  limit: 1,   default: 0,      null: false
     t.datetime "created_at",                                         null: false
     t.datetime "updated_at",                                         null: false
+  end
+
+  create_table "new_sort_order", id: false, force: :cascade do |t|
+    t.string  "product_code", limit: 20, null: false
+    t.integer "sort_order",   limit: 4,  null: false
   end
 
   create_table "orders", force: :cascade do |t|

@@ -22,7 +22,6 @@ class AuditsController < ApplicationController
 
 		new_audit[:created_at] = Date.today.strftime("%m/%d/%Y")
 		new_audit.comments.build()
-		new_audit.images.build()
 
 		metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 		
@@ -60,7 +59,6 @@ class AuditsController < ApplicationController
 			
 			audit[:created_at] = audit[:created_at].strftime("%m/%d/%Y") unless audit[:created_at].nil? || audit[:created_at].blank?
 			audit.comments.build() unless audit.comments.size > 0
-			audit.images.build() unless audit.images.size > 0
 
 			@page_title = "New Audit"
 			render :new, locals: { audit: audit}
@@ -90,7 +88,6 @@ class AuditsController < ApplicationController
 		# In case they are left blank during the update operation they will be rejected
 		# as a result of the configuration of the accepts_nested_attributes
 		audit.comments.build() unless audit.comments.size > 0
-		audit.images.build() unless audit.images.size > 0
 	
 		
 
@@ -106,7 +103,7 @@ class AuditsController < ApplicationController
 			flash[:notice] = 'Audit Updated'
 			redirect_to audit_path(audit)
 		else			
-			@page_title = "Edit Store"
+			@page_title = "Edit Audit"
 			
 			audit[:created_at] = audit[:created_at].strftime("%m/%d/%Y") unless audit[:created_at].nil? || audit[:created_at].blank?
 
@@ -131,7 +128,6 @@ class AuditsController < ApplicationController
 			end
 
 			audit.comments.build() unless audit.comments.size > 0
-			audit.images.build() unless audit.images.size > 0
 
 			render :edit, locals: { audit: audit}
 		end
@@ -258,7 +254,9 @@ class AuditsController < ApplicationController
 					:content
 				],
 				images_attributes:[
-					:content_url
+					:content_url,
+					:width,
+					:height
 				]
 			)
 	end
