@@ -1,6 +1,8 @@
 class Audit < ActiveRecord::Base
   include AuditSearchable
   include AuditImport
+
+  Audit.__elasticsearch__.client = Elasticsearch::Client.new host:  ENV["es_host"]
 	
   # Associations
 	belongs_to :store, counter_cache: true

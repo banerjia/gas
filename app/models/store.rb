@@ -3,6 +3,8 @@ class Store < ActiveRecord::Base
   include StoreSearchable
   include StoreImport
   
+  Store.__elasticsearch__.client = Elasticsearch::Client.new host:  ENV["es_host"]
+
   attr_accessor :possible_duplicates, :not_a_duplicate
   
   # Associations

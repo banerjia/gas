@@ -1,6 +1,8 @@
 class Order < ActiveRecord::Base
   include OrderSearchable
   include OrderImport
+
+  Order.__elasticsearch__.client = Elasticsearch::Client.new host:  ENV["es_host"]
   
   # Associations
   has_many :product_orders, dependent: :destroy
