@@ -15,6 +15,7 @@ gem 'bcrypt-ruby'
 gem 'jquery-rails'
 gem 'zip-zip'
 gem 'fastimage'
+gem 'aws-sdk', '~> 2'
 
 # Sprockets
 gem 'sprockets-rails' , '~> 2.3.3'

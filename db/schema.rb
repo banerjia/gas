@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160709184830) do
+ActiveRecord::Schema.define(version: 20160728221554) do
 
   create_table "audit_journals", primary_key: "audit_id", force: :cascade do |t|
     t.string   "title",      limit: 50
@@ -80,13 +80,13 @@ ActiveRecord::Schema.define(version: 20160709184830) do
   add_index "companies", ["url_part"], name: "index_companies_on_url_part", unique: true, using: :btree
 
   create_table "images", id: false, force: :cascade do |t|
-    t.integer  "imageable_id",   limit: 8,                                            null: false
-    t.string   "imageable_type", limit: 255
-    t.string   "content_type",   limit: 150
-    t.string   "content_url",    limit: 1024
-    t.decimal  "width",                       precision: 6, scale: 2
-    t.decimal  "height",                      precision: 6, scale: 2
-    t.boolean  "processed",                                           default: false, null: false
+    t.integer  "imageable_id",     limit: 8,                    null: false
+    t.string   "imageable_type",   limit: 255
+    t.string   "content_type",     limit: 150
+    t.string   "content_url",      limit: 1024
+    t.string   "content_url_size", limit: 255
+    t.string   "thumbnail_url",    limit: 255
+    t.boolean  "processed",                     default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

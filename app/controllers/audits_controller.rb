@@ -255,8 +255,8 @@ class AuditsController < ApplicationController
 				],
 				images_attributes:[
 					:content_url,
-					:width,
-					:height
+					:thumbnail_url,
+					:content_url_size
 				]
 			)
 	end

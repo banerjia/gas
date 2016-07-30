@@ -351,8 +351,8 @@
 									<ul class="list-group list-inline">
 										<li class="list-group-item text-center" data-ng-repeat="s3File in s3Files track by $index" style="min-width: 160px; text-align: center;position:relative">
 											<input type="hidden" name="audit[images_attributes][{{$index}}][content_url]" value="{{s3File.content_url}}"/>
-											<input type="hidden" name="audit[images_attributes][{{$index}}][width]" value="{{s3File.width}}"/>
-											<input type="hidden" name="audit[images_attributes][{{$index}}][height]" value="{{s3File.height}}"/>
+											<input type="hidden" name="audit[images_attributes][{{$index}}][content_url_size]" value="{{s3File.width}}x{{s3File.height}}"/>
+											<input type="hidden" name="audit[images_attributes][{{$index}}][thumbnail_url]" value="{{s3File.thumbnail_url}}"/>
 											<img class="img-thumbnail thumbnail" data-ng-src="{{s3File.src_data ||  s3File.content_url}}"  />
 											<button type="button" 
 													class="btn btn-sm btn-danger" 
