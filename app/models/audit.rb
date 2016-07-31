@@ -78,7 +78,7 @@ class Audit < ActiveRecord::Base
 					methods: [:full_name],
 				},
 				images: {
-					only: [:content_url, :thumbnail_url, :content_url_size]
+					only: [:content_url, :thumbnail_url]
 				},
 				comments: {
 					only: [:content]

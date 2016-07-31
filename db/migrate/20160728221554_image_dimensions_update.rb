@@ -2,12 +2,7 @@ class ImageDimensionsUpdate < ActiveRecord::Migration
     def change
         reversible do |dir|
             dir.up do 
-                add_column :images, :content_url_size, :string, length: 50, after: :content_url
                 add_column :images, :thumbnail_url, :string, length: 2000, after: :content_url_size
-
-                Image.all.each do |image|
-                    Image.where({content_url: image[:content_url]}).update_all({content_url_size: "#{image[:width]}x#{image[:height]}"})
-                end
 
                 remove_column :images, :width
                 remove_column :images, :height
