@@ -427,8 +427,8 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 			        	var reader = new FileReader();  
 			        	reader.onload = function(et) {							
     						var thumbnail_imageIndex = imageIndex;
-    						var orignalResizedImage = resizeImage($scope.s3Files[thumbnail_imageIndex].type, et.target.result, 800, 600);
-    						var thumbnailImage = resizeImage($scope.s3Files[thumbnail_imageIndex].type, et.target.result, 150, 150);
+    						var orignalResizedImage = resizeImage($scope.s3Files[thumbnail_imageIndex].type, et.target.result, 960, 640);
+    						var thumbnailImage = resizeImage($scope.s3Files[thumbnail_imageIndex].type, et.target.result, 160, 160);
 
 			        		$scope.s3Files[thumbnail_imageIndex].computedName=
 			        			$scope.s3Files[thumbnail_imageIndex].filenameformat.replace("{dimensions}", orignalResizedImage.width + "x"+orignalResizedImage.height);
