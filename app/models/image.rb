@@ -1,6 +1,10 @@
 class Image < ActiveRecord::Base
     belongs_to :imageable, polymorphic: true  
 
+    def content_url_size
+        Image.dimensions(self[:content_url])
+    end
+
     def self.dimensions(url)
         retval = "0x0"
         matches = /dim\-([0-9]+x[0-9]+)/.match(url)

@@ -35,6 +35,7 @@ module AuditSearchable
         indexes :images do
           indexes :content_url,  type: 'string', index: 'not_analyzed'
           indexes :thumbnail_url,  type: 'string', index: 'not_analyzed'
+          indexes :content_url_size, type: 'string', index: 'not_analyzed'
         end
 
         indexes :comments do

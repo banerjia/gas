@@ -129,7 +129,7 @@
 						
 						<i class="fa fa-sm fa-camera js-ImageGallery" style="cursor: pointer"></i>
 						<div class="audit-image-gallery" style="display: none">
-							<%- audit.images.each do |image| -%>							<a href="<%=image[:content_url]-%>" data-size="<%=Image.dimensions(image[:content_url])-%>" >
+							<%- audit.images.each do |image| -%>							<a href="<%=image[:content_url]-%>" data-size="<%=image.content_url_size-%>" >
 								
 									<figcaption>
 										Pictures of audit from <%= audit[:created_at].to_date.strftime('%m/%d/%Y') -%> for <%= audit_store.full_name-%>
