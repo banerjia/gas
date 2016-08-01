@@ -387,8 +387,7 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
     			data: canvas.toDataURL(fileType),
     			width: width,
     			height: height
-    		};
-    		    	
+    		};    		    	
         }
 
 		var sendFileToS3 = function(accessToken, filesToUpload){
@@ -435,6 +434,9 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 			        		$scope.s3Files[thumbnail_imageIndex].src_data = orignalResizedImage.data;
 			        		$scope.s3Files[thumbnail_imageIndex].width = orignalResizedImage.width;
 			        		$scope.s3Files[thumbnail_imageIndex].height = orignalResizedImage.height;
+
+			        		var dummy = orignalResizedImage.width;
+			        		dummy = orignalResizedImage.height;
 
 			        		$scope.s3Files[thumbnail_imageIndex].thumbnail_src_data = thumbnailImage.data;
 			        		$scope.s3Files[thumbnail_imageIndex].thumbnail_filename=
