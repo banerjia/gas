@@ -33,17 +33,6 @@ class Audit < ActiveRecord::Base
 		AuditMetric.where(audit_id: self[:id]).destroy_all
 		Comment.delete_all({commentable_id: self[:id], commentable_type: 'Audit'})
 		Image.delete_all({imageable_id: self[:id], imageable_type: 'Audit'})
-		self.images.each do |audit_image|
-			if audit_image[:content_url_size].nil? 
-				content_url = audit_image[:content_url]
-				content_url = "https:#{content_url}" unless content_url.index("http") == 0
-				image_dimensions = FastImage.size(content_url)
-				audit_image[:width]  = image_dimensions[0]
-				audit_image[:height]  = image_dimensions[1]
-				audit_image[:content_url_size] = "#{image_dimensions[0]}x#{image_dimensions[1]}"
-			end
-		end
-
 	end
 
 	after_commit do
@@ -53,7 +42,6 @@ class Audit < ActiveRecord::Base
 
 	before_destroy do |a|
 		AuditMetricResponse.delete_all({audit_id: a[:id]})
-		#self.__elasticsearch__.delete_document
 	end
 
 	# Post Rails 4 Upgrade Methods
