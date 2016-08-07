@@ -1,6 +1,6 @@
 module AuditImport
   def self.import
-    Audit.includes([:company, :store]).find_in_batches do |audits|
+    Audit.includes([:company, :store, :comments, :images]).find_in_batches do |audits|
       bulk_index(audits)
     end
   end

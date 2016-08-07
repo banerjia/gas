@@ -7,7 +7,7 @@ class Image < ActiveRecord::Base
 
     def self.dimensions(url)
         retval = "0x0"
-        matches = /dim\-([0-9]+x[0-9]+)/.match(url)
+        matches = /([0-9]+x[0-9]+)\./.match(url)
         if !matches.nil?
             retval = matches[1]
         else

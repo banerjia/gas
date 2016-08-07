@@ -36,7 +36,6 @@ class Audit < ActiveRecord::Base
 	end
 
 	after_commit do
-		self.__elasticsearch__.index_document
 		store.__elasticsearch__.index_document
 	end
 
