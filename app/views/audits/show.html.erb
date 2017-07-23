@@ -22,6 +22,18 @@
 			</div>
 		</div>
 		<div class="row" style="margin-bottom: 0.7em">
+			<div class="col-md-2 col-sm-12 col-xs-12"><label>Union Store</label></div>
+			<div class="col-md-10 col-sm-12 col-xs-12">
+				<i class="fa <%= audit[:is_union] ? "fa-check-square-o": "fa-square-o" -%>" style="margin-left: 1em"></i> 
+			</div>
+		</div>
+		<div class="row" style="margin-bottom: 0.7em">
+			<div class="col-md-2 col-sm-12 col-xs-12"><label>Merchandise Product</label></div>
+			<div class="col-md-10 col-sm-12 col-xs-12">
+				<i class="fa <%= audit[:merc_product] ? "fa-check-square-o": "fa-square-o" -%>" style="margin-left: 1em"></i> 
+			</div>
+		</div>
+		<div class="row" style="margin-bottom: 0.7em">
 			<div class="col-md-2 col-sm-12 col-xs-12"><label>Issues</label></div>
 			<div class="col-md-10 col-sm-12 col-xs-12">
 				<%= (audit[:has_unresolved_issues] ? "There are unresolved issues" : "No unresolved issues") -%>

@@ -35,7 +35,27 @@
 						<div class="form-group">
 							<%= f.label :auditor_name, "Auditor" -%>
 							<%= f.text_field :auditor_name, class: 'form-control' -%>
-						</div>												
+						</div>	
+						<div class="form-group">
+							<div class="row">
+								<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+									<div class="input-group">
+										<span class="input-group-addon">
+											<%= f.check_box :is_union, data: {"ng-model" => "is_union", "ng-init" => "is_union=#{audit[:is_union]}"} -%>
+										</span>
+										<%= f.label :is_union, "The store is a Union store", class: "form-control" -%>
+									</div>									
+								</div>
+								<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" data-ng-show="is_union == 1">
+									<div class="input-group">
+										<span class="input-group-addon">
+											<%= f.check_box :merc_product -%>
+										</span>
+										<%= f.label :merc_product, "Merchandise Product", class: "form-control" -%>
+									</div>									
+								</div>
+							</div>							
+						</div>	
 					</div>
 				<%- end -%>
 			</div>

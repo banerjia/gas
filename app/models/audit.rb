@@ -29,6 +29,9 @@ class Audit < ActiveRecord::Base
 	# Callbacks
 
 	before_save do
+		# Make sure that if is_union = false then merc_product is also false as well
+		self[:merc_product] = self[:is_union] && self[:merc_product]
+		
 		self[:auditor_name] = self[:auditor_name].strip.titlecase
 		AuditMetric.where(audit_id: self[:id]).destroy_all
 		Comment.delete_all({commentable_id: self[:id], commentable_type: 'Audit'})

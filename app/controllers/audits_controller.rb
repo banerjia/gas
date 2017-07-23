@@ -228,6 +228,8 @@ class AuditsController < ApplicationController
 				:base, 
 				:loss, 
 				:bonus, 
+				:is_union,
+				:merc_product,
 				:auditor_name, 
 				:store_id, 
 				:image_upload,
