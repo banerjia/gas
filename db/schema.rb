@@ -11,7 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 20150626035746) do
+=======
+ActiveRecord::Schema.define(version: 20170723202106) do
+>>>>>>> cu_feat_1
 
   create_table "audit_journals", primary_key: "audit_id", force: :cascade do |t|
     t.string   "title",      limit: 50
@@ -47,6 +51,11 @@ ActiveRecord::Schema.define(version: 20150626035746) do
     t.integer  "base",                  limit: 2,  default: 0,     null: false
     t.integer  "loss",                  limit: 2,  default: 0,     null: false
     t.integer  "bonus",                 limit: 2,  default: 0,     null: false
+<<<<<<< HEAD
+=======
+    t.boolean  "is_union",                         default: false
+    t.boolean  "merc_product",                     default: false
+>>>>>>> cu_feat_1
     t.boolean  "has_unresolved_issues",            default: false
     t.datetime "created_at",                                       null: false
     t.datetime "updated_at",                                       null: false
@@ -66,6 +75,7 @@ ActiveRecord::Schema.define(version: 20150626035746) do
   add_index "comments", ["commentable_id", "commentable_type"], name: "index_comments_on_commentable_id_and_commentable_type", using: :btree
 
   create_table "companies", force: :cascade do |t|
+<<<<<<< HEAD
     t.string   "name",          limit: 150,                null: false
     t.string   "url_part",      limit: 255
     t.integer  "stores_count",  limit: 3,   default: 0,    null: false
@@ -73,6 +83,15 @@ ActiveRecord::Schema.define(version: 20150626035746) do
     t.boolean  "active",                    default: true, null: false
     t.datetime "created_at",                               null: false
     t.datetime "updated_at",                               null: false
+=======
+    t.string   "name",          limit: 150,             null: false
+    t.string   "url_part",      limit: 255
+    t.integer  "stores_count",  limit: 3,   default: 0, null: false
+    t.integer  "regions_count", limit: 2,   default: 0, null: false
+    t.integer  "active",        limit: 1,   default: 1, null: false
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
+>>>>>>> cu_feat_1
   end
 
   add_index "companies", ["active", "url_part"], name: "index_companies_on_active_and_url_part", using: :btree
@@ -80,11 +99,18 @@ ActiveRecord::Schema.define(version: 20150626035746) do
   add_index "companies", ["url_part"], name: "index_companies_on_url_part", unique: true, using: :btree
 
   create_table "images", id: false, force: :cascade do |t|
+<<<<<<< HEAD
     t.integer  "imageable_id",   limit: 8,                    null: false
+=======
+    t.integer  "imageable_id",   limit: 8,                                            null: false
+>>>>>>> cu_feat_1
     t.string   "imageable_type", limit: 255
     t.string   "content_type",   limit: 150
     t.string   "content_url",    limit: 1024
-    t.boolean  "processed",                   default: false, null: false
+    t.string   "thumbnail_url",  limit: 2000
+    t.decimal  "width",                       precision: 6, scale: 2
+    t.decimal  "height",                      precision: 6, scale: 2
+    t.boolean  "processed",                                           default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -117,6 +143,14 @@ ActiveRecord::Schema.define(version: 20150626035746) do
     t.datetime "updated_at",                                         null: false
   end
 
+<<<<<<< HEAD
+=======
+  create_table "new_sort_order", id: false, force: :cascade do |t|
+    t.string  "product_code", limit: 20, null: false
+    t.integer "sort_order",   limit: 4,  null: false
+  end
+
+>>>>>>> cu_feat_1
   create_table "orders", force: :cascade do |t|
     t.integer  "store_id",        limit: 8,                  null: false
     t.string   "invoice_number",  limit: 20
@@ -227,7 +261,11 @@ ActiveRecord::Schema.define(version: 20150626035746) do
     t.string   "locality",       limit: 100
     t.string   "street_address", limit: 200
     t.string   "suite",          limit: 100
+<<<<<<< HEAD
     t.string   "city",           limit: 150
+=======
+    t.string   "city",           limit: 512
+>>>>>>> cu_feat_1
     t.string   "county",         limit: 255
     t.string   "state_code",     limit: 255,                null: false
     t.string   "zip",            limit: 10

@@ -34,6 +34,8 @@ module AuditSearchable
 
         indexes :images do
           indexes :content_url,  type: 'string', index: 'not_analyzed'
+          indexes :thumbnail_url,  type: 'string', index: 'not_analyzed'
+          indexes :content_url_size, type: 'string', index: 'not_analyzed'
         end
 
         indexes :comments do
@@ -63,7 +65,7 @@ module AuditSearchable
       end
       
       page = (params[:page] || 1).to_i   
-      size = (params[:per_page] || 10).to_i
+      size = (params[:per_page] || $audit_page_size).to_i
       offset = (page - 1) * size
       
       query_bool_array_must = []

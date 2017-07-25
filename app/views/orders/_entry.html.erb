@@ -1,98 +1,460 @@
-<div style="display:none">
-	<%= hidden_field_tag :store_id, @store[:id] -%>
+<div class="row ng-cloak" data-ng-show="show_store_search">
+	<div class="panel panel-default">
+		<div class="panel-heading"><strong>Store Search</strong></div>
+		<div class="panel-body" data-ng-controller="StoreSearchController" data-ng-init="dist='1mi'">
+			<div class="col-md-6 col-sm-12 col-xs-12">
+				<p>							 
+				<input type="text" data-ng-model="query_string" class="form-control" placeholder="Search for stores"/>
+				</p>
+				<p>
+					<label>Stores within</label> <br/>
+					<%= select_tag :store_range, options_for_select([['1 mile', '1mi'], ['5 miles', '5mi'], ['10 miles', '10mi']],'1mi'), prompt: "Any distance", data: {"ng-model" => "dist"}, class: "form-control", style: "max-width: 15em; display: inline-block" -%>
+				</p>
+				<p class="ng-cloak" data-ng-show="dist!= null && dist.length > 0">
+					<label>From</label><br/> 
+					<%= select_tag :from_address, options_for_select([["Specific address", 1]]),prompt: "Current Location", data: {"ng-model" => "locationPoint"}, class: "form-control",style: "max-width: 15em; display: inline-block"-%>
+				
+					<span data-ng-show="locationPoint == '1'">
+						<%= text_field_tag :ref_address, nil, data: {"ng-model" => "ref_address"}, class: "form-control", style: "max-width: 15em; display: inline-block", placeholder: "City, State OR Zip" -%>
+					</span>
+				
+				</p>
+				<p>
+					<button type="button" class="btn btn-standard btn-primary" data-ng-click="getStores()">Search</button>
+					<button type="button" class="btn btn-standard btn-default" data-ng-show="order_store_id != null" data-ng-click="cancel()">Cancel</button>
+				</p>
+				<p class="ng-cloak text-info loading" data-ng-show="loading"><i class="fa fa-circle-o-notch fa-spin"></i> {{loading_message}}</p>
+			</div>			
+			<div class="col-md-5 col-md-offset-1 col-sm-12 col-xs-12" style="padding-right: 1em">	
+				<table class="ng-cloak table table-condensed" data-ng-show="stores!=null && !loading">
+					<thead>
+						<tr>
+							<th scope="col" style="width: 60%">Store</th>
+							<td>
+							<div data-ng-show="current_page > 1 || more_pages" class="btn-toolbar pull-right" role="toolbar">
+								<div class="btn-group" role="group">			
+									<button type="button" data-ng-click="previousPage()" data-ng-disabled="current_page <= 1" class="ng-cloak btn btn-sm btn-primary"> <i class="fa fa-chevron-left"></i> <span class="hidden-sm hidden-xs">Back</span></button> 					
+									<button type="button" data-ng-click="nextPage()" class="ng-cloak btn btn-sm btn-primary" data-ng-disabled="!more_pages || !allow_next_page"><span class="hidden-sm hidden-xs">Next</span> <i class="fa fa-chevron-right"></i></button> 
+								</div>
+							</div>
+							</td>
+						</tr>
+					</thead>
+					<tbody data-ng-show="stores.length > 0">
+						<tr data-ng-repeat="store in stores">
+							<td >
+								<span style="text-transform:uppercase">{{store.full_name}}</span>
+								<address style="margin:0 0 0 0.3em;padding:0.1em">{{store.address}}</address> 
+								<em data-ng-show="store.distance">({{store.distance.toFixed(1)}} miles)</em>
+								
+							</td>
+							<td>
+								<button type="button" data-ng-click="selectStore(store); store_search=false;" class="btn btn-standard btn-success pull-right">Select</button>
+							</td>
+						</tr>
+					</tbody>
+					<tbody data-ng-show="stores.length == 0">
+						<tr>
+							<td colspan="2" class="text-center">
+								<em>No stores found matching the search criteria</em>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>	
+		</div>
+	</div>
 </div>
-<div id="order_basics">
-	<div class="entry_row">
-		<div class="entry_label">
-			<strong>Store</strong>
-		</div>
-		<div class="entry_value">
-			<%= @store.full_name -%><br/>
-			<%= @store.address -%>			
+<div class="row">
+	<div class="col-md-5 col-sm-12 col-xs-12 ng-cloak" data-ng-hide="show_store_search">	
+		<div class="panel panel-default">
+			<div class="panel-heading"><span class="h3">Basic Information</span></div>
+			<div class="panel-body">
+				<div 
+					id="order_basics"
+					class="ng-cloak col-md-12 col-sm-12 col-xs-12" 
+					data-ng-controller="StoreController" 
+					data-ng-init="init(<%= f.object.store_id || 0 -%>,'<%= f.object.store.full_name if f.object.store -%>', '<%= f.object.store.address  if f.object.store -%>')">
+
+					<div class="row">
+						<div class="col-md-4 col-sm-12 col-xs-12 form-label">
+							<label>Store</label>							
+						</div>
+						<div class="col-md-8 col-sm-12 col-xs-12">
+							<span style="text-transform:uppercase">{{full_name}}</span> 
+							<address style="margin-bottom: 0.1em">{{address}}</address>		
+							(<a href="#" data-ng-click="changeStore()">Change Store</a>)						
+						</div>						
+						<%= f.hidden_field :store_id, data: {"ng-value" => "order_store_id"} %>
+					</div>	
+					<div class="row">
+						<div class="col-md-4 col-sm-12 col-xs-12 form-label">
+							<%= f.label :invoice_number, "PO" -%>
+						</div>
+						<div class="col-md-8 col-sm-12 col-xs-12">
+							<%= f.text_field :invoice_number, class: "form-control text-right" -%>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-4 col-sm-12 col-xs-12 form-label">
+							<%= f.label :route, "Route" -%>
+						</div>
+						<div class="col-md-8 col-sm-12 col-xs-12">
+							<%= f.collection_select :route_id, Route.where({active: true}), :id, :name, {}, {class: "form-control"} -%>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-4 col-sm-12 col-xs-12 form-label">
+							<%= f.label :delivery_dow, "Deliver By" -%>
+						</div>
+						<div class="col-md-8 col-sm-12 col-xs-12">
+							<%= f.select :delivery_dow, Date::DAYS_INTO_WEEK.to_a.map{|d,dow| [d.to_s.capitalize!, dow]}, {prompt: "Select Delivery Day"}, {class: "form-control"} -%>
+						</div>
+					</div>												
+				</div>
+			</div>
 		</div>
 	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			<%= f.label :invoice_number, "PO" -%>
-		</div>
-		<div class="entry_value">
-			<%= f.text_field :invoice_number, :style => "text-align : right" -%>
+
+	<div class="col-md-7 col-sm-12 col-xs-12 ng-cloak" data-ng-hide="show_store_search">
+		<div class="panel panel-default">
+			<div class="panel-heading"><span class="h3">Products</span></div>
+			<div class="panel-body">
+				<table class="table table-condensed table-striped">
+					<thead>
+						<tr>
+							<th scope="col">Product</th>
+							<th scope="col">Quantity</th>
+							<th scope="col"><span class="visible-lg visible-md">Remove</span></th>
+						</tr>
+					</thead>
+					<tfoot>
+						<tr>
+							<td colspan="3">
+								<%= link_to_add_fields "Add Product", f, :product_orders %>
+								
+								<button id="btn_RemoveAll" type="button" class="btn btn-standard btn-danger" onclick="remove_all(this)">
+									<i class="fa fa-trash-o visible-sm visible-xs"></i>
+									<span class="hidden-sm hidden-xs">Remove All</span>
+								</button>
+							</td>
+						</tr>
+					</tfoot>
+					<tbody id="product_orders">
+						<%= f.fields_for :product_orders, :include_id => false do |product_order_form| -%>
+						<%= render :partial => "product_orders/product_order_fields", :locals => {:f => product_order_form} -%>
+						<%- end -%>
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			<%= f.label :route_id, "Route" -%>
-		</div>
-		<div class="entry_value">
-			<%= f.collection_select :route_id,
-			Route.all, :id, :name -%>
-		</div>
-	</div>
-	<div class="entry_row">
-		<div class="entry_label">
-			<%= f.label :delivery_dow, "Deliver By" -%>
-		</div>
-		<div class="entry_value">
-			<%= f.select :delivery_dow, [["No delivery day selected",""]]+Date::DAYS_INTO_WEEK.to_a.map{|d,dow| [d.to_s.capitalize!, dow]} -%>
-		</div>
-	</div>
-</div>
-<table id="products" class="listing">
-	<thead>
-		<tr>
-			<th>Product</th>
-			<th>Quantity</th>
-			<th>&nbsp;</th>
-		</tr>
-	</thead>
-	<tfoot>
-		<tr>
-			<td colspan="3" class="table_more_cell"><%= link_to_add_fields "Add Product", f, :product_orders %></td>
-		</tr>
-	</tfoot>
-	<tbody>
-		<%= f.fields_for :product_orders, :include_id => false do |product_order_form| -%>
-		<%= render :partial => "product_orders/product_order_fields", :locals => {:f => product_order_form} -%>
-		<%- end -%>
-	</tbody>
-</table>
-<div class="spacer">
-	
 </div>
 
 <% content_for :head do -%>
 <style type="text/css" media="screen">
-	table#products{
-		border: 2px solid #ddd;
-		margin-left: 47%;
-		width: 53%;
+	@media screen and (min-width: 48em){
+		div#order_basics div.form-label { 
+			text-align: right;
+		}
 	}
-	table#products input[type=text] { text-align: right; width: 30px }
-	div#order_basics{
-		border: 2px solid #ddd;
-		float:left;
-		margin-left: 0;
-		width: 45%;
+
+	div#order_basics > div.row {
+		margin-bottom: 0.5em;
 	}
-	
-	div.buttons{
-		background-color: #eee;
-		border: 2px solid #ddd;
-		display: block;
-	}
+
+	.ng-cloak{ display: none;}
+
 </style>	
 <% end -%>
+<%- content_for :page_js do -%>
+	<script type="text/javascript">
+	window.api_v1_stores_search_path = '<%= api_v1_stores_search_path -%>';
+	window.show_store_search = <%= (f.object[:store_id].nil? || f.object[:store_id].zero?).to_s -%>;
+	window.order_store_id = <%= f.object[:store_id] || 'null' -%>;
 
-<% content_for :page_js do -%>
-<script type="text/javascript">
-function remove_product( handle ){
-	$(handle).closest("tr").remove();
-}
+	$(document).ready(function(){
+		if($("tbody#product_orders > tr").length == 0) 
+			$("button#btn_RemoveAll").hide();
+	})
+	function add_fields(link, association, content) {
+		var new_id = new Date().getTime();
+		var regexp = new RegExp("new_" + association, "g");
+		var target_table = $(link).parents("table:first");
+		$("tbody", target_table).append(content.replace(regexp, new_id));
+		$("button#btn_RemoveAll").show();
+	}
 
-function add_fields(link, association, content) {
-	var new_id = new Date().getTime();
-	var regexp = new RegExp("new_" + association, "g")
-	$("table#products tbody").append(content.replace(regexp, new_id));
-}
-</script>
+	function remove_product( handle ){
+		$(handle).parents("tr:first").remove();
+	}
+
+	function remove_all(handle){
+		if(!confirm("Are you sure you want to remove all products from this order?")) return;
+
+		var target_table = $(handle).parents("table:first");
+		$("tbody > tr", target_table).remove();
+		$("button#btn_RemoveAll").hide();
+	}
+	</script>
+
+	<%= javascript_include_tag "angular.min.js", :cache => true %>
+
+	<script type="text/javascript">
+		angular.module('order',[])
+			.run(['$rootScope', '$window', function( $rootScope, $window){
+				$rootScope.show_store_search = $window.show_store_search;
+				$rootScope.order_store_id = $window.order_store_id;
+			}])
+			.service( "StoreSearch", ['$http', '$q', '$window', function($http, $q, $window){
+				var storeSearchUrl = $window.api_v1_stores_search_path;
+				var save_location = null;
+				return {
+					setlocation: function(position){
+						save_position = position;
+					},
+
+					findStores: function( query, dist, page, position){
+						var deferred_geo = $q.defer();
+						var query_distance = (parseFloat(dist) > 0 ? dist : null );
+						
+						var http_params = { q: query, distance: query_distance, page: page};
+
+						if(query_distance != null && save_location == null && position == null){
+							if ($window.navigator.geolocation) {
+								$window.navigator.geolocation.getCurrentPosition(function(position){
+									save_location = position;
+									deferred_geo.resolve(position);
+								},
+								function(errObj){
+									save_location = null;
+									deferred_geo.reject(errObj);
+								});
+							}
+						}
+						else
+							deferred_geo.resolve(position || save_location);
+
+
+						return deferred_geo.promise.then(function(position) {
+								if(position != null){
+									http_params.lat = position.coords.latitude;
+									http_params.lon = position.coords.longitude;
+								}
+								return $http({
+										method: 'GET',
+										url: storeSearchUrl,
+										params: http_params
+								});
+							} 
+						); 
+						
+					}
+
+				}
+			}])
+			.service( "GMaps", ['$http', '$q', function($http,$q){
+				return {
+
+					getPosition: function(address){
+						var deferred = $q.defer();
+
+						$http.get('https://maps.googleapis.com/maps/api/geocode/json',{
+							params: {
+								sensor: false,
+								address: address
+							}
+						}).then(function(result){
+							var location = result.data.results[0].geometry.location;
+							deferred.resolve({coords: {latitude: location.lat, longitude: location.lng}});
+						},function(){});
+
+						return deferred.promise;
+					}
+				}
+			}])
+			.factory( "StoreExchange", ['$rootScope',function($rootScope){
+
+				var store_id = 0;
+				var store_full_name = null;
+				var store_address = null;
+				var store_store_number = null;
+
+				return {
+					setSelectedStore: function(storeObject){
+
+						store_id = parseInt(storeObject.id);
+						store_full_name = storeObject.full_name;
+						store_address = storeObject.address;
+						store_store_number = storeObject.store_number;
+
+						$rootScope.order_store_id = store_id;
+
+						$rootScope.$broadcast("storeChanged");
+					},
+
+					getSelectedStore: function(){
+						return {
+							id: store_id,
+							full_name: store_full_name,
+							address: store_address,
+							store_number: store_store_number
+						}
+					}
+				};
+			}])
+			.controller('StoreController', ['$scope', '$rootScope', "StoreExchange", function( $scope, $rootScope, StoreExchange){
+				$scope.full_name = '';
+				$scope.address = '';
+				$scope.store_number = '';
+
+				$scope.init = function( store_id, storeFullName, storeAddress){
+					if(store_id > 0){
+						StoreExchange.setSelectedStore( {id: store_id, full_name: storeFullName, address: storeAddress, store_number: ($scope.store_number || null)});
+					}
+				}
+
+				$scope.changeStore = function(){
+					$rootScope.show_store_search = true;
+				}
+
+				$scope.$on('storeChanged', function(){
+					var storeObject = StoreExchange.getSelectedStore();
+					$scope.store_id = storeObject.id;
+					$scope.full_name = storeObject.full_name;
+					$scope.address = storeObject.address;
+					$scope.store_number = storeObject.store_number;
+				})
+			}])
+			.controller('StoreSearchController', ['$scope', 'StoreExchange' ,'StoreSearch', 'GMaps', '$window', '$rootScope', function($scope, StoreExchange, StoreSearch, GMaps, $window, $rootScope){
+				$scope.stores = null;
+				$scope.more_pages = false;
+				$scope.current_page = 1;
+				$scope.query_string = null;
+				$scope.loading = false;
+				$scope.loading_message = null;
+				$scope.allow_next_page = false;
+
+				var saved_result_pages = [];
+				var total_stores_returned = 0;
+
+				$scope.init = function(initial_miles){
+					$scope.dist = initial_miles;
+				}
+
+				var preloadStores = function(){
+					$scope.allow_next_page = false;
+					StoreSearch.findStores( 
+									$scope.query_string, 
+									$scope.dist, 
+									$scope.current_page + 1, 
+									($scope.locationPoint == 1 ? GMaps.getPosition($scope.ref_address).then(function(data) {return data;}, function(){return null;}) : null)
+					).then(function(payload){
+						saved_result_pages.push(payload.data.results);
+						$scope.allow_next_page = true;
+					}, function(){
+						// Need to handle error when page cannot
+						// be preloaded
+					});
+				}
+
+				$scope.cancel = function(){
+					$rootScope.show_store_search = false;
+				}
+
+				$scope.getStores = function(page){
+					$scope.stores = [];	
+					$scope.allow_next_page = false;
+					if(page == null || page == 1)	$scope.more_pages = false;
+
+					$scope.loading = true;
+					$scope.loading_message = "Searching ... ";
+
+					var store_search_promise = StoreSearch.findStores( 
+						$scope.query_string, 
+						$scope.dist, 
+						page, 
+						($scope.locationPoint == 1 ? GMaps.getPosition($scope.ref_address)
+							.then(
+								function(data) {						
+									return data;
+								}, 
+								function(){
+									return null;
+								}) 
+							: null)
+					);
+					store_search_promise
+						.then(
+							function(payload){
+
+								$scope.loading = false;
+								$scope.loading_message = null;
+
+								$scope.current_page = payload.data.page;
+								
+								if($scope.current_page == 1) {
+									saved_result_pages = [];
+									total_stores_returned = payload.data.total;
+								}
+								
+								$scope.stores = payload.data.results;
+								$scope.more_pages = payload.data.more_pages;
+								saved_result_pages.push(payload.data.results);
+
+								if(payload.data.more_pages){
+									// Preload another page to avoid page-flicker
+									preloadStores();
+								}
+							},
+							function(errorPayLoad){	
+
+								$scope.loading = false;
+								$scope.loading_message = null;
+
+								$scope.more_pages = false;
+								console.log( errorPayLoad);
+							}
+						);
+				}
+
+				$scope.previousPage = function(){
+					$scope.current_page--;
+					$scope.stores = saved_result_pages[$scope.current_page - 1];
+
+					// As this function is called from clicking the Back
+					// button on a section, we are assured that there are more
+					// pages. 
+					$scope.more_pages = true;
+				}
+
+				$scope.nextPage = function(){
+					// Because of various flags put into place
+					// this function cannot be reached unless there are more pages
+					// So it is safe to increment the page counter at this time.
+					$scope.current_page++;
+					var total_pages = $window.Math.round(total_stores_returned/5);
+					$scope.stores = saved_result_pages[$scope.current_page - 1];
+					$scope.more_pages  = ($scope.current_page < total_pages);
+					if($scope.more_pages && saved_result_pages.length == $scope.current_page)
+						preloadStores();
+					
+				}
+
+				$scope.selectStore = function(obj){
+					StoreExchange.setSelectedStore( obj );
+					$scope.stores = null;
+					$scope.more_pages = false;
+					$scope.current_page = 1;
+					$scope.query_string = null;
+					$scope.loading = false;
+					$scope.loading_message = null;
+					$scope.allow_next_page = false;
+
+					var saved_result_pages = [];
+					var total_stores_returned = 0;
+					$rootScope.show_store_search = false;
+				}
+			}]);
+	</script>
 <% end -%>

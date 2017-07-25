@@ -9,20 +9,29 @@ gem 'elasticsearch-model'
 gem 'elasticsearch-rails'
 gem 'sorcery'
 gem 'bcrypt-ruby'
-gem 'axlsx', '~> 2.0'
-gem 'axlsx_rails'
 gem 'jquery-rails'
 gem 'zip-zip'
+gem 'fastimage'
+gem 'aws-sdk', '~> 2'
+
+# Sprockets
+# gem 'sprockets-rails' , '~> 2.3.3'
+
+# AXLSX
+
+gem 'rubyzip', '= 1.0.0'
+gem 'axlsx', '= 2.0.1'
+gem 'axlsx_rails'
+
+# Font-awesome
+gem "font-awesome-rails"
 
 gem 'responders', '~> 2.0'
 
 group :development do
-  gem 'better_errors'
   gem 'binding_of_caller'
-  gem 'capistrano'
-  gem 'capistrano-bundler'
-  gem 'capistrano-rvm'
-  gem 'capistrano-passenger'
+  gem 'capistrano', '~> 3.1'
+  gem 'capistrano-rails', '~> 1.1'
   gem 'meta_request'
 end 
 

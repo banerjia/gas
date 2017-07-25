@@ -6,19 +6,27 @@
 	<%= csrf_meta_tags %>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<%= stylesheet_link_tag "bootstrap-flatly.min.css" -%>
-	<%= stylesheet_link_tag "normalize.min.css" -%>
+	<%= stylesheet_link_tag "bootstrap-flatly.min.css", debug: true -%>
+	<%= stylesheet_link_tag "normalize.min.css", debug: true -%>
 
 	<%= stylesheet_link_tag "font-awesome" %>
+
 	<%= stylesheet_link_tag "application" %>
 	<style type="text/css">
 		@media screen and (min-width: 48em){
-			.btn{
+			.btn-standard{
 				min-width: 5em;
 			}
 		}
-		table.table-condensed > thead > tr > th, table.table-condensed > thead > tr > th + td {
+		table.table > thead > tr > th, 
+		table.table > thead > tr > th + td		
+		{
 			border-bottom: 2px solid #2c3e50;
+			border-top: 2px solid #2c3e50;
+		}
+
+		table.table > tfoot > tr > td{
+			border-top: 2px solid #2c3e50;
 		}
 	</style>
 	<%= yield :head %>
@@ -61,31 +69,30 @@
 						</li>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Manage <span class="caret"></span></a>
+
 							<ul class="dropdown-menu" role="menu">		
 								<li><%= link_to "Companies & Stores", companies_path -%></li>				
 								<li><%= link_to "Products", products_path -%></li>
-								<li><a href="#">People</a></li>
 							</ul>
 						</li>
-						<li><a href="#">Sign Out</a></li>
-						</ul>
-					</div><!-- /.nav-collapse -->
-				</div><!-- /.container -->
-			</nav><!-- /.navbar -->
-		</header>
-		<div role="main">
-			<%= "<h1>#{@page_title}</h1>".html_safe unless !defined?@page_title || @page_title.blank? -%>
-			<div class="container">
-				<%= content_for?(:body) ? yield(:body) : yield -%>
+					</ul>
+				</div><!-- /.nav-collapse -->
+			</div><!-- /.container -->
+		</nav><!-- /.navbar -->
+	</header>
+	<div role="main">
+		<%= "<h1>#{@page_title}</h1>".html_safe unless !defined?@page_title || @page_title.blank? -%>
+		<div class="container">
+			<%= content_for?(:body) ? yield(:body) : yield -%>
 
-			</div>
-			<footer>
-				<p>Developed by Tagore Town LLC. for Graeters Inc.</p>
-
-				<p>&copy; Copyright reserved <%= Date.today.year -%>.</p>
-			</footer>
 		</div>
+		<footer>
+			<p>Developed by Tagore Town LLC. for Graeters Inc.</p>
+
+			<p>&copy; Copyright reserved <%= Date.today.year -%>.</p>
+		</footer>
 	</div>
+	
 	<div style="display:none">
 		<%- if RAILS_ENV == 'production' -%>
 		<script>

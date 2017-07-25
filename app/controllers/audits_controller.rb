@@ -1,9 +1,13 @@
 class AuditsController < ApplicationController
 	def index
+		
+		session.delete(:last_page)
 		redirect_to action: :search
 	end
 
 	def new
+		session[:last_page] = request.env['HTTP_REFERER'] || nil
+
 		new_audit = Audit.new({created_at: Date.today})
 
 		new_audit[:auditor_name] = session[:auditor] if session[:auditor].present?
@@ -18,7 +22,6 @@ class AuditsController < ApplicationController
 
 		new_audit[:created_at] = Date.today.strftime("%m/%d/%Y")
 		new_audit.comments.build()
-		new_audit.images.build()
 
 		metrics_to_use = Metric.includes(:metric_options).active_metrics.order([:display_order])
 		
@@ -50,13 +53,12 @@ class AuditsController < ApplicationController
 		if audit.save
 			flash[:notice] = 'New audit saved'
 			session[:auditor] = audit[:auditor_name]
-			redirect_to action: :index
+			redirect_to audit_path(audit)
 		else
 			flash[:warning] = 'Error processing audit'
 			
 			audit[:created_at] = audit[:created_at].strftime("%m/%d/%Y") unless audit[:created_at].nil? || audit[:created_at].blank?
 			audit.comments.build() unless audit.comments.size > 0
-			audit.images.build() unless audit.images.size > 0
 
 			@page_title = "New Audit"
 			render :new, locals: { audit: audit}
@@ -86,7 +88,6 @@ class AuditsController < ApplicationController
 		# In case they are left blank during the update operation they will be rejected
 		# as a result of the configuration of the accepts_nested_attributes
 		audit.comments.build() unless audit.comments.size > 0
-		audit.images.build() unless audit.images.size > 0
 	
 		
 
@@ -102,7 +103,7 @@ class AuditsController < ApplicationController
 			flash[:notice] = 'Audit Updated'
 			redirect_to audit_path(audit)
 		else			
-			@page_title = "Edit Store"
+			@page_title = "Edit Audit"
 			
 			audit[:created_at] = audit[:created_at].strftime("%m/%d/%Y") unless audit[:created_at].nil? || audit[:created_at].blank?
 
@@ -127,14 +128,13 @@ class AuditsController < ApplicationController
 			end
 
 			audit.comments.build() unless audit.comments.size > 0
-			audit.images.build() unless audit.images.size > 0
 
 			render :edit, locals: { audit: audit}
 		end
 				
 	end
 
-	def show
+	def show		
 
 		id = params[:id]
 
@@ -142,7 +142,11 @@ class AuditsController < ApplicationController
 		
 		@page_title = "Audit for #{audit.store.full_name}"
 
-		session['return_path'] = request.referer
+		session[:last_page] = request.env['HTTP_REFERER'] || nil \
+				unless \
+					request.env['HTTP_REFERER'] == new_audit_url \
+					|| request.env['HTTP_REFERER'] == store_new_audit_url(audit.store) \
+					|| request.env['HTTP_REFERER'] == edit_audit_url(audit)
 
 		render :show, locals: {audit: audit}	
 	end
@@ -151,7 +155,7 @@ class AuditsController < ApplicationController
 		Audit.find(params[:id]).destroy
 		respond_to do |format|
 			format.json do
-				render json: {success: true}.to_json
+				render json: {success: true, redirect_url: session[:last_page] || audit_search_path}.to_json
 			end
 		end		
 	end
@@ -159,7 +163,14 @@ class AuditsController < ApplicationController
 	def search
 		params = (request.params || {}).clone
 		params[:page] ||=  1 
-		params[:per_page] ||= $per_page
+		params[:per_page] ||= $audit_page_size
+
+		# Override the page specifications when attempting to download
+		if params[:format] == 'xlsx'
+			params[:per_page] = 10000 
+			params[:page] = 1
+		end
+
 		params = params.merge({sort: "created_at-desc"}) unless params[:sort].present?
 		if params[:_score_range].present?
 			matches = params[:_score_range].scan(/[\d\.]+/)
@@ -195,6 +206,10 @@ class AuditsController < ApplicationController
 			format.json do 
 				render json: results.to_json
 			end
+
+			format.xlsx do
+				render locals: {results: results[:results]}
+			end
 		end
 	end
 	
@@ -203,7 +218,7 @@ class AuditsController < ApplicationController
 	def audit_params
 		# The following line corrects the date input as received from the view
 		# into something that Rails 4 TimeZone parser can understand. 
-		# params[:audit][:created_at] = Date.strptime(params[:audit][:created_at], '%m/%d/%Y').to_date unless params[:audit][:created_at].blank?
+		params[:audit][:created_at] = Date.strptime(params[:audit][:created_at], '%m/%d/%Y').to_date unless params[:audit][:created_at].blank?
 		ams = params[:audit][:audit_metrics_attributes].map{ |k| {loss: k.second[:loss], resolved: k.second[:resolved]}}
 		params[:audit][:has_unresolved_issues] = (ams.select{ |i| !i[:loss].nil? && i[:loss].to_i != 0 && i[:resolved].to_i.zero?}.size > 0)
 		params
@@ -213,6 +228,8 @@ class AuditsController < ApplicationController
 				:base, 
 				:loss, 
 				:bonus, 
+				:is_union,
+				:merc_product,
 				:auditor_name, 
 				:store_id, 
 				:image_upload,
@@ -239,7 +256,8 @@ class AuditsController < ApplicationController
 					:content
 				],
 				images_attributes:[
-					:content_url
+					:content_url,
+					:thumbnail_url
 				]
 			)
 	end

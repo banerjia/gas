@@ -15,8 +15,6 @@ class @OrderList
 			window.select_all = jQuery( "input#select_all", window.order_list_form )
 			window.toolbar = jQuery( "table#order_list thead tr.toolbar" )
 
-			console.log(window.toolbar)
-
 			# Binding events handlers to objects
 			jQuery(window.select_all).click OrderList.select_all_toggle
 			jQuery( "input#send_email", window.email_order_form ).bind "click", OrderList.send_email

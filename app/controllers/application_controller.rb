@@ -7,6 +7,7 @@ class ApplicationController < ActionController::Base
   $exclusions = [:created_at, :updated_at, :longitude, :latitude]
   
   $per_page = 10
+  $audit_page_size = 50
   
   #before_filter :require_login, :except => [:not_authenticated]
   before_filter :set_cache_buster
