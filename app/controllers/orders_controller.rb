@@ -44,7 +44,9 @@ class OrdersController < ApplicationController
     # order[:created_at] = Date.today.strftime("%m/%d/%Y")
 
     # Creating at least one product_order associated with the order
-    order.product_orders.build
+    Product.where({active: true}).each do |product|
+      order.product_orders.build({product:product, quantity: 0})
+    end
 
     @page_title = @page_title + " for #{order.store.full_name}" if params[:store_id].present?
     @browser_title = "New Order"

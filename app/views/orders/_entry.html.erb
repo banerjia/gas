@@ -186,7 +186,7 @@
 	}
 
 	function remove_product( handle ){
-		$(handle).parents("tr:first").remove();
+		$(handle).parents("tr:first").find("select[id$=quantity]").val("0");
 	}
 
 	function remove_all(handle){
