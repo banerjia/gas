@@ -131,18 +131,35 @@
 					<tfoot>
 						<tr>
 							<td colspan="3">
-								<%= link_to_add_fields "Add Product", f, :product_orders %>
 								
-								<button id="btn_RemoveAll" type="button" class="btn btn-standard btn-danger" onclick="remove_all(this)">
+								<button id="btn_RemoveAll" type="button" class="btn btn-standard btn-danger" data-ng-click="removeAll()">
 									<i class="fa fa-trash-o visible-sm visible-xs"></i>
 									<span class="hidden-sm hidden-xs">Remove All</span>
 								</button>
+								<%- if !f.object[:id].nil? -%>
+									<button id="btn_RestoreAll" type="button" class="btn btn-standard btn-info" onclick="$('button.js-restore').trigger('click')">
+										<i class="fa fa-undo visible-sm visible-xs"></i>
+										<span class="hidden-sm hidden-xs">Restore All</span>
+									</button>
+								<% end -%>
 							</td>
 						</tr>
 					</tfoot>
 					<tbody id="product_orders">
-						<%= f.fields_for :product_orders, :include_id => false do |product_order_form| -%>
-						<%= render :partial => "product_orders/product_order_fields", :locals => {:f => product_order_form} -%>
+						<%- products_by_category.each do |product_group| -%>
+							<tr>
+								<th colspan="3" class="h4">
+									<%= product_group[:name] -%>
+								</th>
+							</tr>
+							<%- product_group.products.sort{ |a,b| a[:name] <=> b[:name]}.each do |prd| -%>
+								<%- product_order = f.object.product_orders.where(product_id: prd[:id]) 
+									product_order = f.object.product_orders.build({product_id: prd[:id], quantity: 0, volume_unit_id: product_group[:volume_unit_id]}) if product_order.size.zero?
+								-%>
+								<%= f.fields_for :product_orders, product_order, :include_id => false do |product_order_form| -%>
+								<%= render :partial => "product_orders/product_order_fields", :locals => {f: product_order_form} -%>
+								<%- end -%>
+							<%- end -%>
 						<%- end -%>
 					</tbody>
 				</table>
@@ -205,6 +222,12 @@
 			.run(['$rootScope', '$window', function( $rootScope, $window){
 				$rootScope.show_store_search = $window.show_store_search;
 				$rootScope.order_store_id = $window.order_store_id;
+				$rootScope.product_quantity = [];
+
+				$rootScope.removeAll = function(){
+					for(var i = 0; i < $rootScope.product_quantity.length ; i++)
+						$rootScope.product_quantity[i] = 0;
+				}
 			}])
 			.service( "StoreSearch", ['$http', '$q', '$window', function($http, $q, $window){
 				var storeSearchUrl = $window.api_v1_stores_search_path;

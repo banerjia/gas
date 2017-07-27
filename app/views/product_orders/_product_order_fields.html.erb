@@ -1,10 +1,18 @@
 <tr>
-	<td><%= f.grouped_collection_select :product_id, ProductCategory.for_select, :current_products, :name, :id, :name, {}, {class: "form-control"} -%></td>
-	<td><%= f.select :quantity, (0..5).to_a + (8..24).step(4).to_a + (32..96).step(8).to_a, {}, {class: "form-control", data: {"ng-model" => "product_#{f.object[:product_id]}_quantity", "ng-init" => "product_#{f.object[:product_id]}_quantity=#{f.object[:quantity]}"}} -%></td>
+	<td style="padding-left: 2em">
+        <%= f.object.product[:name] -%>
+        <%= f.hidden_field :product_id %>
+    </td>
+	<td><%= f.select :quantity, (0..5).to_a + (8..24).step(4).to_a + (32..96).step(8).to_a, {}, {class: "form-control", data: {"ng-model" => "product_quantity['#{f.object[:product_id]}']", "ng-init" => "product_quantity['#{f.object[:product_id]}']=#{f.object[:quantity] || 0}"}} -%></td>
 	<td style="width: 17%; text-align: center">
-		<button class="btn btn-standard btn-danger" type="button" data-ng-show="product_<%=f.object[:product_id]-%>_quantity > 0" data-ng-click="product_<%=f.object[:product_id]-%>_quantity = 0">
+		<button class="btn btn-standard btn-danger" type="button" data-ng-show="product_quantity['<%=f.object[:product_id]-%>'] > 0" data-ng-click="product_quantity['<%=f.object[:product_id]-%>'] = 0">
 			<i class="visible-sm visible-xs fa fa-remove"></i> <span class="hidden-sm hidden-xs">Remove</span>
 		</button>
+        <%- if f.object[:quantity] > 0 -%>
+            <button class="btn btn-standard btn-info js-restore" type="button" data-ng-show="product_quantity['<%=f.object[:product_id]-%>'] == 0" data-ng-click="product_quantity['<%=f.object[:product_id]-%>'] = <%= f.object[:quantity] -%>">
+                <i class="visible-sm visible-xs fa fa-undo"></i> <span class="hidden-sm hidden-xs">Restore</span>
+            </button>
+        <%- end -%>
 	</td>
 </tr>
 

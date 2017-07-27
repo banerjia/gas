@@ -44,13 +44,14 @@ class OrdersController < ApplicationController
     # order[:created_at] = Date.today.strftime("%m/%d/%Y")
 
     # Creating at least one product_order associated with the order
-    Product.where({active: true}).each do |product|
-      order.product_orders.build({product:product, quantity: 0})
-    end
+    products_by_product_categories = ProductCategory
+                                      .includes(:products)
+                                      .order(:display_order)
+                                      .where({'products.active': true})
 
     @page_title = @page_title + " for #{order.store.full_name}" if params[:store_id].present?
     @browser_title = "New Order"
-    render locals: {order: order}
+    render locals: {order: order, products_by_category: products_by_product_categories}
   end
   
   def create
@@ -61,7 +62,11 @@ class OrdersController < ApplicationController
     if order.save      
       redirect_to orders_path
     else
-      render "new", locals: {order: order}
+      products_by_product_categories = ProductCategory
+                                      .includes(:products)
+                                      .order(:display_order)
+                                      .where({'products.active': true})
+      render "new", locals: {order: order, products_by_category: products_by_product_categories}
     end
   end
   
@@ -69,7 +74,13 @@ class OrdersController < ApplicationController
     order = Order.includes([:store, {:product_orders => [:product]}]).find(params[:id])
     @page_title = "Edit Order: #{order[:id]}"
 
-    render locals: {order: order}
+
+    products_by_product_categories = ProductCategory
+                                      .includes(:products)
+                                      .order(:display_order)
+                                      .where({'products.active': true})
+
+    render locals: {order: order, products_by_category: products_by_product_categories}
   end
   
   def update
