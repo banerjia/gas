@@ -32,6 +32,7 @@ gem "font-awesome-rails"
 group :development do
   gem 'binding_of_caller'
   gem 'capistrano', '~> 3.1'
+  gem 'capistrano-rvm'
   gem 'capistrano-rails', '~> 1.1'
   gem 'meta_request'
 end 
