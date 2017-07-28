@@ -37,7 +37,7 @@ class Order < ActiveRecord::Base
     
     # Assign the appropriate volume_unit_id to each entry
     order.product_orders.each do |po|
-      po[:volume_unit_id] = po.product.product_category.volume_unit_id if po[:volume_unit_id].nil?
+      po[:volume_unit_id] = po.product.product_category.volume_unit_id
     end    
   end
   
