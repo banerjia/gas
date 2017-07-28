@@ -78,7 +78,6 @@ class OrdersController < ApplicationController
     products_by_product_categories = ProductCategory
                                       .includes(:products)
                                       .order(:display_order)
-                                      .where({'products.active': true})
 
     render locals: {order: order, products_by_category: products_by_product_categories}
   end
@@ -91,7 +90,10 @@ class OrdersController < ApplicationController
     if order.update( sanitized_params )
       redirect_to orders_path
     else
-      render "edit", locals: {order: order}
+      products_by_product_categories = ProductCategory
+                                      .includes(:products)
+                                      .order(:display_order)
+      render "edit", locals: {order: order, products_by_category: products_by_product_categories}
     end
   end
   
