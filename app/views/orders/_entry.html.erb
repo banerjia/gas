@@ -155,7 +155,7 @@
 							<%- product_group.products.sort{ |a,b| a[:sort_order_for_order_sheet] <=> b[:sort_order_for_order_sheet]}.each do |prd| -%>
 								<%- product_order = f.object.product_orders.where(product_id: prd[:id]) 
 									next if product_order.size.zero? && !prd[:active]
-									product_order = f.object.product_orders.build({product_id: prd[:id], quantity: 0, volume_unit_id: product_group[:volume_unit_id]}) if product_order.size.zero?
+									product_order = f.object.product_orders.build({product_id: prd[:id], quantity: 0}) if product_order.size.zero?
 								-%>
 								<%= f.fields_for :product_orders, product_order, :include_id => false do |product_order_form| -%>
 								<%= render :partial => "product_orders/product_order_fields", :locals => {f: product_order_form} -%>
