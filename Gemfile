@@ -2,11 +2,11 @@ source 'http://rubygems.org'
 
 
 
-gem 'rails', '4.2.6'
+gem 'rails', '5.0.5'
 
 
-gem 'mysql2', '~> 0.3.18'
-gem 'composite_primary_keys'
+gem 'mysql2' #, '~> 0.3.18'
+gem 'composite_primary_keys' #, github: 'composite-primary-keys/composite_primary_keys', branch: 'master'
 gem 'geocoder'
 gem 'elasticsearch-model'
 gem 'elasticsearch-rails'
@@ -15,15 +15,14 @@ gem 'bcrypt-ruby'
 gem 'jquery-rails'
 gem 'zip-zip'
 gem 'fastimage'
-gem 'aws-sdk', '~> 2'
 
 # Sprockets
-gem 'sprockets-rails' , '~> 2.3.3'
+gem 'sprockets-rails' #, '~> 2.3.3'
 
 # AXLSX
 
-gem 'rubyzip', '= 1.0.0'
-gem 'axlsx', '= 2.0.1'
+gem 'rubyzip' #, '= 1.0.0'
+gem 'axlsx' #, '~> 2.0.1'
 gem 'axlsx_rails'
 
 # Font-awesome
@@ -31,9 +30,9 @@ gem "font-awesome-rails"
 
 group :development do
   gem 'binding_of_caller'
-  gem 'capistrano', '~> 3.1'
-  gem 'capistrano-rvm'
-  gem 'capistrano-rails', '~> 1.1'
+  gem 'capistrano' #, '~> 3.1'
+  gem 'capistrano-rbenv'
+  gem 'capistrano-rails' #, '~> 1.1'
   gem 'meta_request'
 end 
 
