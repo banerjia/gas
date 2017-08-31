@@ -24,14 +24,14 @@ class Audit < ActiveRecord::Base
 	validates_presence_of :auditor_name, message: "Please enter the name of the Graeter's staff member filling out the audit"
 	validates_presence_of :created_at, message: "Please select a valid date for this audit"
 	validates :store, presence: { message: "Please select a store" }
-	validates :comments, presence: {message: "Audits with scores of 7 and below require comments"}, unless: Proc.new { |audit| audit.total_score > 7 } 
+	validates :comments, presence: {message: "Audits with scores of 7 and below require comments"}, unless: Proc.new { |audit| audit.total_score > 7 }
 
 	# Callbacks
 
 	before_save do
 		# Make sure that if is_union = false then merc_product is also false as well
-		self[:merc_product] = self[:is_union] && self[:merc_product]
-		
+		# self[:merc_product] = self[:is_union] && self[:merc_product]
+
 		self[:auditor_name] = self[:auditor_name].strip.titlecase
 		AuditMetric.where(audit_id: self[:id]).destroy_all
 		Comment.delete_all({commentable_id: self[:id], commentable_type: 'Audit'})
@@ -63,7 +63,7 @@ class Audit < ActiveRecord::Base
 			only: [:id, :auditor_name, :created_at, :has_unresolved_issues],
 			methods: [:score],
 			include: {
-				store: { 
+				store: {
 					only: [:id],
 					methods: [:full_name],
 				},
