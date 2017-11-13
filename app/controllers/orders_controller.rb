@@ -1,13 +1,13 @@
 class OrdersController < ApplicationController
-                     
+
   $sort_fields = %w( `orders`.`created_at` `orders`.`deliver_by_date` `stores.name` )
-  
+
   def index
-    
+
     session.delete(:last_page)
     redirect_to :action => "search"
   end
-  
+
   def show
     # This approach has been taken to reduce the number of SELECT statements
     order = Order.includes([:store, {:product_orders => [:product, :volume_unit]}]).find( params[:id])
@@ -17,24 +17,24 @@ class OrdersController < ApplicationController
           request.env['HTTP_REFERER'] == new_order_url \
           || request.env['HTTP_REFERER'] == store_new_order_url(order.store) \
           || request.env['HTTP_REFERER'] == edit_order_url(order)
-    
-    
+
+
     @page_title = "Order Sheet: #{order[:id]}"
     @browser_title = "Order: #{order[:id]}"
     respond_to do |format|
       format.html { render :locals => {:order => order} }
-      format.xlsx do 
+      format.xlsx do
         send_data render_to_string(:action => 'show_order', :handlers => [:axlsx], :locals => {:order => order}), :filename => order.filename, :type => "application/vnd.openxmlformates-officedocument.spreadsheetml.sheet"
       end
     end
   end
-  
+
   def new
 
     session[:last_page] = request.env['HTTP_REFERER'] || nil
 
     # Initializing the object within the scope of the action
-    order = nil 
+    order = nil
 
     @page_title = "New Order"
 
@@ -47,19 +47,20 @@ class OrdersController < ApplicationController
     products_by_product_categories = ProductCategory
                                       .includes(:products)
                                       .order(:display_order)
-                                      .where({'products.active': true})
+                                      .where('`products`.`active` = 1 and (`products`.`from` is null or `products`.`from` <= CURDATE()) and (`products`.`till` is null or `products`.`till` >= CURDATE())')
+                                      .references(:products)
 
     @page_title = @page_title + " for #{order.store.full_name}" if params[:store_id].present?
     @browser_title = "New Order"
     render locals: {order: order, products_by_category: products_by_product_categories}
   end
-  
+
   def create
     sanitized_params = agg_n_remove_dups(order_params)
 
     order = Order.new(sanitized_params)
 
-    if order.save      
+    if order.save
       redirect_to orders_path
     else
       products_by_product_categories = ProductCategory
@@ -69,7 +70,7 @@ class OrdersController < ApplicationController
       render "new", locals: {order: order, products_by_category: products_by_product_categories}
     end
   end
-  
+
   def edit
     order = Order.includes([:store, {:product_orders => [:product]}]).find(params[:id])
     @page_title = "Edit Order: #{order[:id]}"
@@ -81,7 +82,7 @@ class OrdersController < ApplicationController
 
     render locals: {order: order, products_by_category: products_by_product_categories}
   end
-  
+
   def update
     order = Order.find( params[:id] )
 
@@ -96,18 +97,18 @@ class OrdersController < ApplicationController
       render "edit", locals: {order: order, products_by_category: products_by_product_categories}
     end
   end
-  
+
   def destroy
     orders_to_delete = []
     if params[:id].present?
       orders_to_delete.push( params[:id])
     else
-      orders_to_delete = params[:orders].map{ |id| id.to_i }  
-    end    
+      orders_to_delete = params[:orders].map{ |id| id.to_i }
+    end
     Order.where({ id: orders_to_delete }).destroy_all
     render status: 200, json: {sucess: true, redirect_url: session[:last_page] || orders_search_path}.to_json
   end
-  
+
   def send_email
     send_to = params[:email] || ENV['order_email']
     optional_message = params[:email_body] unless !params[:email_body].present?
@@ -115,14 +116,14 @@ class OrdersController < ApplicationController
     order_id = params[:order].map{ |id| id.to_i }
 
     order = Order.includes([{product_orders: [:product, :volume_unit]}, :store]).find( order_id )
-    
+
     email = OrderMailer.email_order( send_to, order, optional_message )
     email.deliver
     # render :nothing => true
     render status: 200, json: {sucess: true}.to_json
   end
-  
-  def search 
+
+  def search
     params = (request.params || {}).clone
     params = params.reject{|k,v| v.blank? || v.empty?} #unless params.nil?
     # sort_condition = params[:sort] || 0
@@ -131,12 +132,12 @@ class OrdersController < ApplicationController
     # Sanitizing the params for return value
     [:action, :controller, :format, :es].each{ |key| params.delete(key) }
 
-    # Pagination is not a major concerns as 
+    # Pagination is not a major concerns as
     # subsequent pages pulled using AJAX in most
     # cases.
     params[:page] = (params[:page] || 1 ).to_i
-    params[:per_page] = (params[:per_page] || 10).to_i    
-    
+    params[:per_page] = (params[:per_page] || 10).to_i
+
     # Initialize both dates to nil so that in case the "else"
     # part is executed the missing date is always set to nil
     # start_date = end_date = nil
@@ -144,16 +145,16 @@ class OrdersController < ApplicationController
     #     # If neither dates are specified then default to today
     #     start_date = end_date = Date.today
     # else
-    #   # Otherwise assign the values if they are present. 
+    #   # Otherwise assign the values if they are present.
     #   start_date = params[:start_date] if params[:start_date].present?
     #   end_date = params[:end_date] if params[:end_date].present?
-    # end 
+    # end
 
     params[:start_date] = Date.strptime(params[:start_date], '%m/%d/%Y') if params[:start_date].present? && /^\d{4}\-\d{2}\-\d{2}/.match(params[:start_date]).nil?
     params[:end_date] = Date.strptime(params[:end_date], '%m/%d/%Y') if params[:end_date].present? && /^\d{4}\-\d{2}\-\d{2}/.match(params[:end_date]).nil?
 
-    search_results = Order.search( params )   
-     
+    search_results = Order.search( params )
+
     # Make view responsible for tracking pages
     page = params[:page]
 
@@ -167,10 +168,10 @@ class OrdersController < ApplicationController
     respond_to do |format|
       format.html do
         @page_title = "Orders"
-        
+
         render locals: return_value
       end
-      
+
       format.json do
         [:aggs].each { |key| return_value.delete(key)}
         render :json => return_value.to_json
@@ -181,12 +182,12 @@ class OrdersController < ApplicationController
 private
 	def order_params
 		params.require(:order).permit(
-      :store_id, 
-      :invoice_number, 
-      :route_id, 
-      :delivery_dow, 
-      :created_at, 
-      :email_sent, 
+      :store_id,
+      :invoice_number,
+      :route_id,
+      :delivery_dow,
+      :created_at,
+      :email_sent,
       product_orders_attributes: [
         :product_id,
         :quantity
