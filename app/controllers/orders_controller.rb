@@ -66,7 +66,8 @@ class OrdersController < ApplicationController
       products_by_product_categories = ProductCategory
                                       .includes(:products)
                                       .order(:display_order)
-                                      .where({'products.active': true})
+                                      .where('`products`.`active` = 1 and (`products`.`from` is null or `products`.`from` <= CURDATE()) and (`products`.`till` is null or `products`.`till` >= CURDATE())')
+                                      .references(:products)
       render "new", locals: {order: order, products_by_category: products_by_product_categories}
     end
   end
