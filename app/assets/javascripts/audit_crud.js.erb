@@ -354,10 +354,9 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 
     		var MAX_WIDTH = maxWidth;
     		var MAX_HEIGHT = maxHeight;
-
 			var img = new Image();
 			img.src = data;
-    		
+
     		var canvas = document.createElement('canvas');
     		var width = img.width;
     		var height = img.height;
@@ -379,6 +378,49 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 
     		canvas.width = width;
     		canvas.height = height;
+
+    		console.log(width);
+    		console.log(height);
+
+    		var ctx = canvas.getContext("2d");
+    		ctx.drawImage(img, 0, 0, width, height);
+
+    		return {
+    			data: canvas.toDataURL(fileType),
+    			width: width,
+    			height: height
+    		};    		    	
+        }
+
+        var resizeImageRev2 = function(img, fileType, maxWidth, maxHeight){
+
+    		var MAX_WIDTH = maxWidth;
+    		var MAX_HEIGHT = maxHeight;
+
+    		var canvas = document.createElement('canvas');
+    		var width = img.width;
+    		var height = img.height;
+
+    		if (width > height) {
+    		  if (width > MAX_WIDTH) {
+    		    height *= MAX_WIDTH / width;
+    		    width = MAX_WIDTH;
+    		  }
+    		} else {
+    		  if (height > MAX_HEIGHT) {
+    		    width *= MAX_HEIGHT / height;
+    		    height = MAX_HEIGHT;
+    		  }
+    		}
+
+    		width = parseInt(width);
+    		height = parseInt(height);
+
+    		canvas.width = width;
+    		canvas.height = height;
+
+    		console.log(width);
+    		console.log(height);
 
     		var ctx = canvas.getContext("2d");
     		ctx.drawImage(img, 0, 0, width, height);
@@ -420,47 +462,51 @@ angular.module('audit',["ngSanitize", "ngS3upload"])
 							width: null, 
 							height: null,
 							filenameformat: s3FileNameFormat,
-							accessToken: accessToken
+							accessToken: accessToken,
+							imgElement: new Image()
 	                    };
 
-			        	var reader = new FileReader();  
-			        	reader.onload = function(et) {							
+			        	var reader = new FileReader(); 
+			        	reader.onload = function(et) {	
     						var thumbnail_imageIndex = imageIndex;
-    						var orignalResizedImage = resizeImage($scope.s3Files[thumbnail_imageIndex].type, et.target.result, 960, 640);
-    						var thumbnailImage = resizeImage($scope.s3Files[thumbnail_imageIndex].type, et.target.result, 160, 160);
+    						$scope.s3Files[thumbnail_imageIndex].imgElement.src = et.target.result;
+    						$scope.s3Files[thumbnail_imageIndex].imgElement.onload = function(){
+								var orignalResizedImage = resizeImageRev2($scope.s3Files[thumbnail_imageIndex].imgElement,$scope.s3Files[thumbnail_imageIndex].type, 960, 640);
+	    						var thumbnailImage = resizeImageRev2($scope.s3Files[thumbnail_imageIndex].imgElement,$scope.s3Files[thumbnail_imageIndex].type, 160, 160);
+				        		$scope.s3Files[thumbnail_imageIndex].computedName=
+				        			$scope.s3Files[thumbnail_imageIndex].filenameformat.replace("{dimensions}", orignalResizedImage.width + "x"+orignalResizedImage.height);
+				        		$scope.s3Files[thumbnail_imageIndex].src_data = orignalResizedImage.data;
+				        		$scope.s3Files[thumbnail_imageIndex].width = orignalResizedImage.width;
+				        		$scope.s3Files[thumbnail_imageIndex].height = orignalResizedImage.height;
 
-			        		$scope.s3Files[thumbnail_imageIndex].computedName=
-			        			$scope.s3Files[thumbnail_imageIndex].filenameformat.replace("{dimensions}", orignalResizedImage.width + "x"+orignalResizedImage.height);
-			        		$scope.s3Files[thumbnail_imageIndex].src_data = orignalResizedImage.data;
-			        		$scope.s3Files[thumbnail_imageIndex].width = orignalResizedImage.width;
-			        		$scope.s3Files[thumbnail_imageIndex].height = orignalResizedImage.height;
+				        		var dummy = orignalResizedImage.width;
+				        		dummy = orignalResizedImage.height;
 
-			        		var dummy = orignalResizedImage.width;
-			        		dummy = orignalResizedImage.height;
+				        		$scope.s3Files[thumbnail_imageIndex].thumbnail_src_data = thumbnailImage.data;
+				        		$scope.s3Files[thumbnail_imageIndex].thumbnail_filename=
+				        			$scope.s3Files[thumbnail_imageIndex].filenameformat.replace("{dimensions}", thumbnailImage.width + "x" + thumbnailImage.height);
+				        		$scope.$apply();
 
-			        		$scope.s3Files[thumbnail_imageIndex].thumbnail_src_data = thumbnailImage.data;
-			        		$scope.s3Files[thumbnail_imageIndex].thumbnail_filename=
-			        			$scope.s3Files[thumbnail_imageIndex].filenameformat.replace("{dimensions}", thumbnailImage.width + "x" + thumbnailImage.height);
-			        		$scope.$apply();
+				        		var fd = new FormData();
+				        		fd.append('key', s3ImageFolder + $scope.s3Files[thumbnail_imageIndex].computedName);
+				        		fd.append('Content-Type', $scope.s3Files[thumbnail_imageIndex].type);
+				        		fd.append('AWSAccessKeyId', accessToken.key);
+				        		fd.append('acl', "public-read");
+				        		fd.append('policy', accessToken.policy);
+				        		fd.append('signature', accessToken.signature);
 
-			        		var fd = new FormData();
-			        		fd.append('key', s3ImageFolder + $scope.s3Files[thumbnail_imageIndex].computedName);
-			        		fd.append('Content-Type', $scope.s3Files[thumbnail_imageIndex].type);
-			        		fd.append('AWSAccessKeyId', accessToken.key);
-			        		fd.append('acl', "public-read");
-			        		fd.append('policy', accessToken.policy);
-			        		fd.append('signature', accessToken.signature);
+		                    	fd.append("file", dataURLToBlob($scope.s3Files[thumbnail_imageIndex].src_data));
 
-	                    	fd.append("file", dataURLToBlob($scope.s3Files[thumbnail_imageIndex].src_data));
-
-			        		var xhr = new XMLHttpRequest();
-			        		xhr.upload.addEventListener("progress", function(e) {uploadProgress( e, thumbnail_imageIndex); }, false);
-			        		xhr.addEventListener("load", function(e) {uploadComplete( e, thumbnail_imageIndex); }, false);
-			        		//xhr.addEventListener("error", function(e) {uploadFailed( e, thumbnail_imageIndex); }, false);
-			        		xhr.open('POST', s3BucketUrl, true);
-			        		xhr.setRequestHeader( 'x-amz-storage-class', 'REDUCED_REDUNDANCY');
-			        		xhr.send(fd); 
-			        	}
+				        		var xhr = new XMLHttpRequest();
+				        		xhr.upload.addEventListener("progress", function(e) {uploadProgress( e, thumbnail_imageIndex); }, false);
+				        		xhr.addEventListener("load", function(e) {uploadComplete( e, thumbnail_imageIndex); }, false);
+				        		//xhr.addEventListener("error", function(e) {uploadFailed( e, thumbnail_imageIndex); }, false);
+				        		xhr.open('POST', s3BucketUrl, true);
+				        		xhr.setRequestHeader( 'x-amz-storage-class', 'REDUCED_REDUNDANCY');
+				        		xhr.send(fd);
+    						};
+    						 
+			        	};
 			        	reader.readAsDataURL(filesToUpload[fileLoop]);
 	                }()); 
 	            }
